@@ -19,6 +19,8 @@ addpath(genpath(toolboxPath))
 projectPath = '/Users/benvincent/git-local/delay-discounting-analysis/demo';
 cd(projectPath)
 
+% set some graphics preferences
+setPlotTheme
 
 %% Create data object
 
