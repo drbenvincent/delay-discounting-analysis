@@ -1,0 +1,37 @@
+# JAGS model for delay discounting.
+# - model of an individual participant
+# - models the magnitude effect
+
+# VARIABLES
+# lr = lapse rate
+# alpha = comparison acuity
+# m = magnitude effect slope
+# c = magnitude effect intercept
+
+# DATA
+
+
+model{
+    lr      ~ dbeta(1.1, 10.9) T(0,0.5)
+    alpha   ~ dexp(0.01)
+
+    m       ~ dnorm(0, 1/10)
+    c       ~ dnorm(0, 1/10)
+
+    for (t in 1:length(B)) {
+
+        # compute log discount rate for each reward
+        lkA[t] <- m*log(A[t])+c
+        lkB[t] <- m*log(B[t])+c
+
+        # calculate present subjective value for each reward
+        VA[t] <- A[t] / (1+(exp(lkA[t])*DA[t]))
+        VB[t] <- B[t] / (1+(exp(lkB[t])*DB[t]))
+
+        # calculate probability of choosing the delayed reward
+        P[t] <- lr + (1-2*lr) * phi( (VB[t]-VA[t]) / alpha )
+
+        # response (R=1 equals choosing the delayed reward)
+        R[t] ~ dbin(P[t],1)
+    }
+}

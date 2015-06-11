@@ -1,0 +1,6 @@
+DATA IN HERE IS OVERWRITTEN EVERY TIME DATA IS IMPORTED.
+DO NOT PUT RAW DATA IN THIS FOLDER
+
+
+When we import data from multiple participants (in data/) then the data is combined to form one large group-level dataset. This folder saves that output.
+The purpose is for inspection, to ensure no mistakes have been made.

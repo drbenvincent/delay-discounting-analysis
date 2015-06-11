@@ -1,0 +1,30 @@
+
+model{
+
+    # start with rediculously uninformative priors over group-level parameters.
+    mu_m    ~ dunif(-1000,1000)
+    sigma_m ~ dunif(0,1000)
+    mu_c    ~ dunif(-1000,1000)
+    sigma_c ~ dunif(0,1000)
+
+    # assume a single observation noise on log(k) for all studies
+    sigma   ~ dunif(0,1000)
+
+    # study-level slope and intercept parameters for the magnitude effect
+    for (s in 1:max(study)) {
+        m[s] ~ dnorm(mu_m,1/(sigma_m^2))
+        c[s] ~ dnorm(mu_c,1/(sigma_c^2))
+    }
+
+    # loop over data points
+    # note that study[n] is an indicator variable for the study which this data point belongs to
+    for (n in 1:length(study)) {
+        logk[n] ~ dnorm( m[study[n]] * logreward[n] + c[study[n]], 1/(sigma^2) )
+    }
+
+    # calculate posterior predictive distribution for the group-level magnitude effect
+    groupM ~ dnorm(mu_m,1/(sigma_m^2))
+    groupC ~ dnorm(mu_c,1/(sigma_c^2))
+    probeLogK <- groupM * probeReward + groupC
+
+}

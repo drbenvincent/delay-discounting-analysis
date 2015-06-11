@@ -1,0 +1,63 @@
+# JAGS model for delay discounting.
+# - model of multiple participants
+# - models the magnitude effect
+# - separate parameters (for each participant) for:
+#   - m
+#   - c
+#   - lapse rate
+#   - alpha
+# - no Heirarchical estimation at all
+
+model{
+
+    w <- 0.01   # mode for the beta distribution of lapse rates
+    k <- 5      # concentration param for the beta distribution of lapse rates
+
+
+    # Participant-level ------------------------------
+    # NON-HEIRACHICAL. Seperate and indendent parameter estimates for each person
+    for (p in 1:nParticipants){
+        m[p]    ~ dnorm(0, 1/100)
+        c[p]    ~ dnorm(0, 1/100)
+        alpha[p]~ dexp(0.01)
+
+        #lr[p] ~ dbeta(1.1, 10.9) T(0,0.5)
+        # reparameterise lr in terms of mode and concentration
+        lr[p] ~ dbeta( w*(k-2)+1 , (1-w)*(k-2)+1 )
+
+        # MAGNITUDE EFFECT at the participant level
+        #participantlogk[p,] <- m[p]*logBInterp+c[p]
+    }
+
+    # These priors are seperated from the data and are only included here so that we can plot the prior distributions. They are duplicated from the priors above.
+    mprior    ~ dnorm(0, 1/100)
+    cprior    ~ dnorm(0, 1/100)
+    lrprior   ~ dbeta( w*(k-2)+1 , (1-w)*(k-2)+1 )
+    alphaprior~ dexp(0.01)
+
+
+    for (p in 1:nParticipants){
+
+        # loop over the number of trials for this participant
+        for (t in 1:T[p]) {
+
+            # MAGNITUDE EFFECT
+            # what is log(k) on this trial?
+            lkA[p,t] <- m[p]*log(A[p,t])+c[p]
+            lkB[p,t] <- m[p]*log(B[p,t])+c[p]
+
+            # calculate present subjective value for each reward
+            VA[p,t] <- A[p,t] / (1+(exp(lkA[p,t])*DA[p,t]))
+            VB[p,t] <- B[p,t] / (1+(exp(lkB[p,t])*DB[p,t]))
+
+            # psychometric function
+            P[p,t] <- lr[p] + (1-2*lr[p]) * phi( (VB[p,t]-VA[p,t]) / alpha[p] )
+
+            # response
+            R[p,t] ~ dbin(P[p,t],1)
+
+            # posterior predictive
+            #Rpostpred[t] ~ dbin(P[t],1)
+        }
+    }
+}
