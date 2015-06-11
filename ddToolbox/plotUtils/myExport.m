@@ -6,11 +6,13 @@ set(gcf,'Color','w')
 %%
 intialDir = cd;
 
+mkdir('figs')
 cd('figs')
 
 if numel(saveName)==0
 	% don't save it in a folder
 else
+	mkdir(saveName)
 	cd(saveName)
 end
 
