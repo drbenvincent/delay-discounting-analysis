@@ -1,9 +1,14 @@
-# Bayesian estimation and hypothesis testing for delay discounting tasks
+# Hierarchical Bayesian estimation and hypothesis testing for delay discounting tasks
 
 
-THIS REPOSITORY CONTAINS CODE FOR A PAPER WHICH IS UNDER PEER REVIEW. FOR THE MOMENT IT IS MADE AVAILABLE JUST FOR THE REVIEWERS. PLEASE RESPECT MY INTELLECTUAL PROPERTY - THIS CODE IS UNDER LICENCE. I'LL RELEASE THE CODE PROPERLY IF THE PAPER IS ACCEPTED
+This repository contains the code for the paper:
 
-**Note: The code here is still in flux.** I will be: adding more extensive user instructions in the Wiki, cleaning and simplifying the code, and adding a few features over time.
+**Vincent, B., T. (in press) Hierarchical Bayesian estimation and hypothesis testing for delay discounting tasks, Behavior Research Methods.**
+
+Note: I am still making minor changes to the code and help files in order to make the analysis code as easy to use as possible.
+
+# Documentation and help.
+Go to the [wiki](https://github.com/drbenvincent/delay-discounting-analysis/wiki) for full instructions.
 
 # What does this do?
 
@@ -20,6 +25,6 @@ This code conducts Bayesian estimation and hypothesis testing on data obtained f
 
 
 
-# Go to the [wiki](https://github.com/drbenvincent/delay-discounting-analysis/wiki) for full instructions.
+
 
 
