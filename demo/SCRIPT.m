@@ -8,16 +8,23 @@ function SCRIPT
 
 % The ddToolbox folder contains the main analysis code. This is essential
 % for using the software on your own dataset.
-toolboxPath = '/Users/benvincent/git-local/delay-discounting-analysis/ddToolbox';
-addpath(genpath(toolboxPath)) 
-
+try
+	toolboxPath = '/Users/benvincent/git-local/delay-discounting-analysis/ddToolbox';
+	addpath(genpath(toolboxPath))
+catch
+	error('change the toolboxPath to point to the folder /ddToolbox')
+end
 % When you want to run the analysis on your own code, then you must update
 % this path to point at the appropriate folder. This must be arranged in
 % the same way as in the demo folder. In other words, we need participant
 % data files in a folder called data, and a matlab script in the root demo
 % folder (or whatever your project folder is called).
 projectPath = '/Users/benvincent/git-local/delay-discounting-analysis/demo';
-cd(projectPath)
+try
+	cd(projectPath)
+catch
+	error('change the projectPath to point to the folder /delay-discounting-analysis/demo')
+end	
 
 % set some graphics preferences
 setPlotTheme
@@ -47,8 +54,8 @@ fnames={'AC-kirby27-DAYS.txt',...
 saveName = 'methodspaper-kirby27.txt';
 
 % create the group-level data object
-kirbyData = dataClass(saveName);
-kirbyData.loadDataFiles(fnames);
+myData = dataClass(saveName);
+myData.loadDataFiles(fnames);
 
 
 %% Analyse the data with the hierarchical model
@@ -58,21 +65,21 @@ kirbyData.loadDataFiles(fnames);
 hModel = modelHierarchical(toolboxPath);
 
 % Here we should change default parameters
-hModel.setMCMCtotalSamples(500000); % default is 100,000
+hModel.setMCMCtotalSamples(5000); % default is 100,000
 
 % This will initiate MCMC sampling. This can take some time to run,
 % depending on number of samples, chains, computer speed and cores etc.
 % It's probably best to start with a low number of MCMC samples to get a
 % feel for how long the sampling takes.
-hModel.conductInference(kirbyData);
+hModel.conductInference(myData);
 
 % Plot all the results
-hModel.plot(kirbyData)
+hModel.plot(myData)
 
 %% Example research conclusions...
 
 % Calculate Bayes Factor, and plot 95% CI on the posterior
-hModel.HTgroupSlopeLessThanZero(kirbyData)
+hModel.HTgroupSlopeLessThanZero(myData)
 
 % Modal values of m_p for all participants
 % Export these point estimates into a text file and analyse with JASP

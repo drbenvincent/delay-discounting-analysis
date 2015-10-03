@@ -114,7 +114,8 @@ classdef dataClass < handle
 			
 			% save
 			st=cd;
-			cd('data/groupLevelData')
+			cd('data')
+			mkdir('groupLevelData')
 			writetable(obj.groupTable,obj.saveName,...
 				'delimiter','tab')
 			fprintf('A copy of the group-level dataset just constructed has been saves as a text file:\n%s\n',...
