@@ -278,9 +278,9 @@ classdef modelSimple < handle
 			% Plot in 3D data space
 			subplot(rows, cols, 5)
 			plot3DdataSpace(data, [modeM, modeC])
-			set(gca,'XTick',[10 100])
-			set(gca,'XTickLabel',[10 100])
-			set(gca,'XLim',[10 100])
+% 			set(gca,'XTick',[10 100])
+% 			set(gca,'XTickLabel',[10 100])
+% 			set(gca,'XLim',[10 100])
 		end
 		
 		

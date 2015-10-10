@@ -38,7 +38,7 @@ classdef modelHierarchical < modelSeperate
 			obj.range.m=prctile([obj.samples.glM(:); obj.samples.m(:)],...
 				[0.5 99.5]);
 			obj.range.c=prctile([obj.samples.glC(:); obj.samples.c(:)],...
-				[2 100]);
+				[1 99]);
 			
 			% plot univariate summary statistics for the parameters we have
 			% made inferences about

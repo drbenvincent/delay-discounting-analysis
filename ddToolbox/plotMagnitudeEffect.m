@@ -19,7 +19,7 @@ params(:,2) = samples.c(:);
 % Create myplot object (class = posteriorPredictionPlot)
 myplot = posteriorPredictionPlot(fh, x, params);
 myplot = myplot.plotCI([5 95]);
-%myplot.plotExamples(20);
+%myplot.plotExamples(100);
 myplot.plotPointEstimate(modeVals)
 
 %% Formatting
