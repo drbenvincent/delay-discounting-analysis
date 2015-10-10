@@ -9,18 +9,25 @@ function SCRIPT
 % The ddToolbox folder contains the main analysis code. This is essential
 % for using the software on your own dataset.
 try
+	% *** SET THIS TO THE PATH OF THE /ddToolbox FOLDER ***
 	toolboxPath = '/Users/benvincent/git-local/delay-discounting-analysis/ddToolbox';
+	% check that this folder exists
+	if exist(toolboxPath,'dir')~=7
+		error('change the toolboxPath to point to the folder /ddToolbox')
+	end
 	addpath(genpath(toolboxPath))
 catch
 	error('change the toolboxPath to point to the folder /ddToolbox')
 end
+
 % When you want to run the analysis on your own code, then you must update
 % this path to point at the appropriate folder. This must be arranged in
 % the same way as in the demo folder. In other words, we need participant
 % data files in a folder called data, and a matlab script in the root demo
 % folder (or whatever your project folder is called).
-projectPath = '/Users/benvincent/git-local/delay-discounting-analysis/demo';
 try
+	% *** SET THIS TO THE PATH OF THE /ddToolbox FOLDER ***
+	projectPath = '/Users/benvincent/git-local/delay-discounting-analysis/demo';
 	cd(projectPath)
 catch
 	error('change the projectPath to point to the folder /delay-discounting-analysis/demo')
@@ -57,6 +64,11 @@ saveName = 'methodspaper-kirby27.txt';
 myData = dataClass(saveName);
 myData.loadDataFiles(fnames);
 
+% It is important to visualise your participant data. It may well be that
+% some participant's have produced meaningless data, in which case you may
+% want to discard these participants at this stage. The quickAnalysis()
+% method of the dataClass provides some simple visualisation and analysis.
+myData.quickAnalysis();
 
 %% Analyse the data with the hierarchical model
 
