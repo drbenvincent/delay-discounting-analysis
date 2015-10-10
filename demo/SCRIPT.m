@@ -77,7 +77,7 @@ myData.quickAnalysis();
 hModel = modelHierarchical(toolboxPath);
 
 % Here we should change default parameters
-hModel.setMCMCtotalSamples(5000); % default is 100,000
+hModel.setMCMCtotalSamples(5000); % default is 10^5
 
 % This will initiate MCMC sampling. This can take some time to run,
 % depending on number of samples, chains, computer speed and cores etc.
