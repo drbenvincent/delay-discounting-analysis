@@ -177,34 +177,51 @@ classdef dataClass < handle
 		
 		function quickAnalysis(obj)
 			
+			% *********
+			% NOTE TO SELF: This function needs to be improved. I need to
+			% plug in plotting functions for:
+			% - discount function plots when all DA==0
+			% - discount surface plots when not all DA==0
+			% 
+			% MAYBE: rather than this quick & dirty analysis, I could run
+			% a participant-level model to get initial parameter estimates
+			% for each participant?
+			% *********
+			
 			% Here we are going to look over participants
 			% - create an overview plot of all participants
 			% - create participant level plots of data etc
-			figure(1), clf
-			figure(2), clf
-			cols = 4;
-			rows = obj.nParticipants / cols;
-			%z=ceil(sqrt(obj.nParticipants));
+			%figure(1), clf
+			%figure(2), clf
+			%cols = 4;
+			%rows = obj.nParticipants / cols;
+			%%z=ceil(sqrt(obj.nParticipants));
 			
 			for n=1:obj.nParticipants
 				% COMPUTE
 				datap = getParticipantData(obj, n);
 				[logk, kvec, err] = quickAndDirtyEstimateOfLogK(datap);
 				
-				% ADD TO OVERVIEW PLOT
-				figure(1)
-				subplot(cols,rows,n)
-				semilogx(kvec, err)
-				axis tight
-				ylim([0 obj.participantLevel(n).trialsForThisParticant])
-				vline(exp(logk));
-				title(['particpant ' num2str(n)])
-				set(gca,'XTick',logspace(-5,2,8))
+% 				% ADD TO OVERVIEW PLOT
+% 				figure(2)
+% 				subplot(cols,rows,n)
+% 				semilogx(kvec, err)
+% 				axis tight
+% 				ylim([0 obj.participantLevel(n).trialsForThisParticant])
+% 				vline(exp(logk));
+% 				title(['particpant ' num2str(n)])
+% 				set(gca,'XTick',logspace(-5,2,8))
 				
 				% PARTICIPANT PLOT
-				figure(2), clf
+				
+				figure(1), clf
+				% plot raw data --------------------
 				subplot(1,2,1)
-				plotRawDataNOMAG(datap), axis square
+				%plotRawDataNOMAG(datap), axis square
+				modeVals=[];
+				plot3DdataSpace(datap, modeVals)
+				
+				% plot quick & dirty analysis --------------------
 				subplot(1,2,2)
 				semilogx(kvec, err)
 				axis tight
@@ -213,18 +230,18 @@ classdef dataClass < handle
 				title(['particpant ' num2str(n)])
 				axis square
 				% EXPORTING ---------------------
-				figure(2)
+				figure(1)
 				latex_fig(16, 8, 6)
 				myExport(obj.saveName, 'dataSummary-', ['participant' num2str(n)])
 				% -------------------------------
 			
 			end
 			
-			% EXPORTING ---------------------
-			figure(1)
-			latex_fig(16, 8, 6)
-			myExport(obj.saveName, 'dataSummary-', [])
-			% -------------------------------
+% 			% EXPORTING ---------------------
+% 			figure(2)
+% 			latex_fig(16, 8, 6)
+% 			myExport(obj.saveName, 'dataSummary-', [])
+% 			% -------------------------------
 
 		end
 		

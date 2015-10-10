@@ -4,11 +4,13 @@ opts.maxlogB	= max( data.B );
 opts.maxD		= max( data.DB );
 %% PLOT DISCOUNT SURFACE ---------------------
 %m=-1; c=10^-1;
-m=modeVals(1);
-c=modeVals(2);
-[logB,D,AB] = calculateDiscountSurface(m, c, opts);
+if numel(modeVals)>0
+	m=modeVals(1);
+	c=modeVals(2);
+	[logB,D,AB] = calculateDiscountSurface(m, c, opts);
+	hold on
+end
 % -------------------------------------------
-hold on
 
 %% Plot data
 imm = data.R==0;
@@ -34,12 +36,15 @@ set(gca,'XScale','log')
 
 
 
-% xlabel('B')
-% ylabel('D')
-% zlabel('A/B ratio')
-% axis vis3d
-% zlim([0 1])
+xlabel('B')
+ylabel('D')
+zlabel('A/B ratio')
+axis vis3d
+zlim([0 1])
 % view([-135 34])
 % set(gca,'XDir','reverse')
-% set(gca,'YDir','reverse')
+set(gca,'YDir','reverse')
+
+ beep
+
 return
