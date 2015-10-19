@@ -196,7 +196,7 @@ classdef dataClass < handle
 			for n=1:obj.nParticipants
 				% COMPUTE
 				datap = getParticipantData(obj, n);
-				[logk, kvec, err] = quickAndDirtyEstimateOfLogK(datap);
+				[logk, kvec, prop_explained] = quickAndDirtyEstimateOfLogK(datap);
 				
 % 				% ADD TO OVERVIEW PLOT
 % 				figure(2)
@@ -219,13 +219,13 @@ classdef dataClass < handle
 				
 				% plot quick & dirty analysis --------------------
 				subplot(1,2,2)
-				semilogx(kvec, err)
+				semilogx(kvec, prop_explained)
 				axis tight
-				ylim([0 obj.participantLevel(n).trialsForThisParticant])
+				ylim([0 1])
 				vline(exp(logk));
 				title(['particpant ' num2str(n)])
 				xlabel('discount rate (k)')
-				ylabel({'no. of responses inconsistent with';'1-param hyperbolic discount function'})
+				ylabel({'proportion of responses consistent with';'1-param hyperbolic discount function'})
 				axis square
 				% EXPORTING ---------------------
 				figure(1)

@@ -1,4 +1,4 @@
-function [logk, kvec, err] = quickAndDirtyEstimateOfLogK(data)
+function [logk, kvec, prop_explained] = quickAndDirtyEstimateOfLogK(data)
 % Given the response data for this participant, do a very quick and dirty
 % estimate of the likely log discount rate (logk). This is used as initial
 % parameters for the MCMC process.
@@ -33,6 +33,9 @@ chooseDelayed = bsxfun(@minus, presentSubjectiveValue, data.A) >1;
 err = bsxfun(@minus, data.R, chooseDelayed);
 err = sum(abs(err));
 
+% calc proportion of responses explained
+prop_explained = (data.trialsForThisParticant - err) / data.trialsForThisParticant;
+
 
 %% Find the log(k) value with lowest error
 % [~, index] = min(fliplr(err)); 
@@ -40,7 +43,7 @@ err = sum(abs(err));
 % logk = log(k);
 
 
-[~, index] = min(err); 
+[~, index] = max(prop_explained); 
 k_optimal = kvec(index);
 logk = log(k_optimal);
 
