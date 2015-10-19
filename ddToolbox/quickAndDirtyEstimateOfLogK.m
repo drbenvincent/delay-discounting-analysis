@@ -3,17 +3,13 @@ function [logk, kvec, err] = quickAndDirtyEstimateOfLogK(data)
 % estimate of the likely log discount rate (logk). This is used as initial
 % parameters for the MCMC process.
 
-% This is the discount function ---------------------------------------
-% NOTE: This functions wants the discount rate (k), NOT the log discount
-% rate.
-%V = @(d,k,b) b ./ (1+bsxfun(@times,k,d));
-
+%% 1-parameter hyperbolic discount function --------------------------------
+% v = b ./ (1+(k*d)
+% NOTE: This functions wants the discount rate (k), NOT the log(k)
 V = @(d,k,b) bsxfun(@rdivide, b, 1+bsxfun(@times,k,d) );
 
-% -------------------------------------------------------------------------
-
-kvec=logspace(-8,2,1000);
-
+%% vector of discount rates (k) to examine ---------------------------------
+kvec = logspace(-8,2,1000);
 
 %% Version 1 
 % tic
@@ -38,16 +34,14 @@ err = bsxfun(@minus, data.R, chooseDelayed);
 err = sum(abs(err));
 
 
-%%
-
-%[a b]=min((err)); k = kvec(b);
-[a b]=min(fliplr(err)); k = kvec(numel(kvec)-b);
-
-% semilogx(kvec, err)
-% vline(k);
+%% Find the log(k) value with lowest error
+% [~, index] = min(fliplr(err)); 
+% k = kvec(numel(kvec)-index);
+% logk = log(k);
 
 
-logk=log(k);
-
+[~, index] = min(err); 
+k_optimal = kvec(index);
+logk = log(k_optimal);
 
 return

@@ -182,10 +182,6 @@ classdef dataClass < handle
 			% plug in plotting functions for:
 			% - discount function plots when all DA==0
 			% - discount surface plots when not all DA==0
-			% 
-			% MAYBE: rather than this quick & dirty analysis, I could run
-			% a participant-level model to get initial parameter estimates
-			% for each participant?
 			% *********
 			
 			% Here we are going to look over participants
@@ -214,7 +210,7 @@ classdef dataClass < handle
 				
 				% PARTICIPANT PLOT
 				
-				figure(1), clf
+				figure(1), clf, drawnow
 				% plot raw data --------------------
 				subplot(1,2,1)
 				%plotRawDataNOMAG(datap), axis square
@@ -228,6 +224,8 @@ classdef dataClass < handle
 				ylim([0 obj.participantLevel(n).trialsForThisParticant])
 				vline(exp(logk));
 				title(['particpant ' num2str(n)])
+				xlabel('discount rate (k)')
+				ylabel({'no. of responses inconsistent with';'1-param hyperbolic discount function'})
 				axis square
 				% EXPORTING ---------------------
 				figure(1)
