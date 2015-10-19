@@ -20,7 +20,7 @@ model{
 
 
 
-    # DOUBLE THE STANDARD DEVIATION FROM THE EMPIRICAL ESTIMATES
+    # INCREASED STANDARD DEVIATION FROM THE EMPIRICAL ESTIMATES
     # slope (uninformative, see Appendix A)
     glM             ~ dnorm(groupMmu, 1/(groupMsigma^2))
     groupMmu        ~ dnorm(-0.243, 1/( (0.027*10)^2))
