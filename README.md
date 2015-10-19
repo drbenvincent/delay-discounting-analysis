@@ -7,7 +7,7 @@ This repository contains the code for the paper:
 
 Note: I am still making minor changes to the code and help files in order to make the analysis code as easy to use as possible.
 
-# Documentation and help.
+# [Documentation](https://github.com/drbenvincent/delay-discounting-analysis/wiki) and help.
 Go to the [wiki](https://github.com/drbenvincent/delay-discounting-analysis/wiki) for full instructions.
 
 # What does this do?
