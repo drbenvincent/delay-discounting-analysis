@@ -1,0 +1,3 @@
+UML diagram automatically created using
+
+http://www.mathworks.com/matlabcentral/fileexchange/44742-umlgui
