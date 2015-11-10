@@ -3,9 +3,9 @@
 
 This repository contains the code for the paper:
 
-**Vincent, B., T. (in press) Hierarchical Bayesian estimation and hypothesis testing for delay discounting tasks, Behavior Research Methods.**
+**Vincent, B., T. (in press) [Hierarchical Bayesian estimation and hypothesis testing for delay discounting tasks](http://link.springer.com/article/10.3758%2Fs13428-015-0672-2), Behavior Research Methods.**
 
-Note: I am still making minor changes to the code and help files in order to make the analysis code as easy to use as possible.
+Please use the GitHub Issues feature to ask question, report a bug, or request a feature. You'll need a GitHub account to do this, which isn't very hard to set up. But you could always email me instead.
 
 # [Documentation](https://github.com/drbenvincent/delay-discounting-analysis/wiki) and help.
 Go to the [wiki](https://github.com/drbenvincent/delay-discounting-analysis/wiki) for full instructions.
