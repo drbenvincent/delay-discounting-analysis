@@ -78,12 +78,17 @@ hModel = modelHierarchical(toolboxPath);
 
 % Here we should change default parameters
 hModel.setMCMCtotalSamples(5000); % default is 10^5
+% If you have more than 2 cores on your machine you can uncomment this next
+% line
+%hModel.setMCMCnumberOfChains(4);
 
 % This will initiate MCMC sampling. This can take some time to run,
 % depending on number of samples, chains, computer speed and cores etc.
 % It's probably best to start with a low number of MCMC samples to get a
 % feel for how long the sampling takes.
 hModel.conductInference(myData);
+
+% ** TO DO: Export text file of group and parameter level inferences **
 
 % Plot all the results
 hModel.plot(myData)
@@ -93,9 +98,24 @@ hModel.plot(myData)
 % Calculate Bayes Factor, and plot 95% CI on the posterior
 hModel.HTgroupSlopeLessThanZero(myData)
 
+% Summary information of the group and participant level infererences are
+% stored in a structure in the model object, eg:
+%  hModel.analyses.univariate
+% So if you wanted to find the group level posterior mode for the slope of
+% the magnitude effect, you can type:
+%	hModel.analyses.univariate.glM
+%	hModel.analyses.univariate.glM.CI95
+% and if you wanted estimates for each participant, for example the slope
+% of the magnitude effect, then you can type:
+%	hModel.analyses.univariate.m.mode'
+
 % Modal values of m_p for all participants
 % Export these point estimates into a text file and analyse with JASP
-hModel.analyses.univariate.m.mode'
+%	hModel.analyses.univariate.m.mode'
+%	hModel.analyses.univariate.m.CI95'
 
-
+% This information can be more neatly arranged by putting into a Matlab
+% table, for example
+participant_level_m = array2table([hModel.analyses.univariate.m.mode' hModel.analyses.univariate.m.CI95'],...
+	'VariableNames',{'posteriorMode' 'CI5' 'CI95'});
 return
