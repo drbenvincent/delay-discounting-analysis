@@ -117,5 +117,26 @@ hModel.HTgroupSlopeLessThanZero(myData)
 % This information can be more neatly arranged by putting into a Matlab
 % table, for example
 participant_level_m = array2table([hModel.analyses.univariate.m.mode' hModel.analyses.univariate.m.CI95'],...
-	'VariableNames',{'posteriorMode' 'CI5' 'CI95'});
+	'VariableNames',{'posteriorMode' 'CI5' 'CI95'})
+
+
+%% Discount rate for a particular reward magnitude
+% You may be interested in the discount rate (at the group and participant
+% levels) at a particular reward magnitude. The method
+% conditionalDiscountRatePlots() plots participant and group level
+% conditional posterior (predictive) distributions. That is...
+% The posterior distribution of discount rate (log(k)) for a given reward
+% magnitude.
+
+% Below we calculate and plot the discount rates for reward magnitudes of
+% £100 and £1,000
+
+figure(1), clf
+plotFlag=true;
+ax(1) = subplot(1,2,1);
+hModel.conditionalDiscountRates(100, plotFlag);
+ax(2) = subplot(1,2,2);
+hModel.conditionalDiscountRates(1000, plotFlag);
+linkaxes(ax,'xy')
+
 return

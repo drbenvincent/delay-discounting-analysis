@@ -146,10 +146,10 @@ classdef modelHierarchical < modelSeperate
 			binsize = 0.05;
 			
 			edges = [-5:binsize:0];
-% 			% First plot
-% 			histogram(priorSamples, edges, 'Normalization','pdf', 'DisplayStyle','stairs')
-% 			hold on
-% 			histogram(posteriorSamples, edges, 'Normalization','pdf', 'DisplayStyle','stairs')
+			% 			% First plot
+			% 			histogram(priorSamples, edges, 'Normalization','pdf', 'DisplayStyle','stairs')
+			% 			hold on
+			% 			histogram(posteriorSamples, edges, 'Normalization','pdf', 'DisplayStyle','stairs')
 			% Grab the actual density
 			[Nprior,~] = histcounts(priorSamples, edges, 'Normalization','pdf');
 			[Npost,~] = histcounts(posteriorSamples, edges, 'Normalization','pdf');
@@ -220,20 +220,73 @@ classdef modelHierarchical < modelSeperate
 			
 			showHDI(posteriorSamples)
 			
-% 			opts.PlotBoxAspectRatio=[1 1 1];
-% 			opts.plotStyle = 'line';
-% 			opts.priorSamples = priorSamples;
-% 			opts.nbins = 1000;
-% 			subplot(1,2,2)
-% 			plotMCMCdist(posteriorSamples, opts);
-% 			title('b.')
-% 			xlabel('G^m')
-% 			xlim([-1.5 1])
+			% 			opts.PlotBoxAspectRatio=[1 1 1];
+			% 			opts.plotStyle = 'line';
+			% 			opts.priorSamples = priorSamples;
+			% 			opts.nbins = 1000;
+			% 			subplot(1,2,2)
+			% 			plotMCMCdist(posteriorSamples, opts);
+			% 			title('b.')
+			% 			xlabel('G^m')
+			% 			xlim([-1.5 1])
 			
 			%%
 			myExport(data.saveName, [], '-BayesFactorMLT1')
 		end
 		
+		
+		
+		function conditionalDiscountRates(obj, reward, plotFlag)
+			% For group level and all participants...
+			% Extract and plot P( log(k) | reward)
+			
+			count=1;
+			
+			%% Participant level
+			nParticipants = size(obj.samples.m,3);
+			for p = 1:nParticipants
+				samples.m = vec(obj.samples.m(:,:,p));
+				samples.c = vec(obj.samples.c(:,:,p));
+				params(:,1) = samples.m(:);
+				params(:,2) = samples.c(:);
+				% ==============================================
+				[posteriorMode(count) , lh(count)] =...
+					obj.calculateLogK_ConditionOnReward(reward, params, plotFlag);
+				lh(count).DisplayName=sprintf('participant %d', p);
+				row(count) = {sprintf('participant %d', p)};
+				%title(['Participant: ' num2str(p)])
+				% ==============================================
+				count=count+1;
+			end
+			
+			%% Group level
+			samples.m = obj.samples.glM(:);
+			samples.c = obj.samples.glC(:);
+			params(:,1) = samples.m(:);
+			params(:,2) = samples.c(:);
+			% ==============================================
+			[posteriorMode(count) , lh(count)] = obj.calculateLogK_ConditionOnReward(reward, params, plotFlag);
+			lh(count).LineWidth = 3;
+			lh(end).Color= 'k';
+			lh(count).DisplayName = 'Group level';
+			row(count) = {sprintf('Group level')};
+			% ==============================================
+			
+			logkCondition = array2table([posteriorMode'],...
+				'VariableNames',{'logK_posteriorMode'},...)
+				'RowNames', row )
+			
+			if plotFlag
+				% FORMATTING OF FIGURE
+				removeYaxis
+				title(sprintf('$P(\\log(k)|$reward=$\\pounds$%d$)$', reward),'Interpreter','latex')
+				xlabel('$\log(k)$','Interpreter','latex')
+				axis square
+				% If you want the legend, then uncomment the next line
+				%legend(lh.DisplayName)
+			end
+			
+		end
 		
 		
 	end
@@ -467,9 +520,44 @@ classdef modelHierarchical < modelSeperate
 			% bivariate summary stats
 		end
 		
-		
-		
-		
+	end
+	
+	
+	methods (Static)
+		function [posteriorMode,lh] = calculateLogK_ConditionOnReward(reward, params, plotFlag)
+			lh=[];
+			% -----------------------------------------------------------
+			% log(k) = m * log(B) + c
+			% k = exp( m * log(B) + c )
+			%fh = @(x,params) exp( params(:,1) * log(x) + params(:,2));
+			% a FAST vectorised version of above ------------------------
+			fh = @(x,params) exp( bsxfun(@plus, ...
+				bsxfun(@times,params(:,1),log(x)),...
+				params(:,2)));
+			% -----------------------------------------------------------
+			
+			myplot = posteriorPredictionPlot(fh, reward, params);
+			myplot = myplot.evaluateFunction([]);
+			
+			% Extract samples of P(k|reward)
+			kSamples = myplot.Y;
+			logKsamples = log(kSamples);
+			
+			% Calculate kernel density estimate
+			[f,xi] = ksdensity(logKsamples, 'function', 'pdf');
+			
+			% Calculate posterior mode
+			[~, index] = max(f);
+			posteriorMode = xi(index);
+			
+			if plotFlag
+				figure(1)
+				lh = plot(xi,f);
+				hold on
+				drawnow
+			end
+			
+		end
 	end
 	
 end
