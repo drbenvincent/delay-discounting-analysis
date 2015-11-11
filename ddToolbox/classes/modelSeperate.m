@@ -16,8 +16,6 @@ classdef modelSeperate < modelSimple
 			
 			% Overwrite
 			obj.JAGSmodel = [toolboxPath '/jagsModels/seperateME.txt'];
-			%obj.STANmodel = [toolboxPath '/jagsModels/seperateME.stan'];
-			obj.STANmodel = [toolboxPath '/jagsModels/seperateMEvectorised.stan'];
 			
 			obj.modelType = 'mSeparate';
 			obj = obj.setMCMCparams();
@@ -179,29 +177,6 @@ classdef modelSeperate < modelSimple
 				% close the figure to keep everything tidy
 				close(fh)
 			end
-		end
-		
-		function obj = processSTANoutput(obj, fit)
-			% grabs all fields
-			%samples = fit.extract('permuted',true);
-			% grab just what we want
-			samples.lr = fit.extract('permuted',true).lr;
-			samples.alpha = fit.extract('permuted',true).alpha;
-			samples.m = fit.extract('permuted',true).m;
-			samples.c = fit.extract('permuted',true).c;
-			
-			% form into correct shape
-			nSamples = obj.mcmcparams.nsamples;
-			nChains = obj.mcmcparams.nchains;
-			obj.samples.lr = reshape(obj.samples.lr,[nChains,nSamples,15]);
-			obj.samples.m = reshape(obj.samples.m, [nChains,nSamples,15]);
-			obj.samples.c = reshape(obj.samples.c, [nChains,nSamples,15]);
-			obj.samples.alpha = reshape(obj.samples.alpha, [2,nSamples,15]);
-			
-			% save just samples
-			obj.samples = samples;
-			% quick plot
-			obj.samplePlots();
 		end
 		
 		

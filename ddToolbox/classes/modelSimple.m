@@ -6,16 +6,13 @@ classdef modelSimple < handle
 % 		% these properties can only be set by the constructor
 % 		modelType	% string
 % 		JAGSmodel	% string
-% 		STANmodel	% string
 % 	end
 	
 	properties (Access = protected)
 		modelType	% string
 		JAGSmodel	% string
-		STANmodel	% string
 		
-		stanFit		% empty stanFit object
-		sampler		% string {'JAGS'|'STAN'}
+		sampler		% string {'JAGS'}
 		
 		range		% struct
 
@@ -36,15 +33,10 @@ classdef modelSimple < handle
 		% CONSTRUCTOR =====================================================
 		function obj=modelSimple(toolboxPath)
 			obj.JAGSmodel = [toolboxPath '/jagsModels/simpleME.txt'];
-			%obj.STANmodel = [toolboxPath '/jagsModels/simpleME.stan'];
-			obj.STANmodel = [toolboxPath '/jagsModels/simpleMEvectorised.stan'];
 			obj.modelType = 'mSimple';
 			obj = obj.setSampler('JAGS');
-			obj.stanFit = [];
 			
 			obj = obj.setMCMCparams();
-			
-			%methods(obj, '-full')
 		end
 		% =================================================================
 		
@@ -59,9 +51,8 @@ classdef modelSimple < handle
 					obj = obj.invokeJAGS();
 					%obj = obj.calculateTransformedValues();
 					
-				case{'STAN'}
-					fit = obj.invokeSTAN(data.observedData);
-					obj = obj.processSTANoutput(fit);
+				otherwise
+					error('sampler should be JAGS')
 			end
 			
 			obj = doAnalysis(obj);
@@ -100,8 +91,6 @@ classdef modelSimple < handle
 			switch sampler
 				case{'JAGS'}
 					obj.sampler	  = 'JAGS';
-				case{'STAN'}
-					obj.sampler	  = 'STAN';
 				otherwise
 					error('wrong')
 			end
@@ -183,70 +172,6 @@ classdef modelSimple < handle
 				'dic',0);
 		end
 		
-		function fit = invokeSTAN(obj, data)
-			% here 'data' is a structure of just observed data
-			
-			% stan needs additional data, number of observations
-			data.N = numel(data.R);
-			data.nParticipants = max(data.ID);
-			
-			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			% 			fit = stan('file',obj.STANmodel,...
-			% 				'data',data,...
-			% 				'warmup',5000,...
-			% 				'iter',obj.mcmcparams.nsamples,...
-			% 				'chains', obj.mcmcparams.nchains);
-			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			% 			% Compile the model
-			% 			fit = stan('file',obj.STANmodel,...
-			% 				'data',data);
-			% 			print(fit);
-			% 			% Passing in StanFit object skips recompilation
-			% 			fit = stan('fit',fit,...
-			% 				'warmup',5000,...
-			% 				'iter',obj.mcmcparams.nsamples,...
-			% 				'chains', obj.mcmcparams.nchains);
-			% 			print(fit);
-			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			sm = StanModel('file',obj.STANmodel);
-			display('Compiling STAN model')
-			sm.compile();
-			% ??? GUESS HOW LONG THIS TAKES ???
-			pause(10)
-			% will just sample, not recompile
-			fprintf('\nRunning STAN (%d chains, %d samples each)\n',...
-				obj.mcmcparams.nchains,...
-				obj.mcmcparams.nsamples);
-			fit = sm.sampling('data',data,...
-				'warmup',1000,...
-				'iter',obj.mcmcparams.nsamples,...
-				'chains', obj.mcmcparams.nchains,...
-				'verbose',true);
-			pause
-			print(fit);
-			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		end
-		
-		function obj = processSTANoutput(obj, fit)
-			% grabs all fields
-			%samples = fit.extract('permuted',true);
-			% grab just what we want
-			samples.lr = fit.extract('permuted',true).lr;
-			samples.alpha = fit.extract('permuted',true).alpha;
-			samples.m = fit.extract('permuted',true).m;
-			samples.c = fit.extract('permuted',true).c;
-			
-			% 			% form into correct shape
-			% 			obj.samples.lr = reshape(obj.samples.lr, [2,5000,15]);
-			% 			obj.samples.m = reshape(obj.samples.m, [2,5000,15]);
-			% 			obj.samples.c = reshape(obj.samples.c, [2,5000,15]);
-			% 			obj.samples.alpha = reshape(obj.samples.alpha, [2,5000,15]);
-			
-			% save just samples
-			obj.samples = samples;
-			% quick plot
-			obj.samplePlots();
-		end
 		
 		function figParticipant(obj, samples, data)
 			rows=1; cols=5;
