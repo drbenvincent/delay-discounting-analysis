@@ -88,7 +88,9 @@ hModel.setMCMCtotalSamples(5000); % default is 10^5
 % feel for how long the sampling takes.
 hModel.conductInference(myData);
 
-% ** TO DO: Export text file of group and parameter level inferences **
+% Export posterior mode (and credible intervals) of all parameter and group
+% level parameters to a text file
+hModel.exportParameterEstimates(myData);
 
 % Plot all the results
 hModel.plot(myData)
