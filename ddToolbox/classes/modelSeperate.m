@@ -38,7 +38,15 @@ classdef modelSeperate < modelSimple
 			obj.range.m=prctile(obj.samples.m(:),[1 99]);
 			obj.range.c=prctile(obj.samples.c(:),[1 99]);
 			
+			
+			% plot univariate summary statistics for the parameters we have
+			% made inferences about
+			figGroupedForestPlotSeparate(obj.analyses.univariate)
 			%stackedForestPlot(obj.analyses.univariate)
+			% EXPORTING ---------------------
+			latex_fig(16, 5, 5)
+			myExport(data.saveName, obj.modelType, '-UnivariateSummary')
+			% -------------------------------
 			
 			obj.figParticipantLevelWRAPPER(data)
 			
