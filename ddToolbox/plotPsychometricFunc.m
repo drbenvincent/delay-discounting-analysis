@@ -12,7 +12,8 @@ fh = @(x,params) bsxfun(@plus,...
 	normcdf( bsxfun(@rdivide, x, params(:,2) ) , 0, 1)) );
 % -------------------------------------------------------------------------
 
-x=linspace(-20,20,200);
+% Determine the x range to plot over
+x=linspace(-200,200,200);
 
 params(:,1) = samples.epsilon(:);
 params(:,2) = samples.alpha(:);
