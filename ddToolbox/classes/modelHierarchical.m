@@ -533,10 +533,10 @@ classdef modelHierarchical < modelSeperate
 				% Values for which there are just one of
 				%obj.initial_param(n).groupW = rand/10; % group mean lapse rate
 				
-				obj.initial_param(n).groupMmu = normrnd(-1,1);
-				obj.initial_param(n).groupCmu = normrnd(0,1);
+				obj.initial_param(n).groupMmu = normrnd(-0.243,1);
+				obj.initial_param(n).groupCmu = normrnd(0,2);
 				
-				obj.initial_param(n).mprior = normrnd(-1,2);
+				obj.initial_param(n).mprior = normrnd(-0.243,2);
 				obj.initial_param(n).cprior = normrnd(0,2);
 				
 				% One value for each participant
@@ -544,8 +544,8 @@ classdef modelHierarchical < modelSeperate
 					obj.initial_param(n).alpha(p)	= abs(normrnd(0.01,0.001));
 					obj.initial_param(n).lr(p)		= rand/10;
 					
-					obj.initial_param(n).m(p) = normrnd(-1,2);
-					obj.initial_param(n).c(p) = normrnd(0,2);
+					obj.initial_param(n).m(p) = normrnd(-0.243,1);
+					obj.initial_param(n).c(p) = normrnd(0,4);
 				end
 			end
 		end
