@@ -26,8 +26,8 @@ set(gca,'YDir','reverse')
 axis vis3d
 axis tight
 axis square
-xlabel('|reward|', 'interpreter','latex')
-ylabel('D', 'interpreter','latex')
+xlabel('$|reward|$', 'interpreter','latex')
+ylabel('$D$', 'interpreter','latex')
 zlabel('discount factor', 'interpreter','latex')
 zlim([0 1])
 

@@ -1,6 +1,6 @@
 function plot3DdataSpace(data, modeVals)
 
-opts.maxlogB	= max( data.B ); 
+opts.maxlogB	= max( abs(data.B) ); 
 opts.maxD		= max( data.DB );
 %% PLOT DISCOUNT SURFACE ---------------------
 %m=-1; c=10^-1;
@@ -43,9 +43,9 @@ for i=1:max(ic)
 	hold on
 end
 	
-xlabel('|B|')
-ylabel('D^B')
-zlabel('|A|/|B|')
+xlabel('$|B|$', 'interpreter','Latex')
+ylabel('$D^B$', 'interpreter','Latex')
+zlabel('$|A|/|B|$', 'interpreter','Latex')
 
 zlim([0 1])
 % set x axis (B) to log scale

@@ -18,8 +18,8 @@ model{
     groupCsigma     ~ dunif(0, 10000) 
     
     # comparison acuity (alpha)
-    groupALPHAmu        ~ dunif(0,10000)
-    groupALPHAsigma     ~ dunif(0,10000)
+    groupALPHAmu        ~ dunif(0,1000)
+    groupALPHAsigma     ~ dunif(0,1000)
 
     # error rates (epsilon)
     groupW          ~ dbeta(1.1, 10.9)  # mode for lapse rate

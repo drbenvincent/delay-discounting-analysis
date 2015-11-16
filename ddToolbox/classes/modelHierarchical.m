@@ -401,9 +401,9 @@ classdef modelHierarchical < modelSeperate
 			opts.maxD		= max(data.observedData.DB(:));
 			% PLOT A POINT-ESTIMATE DISCOUNT SURFACE
 			calculateDiscountSurface(GROUPmodeM, GROUPmodeC, opts);
-			set(gca,'XTick',[10 100])
-			set(gca,'XTickLabel',[10 100])
-			set(gca,'XLim',[10 100])
+			%set(gca,'XTick',[10 100])
+			%set(gca,'XTickLabel',[10 100])
+			%set(gca,'XLim',[10 100])
 			% PLOT A DISCOUNT SURFACE WITH UNCERTAINTY
 			% calculateDiscountSurfaceUNCERTAINTY(obj.samples.glM(:), obj.samples.glC(:), opts)
 			
