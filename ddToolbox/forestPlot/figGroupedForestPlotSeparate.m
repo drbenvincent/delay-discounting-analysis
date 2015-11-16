@@ -46,7 +46,7 @@ for g=1:GROUPS
 	modeVals(:,g) = [uni(g).c.mode];
 	CI95(:,:,g) = [uni(g).c.CI95];
 end
-xlabels{1} = 'G^c';
+%xlabels{1} = 'G^c';
 plotGroupedForestPlot(xlabels, modeVals, CI95, '$c$')
 xlim([0.5 N+0.5])
 
@@ -58,7 +58,7 @@ for g=1:GROUPS
 	modeVals(:,g) = [uni(g).epsilon.mode];
 	CI95(:,:,g) = [uni(g).epsilon.CI95];
 end
-xlabels{1} = 'G^\epsilon';
+%xlabels{1} = 'G^\epsilon';
 %plotGroupedForestPlot(xlabels, modeVals, CI95, '$\epsilon$') % plot as rate
 plotGroupedForestPlot(xlabels, modeVals*100, CI95*100, '$\epsilon (\%)$') % plot as %
 xlim([0.5 N+0.5])
@@ -74,7 +74,7 @@ end
 % modeVals = [uniH.sigma.mode ; uniS.sigma.mode];
 % CI95(:,:,1) = uniH.sigma.CI95;
 % CI95(:,:,2) = uniS.sigma.CI95;
-xlabels{1} = 'G^\alpha';
+%xlabels{1} = 'G^\alpha';
 plotGroupedForestPlot(xlabels, modeVals, CI95, '$\alpha$')
 xlim([0.5 N+0.5])
 a=axis; ylim([0 a(4)])
