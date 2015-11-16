@@ -37,7 +37,7 @@ end
 
 set(gca,'xTick',[1:N],...
 	'xTickLabel',xLabels)
-
+set(gca,'TickDir','out')
 axis tight
 set(gca,'XLim',[0 N+1])
 
