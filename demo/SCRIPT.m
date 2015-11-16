@@ -61,7 +61,8 @@ fnames={'AC-kirby27-DAYS.txt',...
 saveName = 'methodspaper-kirby27.txt';
 
 % create the group-level data object
-myData = dataClass(saveName);
+pathToData='data';
+myData = dataClass(saveName,pathToData);
 myData.loadDataFiles(fnames);
 
 % It is important to visualise your participant data. It may well be that

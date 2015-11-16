@@ -5,7 +5,7 @@ classdef dataClass < handle
 	
 	properties (GetAccess = public, SetAccess = private)
 		participantFilenames
-		
+		dataFolder
 		nParticipants
 		totalTrials
 		
@@ -24,14 +24,14 @@ classdef dataClass < handle
 	methods (Access = public)
 
 		% =================================================================
-		function obj=dataClass(saveName)
+		function obj=dataClass(saveName, dataFolder)
 			% create empty tables
 			obj.groupTable = table();
 			obj.participantLevel(1).table = table();
-			
+			% where the data is
+			obj.dataFolder = dataFolder;
 			% by default assume we do not have any covariate data
 			obj.covariateSupplied = false;
-
 			% create a savename
 			[PATHSTR,NAME,EXT] = fileparts(saveName);
 			obj.saveName = NAME;
@@ -50,7 +50,7 @@ classdef dataClass < handle
 				% Load tab separated .txt file with rows labelled: A, B, D, R. This
 				% will load the data into T, which is a 'table' data type, see:
 				% http://uk.mathworks.com/help/matlab/tables.html
-				rawData = readtable(fullfile('data',fname), 'delimiter','tab');
+				rawData = readtable(fullfile(obj.dataFolder,fname), 'delimiter','tab');
 				
 				% add a new column defining the participant ID
 				ID = ones( height(rawData), 1) * n;
@@ -114,7 +114,7 @@ classdef dataClass < handle
 			
 			% save
 			st=cd;
-			cd('data')
+			cd(obj.dataFolder)
 			mkdir('groupLevelData'), cd('groupLevelData')
 			writetable(obj.groupTable,obj.saveName,...
 				'delimiter','tab')
