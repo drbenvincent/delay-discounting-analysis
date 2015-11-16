@@ -4,36 +4,35 @@
 # - separate parameters (for each participant) for:
 #   - m
 #   - c
-#   - lapse rate
+#   - epsilon (lapse rate)
 #   - alpha
 # - no Heirarchical estimation at all
 
 model{
 
+	# WARNING  ************************************************************
+	# These priors have been guesstimated based on what is reasonable. But 
+	# if you are using this participant-level only analysis then you will 
+	# want to think about what appropriate priors are.
+
     w <- 0.01   # mode for the beta distribution of lapse rates
     k <- 5      # concentration param for the beta distribution of lapse rates
 
-
-    # Participant-level ------------------------------
-    # NON-HEIRACHICAL. Seperate and indendent parameter estimates for each person
+    # Seperate and indendent parameter estimates for each person
     for (p in 1:nParticipants){
-        m[p]    ~ dnorm(0, 1/100)
+        m[p]    ~ dnorm(-0.243, 1/10)
         c[p]    ~ dnorm(0, 1/100)
         alpha[p]~ dexp(0.01)
-
-        #lr[p] ~ dbeta(1.1, 10.9) T(0,0.5)
-        # reparameterise lr in terms of mode and concentration
-        lr[p] ~ dbeta( w*(k-2)+1 , (1-w)*(k-2)+1 )
-
-        # MAGNITUDE EFFECT at the participant level
-        #participantlogk[p,] <- m[p]*logBInterp+c[p]
+        epsilon[p] ~ dbeta( w*(k-2)+1 , (1-w)*(k-2)+1 ) T(,0.5)
     }
-
-    # These priors are seperated from the data and are only included here so that we can plot the prior distributions. They are duplicated from the priors above.
-    mprior    ~ dnorm(0, 1/100)
+    # These priors are seperated from the data and are only included here 
+	# so that we can plot the prior distributions. They are duplicated from
+	# the priors above.
+    mprior    ~ dnorm(-0.243, 1/10)
     cprior    ~ dnorm(0, 1/100)
-    lrprior   ~ dbeta( w*(k-2)+1 , (1-w)*(k-2)+1 )
-    alphaprior~ dexp(0.01)
+    alphaprior ~ dexp(0.01)
+    epsilonprior   ~ dbeta( w*(k-2)+1 , (1-w)*(k-2)+1 )
+	# *********************************************************************
 
 
     for (p in 1:nParticipants){
@@ -51,7 +50,7 @@ model{
             VB[p,t] <- B[p,t] / (1+(exp(lkB[p,t])*DB[p,t]))
 
             # psychometric function
-            P[p,t] <- lr[p] + (1-2*lr[p]) * phi( (VB[p,t]-VA[p,t]) / alpha[p] )
+            P[p,t] <- epsilon[p] + (1-2*epsilon[p]) * phi( (VB[p,t]-VA[p,t]) / alpha[p] )
 
             # response
             R[p,t] ~ dbin(P[p,t],1)

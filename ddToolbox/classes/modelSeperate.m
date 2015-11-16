@@ -28,15 +28,15 @@ classdef modelSeperate < modelSimple
 			
 			% Define limits for each of the variables here for plotting
 			% purposes
-			obj.range.lr=[0 min([prctile(obj.samples.lr(:),[99]) , 0.5])];
+			obj.range.epsilon=[0 min([prctile(obj.samples.epsilon(:),[99]) , 0.5])];
 			%obj.range.alpha=[0 max(obj.samples.alpha(:))];
 			obj.range.alpha=[0 prctile(obj.samples.alpha(:),[99])];
 			% ranges for m and c to contain ALL samples.
 			%obj.range.m=[min(obj.samples.m(:)) max(obj.samples.m(:))];
 			%obj.range.c=[min(obj.samples.c(:)) max(obj.samples.c(:))];
 			% zoom to contain virtually all samples.
-			obj.range.m=prctile(obj.samples.m(:),[0.1 100-0.1]);
-			obj.range.c=prctile(obj.samples.c(:),[0.1 100-0.1]);
+			obj.range.m=prctile(obj.samples.m(:),[1 99]);
+			obj.range.c=prctile(obj.samples.c(:),[1 99]);
 			
 			%stackedForestPlot(obj.analyses.univariate)
 			
@@ -103,9 +103,9 @@ classdef modelSeperate < modelSimple
 		
 		function MCMCdiagnostics(obj, data)
 			% Choose what to plot ---------------
-			variablesToPlot = {'lr', 'alpha', 'm', 'c'};
+			variablesToPlot = {'epsilon', 'alpha', 'm', 'c'};
 			supp			= {[0 0.5], 'positive', [], []};
-			paramString		= {'\eta', '\alpha', 'm', 'c'};
+			paramString		= {'\epsilon', '\alpha', 'm', 'c'};
 			
 			true=[];
 			
@@ -114,6 +114,30 @@ classdef modelSeperate < modelSimple
 				true,...
 				variablesToPlot, supp, paramString, data,...
 				obj.modelType);
+		end
+		
+		
+		function exportParameterEstimates(obj, data)
+			participant_level = array2table(...
+				[obj.analyses.univariate.m.mode'...
+				obj.analyses.univariate.m.CI95'...
+				obj.analyses.univariate.c.mode'...
+				obj.analyses.univariate.c.CI95'...
+				obj.analyses.univariate.alpha.mode'...
+				obj.analyses.univariate.alpha.CI95'...
+				obj.analyses.univariate.epsilon.mode'...
+				obj.analyses.univariate.epsilon.CI95'],...
+				'VariableNames',{'m_mode' 'm_CI5' 'm_CI95'...
+				'c_mode' 'c_CI5' 'c_CI95'...
+				'alpha_mode' 'alpha_CI5' 'alpha_CI95'...
+				'epsilon_mode' 'epsilon_CI5' 'epsilon_CI95'},...
+				'RowNames',data.participantFilenames)
+			
+			savename = ['parameterEstimates_' data.saveName '.txt'];
+			writetable(participant_level, savename,...
+				'Delimiter','\t')
+			fprintf('The above table of participant-level parameter estimates was exported to:\n')
+			fprintf('\t%s\n\n',savename)
 		end
 		
 		
@@ -149,7 +173,7 @@ classdef modelSeperate < modelSimple
 			obj.observed.nParticipants	= data.nParticipants;
 			obj.observed.totalTrials	= data.totalTrials;
 			
-			obj.monitorparams = {'lr','lrprior',...
+			obj.monitorparams = {'epsilon','epsilonprior',...
 				'alpha','alphaprior',...
 				'm','mprior',...
 				'c','cprior'};%'participantlogk'};
@@ -204,8 +228,8 @@ classdef modelSeperate < modelSimple
 		
 		function obj = doAnalysis(obj)
 			% univariate summary stats
-			fields ={'lr', 'alpha', 'm', 'c', 'glM', 'glC', 'glLR','glALPHA'};
-			support={'positive', 'positive', [], [], [], [], 'positive', 'positive'};
+			fields ={'epsilon', 'alpha', 'm', 'c'};
+			support={'positive', 'positive', [], []};
 			% Do the analysis
 			uni = univariateAnalysis(obj.samples, fields, support );
 			% Store the results

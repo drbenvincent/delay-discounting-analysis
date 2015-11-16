@@ -10,7 +10,7 @@ function SCRIPT
 % for using the software on your own dataset.
 try
 	% *** SET THIS TO THE PATH OF THE /ddToolbox FOLDER ***
-	toolboxPath = '/Users/benvincent/git-local/delay-discounting-analysis/ddToolbox';
+	toolboxPath = '/Users/btvincent/git-local/delay-discounting-analysis/ddToolbox';
 	% check that this folder exists
 	if exist(toolboxPath,'dir')~=7
 		error('change the toolboxPath to point to the folder /ddToolbox')
@@ -27,7 +27,7 @@ end
 % folder (or whatever your project folder is called).
 try
 	% *** SET THIS TO THE PATH OF THE /ddToolbox FOLDER ***
-	projectPath = '/Users/benvincent/git-local/delay-discounting-analysis/demo';
+	projectPath = '/Users/btvincent/git-local/delay-discounting-analysis/demo';
 	cd(projectPath)
 catch
 	error('change the projectPath to point to the folder /delay-discounting-analysis/demo')
@@ -141,5 +141,22 @@ hModel.conditionalDiscountRates(100, plotFlag);
 ax(2) = subplot(1,2,2);
 hModel.conditionalDiscountRates(1000, plotFlag);
 linkaxes(ax,'xy')
+
+
+%% PARTICIPANT-LEVEL ONLY INFERENCES
+% If you want to avoid group-level hierarchical inference, then you can use
+% a different model class. Code below shows an example
+
+saveName = 'nonHierarchical.txt';
+pathToData='data';
+sepData = dataClass(saveName,pathToData);
+sepData.loadDataFiles(fnames);
+
+sModel = modelSeperate(toolboxPath);
+sModel.setMCMCtotalSamples(5000); 
+sModel.setMCMCnumberOfChains(4);
+sModel.conductInference(sepData);
+sModel.exportParameterEstimates(sepData);
+sModel.plot(sepData)
 
 return
