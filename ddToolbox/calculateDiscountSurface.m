@@ -4,6 +4,7 @@ function [logB,D,AB] = calculateDiscountSurface(m,c, opts)
 
 
 %% x-axis = b
+% *** TODO: DOCUMENT WHAT THIS DOES ***
 nIndifferenceLines = 10;
 p=1; while opts.maxlogB > 10^p; p=p+1; end
 logbvec=log(logspace(1,p,nIndifferenceLines));
@@ -25,7 +26,7 @@ set(gca,'YDir','reverse')
 axis vis3d
 axis tight
 axis square
-xlabel('reward', 'interpreter','latex')
+xlabel('|reward|', 'interpreter','latex')
 ylabel('D', 'interpreter','latex')
 zlabel('discount factor', 'interpreter','latex')
 zlim([0 1])

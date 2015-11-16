@@ -82,8 +82,8 @@ model{
         for (t in 1:T[p]) {  
 
             # Calculate log discount rate for each reward
-            lkA[p,t] <- m[p]*log(A[p,t])+c[p]
-            lkB[p,t] <- m[p]*log(B[p,t])+c[p]
+            lkA[p,t] <- m[p]*log(abs(A[p,t]))+c[p]
+            lkB[p,t] <- m[p]*log(abs(B[p,t]))+c[p]
 
             # calculate present subjective value for each reward
             VA[p,t] <- A[p,t] / (1+(exp(lkA[p,t])*DA[p,t]))

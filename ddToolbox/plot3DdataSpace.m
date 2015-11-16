@@ -17,7 +17,7 @@ imm = data.R==0;
 del = data.R==1;
 
 % find unique experimental designs
-D=[data.A, data.B, data.DA, data.DB]; 
+D=[abs(data.A), abs(data.B), data.DA, data.DB]; 
 [C, ia, ic] = unique(D,'rows');
 %loop over unique designs (ic)
 for n=1:max(ic)
@@ -29,9 +29,9 @@ for n=1:max(ic)
 	% for that design
 	COL(n) = sum(data.R(myset)==0) ./ F(n);
 
-	x(n) = data.B( ia(n) ); % £B
+	x(n) = abs(data.B( ia(n) )); % £B
 	y(n) = data.DB( ia(n) ); % delay to get £B
-	z(n) = data.A( ia(n) ) ./ data.B( ia(n) );
+	z(n) = abs(data.A( ia(n) )) ./ abs(data.B( ia(n) ));
 end
 
 % plot
@@ -43,9 +43,9 @@ for i=1:max(ic)
 	hold on
 end
 	
-xlabel('B')
+xlabel('|B|')
 ylabel('D^B')
-zlabel('A/B')
+zlabel('|A|/|B|')
 
 zlim([0 1])
 % set x axis (B) to log scale

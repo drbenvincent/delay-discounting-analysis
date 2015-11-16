@@ -397,7 +397,7 @@ classdef modelHierarchical < modelSeperate
 			
 			
 			figure(99), subplot(1, 5, 5)
-			opts.maxlogB	= max(data.observedData.B(:));
+			opts.maxlogB	= max(abs(data.observedData.B(:)));
 			opts.maxD		= max(data.observedData.DB(:));
 			% PLOT A POINT-ESTIMATE DISCOUNT SURFACE
 			calculateDiscountSurface(GROUPmodeM, GROUPmodeC, opts);

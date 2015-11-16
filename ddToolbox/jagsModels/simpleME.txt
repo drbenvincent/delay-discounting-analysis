@@ -25,8 +25,8 @@ model{
         lkB[t] <- m*log(B[t])+c
 
         # calculate present subjective value for each reward
-        VA[t] <- A[t] / (1+(exp(lkA[t])*DA[t]))
-        VB[t] <- B[t] / (1+(exp(lkB[t])*DB[t]))
+        VA[t] <- A[t] / (1+(exp(abs(lkA[t]))*DA[t]))
+        VB[t] <- B[t] / (1+(exp(abs(lkB[t]))*DB[t]))
 
         # calculate probability of choosing the delayed reward
         P[t] <- lr + (1-2*lr) * phi( (VB[t]-VA[t]) / alpha )

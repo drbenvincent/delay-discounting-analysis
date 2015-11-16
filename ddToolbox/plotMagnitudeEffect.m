@@ -1,13 +1,13 @@
 function plotMagnitudeEffect(samples, modeVals)
 %
-% log(k) = m * log(B) + c
-% k = exp( m * log(B) + c )
+% log(k) = m * log(|B|) + c
+% k = exp( m * log(|B|) + c )
 
 % -----------------------------------------------------------
-%fh = @(x,params) exp( params(:,1) * log(x) + params(:,2));
+%fh = @(x,params) exp( params(:,1) * log(|x|) + params(:,2));
 % a FAST vectorised version of above ------------------------
 fh = @(x,params) exp( bsxfun(@plus, ...
-	bsxfun(@times,params(:,1),log(x)),...
+	bsxfun(@times,params(:,1),log(abs(x))),...
 	params(:,2)));
 % -----------------------------------------------------------
 
@@ -27,7 +27,7 @@ myplot.plotPointEstimate(modeVals)
 set(gca,'XScale','log')
 set(gca,'YScale','log')
 
-ylim([10^-4 10^1])
+%ylim([10^-4 10^1])
 
 set(gca,'XTick',logspace(1,6,6))
 set(gca,'YTick',logspace(-4,0,5))
