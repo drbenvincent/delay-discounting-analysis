@@ -28,7 +28,7 @@ saveFileName = [prefix saveName suffix];
 export_fig(saveFileName,'-png','-m4')
 
 % .fig
-hgsave(saveFileName)
+%hgsave(saveFileName)
 
 cd(intialDir)
 
