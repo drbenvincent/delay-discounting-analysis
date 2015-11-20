@@ -1,4 +1,4 @@
-function plotMagEffectExplanatoryDiagram
+function generateFigure4
 
 %close all
 
@@ -51,12 +51,12 @@ title('d.')
 latex_fig(16, 6, 6)
 subplot(2,2,2), set(gca,'xticklabel',num2str(get(gca,'xtick')'))
 subplot(2,2,4), set(gca,'xticklabel',num2str(get(gca,'xtick')'))
-%% Export
-figName = 'ExplanatoryFigure-MagnitudeEffect';
-set(gcf,'Color','w')
-% EXPORTING ---------------------
-myExport([], figName, [])
-% -------------------------------
+% %% Export
+% figName = 'ExplanatoryFigure-MagnitudeEffect';
+% set(gcf,'Color','w')
+% % EXPORTING ---------------------
+% myExport([], figName, [])
+% % -------------------------------
 
 
 return
