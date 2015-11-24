@@ -58,6 +58,8 @@ classdef ModelSimple < handle
 			obj = doAnalysis(obj);
 			
 			display('***** CONVERGENCE CHECKS HERE *****')
+			obj.convergenceSummary()
+			
 			display('***** SAVE THE MODEL OBJECT HERE *****')
 		end
 		
@@ -117,6 +119,30 @@ classdef ModelSimple < handle
 			% *** EXPORT FIGURE HERE ***
 		end
 		
+		
+		function convergenceSummary(obj)
+			warningFlag = false;
+			% get fields that we have Rhat statistic for
+			names = fieldnames(obj.stats.Rhat);
+			% loop over fields and report for either single values or
+			% multiple values (eg when we have multiple participants)
+			for n=1:numel(names)
+				RhatValues = obj.stats.Rhat.(names{n});
+				fprintf('\nRhat values for: %s.\n',names{n})
+				for i=1:numel(RhatValues)
+					fprintf('%2.5f\t', RhatValues(i))
+					if RhatValues(i)>1.001
+						warningFlag = true;
+						fprintf('WARNING: poor convergence')
+					end
+					fprintf('\n')
+				end
+			end
+			if warningFlag 
+				fprintf('\n\n\n**** WARNING: convergence issues ****\n\n\n')
+				beep
+			end
+		end
 
 	end
 	
