@@ -62,20 +62,20 @@ saveName = 'methodspaper-kirby27.txt';
 
 % create the group-level data object
 pathToData='data';
-myData = dataClass(saveName,pathToData);
+myData = DataClass(saveName,pathToData);
 myData.loadDataFiles(fnames);
 
 % It is important to visualise your participant data. It may well be that
 % some participant's have produced meaningless data, in which case you may
 % want to discard these participants at this stage. The quickAnalysis()
-% method of the dataClass provides some simple visualisation and analysis.
+% method of the DataClass provides some simple visualisation and analysis.
 myData.quickAnalysis();
 
 %% Analyse the data with the hierarchical model
 
 % First we create a model object, which we will call hModel. This is an
-% instance of the class 'modelHierarchical'
-hModel = modelHierarchical(toolboxPath);
+% instance of the class 'ModelHierarchical'
+hModel = ModelHierarchical(toolboxPath);
 
 % Here we should change default parameters
 hModel.setMCMCtotalSamples(5000); % default is 10^5
@@ -149,10 +149,10 @@ linkaxes(ax,'xy')
 
 saveName = 'nonHierarchical.txt';
 pathToData='data';
-sepData = dataClass(saveName,pathToData);
+sepData = DataClass(saveName,pathToData);
 sepData.loadDataFiles(fnames);
 
-sModel = modelSeperate(toolboxPath);
+sModel = ModelSeperate(toolboxPath);
 sModel.setMCMCtotalSamples(5000); 
 sModel.setMCMCnumberOfChains(4);
 sModel.conductInference(sepData);

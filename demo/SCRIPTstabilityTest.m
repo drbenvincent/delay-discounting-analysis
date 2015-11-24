@@ -33,7 +33,7 @@ fnames={'AC-kirby27-DAYS.txt',...
 saveName = 'methodspaper-kirby27.txt';
 
 % create the group-level data object
-kirbyData = dataClass(saveName);
+kirbyData = DataClass(saveName);
 kirbyData.loadDataFiles(fnames);
 
 
@@ -46,7 +46,7 @@ N=7; % fit the same data this many times
 for n=1:N
 	display(['Hierarchical model ' num2str(n),' of ' num2str(N)])
 	
-	tempModel = modelHierarchical(toolboxPath);
+	tempModel = ModelHierarchical(toolboxPath);
 	tempModel.conductInference(kirbyData);
 	
 	% thow the model away, just store the univariate analysis
@@ -64,7 +64,7 @@ myExport([], [], 'hierarchical-reliability-summaryStats')
 for n=1:N
 	display(['Separate model ' num2str(n),' of ' num2str(N)])
 	
-	tempModel = modelSeperate(toolboxPath);
+	tempModel = ModelSeperate(toolboxPath);
 	tempModel.conductInference(kirbyData);
 	
 	% thow the model away, just store the univariate analysis
