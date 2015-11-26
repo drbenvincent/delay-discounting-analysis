@@ -121,6 +121,8 @@ classdef ModelSimple < handle
 		
 		
 		function convergenceSummary(obj, data)
+			% save to a text file
+			fid=fopen(['convergenceReport.txt'],'w');
 			warningFlag = false;
 			% get fields that we have Rhat statistic for
 			names = fieldnames(obj.stats.Rhat);
@@ -128,23 +130,24 @@ classdef ModelSimple < handle
 			% multiple values (eg when we have multiple participants)
 			for n=1:numel(names)
 				RhatValues = obj.stats.Rhat.(names{n});
-				fprintf('\nRhat for: %s.\n',names{n})
+				fprintf(fid,'\nRhat for: %s.\n',names{n})
 				for i=1:numel(RhatValues)
 					if numel(RhatValues)>1
 						fprintf('%s\t', data.IDname{i})
 					end
-					fprintf('%2.5f\t', RhatValues(i))
+					fprintf(fid,'%2.5f\t', RhatValues(i))
 					if RhatValues(i)>1.001
 						warningFlag = true;
-						fprintf('WARNING: poor convergence')
+						fprintf(fid,'WARNING: poor convergence')
 					end
-					fprintf('\n')
+					fprintf(fid,'\n')
 				end
 			end
 			if warningFlag 
-				fprintf('\n\n\n**** WARNING: convergence issues ****\n\n\n')
+				fprintf(fid,'\n\n\n**** WARNING: convergence issues ****\n\n\n')
 				beep
 			end
+			fclose(fid);
 		end
 
 	end
