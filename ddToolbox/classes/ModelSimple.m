@@ -44,8 +44,8 @@ classdef ModelSimple < handle
 			
 			switch obj.sampler
 				case{'JAGS'}
-					% Start parallel pool
-					if isempty(gcp('nocreate')), parpool, end
+					assert(obj.mcmcparams.nchains>=2,'Use a minimum of 2 MCMC chains')
+					if isempty(gcp('nocreate')), parpool, end % Start parallel pool
 					obj = obj.setInitialParamValues(data);
 					obj = obj.setObservedMonitoredValues(data);
 					obj = obj.invokeJAGS();
@@ -123,6 +123,11 @@ classdef ModelSimple < handle
 		function convergenceSummary(obj, data)
 			% save to a text file
 			fid=fopen(['convergenceReport.txt'],'w');
+			% MCMC parameter report
+			fprintf(fid,'MCMC inference was conducted with %d chains. ', obj.mcmcparams.nchains )
+			fprintf(fid,'The first %d samples were discarded from each chain, ', obj.mcmcparams.nburnin )
+			fprintf(fid,'resulting in a total of %d samples to approximate the posterior distribution. ', obj.mcmcparams.totalSamples )
+			fprintf(fid,'\n\n\n')
 			warningFlag = false;
 			% get fields that we have Rhat statistic for
 			names = fieldnames(obj.stats.Rhat);
@@ -133,7 +138,7 @@ classdef ModelSimple < handle
 				fprintf(fid,'\nRhat for: %s.\n',names{n})
 				for i=1:numel(RhatValues)
 					if numel(RhatValues)>1
-						fprintf('%s\t', data.IDname{i})
+						fprintf(fid,'%s\t', data.IDname{i})
 					end
 					fprintf(fid,'%2.5f\t', RhatValues(i))
 					if RhatValues(i)>1.001
