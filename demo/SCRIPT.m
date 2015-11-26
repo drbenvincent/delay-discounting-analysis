@@ -4,13 +4,8 @@ function SCRIPT
 %% Preamble
 % Update the path below to point toward the '/ddToolbox' folder
 toolboxPath = setToolboxPath('/Users/benvincent/git-local/delay-discounting-analysis/ddToolbox')
-
-% When you want to run the analysis on your own code, then you must update
-% this path to point at the appropriate folder. This must be arranged in
-% the same way as in the demo folder. In other words, we need participant
-% data files in a folder called 'data', and a matlab script in the '/demo'
-% folder (or whatever your project folder is called).
-projectPath = setProjectPath('/Users/benvincent/git-local/delay-discounting-analysis/demo')
+% Ensure the current directory is the 'project folder', in this case '\demo'
+cd('/Users/benvincent/git-local/delay-discounting-analysis/demo')
 
 % set some graphics preferences
 setPlotTheme
