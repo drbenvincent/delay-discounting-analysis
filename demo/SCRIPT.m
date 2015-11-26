@@ -2,36 +2,15 @@ function SCRIPT
 % code used in the preparation of the paper
 
 %% Preamble
-% When you download and use this code, you will have to update these paths
-% to the code you just downloaded. Wherever you put the code, we need to be
-% pointed to */ddToolbox and */demo
-
-% The ddToolbox folder contains the main analysis code. This is essential
-% for using the software on your own dataset.
-try
-	% *** SET THIS TO THE PATH OF THE /ddToolbox FOLDER ***
-	toolboxPath = '/Users/btvincent/git-local/delay-discounting-analysis/ddToolbox';
-	% check that this folder exists
-	if exist(toolboxPath,'dir')~=7
-		error('change the toolboxPath to point to the folder /ddToolbox')
-	end
-	addpath(genpath(toolboxPath))
-catch
-	error('change the toolboxPath to point to the folder /ddToolbox')
-end
+% Update the path below to point toward the '/ddToolbox' folder
+toolboxPath = setToolboxPath('/Users/benvincent/git-local/delay-discounting-analysis/ddToolbox')
 
 % When you want to run the analysis on your own code, then you must update
 % this path to point at the appropriate folder. This must be arranged in
 % the same way as in the demo folder. In other words, we need participant
-% data files in a folder called data, and a matlab script in the root demo
+% data files in a folder called 'data', and a matlab script in the '/demo'
 % folder (or whatever your project folder is called).
-try
-	% *** SET THIS TO THE PATH OF THE /ddToolbox FOLDER ***
-	projectPath = '/Users/btvincent/git-local/delay-discounting-analysis/demo';
-	cd(projectPath)
-catch
-	error('change the projectPath to point to the folder /delay-discounting-analysis/demo')
-end	
+projectPath = setProjectPath('/Users/benvincent/git-local/delay-discounting-analysis/demo')
 
 % set some graphics preferences
 setPlotTheme
