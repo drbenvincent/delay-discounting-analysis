@@ -122,7 +122,7 @@ classdef ModelSimple < handle
 		
 		function convergenceSummary(obj, data)
 			% save to a text file
-			fid=fopen(['convergenceReport.txt'],'w');
+			fid=fopen(fullfile('figs',data.saveName,['convergenceReport.txt']),'w');
 			% MCMC parameter report
 			fprintf(fid,'MCMC inference was conducted with %d chains. ', obj.mcmcparams.nchains )
 			fprintf(fid,'The first %d samples were discarded from each chain, ', obj.mcmcparams.nburnin )
