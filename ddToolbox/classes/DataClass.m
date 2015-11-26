@@ -8,6 +8,7 @@ classdef DataClass < handle
 		dataFolder
 		nParticipants
 		totalTrials
+		IDname
 		
 		participantLevel
 		covariateSupplied
@@ -44,9 +45,7 @@ classdef DataClass < handle
 			% fnames should be a cell array of filenames
 			
 			for n=1:numel(fnames) % loop over fnames, each time importing
-				
 				fname = fnames{n};
-				
 				% Load tab separated .txt file with rows labelled: A, B, D, R. This
 				% will load the data into T, which is a 'table' data type, see:
 				% http://uk.mathworks.com/help/matlab/tables.html
@@ -55,6 +54,16 @@ classdef DataClass < handle
 				% add a new column defining the participant ID
 				ID = ones( height(rawData), 1) * n;
 				participantTable = [rawData table(ID)];
+				
+				% add column of participant filenames (all identical
+				% entries) for easier identification of participants in
+				% plots
+				participantInitials = strtok(fnames{n}, '-');
+				obj.IDname{n} = participantInitials;
+				% TODO: Don't need the 2 lines below, but keep for
+				% reference in case it's useful.
+				%IDname = table(repmat(participantInitials,height(rawData),1), 'VariableNames',{'IDname'});
+				%participantTable = [participantTable IDname];
 				
 				% complete participant level data
 				obj.participantLevel(n).table = participantTable;
@@ -66,11 +75,9 @@ classdef DataClass < handle
 				obj.participantLevel(n).data.DB = obj.participantLevel(n).table.DB;
 				obj.participantLevel(n).data.R = obj.participantLevel(n).table.R;
 				obj.participantLevel(n).data.ID = obj.participantLevel(n).table.ID;
-				
-				
+			
 				% append participant to group table
 				obj.groupTable = [obj.groupTable;participantTable];
-
 			end
 			
 			%% Copy the observed data into a structure
