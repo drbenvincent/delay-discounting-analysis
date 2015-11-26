@@ -191,7 +191,7 @@ classdef ModelSeperate < ModelSimple
 			% PLOT INDIVIDUAL LEVEL STUFF HERE ----------
 			for n=1:data.nParticipants
 				fh = figure;
-				fh.Name=['participant: ' num2str(n)];
+				fh.Name=['participant: ' data.IDname{n}];
 				
 				% get samples and data for this participant
 				[samples] = obj.getParticipantSamples(n);
@@ -203,7 +203,7 @@ classdef ModelSeperate < ModelSimple
 				
 				% EXPORTING ---------------------
 				latex_fig(16, 18, 4)
-				myExport(data.saveName, obj.modelType, ['-P' num2str(n)])
+				myExport(data.saveName, obj.modelType, ['-' data.IDname{n}])
 				% -------------------------------
 				
 				% close the figure to keep everything tidy
