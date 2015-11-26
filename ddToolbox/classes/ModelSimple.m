@@ -56,10 +56,7 @@ classdef ModelSimple < handle
 			end
 			
 			obj = doAnalysis(obj);
-			
-			display('***** CONVERGENCE CHECKS HERE *****')
 			obj.convergenceSummary(data)
-			
 			display('***** SAVE THE MODEL OBJECT HERE *****')
 		end
 		
@@ -122,12 +119,13 @@ classdef ModelSimple < handle
 		
 		function convergenceSummary(obj, data)
 			% save to a text file
-			fid=fopen(fullfile('figs',data.saveName,['convergenceReport.txt']),'w');
+			fname = fullfile('figs',data.saveName,['ConvergenceReport.txt']);
+			fid=fopen(fname,'w');
 			% MCMC parameter report
 			fprintf(fid,'MCMC inference was conducted with %d chains. ', obj.mcmcparams.nchains )
 			fprintf(fid,'The first %d samples were discarded from each chain, ', obj.mcmcparams.nburnin )
 			fprintf(fid,'resulting in a total of %d samples to approximate the posterior distribution. ', obj.mcmcparams.totalSamples )
-			fprintf(fid,'\n\n\n')
+			fprintf(fid,'\n\n\n');
 			warningFlag = false;
 			% get fields that we have Rhat statistic for
 			names = fieldnames(obj.stats.Rhat);
@@ -135,17 +133,17 @@ classdef ModelSimple < handle
 			% multiple values (eg when we have multiple participants)
 			for n=1:numel(names)
 				RhatValues = obj.stats.Rhat.(names{n});
-				fprintf(fid,'\nRhat for: %s.\n',names{n})
+				fprintf(fid,'\nRhat for: %s.\n',names{n});
 				for i=1:numel(RhatValues)
 					if numel(RhatValues)>1
-						fprintf(fid,'%s\t', data.IDname{i})
+						fprintf(fid,'%s\t', data.IDname{i});
 					end
-					fprintf(fid,'%2.5f\t', RhatValues(i))
+					fprintf(fid,'%2.5f\t', RhatValues(i));
 					if RhatValues(i)>1.001
 						warningFlag = true;
-						fprintf(fid,'WARNING: poor convergence')
+						fprintf(fid,'WARNING: poor convergence');
 					end
-					fprintf(fid,'\n')
+					fprintf(fid,'\n');
 				end
 			end
 			if warningFlag 
@@ -153,6 +151,7 @@ classdef ModelSimple < handle
 				beep
 			end
 			fclose(fid);
+			fprintf('Convergence report saved in:\n\t%s\n\n',fname)
 		end
 
 	end
