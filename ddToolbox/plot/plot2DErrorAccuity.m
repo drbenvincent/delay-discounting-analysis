@@ -3,7 +3,7 @@ function [structName] = plot2DErrorAccuity(epsilon, alpha, xrange, yrange)
 epsilon=epsilon(:);
 alpha=alpha(:);
 
-[structName] = bivariateAnalysis(epsilon,alpha, 500, 500, xrange, yrange);
+[structName] = calcBivariateSummaryStats(epsilon,alpha, 500, 500, xrange, yrange);
 
 fprintf('\nENTROPY OF (M,C): %3.2f bits\n', structName.entropy)
 
@@ -23,10 +23,10 @@ plot(structName.modex*100, structName.modey, 'ro')
 
 % plot MODE and 95% CI text
 display('TODO: grab this from analysis already done, no need to recompute')
-[estimated_mode, ~, ~, ci95] = sampleStats(epsilon*100, 'positive');
+[estimated_mode, ~, ~, ci95] = calcUnivariateSummaryStats(epsilon*100, 'positive');
 lr_text = sprintf('$$ \\epsilon = %2.2f (%2.2f, %2.2f) $$',estimated_mode, ci95(1), ci95(2));
 
-[estimated_mode, ~, ~, ci95] = sampleStats(alpha, 'positive');
+[estimated_mode, ~, ~, ci95] = calcUnivariateSummaryStats(alpha, 'positive');
 alpha_text = sprintf('$$ \\alpha = %2.2f (%2.2f, %2.2f) $$',estimated_mode, ci95(1), ci95(2));
 
 str(1)={lr_text};

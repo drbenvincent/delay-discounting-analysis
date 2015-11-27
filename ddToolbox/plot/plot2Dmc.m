@@ -3,7 +3,7 @@ function [structName] = plot2Dmc(m, c, mlim, clim)
 m=m(:);
 c=c(:);
 
-[structName] = bivariateAnalysis(m,c, 500, 500, mlim, clim);
+[structName] = calcBivariateSummaryStats(m,c, 500, 500, mlim, clim);
 
 fprintf('\nENTROPY OF (M,C): %3.2f bits\n', structName.entropy)
 
@@ -33,11 +33,11 @@ str(1)={ sprintf('$$ P(m<0)=%2.2f $$',probMlessThanZero) };
 
 display('grab this from analysis already done, no need to recompute')
 
-[estimated_mode, ~, ~, ci95] = sampleStats(m, []);
+[estimated_mode, ~, ~, ci95] = calcUnivariateSummaryStats(m, []);
 Mtext = sprintf('$$ m = %2.2f (%2.2f, %2.2f) $$',estimated_mode, ci95(1), ci95(2));
 str(2)={Mtext};
 
-[estimated_mode, ~, ~, ci95] = sampleStats(c, []);
+[estimated_mode, ~, ~, ci95] = calcUnivariateSummaryStats(c, []);
 Ctext = sprintf('$$ c = %2.2f (%2.2f, %2.2f) $$',estimated_mode, ci95(1), ci95(2));
 str(3)={Ctext};
 

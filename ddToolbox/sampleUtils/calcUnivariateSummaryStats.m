@@ -1,4 +1,4 @@
-function [estimated_mode, XI, p, ci95] = sampleStats(samples, supp)
+function [estimated_mode, XI, p, ci95] = calcUnivariateSummaryStats(samples, supp)
 
 % ensure this is a vector
 samples = samples(:);

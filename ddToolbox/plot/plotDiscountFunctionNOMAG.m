@@ -5,7 +5,7 @@ kSamples = exp(logkSamples);
 
 % It is more accurate to calculate the model of logkSamples and convert
 % that to k, as opposed to calculating the mode of k directly.
-[modeVal] = sampleStats(logkSamples, []);
+[modeVal] = calcUnivariateSummaryStats(logkSamples, []);
 modeVal= exp(modeVal);
 
 % This is the discount function ---------------------------------------

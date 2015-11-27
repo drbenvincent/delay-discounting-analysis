@@ -1,4 +1,4 @@
-function [outputStruc] = bivariateAnalysis(x,y, XN, YN, XRANGE, YRANGE)
+function [outputStruc] = calcBivariateSummaryStats(x,y, XN, YN, XRANGE, YRANGE)
 % This function takes in two vectors corresponding to MCMC samples of two
 % parameters. It will then compute the bivariate density and use that that
 % to estimate the bivariate posterior mode.
