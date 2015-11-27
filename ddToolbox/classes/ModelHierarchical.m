@@ -60,9 +60,9 @@ classdef ModelHierarchical < ModelSeperate
 		
 		function MCMCdiagnostics(obj, data)
 			
-			variablesToPlot = {'glM', 'glC', 'glEpsilon', 'glALPHA', 'm', 'c'};
-			supp			= {[], [], [0 0.5], 'positive', [], []};
-			paramString		= {'G^m', 'G^c', 'G^{\epsilon}', 'G^{\alpha}', 'm', 'c'};
+			variablesToPlot = {'glM', 'glC', 'glEpsilon', 'glALPHA', 'm', 'c', 'groupALPHAmu', 'groupALPHAsigma'};
+			supp			= {[], [], [0 0.5], 'positive', [], [], [], 'positive'};
+			paramString		= {'G^m', 'G^c', 'G^{\epsilon}', 'G^{\alpha}', 'm', 'c', '\mu^\alpha', '\sigma^\alpha'};
 			
 			true=[];
 			
@@ -537,14 +537,14 @@ classdef ModelHierarchical < ModelSeperate
 				obj.initial_param(n).groupCmu = normrnd(0,2);
 				
 				obj.initial_param(n).mprior = normrnd(-0.243,2);
-				obj.initial_param(n).cprior = normrnd(0,2);
+				obj.initial_param(n).cprior = normrnd(0,4);
 				
 				% One value for each participant
 				for p=1:data.nParticipants
 					obj.initial_param(n).alpha(p)	= abs(normrnd(0.01,0.001));
 					obj.initial_param(n).lr(p)		= rand/10;
 					
-					obj.initial_param(n).m(p) = normrnd(-0.243,1);
+					obj.initial_param(n).m(p) = normrnd(-0.243,2);
 					obj.initial_param(n).c(p) = normrnd(0,4);
 				end
 			end
