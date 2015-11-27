@@ -98,22 +98,18 @@ classdef ModelSimple < handle
 		
 		function plot(obj,data)
 			close all
-			% Define limits for each of the variables here for plotting
-			% purposes
-			obj.range.lr=[0 min([prctile(obj.samples.lr(:),[99]) , 0.5])];
-			%obj.range.alpha=[0 max(obj.samples.alpha(:))];
-			obj.range.alpha=[0 prctile(obj.samples.alpha(:),[99])];
-			% ranges for m and c to contain ALL samples.
-			%obj.range.m=[min(obj.samples.m(:)) max(obj.samples.m(:))];
-			%obj.range.c=[min(obj.samples.c(:)) max(obj.samples.c(:))];
-			% zoom to contain virtually all samples.
-			obj.range.m=prctile(obj.samples.m(:),[0.1 100-0.1]);
-			obj.range.c=prctile(obj.samples.c(:),[0.1 100-0.1]);
-			
+			obj.calcSampleRange()
 			obj.figParticipant(obj.samples, data.observedData)
-			
-			
 			% *** EXPORT FIGURE HERE ***
+		end
+
+		function calcSampleRange(obj)
+			% Define limits for each of the variables here for plotting purposes
+			obj.range.epsilon=[0 min([prctile(obj.samples.epsilon(:),[99]), 0.5])];
+			obj.range.alpha=[0 prctile(obj.samples.alpha(:), [99])];
+			obj.range.m=prctile([obj.samples.glM(:); obj.samples.m(:)], [0.5 99.5]);
+			obj.range.c=prctile([obj.samples.glC(:); obj.samples.c(:)], [1 99]);
+
 		end
 		
 		

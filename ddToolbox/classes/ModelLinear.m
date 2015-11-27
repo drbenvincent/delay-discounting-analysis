@@ -330,7 +330,7 @@ classdef ModelLinear < ModelSeperate
 % 			opts.maxlogB	= max(data.observedData.B(:));
 % 			opts.maxD		= max(data.observedData.DB(:));
 % 			% PLOT A POINT-ESTIMATE DISCOUNT SURFACE
-% 			calculateDiscountSurface(GROUPmodeM, GROUPmodeC, opts);
+% 			plotDiscountSurface(GROUPmodeM, GROUPmodeC, opts);
 % 			set(gca,'XTick',[10 100])
 % 			set(gca,'XTickLabel',[10 100])
 % 			set(gca,'XLim',[10 100])

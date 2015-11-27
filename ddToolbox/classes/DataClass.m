@@ -68,7 +68,6 @@ classdef DataClass < handle
 				% complete participant level data
 				obj.participantLevel(n).table = participantTable;
 				obj.participantLevel(n).trialsForThisParticant = height(participantTable);
-				
 				obj.participantLevel(n).data.A = obj.participantLevel(n).table.A;
 				obj.participantLevel(n).data.B = obj.participantLevel(n).table.B;
 				obj.participantLevel(n).data.DA = obj.participantLevel(n).table.DA;
@@ -95,30 +94,18 @@ classdef DataClass < handle
 			end
 			% T is a vector containing number of trials for each participant
 			obj.observedData.T = [obj.participantLevel.trialsForThisParticant];
-			
-% 			% Copy the observed data into a structure
-% 			%obj.observedData = table2struct(obj.groupTable);
-% 			obj.observedData.A = obj.groupTable.A;
-% 			obj.observedData.B = obj.groupTable.B;
-% 			obj.observedData.DA = obj.groupTable.DA;
-% 			obj.observedData.DB = obj.groupTable.DB;
-% 			obj.observedData.R = obj.groupTable.R;
-% 			obj.observedData.ID = obj.groupTable.ID;
-
-			
+						
 			% calculate more things
 			obj.totalTrials = height(obj.groupTable);
 			obj.nParticipants = max(obj.groupTable.ID);
 			obj.participantFilenames = fnames;
 			
-			
-			% by default assume we do not have any covariate data
+			% by default, assume we do not have any covariate data
 			obj.covariateSupplied = false;
 			% set all covariate values to zero
 			covariateValues = zeros([1, obj.nParticipants]);
 			obj.setCovariateValues(covariateValues);
 
-			
 			% save
 			st=cd;
 			cd(obj.dataFolder)
@@ -133,25 +120,13 @@ classdef DataClass < handle
 			display(fnames')
 		end
 		
-		
-		
-		
-		% 		function T = loadFile(obj, fname)
-		% 			% Load tab separated .txt file with rows labelled: A, B, D, R. This
-		% 			% will load the data into T, which is a 'table' data type, see:
-		% 			% http://uk.mathworks.com/help/matlab/tables.html
-		% 			T = readtable(fullfile('data',fname), 'delimiter','tab');
-		% 		end
-		
-		
+
 		function [data] = getParticipantData(obj,participant)
 			% grabs data just from one participant.
 			data = obj.participantLevel(participant).data;
 			data.trialsForThisParticant =...
 				obj.participantLevel(participant).trialsForThisParticant;
 		end
-		
-		
 		
 		
 		function [obj] = addData(obj, thisTrialData)
@@ -183,7 +158,6 @@ classdef DataClass < handle
 		
 		
 		function quickAnalysis(obj)
-			
 			% *********
 			% NOTE TO SELF: This function needs to be improved. I need to
 			% plug in plotting functions for:
@@ -191,41 +165,15 @@ classdef DataClass < handle
 			% - discount surface plots when not all DA==0
 			% *********
 			
-			% Here we are going to look over participants
-			% - create an overview plot of all participants
-			% - create participant level plots of data etc
-			%figure(1), clf
-			%figure(2), clf
-			%cols = 4;
-			%rows = obj.nParticipants / cols;
-			%%z=ceil(sqrt(obj.nParticipants));
-			
 			for n=1:obj.nParticipants
-				% COMPUTE
 				datap = getParticipantData(obj, n);
-				[logk, kvec, prop_explained] = quickAndDirtyEstimateOfLogK(datap);
-				
-% 				% ADD TO OVERVIEW PLOT
-% 				figure(2)
-% 				subplot(cols,rows,n)
-% 				semilogx(kvec, err)
-% 				axis tight
-% 				ylim([0 obj.participantLevel(n).trialsForThisParticant])
-% 				vline(exp(logk));
-% 				title(['particpant ' num2str(n)])
-% 				set(gca,'XTick',logspace(-5,2,8))
-				
-				% PARTICIPANT PLOT
+				[logk, kvec, prop_explained] = obj.quickAndDirtyEstimateOfLogK(datap);
 				
 				figure(1), clf, drawnow
-				% plot raw data --------------------
-				subplot(1,2,1)
-				%plotRawDataNOMAG(datap), axis square
-				modeVals=[];
-				plot3DdataSpace(datap, modeVals)
+				subplot(1,2,1) % plot raw data
+				plot3DdataSpace(datap, []);
 				
-				% plot quick & dirty analysis --------------------
-				subplot(1,2,2)
+				subplot(1,2,2) % plot quick & dirty analysis
 				semilogx(kvec, prop_explained)
 				axis tight
 				ylim([0 1])
@@ -237,19 +185,13 @@ classdef DataClass < handle
 				% EXPORTING ---------------------
 				figure(1)
 				latex_fig(16, 8, 6)
-				myExport(obj.saveName, 'dataSummary-', ['participant' num2str(n)])
+				myExport(obj.saveName, 'dataSummary-', ['participant' num2str(n)]);
 				% -------------------------------
-			
 			end
-			
-% 			% EXPORTING ---------------------
-% 			figure(2)
-% 			latex_fig(16, 8, 6)
-% 			myExport(obj.saveName, 'dataSummary-', [])
-% 			% -------------------------------
-
 		end
-		
+
+
+
 		
 		
 		function obj = setCovariateValues(obj,covariateValues)
@@ -273,9 +215,35 @@ classdef DataClass < handle
 		function obj = setCovariateProbeValues(obj, CovariateProbeValues)
 			obj.observedData.covariateProbeVals = CovariateProbeValues;
 		end
-		
-		
-		
+			
+	end
+
+	methods(Static)
+		function [logk, kvec, prop_explained] = quickAndDirtyEstimateOfLogK(data)
+			% Given the response data for this participant, do a very quick and dirty
+			% estimate of the likely log discount rate (logk). This is used as initial
+			% parameters for the MCMC process.
+
+			%% 1-parameter hyperbolic discount function --------------------------------
+			% v = b ./ (1+(k*d)
+			% NOTE: This functions wants the discount rate (k), NOT the log(k)
+			V = @(d,k,b) bsxfun(@rdivide, b, 1+bsxfun(@times,k,d) );
+
+			%% vector of discount rates (k) to examine ---------------------------------
+			kvec = logspace(-8,2,1000);
+
+			presentSubjectiveValue = V( data.DB, kvec, data.B);
+			chooseDelayed = bsxfun(@minus, presentSubjectiveValue, data.A) >1;
+			err = bsxfun(@minus, data.R, chooseDelayed);
+			err = sum(abs(err));
+
+			% calc proportion of responses explained
+			prop_explained = (data.trialsForThisParticant - err) / data.trialsForThisParticant;
+
+			[~, index] = max(prop_explained); 
+			k_optimal = kvec(index);
+			logk = log(k_optimal);
+		end
 	end
 
 end

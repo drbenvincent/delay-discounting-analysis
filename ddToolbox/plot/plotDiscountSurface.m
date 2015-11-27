@@ -1,6 +1,6 @@
-function [logB,D,AB] = calculateDiscountSurface(m,c, opts)
+function [logB,D,AB] = plotDiscountSurface(m,c, opts)
 %
-% [B,D,AB] = calculateDiscountSurface(-1, 10^-1);
+% [B,D,AB] = plotDiscountSurface(-1, 10^-1);
 
 
 %% x-axis = b
@@ -10,7 +10,7 @@ p=1; while opts.maxlogB > 10^p; p=p+1; end
 logbvec=log(logspace(1,p,nIndifferenceLines));
 
 %% y-axis = d
-dvec=linspace(0,opts.maxD,25);
+dvec=linspace(0,opts.maxD,100);
 
 %% create x,y (b,d) grid values
 [logB,D] = meshgrid(logbvec,dvec);

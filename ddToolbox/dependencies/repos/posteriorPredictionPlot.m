@@ -1,5 +1,5 @@
-classdef posteriorPredictionPlot
-	%% posteriorPredictionPlot
+classdef PosteriorPredictionPlot
+	%% PosteriorPredictionPlot
 	% An object to plot posterior predictions for 1D functions. This object
 	% takes plots a user-specified function
 	%
@@ -10,7 +10,7 @@ classdef posteriorPredictionPlot
 	% user-specified 1D function.
 	%
 	% METHODS
-	% posteriorPredictionPlot() % constructor
+	% PosteriorPredictionPlot() % constructor
 	% plotExamples() plots a few example curves drawn at random
 	% plotCI() plots a shaded confidence region
 	% plotProbMass() plots 2D image of probability mass
@@ -43,7 +43,7 @@ classdef posteriorPredictionPlot
 	methods
 		
 		% Class constructor
-		function obj=posteriorPredictionPlot(fh, x, params)
+		function obj=PosteriorPredictionPlot(fh, x, params)
 			% params is of size [nSamples x nParams]
 			obj.fh		= fh;				% handle to our 1D function
 			obj.x		= x;				% x-axis values to evaluate

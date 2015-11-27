@@ -114,7 +114,7 @@ classdef ModelHierarchicalNOMAG < ModelHierarchical
 			
 			
 			figure(99), subplot(1,cols,1), axis square
-			%add_text_to_figure('TL','delete this panel', 10)
+			%addTextToFigure('TL','delete this panel', 10)
 			histogram(obj.samples.groupW(:)), axis square
 			xlabel('lapse rate $\epsilon$','Interpreter','latex')
 			ylabel('comparison accuity $\sigma$','Interpreter','latex')

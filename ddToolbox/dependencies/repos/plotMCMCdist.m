@@ -210,7 +210,7 @@ if numel(opts.bayesFactorXvalue) > 0 ...
 	BayesFactor = BFpostDensity / BFpriorDensity;
 	
 	%txt=sprintf('Bayes Factor = %3.2f', BayesFactor);
-	%add_text_to_figure('TL',txt,16)
+	%addTextToFigure('TL',txt,16)
 	
 	% plot arrow
 	x = [opts.bayesFactorXvalue opts.bayesFactorXvalue];

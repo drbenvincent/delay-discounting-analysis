@@ -1,6 +1,5 @@
 function  uni = univariateAnalysis(samples, fields, support)
 
-
 % fields={'lr', 'sigma', 'm', 'c', 'groupMmu', 'groupCmu'};
 % support={'positive', 'positive', [], [], [], []};
 
@@ -8,13 +7,10 @@ display('Analysing univariate summary stats:')
 
 for n=1:numel(fields)
 	display(fields{n})
-	
-	tempSamples = getfield(samples, fields{n});
-	[chains, nSamples, M] = size(tempSamples);
-	
+	samplesForThisField = getfield(samples, fields{n});
+	[chains, nSamples, M] = size(samplesForThisField);
 	for m = 1:M
-		
-		temptempsamples = vec(tempSamples(:,:,m));
+		temptempsamples = vec(samplesForThisField(:,:,m));
 		
 		[estimated_mode, ~, ~, ~] = sampleStats( temptempsamples , support{n});
 		
@@ -24,6 +20,5 @@ for n=1:numel(fields)
 		uni.(fields{n}).CI95(:,m) = ci95;
 		uni.(fields{n}).mode(m) = estimated_mode;
 	end
-	
-	
 end
+return

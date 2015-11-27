@@ -20,7 +20,6 @@ end
 nSamplesDisplayLimit=10^4;
 
 
-
 for f = 1:numel(fields) % LOOP OVER VARIABLES
 	figure
 	latex_fig(16, 12,4)
@@ -118,17 +117,17 @@ end
 		% print Rhat statistic
 		rhat = getfield(stats.Rhat, fields{f});
 		rhat= rhat(r);
-		% 		add_text_to_figure('T',...
+		% 		addTextToFigure('T',...
 		% 			['$\hat{R}$ = ' num2str(rhat)],...
 		% 			16, 'latex');
 		str = sprintf('$$ \\hat{R} = %1.5f$$', rhat);
-		h = add_text_to_figure('T',str, 16, 'latex');
+		h = addTextToFigure('T',str, 16, 'latex');
 		h.BackgroundColor=[1 1 1 0.7];
 		
 		box off
 		
 		if overLimitFlag
-			add_text_to_figure('TR','up to the first 10,000 samples',8);
+			addTextToFigure('TR','up to the first 10,000 samples',8);
 		end
 		
 		if r==rows

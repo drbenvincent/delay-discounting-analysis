@@ -3,7 +3,6 @@ classdef ModelHierarchical < ModelSeperate
 	%   Detailed explanation goes here
 	
 	properties
-		
 	end
 	
 	
@@ -21,24 +20,10 @@ classdef ModelHierarchical < ModelSeperate
 		end
 		% =================================================================
 		
-		
-		
+
 		function plot(obj, data)
 			close all
-			
-			% Define limits for each of the variables here for plotting
-			% purposes
-			obj.range.epsilon=[0 min([prctile(obj.samples.epsilon(:),[99]) , 0.5])];
-			%obj.range.alpha=[0 max(obj.samples.alpha(:))];
-			obj.range.alpha=[0 prctile(obj.samples.alpha(:),[99])];
-			% ranges for m and c to contain ALL samples.
-			%obj.range.m=[min(obj.samples.m(:)) max(obj.samples.m(:))];
-			%obj.range.c=[min(obj.samples.c(:)) max(obj.samples.c(:))];
-			% zoom to contain virtually all samples.
-			obj.range.m=prctile([obj.samples.glM(:); obj.samples.m(:)],...
-				[0.5 99.5]);
-			obj.range.c=prctile([obj.samples.glC(:); obj.samples.c(:)],...
-				[1 99]);
+			obj.calcSampleRange()
 			
 			% plot univariate summary statistics for the parameters we have
 			% made inferences about
@@ -48,12 +33,9 @@ classdef ModelHierarchical < ModelSeperate
 			myExport(data.saveName, obj.modelType, '-UnivariateSummary')
 			% -------------------------------
 			
-			obj.plotPriorPost()
-			
+			obj.figPriorPost()
 			obj.figGroupLevel(data)
-			
 			obj.figParticipantLevelWRAPPER(data)
-			
 			obj.MCMCdiagnostics(data)
 		end
 		
@@ -74,7 +56,7 @@ classdef ModelHierarchical < ModelSeperate
 		end
 		
 		
-		function plotPriorPost(obj)
+		function figPriorPost(obj)
 			figure
 			
 			clear opts
@@ -115,8 +97,7 @@ classdef ModelHierarchical < ModelSeperate
 			
 		end
 		
-		
-		
+
 		function HTgroupSlopeLessThanZero(obj, data)
 			% Test the hypothesis that the group level slope (G^m) is less
 			% than one
@@ -183,7 +164,7 @@ classdef ModelHierarchical < ModelSeperate
 			box off
 			axis tight, xlim([-2 0])
 			removeYaxis()
-			%add_text_to_figure('TR',...
+			%addTextToFigure('TR',...
 			%	sprintf('log BF_{10} = %2.2f',log(BF_10)),...
 			%	15,	'latex')
 			%ylabel('density')
@@ -233,7 +214,6 @@ classdef ModelHierarchical < ModelSeperate
 			%%
 			myExport(data.saveName, [], '-BayesFactorMLT1')
 		end
-		
 		
 		
 		function conditionalDiscountRates(obj, reward, plotFlag)
@@ -289,7 +269,6 @@ classdef ModelHierarchical < ModelSeperate
 		end
 		
 		
-		
 		function exportParameterEstimates(obj, data)
 			participant_level = array2table(...
 				[obj.analyses.univariate.m.mode'...
@@ -329,7 +308,6 @@ classdef ModelHierarchical < ModelSeperate
 			fprintf('The above table of participant and group-level parameter estimates was exported to:\n')
 			fprintf('\t%s\n\n',savename)
 		end
-		
 		
 	end
 	
@@ -400,7 +378,7 @@ classdef ModelHierarchical < ModelSeperate
 			opts.maxlogB	= max(abs(data.observedData.B(:)));
 			opts.maxD		= max(data.observedData.DB(:));
 			% PLOT A POINT-ESTIMATE DISCOUNT SURFACE
-			calculateDiscountSurface(GROUPmodeM, GROUPmodeC, opts);
+			plotDiscountSurface(GROUPmodeM, GROUPmodeC, opts);
 			%set(gca,'XTick',[10 100])
 			%set(gca,'XTickLabel',[10 100])
 			%set(gca,'XLim',[10 100])
@@ -415,118 +393,6 @@ classdef ModelHierarchical < ModelSeperate
 			
 		end
 		
-		% 		function plotGroupLevelMC(obj)
-		% 			% visualise the GROPU level m,c
-		%
-		% 			plot(obj.samples.glM(:), obj.samples.glC(:),'.')
-		%
-		% 			%% CODE BELOW WILL VISUALISE THE JOINT DISTRIBUTION FOR ONE SAMPLE
-		% 			% 			nSamples = numel(hModel.samples.groupCsigma);
-		% 			%
-		% 			% 			sample = randi(nSamples);
-		% 			%
-		% 			% 			mMean	= hModel.samples.groupMmu(sample);
-		% 			% 			cMean	= hModel.samples.groupCmu(sample);
-		% 			% 			mSigma	= hModel.samples.groupMsigma(sample);
-		% 			% 			cSigma	= hModel.samples.groupCsigma(sample);
-		% 			% 			mVar	= mSigma^2;
-		% 			% 			cVar	= cSigma^2;
-		% 			% 			r		= 0; % CORRELATION COEFFICIENT. Assumed to be independent in this model
-		% 			%
-		% 			% 			mu = [mMean cMean];
-		% 			% 			Sigma = [mVar 0; 0 cVar];
-		% 			%
-		% 			% 			mvec=linspace(min( hModel.samples.groupMmu(:))*1.5,...
-		% 			% 				max( hModel.samples.groupMmu(:))*1.5,...
-		% 			% 				500);
-		% 			% 			cvec=linspace(min( hModel.samples.groupCmu(:))*1.5,...
-		% 			% 				max( hModel.samples.groupCmu(:))*1.5,...
-		% 			% 				500);
-		% 			% 			[M,C] = meshgrid(mvec', cvec');
-		% 			% 			X = [M(:) C(:)];
-		% 			%
-		% 			% 			density = mvnpdf(X, mu, Sigma);
-		% 			% 			density = reshape(density,size(M));
-		% 			%
-		% 			% 			imagesc(mvec,cvec, density)
-		% 			% 			axis xy
-		% 			% 			title('Participant level')
-		% 			% 			xlabel('m'), ylabel('c')
-		%
-		% 			%% Visualise the MEAN of the gropu level estimates
-		% 			% 			% We will use the MEAN of the group-level estimates
-		% 			% 			mMean	= mean(hModel.samples.groupMmu(:));
-		% 			% 			cMean	= mean(hModel.samples.groupCmu(:));
-		% 			% 			mSigma	= mean(hModel.samples.groupMsigma(:));
-		% 			% 			cSigma	= mean(hModel.samples.groupCsigma(:));
-		% 			% 			mVar	= mSigma^2;
-		% 			% 			cVar	= cSigma^2;
-		% 			% 			r		= 0; % CORRELATION COEFFICIENT. Assumed to be independent in this model
-		% 			%
-		% 			% 			mu = [mMean cMean];
-		% 			% 			Sigma = [mVar 0; 0 cVar];
-		% 			%
-		% 			% 			mvec=linspace(min( hModel.samples.groupMmu(:))*1.5,...
-		% 			% 				max( hModel.samples.groupMmu(:))*1.5,...
-		% 			% 				500);
-		% 			% 			cvec=linspace(min( hModel.samples.groupCmu(:))*1.5,...
-		% 			% 				max( hModel.samples.groupCmu(:))*1.5,...
-		% 			% 				500);
-		% 			% 			[M,C] = meshgrid(mvec', cvec');
-		% 			% 			X = [M(:) C(:)];
-		% 			%
-		% 			% 			density = mvnpdf(X, mu, Sigma);
-		% 			% 			density = reshape(density,size(M));
-		% 			%
-		% 			% 			imagesc(mvec,cvec, density)
-		% 			% 			axis xy
-		% 			% 			title('Participant level')
-		% 			% 			xlabel('m'), ylabel('c')
-		% 			%
-		% % 			%% Better to plot the full uncertainty in the group-level estimates
-		% % 			%figure(1), clf,
-		% % 			colormap(flipud(gray))
-		% % 			nSamples = numel(obj.samples.groupCsigma(:));
-		% %
-		% % 			nx = 100; ny=100;
-		% % 			density = zeros(nx,ny);
-		% %
-		% % 			mvec=linspace(min( obj.samples.groupMmu(:))-1,...
-		% % 				max( obj.samples.groupMmu(:))+1,...
-		% % 				nx);
-		% % 			cvec=linspace(min( obj.samples.groupCmu(:))-1,...
-		% % 				max( obj.samples.groupCmu(:))+1,...
-		% % 				ny);
-		% % 			[M,C] = meshgrid(mvec', cvec');
-		% % 			X = [M(:) C(:)];
-		% %
-		% % 			tic
-		% % 			display('This takes some time to compute...')
-		% % 			for sample=1:nSamples % loop over all MCMC samples
-		% %
-		% % 				mMean	= obj.samples.groupMmu(sample);
-		% % 				cMean	= obj.samples.groupCmu(sample);
-		% % 				mSigma	= obj.samples.groupMsigma(sample);
-		% % 				cSigma	= obj.samples.groupCsigma(sample);
-		% % 				mVar	= mSigma^2;
-		% % 				cVar	= cSigma^2;
-		% % 				r		= 0; % CORRELATION COEFFICIENT. Assumed to be independent in this model
-		% %
-		% % 				mu = [mMean cMean];
-		% % 				Sigma = [mVar 0; 0 cVar];
-		% %
-		% % 				temp = mvnpdf(X, mu, Sigma);
-		% % 				temp = temp ./ sum(temp(:));
-		% % 				density = density + reshape(temp,size(M)) ;
-		% % 			end
-		% %
-		% % 			toc
-		% % 			imagesc(mvec,cvec, density)
-		% % 			axis xy
-		% % 			drawnow
-		% % 			title('Participant level')
-		% % 			xlabel('m'), ylabel('c')
-		% 		end
 		
 		function obj = setInitialParamValues(obj, data)
 			for n=1:obj.mcmcparams.nchains
@@ -578,7 +444,7 @@ classdef ModelHierarchical < ModelSeperate
 				params(:,2)));
 			% -----------------------------------------------------------
 			
-			myplot = posteriorPredictionPlot(fh, reward, params);
+			myplot = PosteriorPredictionPlot(fh, reward, params);
 			myplot = myplot.evaluateFunction([]);
 			
 			% Extract samples of P(k|reward)

@@ -11,15 +11,15 @@ fprintf('\nENTROPY OF (M,C): %3.2f bits\n', structName.entropy)
 imagesc(structName.xi, structName.yi, structName.density);
 axis xy
 colormap(gca, flipud(gray));
-% -------------------------------------------------------------------------
 xlabel('slope, $m$','Interpreter','latex')
-vline(0, 'Color','k',...
-	'LineWidth',0.5)
 ylabel('intercept, $c$','Interpreter','latex')
 axis square
 hold on
 box off
+% indicate posterior mode
 plot(structName.modex, structName.modey, 'ro')
+
+vline(0, 'Color','k', 'LineWidth',0.5)
 
 % add text to say P(m<0)
 probMlessThanZero = sum(m<0)./numel(m);
@@ -41,7 +41,7 @@ str(2)={Mtext};
 Ctext = sprintf('$$ c = %2.2f (%2.2f, %2.2f) $$',estimated_mode, ci95(1), ci95(2));
 str(3)={Ctext};
 
-h = add_text_to_figure('TR',str, 12, 'latex');
+h = addTextToFigure('TR',str, 12, 'latex');
 % set background colour as white, but with some alpha
 h.BackgroundColor=[1 1 1 0.7];
 

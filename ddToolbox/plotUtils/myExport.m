@@ -1,37 +1,31 @@
 function myExport(saveName, prefix, suffix)
 
 %% set background as white
-set(gcf,'Color','w')
+set(gcf,'Color','w');
 
-%%
+%% Make sure folders exist
 intialDir = cd;
-
-mkdir('figs')
+if ~exist('figs', 'dir'), mkdir('figs'); end
 cd('figs')
 
 if numel(saveName)==0
 	% don't save it in a folder
 else
-	mkdir(saveName)
+	if ~exist(saveName, 'dir'), mkdir('test'); end
 	cd(saveName)
 end
 
-saveFileName = [prefix saveName suffix];
-
 %% Export
-% .pdf
+saveFileName = [prefix saveName suffix];
+% % .pdf
 % print('-opengl','-dpdf','-r2400', [saveFileName '.pdf'])
-
-%figName = [obj.saveFilename '-P' num2str(n)];
-
 % .png
 export_fig(saveFileName,'-png','-m4')
-
 % .fig
 %hgsave(saveFileName)
 
-cd(intialDir)
-
+%% finish up
 fprintf('Figure saved: %s\n\n', saveFileName);
+cd(intialDir)
 
 return

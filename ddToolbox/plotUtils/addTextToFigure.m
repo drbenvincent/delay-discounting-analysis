@@ -1,7 +1,7 @@
-function h=add_text_to_figure(position,txt, fs, varargin)
+function h=addTextToFigure(position,txt, fs, varargin)
 %
-% add_text_to_figure('TL','hello', 15)
-% add_text_to_figure('TL','hello', 15, 'latex')
+% addTextToFigure('TL','hello', 15)
+% addTextToFigure('TL','hello', 15, 'latex')
 %
 % written by: Benjamin T Vincent
 

@@ -42,7 +42,7 @@ model{
         # present value of B
         PB[t] <- B[t] / (1+(exp(lk[t])*D[t]))
 
-        # psychometric function
+        # Psychometric function
         P[t] <- lr[ID[t]] + (1-2*lr[ID[t]]) * phi( (PB[t]-A[t]) / alpha[ID[t]] )
 
         # response

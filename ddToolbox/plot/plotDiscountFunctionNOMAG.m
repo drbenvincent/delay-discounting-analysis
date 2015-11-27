@@ -16,8 +16,8 @@ fh = @(x,k) 1 ./ (1+bsxfun(@times,k,x));
 
 D=linspace(0,max(data.D),200);
 
-% Create myplot object (class = posteriorPredictionPlot)
-myplot = posteriorPredictionPlot(fh, D, kSamples);
+% Create myplot object (class = PosteriorPredictionPlot)
+myplot = PosteriorPredictionPlot(fh, D, kSamples);
 %myplot = myplot.plotCI([5 95]);
 % %myplot.plotProbMass(linspace(0,1,200))
 myplot.plotExamples(20);

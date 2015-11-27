@@ -26,18 +26,7 @@ classdef ModelSeperate < ModelSimple
 		function plot(obj, data)
 			close all
 			
-			% Define limits for each of the variables here for plotting
-			% purposes
-			obj.range.epsilon=[0 min([prctile(obj.samples.epsilon(:),[99]) , 0.5])];
-			%obj.range.alpha=[0 max(obj.samples.alpha(:))];
-			obj.range.alpha=[0 prctile(obj.samples.alpha(:),[99])];
-			% ranges for m and c to contain ALL samples.
-			%obj.range.m=[min(obj.samples.m(:)) max(obj.samples.m(:))];
-			%obj.range.c=[min(obj.samples.c(:)) max(obj.samples.c(:))];
-			% zoom to contain virtually all samples.
-			obj.range.m=prctile(obj.samples.m(:),[1 99]);
-			obj.range.c=prctile(obj.samples.c(:),[1 99]);
-			
+			obj.calcSampleRange()
 			
 			% plot univariate summary statistics for the parameters we have
 			% made inferences about
@@ -49,7 +38,6 @@ classdef ModelSeperate < ModelSimple
 			% -------------------------------
 			
 			obj.figParticipantLevelWRAPPER(data)
-			
 			obj.MCMCdiagnostics(data)
 		end
 		
