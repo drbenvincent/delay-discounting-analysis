@@ -43,7 +43,7 @@ model{
     groupCsigmaprior     ~ dunif(0, 10000) 
 
     # comparison acuity 
-    glALPHAprior         ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
+    glALPHAprior         ~ dnorm(groupALPHAmuprior, 1/(groupALPHAsigmaprior^2)) T(0,)
     groupALPHAmuprior    ~ dunif(0,10000)
     groupALPHAsigmaprior ~ dunif(0,10000)
 
