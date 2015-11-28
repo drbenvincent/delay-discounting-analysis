@@ -39,7 +39,8 @@ classdef ModelHierarchical < ModelSeperate
 		
 		function calcSampleRange(obj)
 			% Define limits for each of the variables here for plotting purposes
-			obj.range.epsilon=[0 min([prctile(obj.samples.epsilon(:),[99]), 0.5])];
+			%obj.range.epsilon=[0 min([prctile(obj.samples.epsilon(:),[99]), 0.5])];
+			obj.range.epsilon=[0 0.5]; % full range
 			obj.range.alpha=[0 prctile(obj.samples.alpha(:), [99])];
 			obj.range.m=prctile([obj.samples.glM(:); obj.samples.m(:)], [0.5 99.5]);
 			obj.range.c=prctile([obj.samples.glC(:); obj.samples.c(:)], [1 99]);
@@ -68,13 +69,15 @@ classdef ModelHierarchical < ModelSeperate
 			subplot(2,2,1)
 			hPrior = histogram(obj.samples.glEpsilonprior(:),...
 				'DisplayStyle','bar',...
-				'Normalization', 'pdf');
+				'Normalization', 'pdf',...
+				'FaceColor',[0.8 0.8 0.8]);
 			hPrior.EdgeColor='none';
 			
 			hold on
 			hPosterior = histogram(obj.samples.glEpsilon(:),...
 				'DisplayStyle','bar',...
-				'Normalization', 'pdf');
+				'Normalization', 'pdf',...
+				'FaceColor',[0.2 0.2 0.2]);
 			hPosterior.EdgeColor='none';
 			xlim(hPrior.BinLimits)
 			title('G^\epsilon')
@@ -84,14 +87,16 @@ classdef ModelHierarchical < ModelSeperate
 			subplot(2,2,2)
 			hPrior = histogram(obj.samples.glALPHAprior(:),...
 				'DisplayStyle','bar',...
-				'Normalization', 'pdf');
+				'Normalization', 'pdf',...
+				'FaceColor',[0.8 0.8 0.8]);
 			hPrior.EdgeColor='none';
 			
 			hold on
 			
 			hPosterior = histogram(obj.samples.glALPHA(:),...
 				'DisplayStyle','bar',...
-				'Normalization', 'pdf');
+				'Normalization', 'pdf',...
+				'FaceColor',[0.2 0.2 0.2]);
 			hPosterior.EdgeColor='none';
 			xlim(hPosterior.BinLimits)
 			title('G^\alpha')
@@ -102,12 +107,14 @@ classdef ModelHierarchical < ModelSeperate
 			subplot(2,2,3)
 			hPrior = histogram(obj.samples.glMprior(:),...
 				'DisplayStyle','bar',...
-				'Normalization', 'pdf');
+				'Normalization', 'pdf',...
+				'FaceColor',[0.8 0.8 0.8]);
 			hPrior.EdgeColor='none';
 			hold on
 			hPosterior = histogram(obj.samples.glM(:),...
 				'DisplayStyle','bar',...
-				'Normalization', 'pdf');
+				'Normalization', 'pdf',...
+				'FaceColor',[0.2 0.2 0.2]);
 			hPosterior.EdgeColor='none';
 			xlim(hPosterior.BinLimits)
 			title('G^m')
@@ -116,12 +123,14 @@ classdef ModelHierarchical < ModelSeperate
 			subplot(2,2,4)
 			hPrior = histogram(obj.samples.glCprior(:),...
 				'DisplayStyle','bar',...
-				'Normalization', 'pdf');
+				'Normalization', 'pdf',...
+				'FaceColor',[0.8 0.8 0.8]);
 			hPrior.EdgeColor='none';
 			hold on
 			hPosterior = histogram(obj.samples.glC(:),...
 				'DisplayStyle','bar',...
-				'Normalization', 'pdf');
+				'Normalization', 'pdf',...
+				'FaceColor',[0.2 0.2 0.2]);
 			hPosterior.EdgeColor='none';
 			xlim(hPosterior.BinLimits)
 			title('G^c')

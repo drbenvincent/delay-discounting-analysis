@@ -23,10 +23,7 @@ classdef ModelSeperate < ModelSimple
 		
 
 		function plot(obj, data)
-			close all
-			
-			obj.calcSampleRange()
-			
+			close all		
 			% plot univariate summary statistics for the parameters we have
 			% made inferences about
 			figGroupedForestPlotSeparate(obj.analyses.univariate)
