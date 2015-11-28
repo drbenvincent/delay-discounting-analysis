@@ -31,7 +31,7 @@ classdef ModelHierarchical < ModelSeperate
 			myExport(data.saveName, obj.modelType, '-UnivariateSummary')
 			% -------------------------------
 			
-			obj.figPriorPost()
+			obj.figGroupLevelPriorPost()
 			obj.figGroupLevel(data)
 			obj.figParticipantLevelWRAPPER(data)
 			obj.MCMCdiagnostics(data)
@@ -61,99 +61,71 @@ classdef ModelHierarchical < ModelSeperate
 		end
 		
 		
-		function figPriorPost(obj)
+		function figGroupLevelPriorPost(obj)
 			% plot prior and posterior distributions of the group level parameters
 			figure
 			
 			subplot(2,2,1)
 			hPrior = histogram(obj.samples.glEpsilonprior(:),...
-				'DisplayStyle','stairs',...
+				'DisplayStyle','bar',...
 				'Normalization', 'pdf');
-			hPrior.LineStyle='--';
+			hPrior.EdgeColor='none';
+			
 			hold on
 			hPosterior = histogram(obj.samples.glEpsilon(:),...
-				'DisplayStyle','stairs',...
+				'DisplayStyle','bar',...
 				'Normalization', 'pdf');
-			xlim(hPosterior.BinLimits)
+			hPosterior.EdgeColor='none';
+			xlim(hPrior.BinLimits)
 			title('G^\epsilon')
 			box off
 			
+			
 			subplot(2,2,2)
 			hPrior = histogram(obj.samples.glALPHAprior(:),...
-				'DisplayStyle','stairs',...
+				'DisplayStyle','bar',...
 				'Normalization', 'pdf');
-			hPrior.LineStyle='--';
+			hPrior.EdgeColor='none';
+			
 			hold on
+			
 			hPosterior = histogram(obj.samples.glALPHA(:),...
-				'DisplayStyle','stairs',...
+				'DisplayStyle','bar',...
 				'Normalization', 'pdf');
+			hPosterior.EdgeColor='none';
 			xlim(hPosterior.BinLimits)
 			title('G^\alpha')
 			box off
 			
-			% 			clear opts
-			% 			posteriorSamples	= obj.samples.glEpsilon(:);
-			% 			opts.priorSamples	= obj.samples.glEpsilonprior(:);
-			% 			opts.PlotBoxAspectRatio=[1 1 1];
-			% 			opts.plotStyle = 'line';
-			% 			opts.nbins = 1000;
-			% 			subplot(1,2,1), plotMCMCdist(posteriorSamples, opts);
-			% 			title('G^\epsilon')
-			
 
-			%			clear opts
-			% 			posteriorSamples	= obj.samples.glALPHA(:);
-			% 			opts.priorSamples	= obj.samples.glALPHAprior(:);
-			% 			opts.PlotBoxAspectRatio=[1 1 1];
-			% 			opts.plotStyle = 'line';
-			% 			opts.nbins = 1000;
-			% 			subplot(1,2,2), plotMCMCdist(posteriorSamples, opts);
-			% 			title('G^\alpha')
-			
-			
+
 			subplot(2,2,3)
 			hPrior = histogram(obj.samples.glMprior(:),...
-				'DisplayStyle','stairs',...
+				'DisplayStyle','bar',...
 				'Normalization', 'pdf');
-			hPrior.LineStyle='--';
+			hPrior.EdgeColor='none';
 			hold on
 			hPosterior = histogram(obj.samples.glM(:),...
-				'DisplayStyle','stairs',...
+				'DisplayStyle','bar',...
 				'Normalization', 'pdf');
+			hPosterior.EdgeColor='none';
 			xlim(hPosterior.BinLimits)
 			title('G^m')
 			box off
 			
 			subplot(2,2,4)
 			hPrior = histogram(obj.samples.glCprior(:),...
-				'DisplayStyle','stairs',...
+				'DisplayStyle','bar',...
 				'Normalization', 'pdf');
-			hPrior.LineStyle='--';
+			hPrior.EdgeColor='none';
 			hold on
 			hPosterior = histogram(obj.samples.glC(:),...
-				'DisplayStyle','stairs',...
+				'DisplayStyle','bar',...
 				'Normalization', 'pdf');
+			hPosterior.EdgeColor='none';
 			xlim(hPosterior.BinLimits)
 			title('G^c')
 			box off
-			
-% 			clear opts
-% 			posteriorSamples	= obj.samples.glM(:);
-% 			opts.priorSamples	= obj.samples.glMprior(:);
-% 			opts.PlotBoxAspectRatio=[1 1 1];
-% 			opts.plotStyle = 'line';
-% 			opts.nbins = 100;
-% 			subplot(1,2,1), plotMCMCdist(posteriorSamples, opts);
-% 			title('G^m')
-% 			
-% 			clear opts
-% 			posteriorSamples	= obj.samples.glC(:);
-% 			opts.priorSamples	= obj.samples.glCprior(:);
-% 			opts.PlotBoxAspectRatio=[1 1 1];
-% 			opts.plotStyle = 'line';
-% 			opts.nbins = 1000;
-% 			subplot(1,2,2), plotMCMCdist(posteriorSamples, opts);
-% 			title('G^c')
 			
 		end
 		
