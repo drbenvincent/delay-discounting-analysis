@@ -20,12 +20,12 @@ classdef ModelHierarchical < ModelSeperate
 		end
 		% =================================================================
 		
-
+		
 		function plot(obj, data)
 			close all
 			% plot univariate summary statistics for the parameters we have
 			% made inferences about
-			figGroupedForestPlot(obj.analyses.univariate, data.IDname)
+			obj.figUnivariateSummary(obj.analyses.univariate, data.IDname)
 			% EXPORTING ---------------------
 			latex_fig(16, 5, 5)
 			myExport(data.saveName, obj.modelType, '-UnivariateSummary')
@@ -102,8 +102,8 @@ classdef ModelHierarchical < ModelSeperate
 			title('G^\alpha')
 			box off
 			
-
-
+			
+			
 			subplot(2,2,3)
 			hPrior = histogram(obj.samples.glMprior(:),...
 				'DisplayStyle','bar',...
@@ -138,7 +138,7 @@ classdef ModelHierarchical < ModelSeperate
 			
 		end
 		
-
+		
 		function HTgroupSlopeLessThanZero(obj, data)
 			% Test the hypothesis that the group level slope (G^m) is less
 			% than one
@@ -350,6 +350,9 @@ classdef ModelHierarchical < ModelSeperate
 			fprintf('\t%s\n\n',savename)
 		end
 		
+		
+		
+		
 	end
 	
 	
@@ -507,6 +510,75 @@ classdef ModelHierarchical < ModelSeperate
 			end
 			
 		end
+		
+		
+		
+		function figUnivariateSummary(uni, participantIDlist)
+			
+			figure
+			
+			GROUPS = numel(uni);
+			
+			clear CI95
+			
+			% -----------------------------------------------------------
+			subplot(4,1,1)
+			for g=1:GROUPS
+				modeVals(:,g) = [uni(g).glM.mode  uni(g).m.mode];
+				CI95(:,:,g) = [uni(g).glM.CI95 uni(g).m.CI95];
+			end
+			[N, nGroups] = size(modeVals);
+			xlabels={'G^m' participantIDlist{:}};
+			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			plotGroupedForestPlot(xlabels, modeVals, CI95, '$m$')
+			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			xlim([0.5 N+0.5])
+			hline(0,...
+				'Color','k',...
+				'LineStyle','--')
+			
+			clear CI95 modeValsCI95
+			
+			% -----------------------------------------------------------
+			subplot(4,1,2)
+			for g=1:GROUPS
+				modeVals(:,g) = [uni(g).glC.mode  uni(g).c.mode];
+				CI95(:,:,g) = [uni(g).glC.CI95 uni(g).c.CI95];
+			end
+			xlabels={'G^c' participantIDlist{:}};
+			plotGroupedForestPlot(xlabels, modeVals, CI95, '$c$')
+			xlim([0.5 N+0.5])
+			
+			clear CI95 modeValsCI95
+			
+			% -----------------------------------------------------------
+			subplot(4,1,3) % LAPSE RATE
+			for g=1:GROUPS
+				modeVals(:,g) = [uni(g).glEpsilon.mode uni(g).epsilon.mode];
+				CI95(:,:,g) = [uni(g).glEpsilon.CI95 uni(g).epsilon.CI95];
+			end
+			xlabels={'G^\epsilon' participantIDlist{:}};
+			%plotGroupedForestPlot(xlabels, modeVals, CI95, '$\epsilon$') % plot as rate
+			plotGroupedForestPlot(xlabels, modeVals*100, CI95*100, '$\epsilon (\%)$') % plot as %
+			xlim([0.5 N+0.5])
+			a=axis; ylim([0 a(4)])
+			clear CI95 modeVals CI95
+			
+			% -----------------------------------------------------------
+			subplot(4,1,4) % COMPARISON ACUITY
+			for g=1:GROUPS
+				modeVals(:,g) = [uni(g).glALPHA.mode uni(g).alpha.mode];
+				CI95(:,:,g) = [uni(g).glALPHA.CI95 uni(g).alpha.CI95];
+			end
+			xlabels={'G^\alpha' participantIDlist{:}};
+			plotGroupedForestPlot(xlabels, modeVals, CI95, '$\alpha$')
+			xlim([0.5 N+0.5])
+			a=axis; ylim([0 a(4)])
+			
+			
+		end
+		
+		
 	end
 	
 end
