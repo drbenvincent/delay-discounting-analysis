@@ -1,31 +1,24 @@
 function myExport(saveName, prefix, suffix)
 
-%% set background as white
+% set background as white
 set(gcf,'Color','w');
 
-%% Make sure folders exist
-intialDir = cd;
-if ~exist('figs', 'dir'), mkdir('figs'); end
-cd('figs')
+% As it stands, we are going to save the current figure in relative
+% location:
+% /figs/{saveName}
+saveLocation = fullfile('figs',saveName);
+if ~exist(saveLocation, 'dir'), mkdir(saveLocation); end
 
-if numel(saveName)==0
-	% don't save it in a folder
-else
-	if ~exist(saveName, 'dir'), mkdir('test'); end
-	cd(saveName)
-end
-
-%% Export
 saveFileName = [prefix saveName suffix];
+saveAs = fullfile(saveLocation, saveFileName);
 % % .pdf
-% print('-opengl','-dpdf','-r2400', [saveFileName '.pdf'])
+% print('-opengl','-dpdf','-r2400', [saveAs '.pdf'])
 % .png
-export_fig(saveFileName,'-png','-m4')
+export_fig(saveAs,'-png','-m4')
 % .fig
-%hgsave(saveFileName)
+%hgsave(saveAs)
 
-%% finish up
-fprintf('Figure saved: %s\n\n', saveFileName);
-cd(intialDir)
+% finish up
+fprintf('Figure saved: %s\n\n', saveAs);
 
 return
