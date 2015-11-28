@@ -16,7 +16,7 @@ classdef ModelLinear < ModelSeperate
 			
 			% Overwrite
 			obj.JAGSmodel = [toolboxPath '/jagsModels/linearModel.txt'];
-			obj.modelType = 'mLinear';
+			[~,obj.modelType,~] = fileparts(obj.JAGSmodel);
 			obj = obj.setMCMCparams();
 		end
 		% =================================================================

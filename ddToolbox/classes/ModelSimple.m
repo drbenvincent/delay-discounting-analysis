@@ -33,7 +33,7 @@ classdef ModelSimple < handle
 		% CONSTRUCTOR =====================================================
 		function obj=ModelSimple(toolboxPath)
 			obj.JAGSmodel = [toolboxPath '/jagsModels/simpleME.txt'];
-			obj.modelType = 'mSimple';
+			[~,obj.modelType,~] = fileparts(obj.JAGSmodel);
 			obj = obj.setSampler('JAGS');
 			
 			obj = obj.setMCMCparams();
@@ -79,11 +79,11 @@ classdef ModelSimple < handle
 				obj.mcmcparams.nchains, obj.mcmcparams.nsamples)
 		end
 		
+
 		function obj = setBurnIn(obj, nburnin)
 			obj.mcmcparams.nburnin = nburnin;
 			fprintf('Burn in: %d samples\n', obj.mcmcparams.nburnin)
 		end
-		
 		
 		
 		function obj = setSampler(obj, sampler)
@@ -96,6 +96,7 @@ classdef ModelSimple < handle
 			fprintf('MCMC sampling software now set as: %s\n',obj.sampler)
 		end
 		
+
 		function plot(obj,data)
 			close all
 			obj.calcSampleRange()
@@ -103,13 +104,13 @@ classdef ModelSimple < handle
 			% *** EXPORT FIGURE HERE ***
 		end
 
+
 		function calcSampleRange(obj)
 			% Define limits for each of the variables here for plotting purposes
 			obj.range.epsilon=[0 min([prctile(obj.samples.epsilon(:),[99]), 0.5])];
 			obj.range.alpha=[0 prctile(obj.samples.alpha(:), [99])];
 			obj.range.m=prctile([obj.samples.glM(:); obj.samples.m(:)], [0.5 99.5]);
 			obj.range.c=prctile([obj.samples.glC(:); obj.samples.c(:)], [1 99]);
-
 		end
 		
 		
@@ -240,59 +241,7 @@ classdef ModelSimple < handle
 % 			set(gca,'XLim',[10 100])
 		end
 		
-		
-		function samplePlots(obj)
-			clf
-			subplot(1,2,1)
-			h=scatter( obj.samples.m(:), obj.samples.c(:), 4, 'filled', 'k');
-			xlabel('m')
-			ylabel('c')
-			
-			hold on
-			scatter( median(obj.samples.m(:)),...
-				median(obj.samples.c(:)),...
-				'r','filled')
-			
-			subplot(1,2,2)
-			scatter( obj.samples.lr(:), obj.samples.alpha(:), 4, 'filled', 'k');
-			xlabel('lr')
-			ylabel('alpha')
-			drawnow
-		end
-		
 
-		function stackedForestPlot(obj, uni)
-			% how many participants do we have
-			N = numel(uni.lr.mode);
-			
-			% create x labels
-			xlabels=cell(N+1,1);
-			xlabels{1} = 'group';
-			for n=1:N
-				xlabels{n+1} = n;
-			end
-			
-			subplot(4,1,1)
-			forestPlot(xlabels, [uni.groupMmu.mode uni.m.mode],...
-				[uni.groupMmu.CI95 uni.m.CI95],...
-				'm')
-			
-			subplot(4,1,2)
-			forestPlot(xlabels, [uni.groupCmu.mode uni.c.mode],...
-				[uni.groupCmu.CI95 uni.c.CI95],...
-				'c')
-			
-			subplot(4,1,3)
-			forestPlot(xlabels, [uni.groupW.mode uni.lr.mode],...
-				[uni.groupW.CI95 uni.lr.CI95], '\lambda')
-			%xlim([-1 N+1])
-			
-			subplot(4,1,4)
-			forestPlot(1:N, uni.alpha.mode, uni.alpha.CI95, '\alpha')
-			xlim([-1 N+1])
-		end
-		
-		
 		function obj = doAnalysis(obj)
 			% univariate summary stats
 			fields ={'lr', 'alpha', 'm', 'c'};

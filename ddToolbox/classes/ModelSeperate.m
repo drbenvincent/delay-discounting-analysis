@@ -16,8 +16,7 @@ classdef ModelSeperate < ModelSimple
 			
 			% Overwrite
 			obj.JAGSmodel = [toolboxPath '/jagsModels/seperateME.txt'];
-			
-			obj.modelType = 'mSeparate';
+			[~,obj.modelType,~] = fileparts(obj.JAGSmodel);
 			obj = obj.setMCMCparams();
 		end
 		% =================================================================

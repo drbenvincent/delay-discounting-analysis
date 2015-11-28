@@ -15,7 +15,7 @@ classdef ModelHierarchical < ModelSeperate
 			
 			% Overwrite
 			obj.JAGSmodel = [toolboxPath '/jagsModels/hierarchicalME.txt'];
-			obj.modelType = 'mHierarchical';
+			[~,obj.modelType,~] = fileparts(obj.JAGSmodel);
 			obj = obj.setMCMCparams();
 		end
 		% =================================================================

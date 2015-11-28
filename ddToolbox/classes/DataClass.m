@@ -1,7 +1,6 @@
 classdef DataClass < handle
 	%data A class to load and handle data
 	%   Detailed explanation goes here
-
 	
 	properties (GetAccess = public, SetAccess = private)
 		participantFilenames
@@ -19,7 +18,6 @@ classdef DataClass < handle
 		
 		saveName
 	end
-
 
 
 	methods (Access = public)
@@ -43,6 +41,8 @@ classdef DataClass < handle
 		
 		function [obj] = loadDataFiles(obj,fnames)
 			% fnames should be a cell array of filenames
+
+			% TODO: TIDY UP WHAT IS HAPPENING HERE
 			
 			for n=1:numel(fnames) % loop over fnames, each time importing
 				fname = fnames{n};
@@ -129,32 +129,30 @@ classdef DataClass < handle
 		end
 		
 		
-		function [obj] = addData(obj, thisTrialData)
-			% adds one trial worth of data
-			% we assume this is happening in the context of live fitting
-			% during an adaptive experimental procedure, so we are only
-			% dealing with one participant
+		% function [obj] = addData(obj, thisTrialData)
+		% 	% adds one trial worth of data
+		% 	% we assume this is happening in the context of live fitting
+		% 	% during an adaptive experimental procedure, so we are only
+		% 	% dealing with one participant
 			
-			% append to bottom of table
-			obj.participantLevel(1).table = [obj.participantLevel(1).table ; thisTrialData];
+		% 	% append to bottom of table
+		% 	obj.participantLevel(1).table = [obj.participantLevel(1).table ; thisTrialData];
 			
-			% copy to groupTable
-			obj.groupTable = obj.participantLevel(1).table;
+		% 	% copy to groupTable
+		% 	obj.groupTable = obj.participantLevel(1).table;
 			
-			% Copy the observed data into a structure
-			obj.observedData.A = obj.groupTable.A;
-			obj.observedData.B = obj.groupTable.B;
-			obj.observedData.DA = obj.groupTable.DA;
-			obj.observedData.DB = obj.groupTable.DB;
-			obj.observedData.R = obj.groupTable.R;
-			%obj.observedData.ID = obj.groupTable.ID;
+		% 	% Copy the observed data into a structure
+		% 	obj.observedData.A = obj.groupTable.A;
+		% 	obj.observedData.B = obj.groupTable.B;
+		% 	obj.observedData.DA = obj.groupTable.DA;
+		% 	obj.observedData.DB = obj.groupTable.DB;
+		% 	obj.observedData.R = obj.groupTable.R;
+		% 	%obj.observedData.ID = obj.groupTable.ID;
 			
-			% calculate more things
-			obj.totalTrials = height(obj.groupTable);
-			obj.nParticipants = 1;
-		end
-		
-				
+		% 	% calculate more things
+		% 	obj.totalTrials = height(obj.groupTable);
+		% 	obj.nParticipants = 1;
+		% end
 		
 		
 		function quickAnalysis(obj)
@@ -191,9 +189,6 @@ classdef DataClass < handle
 		end
 
 
-
-		
-		
 		function obj = setCovariateValues(obj,covariateValues)
 			% set the values
 			obj.observedData.covariate = covariateValues;	
@@ -212,11 +207,13 @@ classdef DataClass < handle
 			end
 		end
 		
+		
 		function obj = setCovariateProbeValues(obj, CovariateProbeValues)
 			obj.observedData.covariateProbeVals = CovariateProbeValues;
 		end
 			
 	end
+
 
 	methods(Static)
 		function [logk, kvec, prop_explained] = quickAndDirtyEstimateOfLogK(data)

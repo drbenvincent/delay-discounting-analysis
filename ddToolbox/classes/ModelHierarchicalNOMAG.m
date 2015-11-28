@@ -17,7 +17,7 @@ classdef ModelHierarchicalNOMAG < ModelHierarchical
 			
 			% Overwrite
 			obj.JAGSmodel = [toolboxPath '/jagsModels/hierarchicalNOMAG.txt'];
-			obj.modelType = 'mHierarchicalNOMAG';
+			[~,obj.modelType,~] = fileparts(obj.JAGSmodel);
 			
 			obj = obj.setMCMCparams();
 		end
