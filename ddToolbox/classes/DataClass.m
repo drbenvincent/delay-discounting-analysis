@@ -107,14 +107,13 @@ classdef DataClass < handle
 			obj.setCovariateValues(covariateValues);
 
 			% save
-			st=cd;
-			cd(obj.dataFolder)
-			mkdir('groupLevelData'), cd('groupLevelData')
-			writetable(obj.groupTable,obj.saveName,...
+			saveLocation = fullfile(obj.dataFolder,'groupLevelData');
+			if ~exist(saveLocation, 'dir'), mkdir(saveLocation), end
+			writetable(obj.groupTable,...
+				fullfile(saveLocation,obj.saveName),...
 				'delimiter','tab')
 			fprintf('A copy of the group-level dataset just constructed has been saves as a text file:\n%s\n',...
-				fullfile(pwd,obj.saveName));
-			cd(st)
+				fullfile(saveLocation,obj.saveName));
 			
 			display('The following participant-level data files were imported:')
 			display(fnames')

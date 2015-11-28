@@ -52,28 +52,12 @@ for f = 1:numel(fields) % LOOP OVER VARIABLES
 		hChain.Position		= [0.1 0.1 0.7 0.8];
 	end
 	
-	% 	else
-	% 		% PLOT HIERACHICAL STYLE,
-	%
-	% 		pause
-	% 	end
-	%
 	drawnow
-	
 	
 	%% EXPORTING ---------------------
 	latex_fig(16, 12,4)
 	myExport(data.saveName, [modelType], ['-MCMCchain-' fields{f}])
 	% -------------------------------
-% 	
-% 	%% EXPORTING
-% 	cd(plotOpts.saveDir)
-% 	latex_fig(16, 12,4)
-% 	figName = [saveNamePrefix fields{f}];
-% 	export_fig(figName,'-png','-m3')
-% 	hgsave(figName)
-% 	cd(plotOpts.rootDir)
-% 	fprintf('Figure saved: %s\n', figName);
 	
 end
 
