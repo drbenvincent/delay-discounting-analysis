@@ -57,43 +57,98 @@ classdef ModelHierarchical < ModelSeperate
 		
 		
 		function figPriorPost(obj)
+			% plot prior and posterior distributions of the group level parameters
 			figure
 			
-			clear opts
-			posteriorSamples	= obj.samples.glEpsilon(:);
-			opts.priorSamples	= obj.samples.glEpsilonprior(:);
-			opts.PlotBoxAspectRatio=[1 1 1];
-			opts.plotStyle = 'line';
-			opts.nbins = 1000;
-			subplot(2,2,1), plotMCMCdist(posteriorSamples, opts);
+			subplot(2,2,1)
+			hPrior = histogram(obj.samples.glEpsilonprior(:),...
+				'DisplayStyle','stairs',...
+				'Normalization', 'pdf');
+			hPrior.LineStyle='--';
+			hold on
+			hPosterior = histogram(obj.samples.glEpsilon(:),...
+				'DisplayStyle','stairs',...
+				'Normalization', 'pdf');
+			xlim(hPosterior.BinLimits)
 			title('G^\epsilon')
+			box off
 			
-			clear opts
-			posteriorSamples	= obj.samples.glALPHA(:);
-			opts.priorSamples	= obj.samples.glALPHAprior(:);
-			opts.PlotBoxAspectRatio=[1 1 1];
-			opts.plotStyle = 'line';
-			opts.nbins = 1000;
-			subplot(2,2,3), plotMCMCdist(posteriorSamples, opts);
+			subplot(2,2,2)
+			hPrior = histogram(obj.samples.glALPHAprior(:),...
+				'DisplayStyle','stairs',...
+				'Normalization', 'pdf');
+			hPrior.LineStyle='--';
+			hold on
+			hPosterior = histogram(obj.samples.glALPHA(:),...
+				'DisplayStyle','stairs',...
+				'Normalization', 'pdf');
+			xlim(hPosterior.BinLimits)
 			title('G^\alpha')
+			box off
 			
-			clear opts
-			posteriorSamples	= obj.samples.glM(:);
-			opts.priorSamples	= obj.samples.glMprior(:);
-			opts.PlotBoxAspectRatio=[1 1 1];
-			opts.plotStyle = 'line';
-			opts.nbins = 1000;
-			subplot(2,2,2), plotMCMCdist(posteriorSamples, opts);
+			% 			clear opts
+			% 			posteriorSamples	= obj.samples.glEpsilon(:);
+			% 			opts.priorSamples	= obj.samples.glEpsilonprior(:);
+			% 			opts.PlotBoxAspectRatio=[1 1 1];
+			% 			opts.plotStyle = 'line';
+			% 			opts.nbins = 1000;
+			% 			subplot(1,2,1), plotMCMCdist(posteriorSamples, opts);
+			% 			title('G^\epsilon')
+			
+
+			%			clear opts
+			% 			posteriorSamples	= obj.samples.glALPHA(:);
+			% 			opts.priorSamples	= obj.samples.glALPHAprior(:);
+			% 			opts.PlotBoxAspectRatio=[1 1 1];
+			% 			opts.plotStyle = 'line';
+			% 			opts.nbins = 1000;
+			% 			subplot(1,2,2), plotMCMCdist(posteriorSamples, opts);
+			% 			title('G^\alpha')
+			
+			
+			subplot(2,2,3)
+			hPrior = histogram(obj.samples.glMprior(:),...
+				'DisplayStyle','stairs',...
+				'Normalization', 'pdf');
+			hPrior.LineStyle='--';
+			hold on
+			hPosterior = histogram(obj.samples.glM(:),...
+				'DisplayStyle','stairs',...
+				'Normalization', 'pdf');
+			xlim(hPosterior.BinLimits)
 			title('G^m')
+			box off
 			
-			clear opts
-			posteriorSamples	= obj.samples.glC(:);
-			opts.priorSamples	= obj.samples.glCprior(:);
-			opts.PlotBoxAspectRatio=[1 1 1];
-			opts.plotStyle = 'line';
-			opts.nbins = 10000;
-			subplot(2,2,4), plotMCMCdist(posteriorSamples, opts);
+			subplot(2,2,4)
+			hPrior = histogram(obj.samples.glCprior(:),...
+				'DisplayStyle','stairs',...
+				'Normalization', 'pdf');
+			hPrior.LineStyle='--';
+			hold on
+			hPosterior = histogram(obj.samples.glC(:),...
+				'DisplayStyle','stairs',...
+				'Normalization', 'pdf');
+			xlim(hPosterior.BinLimits)
 			title('G^c')
+			box off
+			
+% 			clear opts
+% 			posteriorSamples	= obj.samples.glM(:);
+% 			opts.priorSamples	= obj.samples.glMprior(:);
+% 			opts.PlotBoxAspectRatio=[1 1 1];
+% 			opts.plotStyle = 'line';
+% 			opts.nbins = 100;
+% 			subplot(1,2,1), plotMCMCdist(posteriorSamples, opts);
+% 			title('G^m')
+% 			
+% 			clear opts
+% 			posteriorSamples	= obj.samples.glC(:);
+% 			opts.priorSamples	= obj.samples.glCprior(:);
+% 			opts.PlotBoxAspectRatio=[1 1 1];
+% 			opts.plotStyle = 'line';
+% 			opts.nbins = 1000;
+% 			subplot(1,2,2), plotMCMCdist(posteriorSamples, opts);
+% 			title('G^c')
 			
 		end
 		
