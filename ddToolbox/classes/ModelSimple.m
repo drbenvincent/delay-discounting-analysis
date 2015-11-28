@@ -116,13 +116,17 @@ classdef ModelSimple < handle
 		
 		function convergenceSummary(obj, data)
 			% save to a text file
+			if ~exist(fullfile('figs',data.saveName),'dir')
+				mkdir(fullfile('figs',data.saveName))
+			end
 			fname = fullfile('figs',data.saveName,['ConvergenceReport.txt']);
 			fid=fopen(fname,'w');
 			% MCMC parameter report
-			fprintf(fid,'MCMC inference was conducted with %d chains. ', obj.mcmcparams.nchains )
-			fprintf(fid,'The first %d samples were discarded from each chain, ', obj.mcmcparams.nburnin )
-			fprintf(fid,'resulting in a total of %d samples to approximate the posterior distribution. ', obj.mcmcparams.totalSamples )
-			fprintf(fid,'\n\n\n');
+			logInfo(fid, 'MCMC inference was conducted with %d chains. ', obj.mcmcparams.nchains)
+			%fprintf(fid,'MCMC inference was conducted with %d chains. ', obj.mcmcparams.nchains )
+			logInfo(fid,'The first %d samples were discarded from each chain, ', obj.mcmcparams.nburnin )
+			logInfo(fid,'resulting in a total of %d samples to approximate the posterior distribution. ', obj.mcmcparams.totalSamples )
+			logInfo(fid,'\n\n\n');
 			warningFlag = false;
 			% get fields that we have Rhat statistic for
 			names = fieldnames(obj.stats.Rhat);
@@ -130,21 +134,21 @@ classdef ModelSimple < handle
 			% multiple values (eg when we have multiple participants)
 			for n=1:numel(names)
 				RhatValues = obj.stats.Rhat.(names{n});
-				fprintf(fid,'\nRhat for: %s.\n',names{n});
+				logInfo(fid,'\nRhat for: %s.\n',names{n});
 				for i=1:numel(RhatValues)
 					if numel(RhatValues)>1
-						fprintf(fid,'%s\t', data.IDname{i});
+						logInfo(fid,'%s\t', data.IDname{i});
 					end
-					fprintf(fid,'%2.5f\t', RhatValues(i));
+					logInfo(fid,'%2.5f\t', RhatValues(i));
 					if RhatValues(i)>1.001
 						warningFlag = true;
-						fprintf(fid,'WARNING: poor convergence');
+						logInfo(fid,'WARNING: poor convergence');
 					end
-					fprintf(fid,'\n');
+					logInfo(fid,'\n');
 				end
 			end
 			if warningFlag 
-				fprintf(fid,'\n\n\n**** WARNING: convergence issues ****\n\n\n')
+				logInfo(fid,'\n\n\n**** WARNING: convergence issues ****\n\n\n')
 				beep
 			end
 			fclose(fid);
