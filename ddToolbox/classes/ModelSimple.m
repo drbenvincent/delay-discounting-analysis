@@ -54,8 +54,8 @@ classdef ModelSimple < handle
 				otherwise
 					error('sampler should be JAGS')
 			end
-			
-			obj = doAnalysis(obj);
+			obj.calcSampleRange()
+			obj.doAnalysis()
 			obj.convergenceSummary(data)
 			display('***** SAVE THE MODEL OBJECT HERE *****')
 		end
@@ -109,8 +109,8 @@ classdef ModelSimple < handle
 			% Define limits for each of the variables here for plotting purposes
 			obj.range.epsilon=[0 min([prctile(obj.samples.epsilon(:),[99]), 0.5])];
 			obj.range.alpha=[0 prctile(obj.samples.alpha(:), [99])];
-			obj.range.m=prctile([obj.samples.glM(:); obj.samples.m(:)], [0.5 99.5]);
-			obj.range.c=prctile([obj.samples.glC(:); obj.samples.c(:)], [1 99]);
+			obj.range.m=prctile(obj.samples.m(:), [0.5 99.5]);
+			obj.range.c=prctile(obj.samples.c(:), [1 99]);
 		end
 		
 		

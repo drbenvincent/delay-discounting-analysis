@@ -23,8 +23,6 @@ classdef ModelHierarchical < ModelSeperate
 
 		function plot(obj, data)
 			close all
-			obj.calcSampleRange()
-			
 			% plot univariate summary statistics for the parameters we have
 			% made inferences about
 			figGroupedForestPlot(obj.analyses.univariate)
@@ -39,6 +37,13 @@ classdef ModelHierarchical < ModelSeperate
 			obj.MCMCdiagnostics(data)
 		end
 		
+		function calcSampleRange(obj)
+			% Define limits for each of the variables here for plotting purposes
+			obj.range.epsilon=[0 min([prctile(obj.samples.epsilon(:),[99]), 0.5])];
+			obj.range.alpha=[0 prctile(obj.samples.alpha(:), [99])];
+			obj.range.m=prctile([obj.samples.glM(:); obj.samples.m(:)], [0.5 99.5]);
+			obj.range.c=prctile([obj.samples.glC(:); obj.samples.c(:)], [1 99]);
+		end
 		
 		function MCMCdiagnostics(obj, data)
 			
