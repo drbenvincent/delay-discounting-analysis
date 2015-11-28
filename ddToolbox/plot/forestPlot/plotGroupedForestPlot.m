@@ -14,11 +14,8 @@ if groupXoffset(end)-groupXoffset(1) > 0.9
 	groupWidth = 0.8;
 	groupXoffset=linspace(-groupWidth/2, groupWidth/2, nGroups);
 end
-
 hold on
-
 for g = 1:nGroups
-	
 	%groupColour = [1 1 1].* (1- ((g-1)/(N-1)));
 	groupColour = [1 1 1];
 	
@@ -26,7 +23,6 @@ for g = 1:nGroups
 	for n=1:N
 		plot([n n]+groupXoffset(g), ci(:,n,g) , 'k-')
 	end
-	
 	% plot points
 	h=plot([1:N]+groupXoffset(g),modeVal(:,g), 'ko');
 	h.MarkerFaceColor = groupColour;
@@ -34,13 +30,11 @@ for g = 1:nGroups
 end
 
 
-
 set(gca,'xTick',[1:N],...
-	'xTickLabel',xLabels)
-set(gca,'TickDir','out')
+	'xTickLabel',xLabels,...
+	'FontSize',8,...
+	'TickDir','out',...
+	'XLim',[0 N+1])
 axis tight
-set(gca,'XLim',[0 N+1])
-
 ylabel(ylabelText,'Interpreter','Latex')
-
 return

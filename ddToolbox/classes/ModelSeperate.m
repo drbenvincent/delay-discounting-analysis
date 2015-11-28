@@ -26,7 +26,7 @@ classdef ModelSeperate < ModelSimple
 			close all		
 			% plot univariate summary statistics for the parameters we have
 			% made inferences about
-			figGroupedForestPlotSeparate(obj.analyses.univariate)
+			figGroupedForestPlotSeparate(obj.analyses.univariate, data.IDname)
 			%stackedForestPlot(obj.analyses.univariate)
 			% EXPORTING ---------------------
 			latex_fig(16, 5, 5)

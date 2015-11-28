@@ -25,7 +25,7 @@ classdef ModelHierarchical < ModelSeperate
 			close all
 			% plot univariate summary statistics for the parameters we have
 			% made inferences about
-			figGroupedForestPlot(obj.analyses.univariate)
+			figGroupedForestPlot(obj.analyses.univariate, data.IDname)
 			% EXPORTING ---------------------
 			latex_fig(16, 5, 5)
 			myExport(data.saveName, obj.modelType, '-UnivariateSummary')
