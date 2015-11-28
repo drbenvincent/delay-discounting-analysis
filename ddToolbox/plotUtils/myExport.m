@@ -9,7 +9,7 @@ set(gcf,'Color','w');
 saveLocation = fullfile('figs',saveName);
 if ~exist(saveLocation, 'dir'), mkdir(saveLocation); end
 
-saveFileName = [prefix saveName suffix];
+saveFileName = [prefix '-' saveName suffix];
 saveAs = fullfile(saveLocation, saveFileName);
 % % .pdf
 % print('-opengl','-dpdf','-r2400', [saveAs '.pdf'])
