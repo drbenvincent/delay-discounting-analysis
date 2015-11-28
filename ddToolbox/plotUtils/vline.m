@@ -24,10 +24,10 @@ set(h,'LineStyle','-');
 set(h,'LineWidth',0.5);
 
 % Apply formatting provided
-set(h,varargin{:})
+temp = set(h,varargin{:});
 
 % send the line to the back
-uistack(h,'bottom')
+uistack(h,'bottom');
 
 if nargout>0
    out=h;
