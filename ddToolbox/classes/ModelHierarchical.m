@@ -516,63 +516,34 @@ classdef ModelHierarchical < ModelSeperate
 		function figUnivariateSummary(uni, participantIDlist)
 			
 			figure
-			
-			GROUPS = numel(uni);
-			
-			clear CI95
-			
-			% -----------------------------------------------------------
+
 			subplot(4,1,1)
-			for g=1:GROUPS
-				modeVals(:,g) = [uni(g).glM.mode  uni(g).m.mode];
-				CI95(:,:,g) = [uni(g).glM.CI95 uni(g).m.CI95];
-			end
-			[N, nGroups] = size(modeVals);
-			xlabels={'G^m' participantIDlist{:}};
-			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			plotGroupedForestPlot(xlabels, modeVals, CI95, '$m$')
-			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			xlim([0.5 N+0.5])
+			plotErrorBars({'G^m' participantIDlist{:}},...
+				[uni.glM.mode  uni.m.mode],...
+				[uni.glM.CI95 uni.m.CI95], '$m$')
+			%xlim([0.5 N+0.5])
 			hline(0,...
 				'Color','k',...
 				'LineStyle','--')
 			
-			clear CI95 modeValsCI95
-			
-			% -----------------------------------------------------------
 			subplot(4,1,2)
-			for g=1:GROUPS
-				modeVals(:,g) = [uni(g).glC.mode  uni(g).c.mode];
-				CI95(:,:,g) = [uni(g).glC.CI95 uni(g).c.CI95];
-			end
-			xlabels={'G^c' participantIDlist{:}};
-			plotGroupedForestPlot(xlabels, modeVals, CI95, '$c$')
-			xlim([0.5 N+0.5])
+			plotErrorBars({'G^c' participantIDlist{:}},...
+				[uni.glC.mode uni.c.mode],...
+				[uni.glC.CI95 uni.c.CI95], '$c$')
+			%xlim([0.5 N+0.5])
 			
-			clear CI95 modeValsCI95
-			
-			% -----------------------------------------------------------
 			subplot(4,1,3) % LAPSE RATE
-			for g=1:GROUPS
-				modeVals(:,g) = [uni(g).glEpsilon.mode uni(g).epsilon.mode];
-				CI95(:,:,g) = [uni(g).glEpsilon.CI95 uni(g).epsilon.CI95];
-			end
-			xlabels={'G^\epsilon' participantIDlist{:}};
-			%plotGroupedForestPlot(xlabels, modeVals, CI95, '$\epsilon$') % plot as rate
-			plotGroupedForestPlot(xlabels, modeVals*100, CI95*100, '$\epsilon (\%)$') % plot as %
-			xlim([0.5 N+0.5])
+			plotErrorBars({'G^\epsilon' participantIDlist{:}},...
+				[uni.glEpsilon.mode uni.epsilon.mode]*100,...
+				[uni.glEpsilon.CI95 uni.epsilon.CI95]*100, '$\epsilon (\%)$') 
 			a=axis; ylim([0 a(4)])
 			clear CI95 modeVals CI95
 			
-			% -----------------------------------------------------------
 			subplot(4,1,4) % COMPARISON ACUITY
-			for g=1:GROUPS
-				modeVals(:,g) = [uni(g).glALPHA.mode uni(g).alpha.mode];
-				CI95(:,:,g) = [uni(g).glALPHA.CI95 uni(g).alpha.CI95];
-			end
-			xlabels={'G^\alpha' participantIDlist{:}};
-			plotGroupedForestPlot(xlabels, modeVals, CI95, '$\alpha$')
-			xlim([0.5 N+0.5])
+			plotErrorBars({'G^\alpha' participantIDlist{:}},...
+				[uni.glALPHA.mode uni.alpha.mode],...
+				[uni.glALPHA.CI95 uni.alpha.CI95], '$\alpha$')
+			%xlim([0.5 N+0.5])
 			a=axis; ylim([0 a(4)])
 			
 			
