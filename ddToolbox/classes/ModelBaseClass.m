@@ -20,7 +20,17 @@ classdef ModelBaseClass < handle
 		stats		% struct
 		analyses	% struct
 	end
-	
+
+	methods(Abstract, Access = public)
+		% subclasses must implement these methods
+		plot(obj, data)
+	end
+
+	methods(Abstract, Access = protected)
+		doAnalysis(obj)
+		setObservedMonitoredValues(obj, data)
+		setInitialParamValues(obj, data)
+	end
 	
 	methods (Access = public)
 		
@@ -86,22 +96,6 @@ classdef ModelBaseClass < handle
 			end
 			fprintf('MCMC sampling software now set as: %s\n',obj.sampler)
 		end
-		
-
-		% function plot(obj, data)
-		% 	close all
-		% 	% plot univariate summary statistics for the parameters we have
-		% 	% made inferences about
-		% 	obj.figUnivariateSummary(obj.analyses.univariate, data.IDname)
-		% 	%stackedForestPlot(obj.analyses.univariate)
-		% 	% EXPORTING ---------------------
-		% 	latex_fig(16, 5, 5)
-		% 	myExport(data.saveName, obj.modelType, '-UnivariateSummary')
-		% 	% -------------------------------
-			
-		% 	obj.figParticipantLevelWRAPPER(data)
-		% 	obj.MCMCdiagnostics(data)
-		% end
 
 
 		function calcSampleRange(obj)
@@ -112,22 +106,6 @@ classdef ModelBaseClass < handle
 			obj.range.m=prctile(obj.samples.m(:), [0.5 99.5]);
 			obj.range.c=prctile(obj.samples.c(:), [1 99]);
 		end
-
-
-		% function MCMCdiagnostics(obj, data)
-		% 	% Choose what to plot ---------------
-		% 	variablesToPlot = {'epsilon', 'alpha', 'm', 'c'};
-		% 	supp			= {[0 0.5], 'positive', [], []};
-		% 	paramString		= {'\epsilon', '\alpha', 'm', 'c'};
-			
-		% 	true=[];
-			
-		% 	% PLOT -------------------
-		% 	MCMCdiagnoticsPlot(obj.samples, obj.stats,...
-		% 		true,...
-		% 		variablesToPlot, supp, paramString, data,...
-		% 		obj.modelType);
-		% end
 		
 		
 		function convergenceSummary(obj, data)
@@ -212,45 +190,6 @@ classdef ModelBaseClass < handle
 		end
 		
 
-		% TODO
-		function obj = setInitialParamValues(obj, data)
-		end
-		% function obj = setInitialParamValues(obj, data)
-		% 	for n=1:obj.mcmcparams.nchains
-		% 		% Values for which there are just one of
-		% 		%obj.initial_param(n).groupW = rand/10; % group mean lapse rate
-				
-		% 		%obj.initial_param(n).mprior = normrnd(-0.243,1);
-		% 		%obj.initial_param(n).cprior = normrnd(0,4);
-				
-		% 		% One value for each participant
-		% 		for p=1:data.nParticipants
-		% 			obj.initial_param(n).alpha(p)	= abs(normrnd(0.01,0.01));
-		% 			obj.initial_param(n).lr(p)		= rand/10;
-					
-		% 			obj.initial_param(n).m(p) = normrnd(-0.243,1);
-		% 			obj.initial_param(n).c(p) = normrnd(0,4);
-		% 		end
-		% 	end
-		% end
-
-		% TODO
-		function [obj] = setObservedMonitoredValues(obj, data)
-		end
-		
-		% function [obj] = setObservedMonitoredValues(obj, data)
-		% 	obj.observed = data.observedData;
-		% 	obj.observed.logBInterp = log( logspace(0,5,99) );
-		% 	% group-level stuff
-		% 	obj.observed.nParticipants	= data.nParticipants;
-		% 	obj.observed.totalTrials	= data.totalTrials;
-			
-		% 	obj.monitorparams = {'epsilon','epsilonprior',...
-		% 		'alpha','alphaprior',...
-		% 		'm','mprior',...
-		% 		'c','cprior'};%'participantlogk'};
-		% end
-		
 		function obj = invokeJAGS(obj)
 			fprintf('\nRunning JAGS (%d chains, %d samples each)\n',...
 				obj.mcmcparams.nchains,...
@@ -355,58 +294,7 @@ classdef ModelBaseClass < handle
 			
 		end
 
-		% TODO
-		function obj = doAnalysis(obj)
-		end
-		
-		% function obj = doAnalysis(obj)
-		% 	% univariate summary stats
-		% 	fields ={'epsilon', 'alpha', 'm', 'c'};
-		% 	support={'positive', 'positive', [], []};
-		% 	% Do the analysis
-		% 	uni = univariateAnalysis(obj.samples, fields, support );
-		% 	% Store the results
-		% 	obj.analyses.univariate = uni;
-			
-		% 	% 			% #############################################################
-		% 	% 			% as a complete botch set group parameters as blank
-		% 	% 			obj.analyses.univariate.glM.mode	= NaN;
-		% 	% 			obj.analyses.univariate.glM.CI95	= [NaN; NaN];
-		% 	% 			obj.analyses.univariate.glC.mode	= NaN;
-		% 	% 			obj.analyses.univariate.glC.CI95	= [NaN; NaN];
-		% 	%
-		% 	% 			obj.analyses.univariate.groupW.mode	= NaN;
-		% 	% 			obj.analyses.univariate.groupW.CI95	= [NaN; NaN];
-		% 	% 			% #############################################################
-		% end
-		
 	end
-
-
-	% methods(Static)
-	% 	function figUnivariateSummary(uni, participantIDlist)
-	% 		figure
-			
-	% 		subplot(4,1,1) % M
-	% 		plotErrorBars(participantIDlist, [uni.m.mode], [uni.m.CI95], '$m$')
-	% 		hline(0,...
-	% 			'Color','k',...
-	% 			'LineStyle','--')
-			
-	% 		subplot(4,1,2) % C
-	% 		plotErrorBars(participantIDlist, [uni.c.mode], [uni.c.CI95], '$c$')
-			
-	% 		subplot(4,1,3) % LAPSE RATE
-	% 		plotErrorBars(participantIDlist, [uni.epsilon.mode]*100, [uni.epsilon.CI95]*100, '$\epsilon (\%)$') % plot as %
-	% 		%xlim([0.5 N+0.5])
-	% 		a=axis; ylim([0 a(4)])
-			
-	% 		subplot(4,1,4) % COMPARISON ACUITY
-	% 		plotErrorBars(participantIDlist, [uni.alpha.mode], [uni.alpha.CI95], '$\alpha$')
-	% 		%xlim([0.5 N+0.5])
-	% 		a=axis; ylim([0 a(4)])
-	% 	end
-	% end
 
 	
 end

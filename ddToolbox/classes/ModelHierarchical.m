@@ -15,7 +15,6 @@ classdef ModelHierarchical < ModelBaseClass
 			
 			obj.JAGSmodel = [toolboxPath '/jagsModels/hierarchicalME.txt'];
 			[~,obj.modelType,~] = fileparts(obj.JAGSmodel);
-			%obj = obj.setMCMCparams();
 		end
 		% =================================================================
 		
@@ -36,14 +35,6 @@ classdef ModelHierarchical < ModelBaseClass
 			obj.MCMCdiagnostics(data)
 		end
 		
-		% function calcSampleRange(obj)
-		% 	% Define limits for each of the variables here for plotting purposes
-		% 	%obj.range.epsilon=[0 min([prctile(obj.samples.epsilon(:),[99]), 0.5])];
-		% 	obj.range.epsilon=[0 0.5]; % full range
-		% 	obj.range.alpha=[0 prctile(obj.samples.alpha(:), [99])];
-		% 	obj.range.m=prctile([obj.samples.glM(:); obj.samples.m(:)], [0.5 99.5]);
-		% 	obj.range.c=prctile([obj.samples.glC(:); obj.samples.c(:)], [1 99]);
-		% end
 		
 		function MCMCdiagnostics(obj, data)
 			
@@ -312,7 +303,6 @@ classdef ModelHierarchical < ModelBaseClass
 		
 
 		% TODO: NOW THIS OVERIDES THE BASE CLASS METHOD, BUT IDEALLY WE WANT TO MAKE THAT BASECLASS METHOD MODE GENERAL SO WE CAN REMOVE THIS FUNCTION
-		
 		function exportParameterEstimates(obj, data)
 			participant_level = array2table(...
 				[obj.analyses.univariate.m.mode'...
@@ -353,12 +343,9 @@ classdef ModelHierarchical < ModelBaseClass
 			fprintf('\t%s\n\n',savename)
 		end
 		
-		
-		
-		
 	end
 	
-	
+
 	
 	methods (Access = protected)
 		function [obj] = setObservedMonitoredValues(obj, data)
@@ -518,9 +505,7 @@ classdef ModelHierarchical < ModelBaseClass
 		end
 		
 		
-		
 		function figUnivariateSummary(uni, participantIDlist)
-			
 			figure
 
 			subplot(4,1,1)
@@ -551,10 +536,7 @@ classdef ModelHierarchical < ModelBaseClass
 				[uni.glALPHA.CI95 uni.alpha.CI95], '$\alpha$')
 			%xlim([0.5 N+0.5])
 			a=axis; ylim([0 a(4)])
-			
-			
 		end
-		
 		
 	end
 	
