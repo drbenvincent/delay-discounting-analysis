@@ -11,9 +11,6 @@ if ~isempty(modeVals)
 end
 % -------------------------------------------
 
-% %% Plot data
-% imm = data.R==0;
-% del = data.R==1;
 
 % find unique experimental designs
 D=[abs(data.A), abs(data.B), data.DA, data.DB]; 
