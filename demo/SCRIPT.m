@@ -3,9 +3,9 @@ function SCRIPT
 
 %% Preamble
 % Update the path below to point toward the '/ddToolbox' folder
-toolboxPath = setToolboxPath('/Users/benvincent/git-local/delay-discounting-analysis/ddToolbox')
+toolboxPath = setToolboxPath('/Users/btvincent/git-local/delay-discounting-analysis/ddToolbox')
 % Ensure the current directory is the 'project folder', in this case '\demo'
-cd('/Users/benvincent/git-local/delay-discounting-analysis/demo')
+cd('/Users/btvincent/git-local/delay-discounting-analysis/demo')
 
 % set some graphics preferences
 setPlotTheme

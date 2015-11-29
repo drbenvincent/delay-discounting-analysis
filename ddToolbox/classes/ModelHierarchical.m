@@ -1,4 +1,4 @@
-classdef ModelHierarchical < ModelSeperate
+classdef ModelHierarchical < ModelBaseClass
 	%ModelHierarchical A model to estimate the magnitide effect
 	%   Detailed explanation goes here
 	
@@ -11,12 +11,11 @@ classdef ModelHierarchical < ModelSeperate
 		function obj = ModelHierarchical(toolboxPath)
 			% Because this class is a subclass of "modelME" then we use
 			% this next line to create an instance
-			obj = obj@ModelSeperate(toolboxPath);
+			obj = obj@ModelBaseClass(toolboxPath);
 			
-			% Overwrite
 			obj.JAGSmodel = [toolboxPath '/jagsModels/hierarchicalME.txt'];
 			[~,obj.modelType,~] = fileparts(obj.JAGSmodel);
-			obj = obj.setMCMCparams();
+			%obj = obj.setMCMCparams();
 		end
 		% =================================================================
 		
@@ -37,14 +36,14 @@ classdef ModelHierarchical < ModelSeperate
 			obj.MCMCdiagnostics(data)
 		end
 		
-		function calcSampleRange(obj)
-			% Define limits for each of the variables here for plotting purposes
-			%obj.range.epsilon=[0 min([prctile(obj.samples.epsilon(:),[99]), 0.5])];
-			obj.range.epsilon=[0 0.5]; % full range
-			obj.range.alpha=[0 prctile(obj.samples.alpha(:), [99])];
-			obj.range.m=prctile([obj.samples.glM(:); obj.samples.m(:)], [0.5 99.5]);
-			obj.range.c=prctile([obj.samples.glC(:); obj.samples.c(:)], [1 99]);
-		end
+		% function calcSampleRange(obj)
+		% 	% Define limits for each of the variables here for plotting purposes
+		% 	%obj.range.epsilon=[0 min([prctile(obj.samples.epsilon(:),[99]), 0.5])];
+		% 	obj.range.epsilon=[0 0.5]; % full range
+		% 	obj.range.alpha=[0 prctile(obj.samples.alpha(:), [99])];
+		% 	obj.range.m=prctile([obj.samples.glM(:); obj.samples.m(:)], [0.5 99.5]);
+		% 	obj.range.c=prctile([obj.samples.glC(:); obj.samples.c(:)], [1 99]);
+		% end
 		
 		function MCMCdiagnostics(obj, data)
 			
@@ -256,7 +255,9 @@ classdef ModelHierarchical < ModelSeperate
 			myExport(data.saveName, [], '-BayesFactorMLT1')
 		end
 		
-		
+		% *********
+		% TODO: CAN THIS BE MOVED TO THE BASE CLASS?
+		% *********
 		function conditionalDiscountRates(obj, reward, plotFlag)
 			% For group level and all participants...
 			% Extract and plot P( log(k) | reward)
@@ -309,6 +310,8 @@ classdef ModelHierarchical < ModelSeperate
 			
 		end
 		
+
+		% TODO: NOW THIS OVERIDES THE BASE CLASS METHOD, BUT IDEALLY WE WANT TO MAKE THAT BASECLASS METHOD MODE GENERAL SO WE CAN REMOVE THIS FUNCTION
 		
 		function exportParameterEstimates(obj, data)
 			participant_level = array2table(...
@@ -380,6 +383,9 @@ classdef ModelHierarchical < ModelSeperate
 				};
 		end
 		
+
+		% ******
+		% TODO: CAN WE MAKE figParticipant() IN THE BASE CLASS MORE GENERAL SO WE CAN AVOID THE REPETIION OF HAVING THIS FUNCTION?
 		function figGroupLevel(obj, data)
 			
 			figure(99)
