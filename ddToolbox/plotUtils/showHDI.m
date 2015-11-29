@@ -11,7 +11,6 @@ a = axis; top = a(4); k=0.03;
 % plot the HDI line
 plot(HDI,[top*k top*k],'k-', 'LineWidth',2);
 
-
 % Add numbers to the CI
 lower = sprintf('%.4f',HDI(1));
 upper = sprintf('%.4f',HDI(2));

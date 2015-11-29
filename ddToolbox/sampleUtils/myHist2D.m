@@ -1,4 +1,4 @@
-function [density,bx,by, modex, modey]=my_2d_hist(x,y , nxbins,nybins)
+function [density,bx,by, modex, modey]=myHist2D(x,y , nxbins,nybins)
 % Converts 2D scatter x,y data into a 2D grid image of density
 
 if numel(nxbins)==1 && numel(nybins)==1

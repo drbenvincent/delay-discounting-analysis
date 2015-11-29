@@ -39,7 +39,6 @@ switch position
 		VerticalAlignment	= 'bottom';
 		HorizontalAlignment = 'Right';
 		
-		
 	case{'BL'}
 		pos					= [a(1) a(3)];
 		VerticalAlignment	= 'bottom';

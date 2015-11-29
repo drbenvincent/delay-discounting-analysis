@@ -46,15 +46,13 @@ switch method
 % 		axis xy
 end
 
-% place results in a structure to return
 outputStruc.modex = modex;
 outputStruc.modey = modey;
 outputStruc.density = density;
 outputStruc.xi = bx;
 outputStruc.yi = by;
-% Calculate entropy
+
 entropy = log2(density(:)) .* density(:);
 entropy(isnan(entropy)) = 0;
 outputStruc.entropy = - sum( entropy ); % in units of bits
-
 return
