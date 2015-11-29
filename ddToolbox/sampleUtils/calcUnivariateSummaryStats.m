@@ -4,11 +4,12 @@ samples = samples(:);
 
 %method = 'ksdensity';	% matlab built in. Slow
 method = 'kde';			% faster
+N = 10000;
 
 switch method
 	
 	case{'ksdensity'}
-		N = 10000;
+		
 		if numel(supp)==0
 			% Compute the kernel density estimate based on MCMC samples
 			[F,XI]=ksdensity(samples, 'npoints',N);

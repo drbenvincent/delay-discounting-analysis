@@ -18,7 +18,7 @@ switch method
 		% a 2D histogram method
 		xvec = linspace(XRANGE(1), XRANGE(2), XN);
 		yvec = linspace(YRANGE(1), YRANGE(2), YN);
-		[density,bx,by, modex, modey] = my_2d_hist(lr , sigma, xvec, yvec);
+		[density,bx,by, modex, modey] = myHist2D(lr , sigma, xvec, yvec);
 		
 	case{'hist2d'}
 		% a 2D histogram method

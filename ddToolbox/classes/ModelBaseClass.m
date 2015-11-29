@@ -3,26 +3,24 @@ classdef ModelBaseClass < handle
 	%	xxxx
 	
 	properties (Access = protected)
-		modelType	% string
-		JAGSmodel	% string
-		
-		sampler		% string {'JAGS'}
-		
-		range		% struct
+		modelType % string
+		sampler % string {'JAGS'}
+		range % struct
 
-		initial_param	% struct
-		mcmcparams		% struct
-		observed		% struct
-		monitorparams	% struct
+		% inputs into `matjags` *** TODO These could all exist within a single `matjags` object? ***
+		observed % struct
+		JAGSmodel % string
+		initial_param % struct
+		mcmcparams % struct
+		monitorparams % struct
 	end
 	properties (GetAccess = public, SetAccess = protected)
-		samples		% struct
-		stats		% struct
-		analyses	% struct
+		samples, stats % structures returned by `matjags`
+		analyses % struct
 	end
 
+
 	methods(Abstract, Access = public)
-		% subclasses must implement these methods
 		plot(obj, data)
 	end
 
