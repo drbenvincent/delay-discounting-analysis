@@ -33,30 +33,31 @@ model{
     # IMPORTANT - Make sure the numerical values you provide below match the priors above.
 
     # slope 
-    glMprior        ~ dnorm(groupMmuprior, 1/(groupMsigmaprior^2))
-    groupMmuprior   ~ dnorm(-0.243, 1/( (0.027*10)^2))
-    groupMsigmaprior~ dnorm( 0.072, 1/( (0.025*10)^2)) T(0,)
+    groupMmuprior       ~ dnorm(-0.243, 1/( (0.027*10)^2))
+    groupMsigmaprior    ~ dnorm( 0.072, 1/( (0.025*10)^2)) T(0,)
 
     # intercept (sample from the prior, independent from the data)
-    glCprior             ~ dnorm(groupCmuprior, 1/(groupCsigmaprior^2))
     groupCmuprior        ~ dnorm(0, 1/(10000^2))
     groupCsigmaprior     ~ dunif(0, 10000) 
 
     # comparison acuity 
-    glALPHAprior         ~ dnorm(groupALPHAmuprior, 1/(groupALPHAsigmaprior^2)) T(0,)
-    groupALPHAmuprior    ~ dunif(0,10000)
-    groupALPHAsigmaprior ~ dunif(0,10000)
+    groupALPHAmuprior    ~ dunif(0,1000)
+    groupALPHAsigmaprior ~ dunif(0,1000)
 
     # error rates 
-    glEpsilonprior       ~ dbeta(groupWprior*(groupKprior-2)+1 , (1-groupWprior)*(groupKprior-2)+1 ) T(,0.5)
     groupWprior          ~ dbeta(1.1, 10.9)  # mode for lapse rate
     groupKminus2prior    ~ dgamma(0.01,0.01) # concentration parameter
     groupKprior          <- groupKminus2prior+2
 
 
-    # ------------------------------------------------------------------------------------
-    # Group-level posteriors. Samples from these group-level posteriors are obviously influenced by the actual data themselves. These samples can be seen as inferences about an as yet unobserved participant who represents what we know about the parameters at the group level.
+    # Prior beliefs about the group level (equivalently, an as yet unobserved participant). As determined by priors on parameters specified above
+    glMprior        ~ dnorm(groupMmuprior, 1/(groupMsigmaprior^2))
+    glCprior        ~ dnorm(groupCmuprior, 1/(groupCsigmaprior^2))
+    glALPHAprior    ~ dnorm(groupALPHAmuprior, 1/(groupALPHAsigmaprior^2)) T(0,)
+    glEpsilonprior  ~ dbeta(groupWprior*(groupKprior-2)+1 , (1-groupWprior)*(groupKprior-2)+1 ) T(,0.5)
 
+    # ------------------------------------------------------------------------------------
+    # Group-level posterior predictive distributions. These samples can be seen as inferences about an as yet unobserved participant who represents what we know about the parameters at the group level.
     glM             ~ dnorm(groupMmu, 1/(groupMsigma^2))
     glC             ~ dnorm(groupCmu, 1/(groupCsigma^2))
     glALPHA         ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
@@ -64,8 +65,7 @@ model{
 
 
     # ------------------------------------------------------------------------------------
-    # Participant-level 
-    # HIERACHICAL i.e. parameter estimates for each person. Each variable is drawn from a group-level distribution.
+    # Participant-level parameters
     for (p in 1:nParticipants){
         # magnitide effect (m,c) for each person
         m[p]        ~ dnorm(groupMmu, 1/(groupMsigma^2))
@@ -75,10 +75,8 @@ model{
     }
 
     for (p in 1:nParticipants){
-
         # ------------------------------------------------------------------------------------
         # Trial-level
-
         for (t in 1:T[p]) {  
 
             # Calculate log discount rate for each reward

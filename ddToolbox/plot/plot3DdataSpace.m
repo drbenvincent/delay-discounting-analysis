@@ -3,8 +3,7 @@ function plot3DdataSpace(data, modeVals)
 opts.maxlogB	= max( abs(data.B) ); 
 opts.maxD		= max( data.DB );
 %% PLOT DISCOUNT SURFACE ---------------------
-%m=-1; c=10^-1;
-if numel(modeVals)>0
+if ~isempty(modeVals)
 	m=modeVals(1);
 	c=modeVals(2);
 	[logB,D,AB] = plotDiscountSurface(m, c, opts);
@@ -12,9 +11,9 @@ if numel(modeVals)>0
 end
 % -------------------------------------------
 
-%% Plot data
-imm = data.R==0;
-del = data.R==1;
+% %% Plot data
+% imm = data.R==0;
+% del = data.R==1;
 
 % find unique experimental designs
 D=[abs(data.A), abs(data.B), data.DA, data.DB]; 

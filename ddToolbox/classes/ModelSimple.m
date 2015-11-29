@@ -172,15 +172,23 @@ classdef ModelSimple < handle
 		
 		function obj = setInitialParamValues(obj, data)
 			% define intial parameter guesses
-			for n=1:obj.mcmcparams.nchains
-				obj.initial_param(n).lr		= abs(normrnd(0.01,0.001));
+			% 			for n=1:obj.mcmcparams.nchains
+			% 				obj.initial_param(n).lr		= abs(normrnd(0.01,0.001));
+			% 			end
+			% One value for each participant
+			for p=1:data.nParticipants
+				obj.initial_param(n).alpha(p)	= abs(normrnd(0.01,0.001));
+				obj.initial_param(n).lr(p)		= rand/10;
+				
+				obj.initial_param(n).m(p) = normrnd(-0.243,2);
+				obj.initial_param(n).c(p) = normrnd(0,4);
 			end
 		end
 		
 		function [obj] = setObservedMonitoredValues(obj, data)
 			% OBSERVED PARAMETERS
 			obj.observed = data.observedData;
-			obj.observed.logBInterp = log( logspace(0,5,99) );
+			%obj.observed.logBInterp = log( logspace(0,5,99) );
 			
 			% MONITOR THESE PARAMETERS
 			obj.monitorparams = {'lr',...

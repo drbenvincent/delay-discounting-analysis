@@ -1,11 +1,6 @@
-function logInfo(fid, Str, vargargin)
-% Log textto a file (fid) and the command windown. Call this function just
+function logInfo(fid, varargin)
+% Log text to a file (fid) and the command window. Call this function just
 % as you would call fprintf.
-if nargin == 2
-	fprintf(  1, Str);
-	fprintf(fid, Str);
-elseif nargin > 2
-	fprintf(  1, Str, vargargin);
-	fprintf(fid, Str, vargargin);
-end
-return;
+fprintf( 1, varargin{:});
+fprintf( fid, varargin{:});
+return

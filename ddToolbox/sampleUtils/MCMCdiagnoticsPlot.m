@@ -11,7 +11,7 @@ function MCMCdiagnoticsPlot(samples,stats,trueValue,fields, supp, paramString, d
 %	samples.c
 %
 
-if numel(trueValue)>0
+if ~isempty(trueValue)
 	PLOT_trueValue_VALUE=1;
 else
 	PLOT_trueValue_VALUE=0;
