@@ -10,7 +10,7 @@ classdef ModelSeperate < ModelBaseClass
 	methods (Access = public)
 		
 		% CONSTRUCTOR =====================================================
-		function obj=ModelSeperate(toolboxPath)
+		function obj = ModelSeperate(toolboxPath)
 			% Because this class is a subclass of "ModelBaseClass" then we use
 			% this next line to create an instance
 			obj = obj@ModelBaseClass(toolboxPath);
@@ -26,29 +26,18 @@ classdef ModelSeperate < ModelBaseClass
 			% plot univariate summary statistics for the parameters we have
 			% made inferences about
 			obj.figUnivariateSummary(obj.analyses.univariate, data.IDname)
-			%stackedForestPlot(obj.analyses.univariate)
 			% EXPORTING ---------------------
 			latex_fig(16, 5, 5)
 			myExport(data.saveName, obj.modelType, '-UnivariateSummary')
 			% -------------------------------
 			
-			obj.figParticipantLevelWRAPPER(data)
-			obj.MCMCdiagnostics(data)
-		end
+			obj.figParticipantLevelWrapper(data)
 
-
-		function MCMCdiagnostics(obj, data)
-			% Choose what to plot ---------------
-			variablesToPlot = {'epsilon', 'alpha', 'm', 'c'};
-			supp			= {[0 0.5], 'positive', [], []};
-			paramString		= {'\epsilon', '\alpha', 'm', 'c'};
-			
-			true=[];
-			
-			% PLOT -------------------
 			MCMCdiagnoticsPlot(obj.samples, obj.stats,...
-				true,...
-				variablesToPlot, supp, paramString, data,...
+				[],...
+				{'epsilon', 'alpha', 'm', 'c'},...
+				{[0 0.5], 'positive', [], []},...
+				{'\epsilon', '\alpha', 'm', 'c'}, data,...
 				obj.modelType);
 		end
 
@@ -57,7 +46,7 @@ classdef ModelSeperate < ModelBaseClass
 	
 	methods (Access = protected)
 		
-		function obj = setInitialParamValues(obj, data)
+		function setInitialParamValues(obj, data)
 			for n=1:obj.mcmcparams.nchains
 				% Values for which there are just one of
 				%obj.initial_param(n).groupW = rand/10; % group mean lapse rate
@@ -77,31 +66,31 @@ classdef ModelSeperate < ModelBaseClass
 		end
 		
 
-		function [obj] = setObservedMonitoredValues(obj, data)
-			obj.observed = data.observedData;
-			obj.observed.logBInterp = log( logspace(0,5,99) );
-			% group-level stuff
-			obj.observed.nParticipants	= data.nParticipants;
-			obj.observed.totalTrials	= data.totalTrials;
-			
+		function setMonitoredValues(obj, data)
 			obj.monitorparams = {'epsilon','epsilonprior',...
 				'alpha','alphaprior',...
 				'm','mprior',...
-				'c','cprior'};%'participantlogk'};
+				'c','cprior'};
 		end
-		
+				
 
-		function obj = doAnalysis(obj)
-			% univariate summary stats
-			fields ={'epsilon', 'alpha', 'm', 'c'};
-			support={'positive', 'positive', [], []};
-			% Do the analysis
-			uni = univariateAnalysis(obj.samples, fields, support );
-			% Store the results
-			obj.analyses.univariate = uni;
+		function setObservedValues(obj, data)
+			obj.observed = data.observedData;
+			%obj.observed.logBInterp = log( logspace(0,5,99) );
+			% group-level stuff
+			obj.observed.nParticipants	= data.nParticipants;
+			obj.observed.totalTrials	= data.totalTrials;
+		end
+
+
+		function doAnalysis(obj) % <--- TODO: REMOVE THIS WRAPPER FUNCTION
+			obj.analyses.univariate  = univariateAnalysis(obj.samples,...
+			{'epsilon', 'alpha', 'm', 'c'},...
+			{'positive', 'positive', [], []});
 		end
 		
 	end
+
 
 	methods(Static)
 		function figUnivariateSummary(uni, participantIDlist)

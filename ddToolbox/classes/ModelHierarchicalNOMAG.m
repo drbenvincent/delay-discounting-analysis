@@ -59,7 +59,7 @@
 % 			obj.stackedForestPlot(obj.analyses.univariate)
 % 			
 % 			obj.figGroupLevel(data)
-% 			obj.figParticipantLevelWRAPPER(data)
+% 			obj.figParticipantLevelWrapper(data)
 % 			
 % 			% plot MCMC diagnostics
 % 			obj.MCMCdiagnostics(data)

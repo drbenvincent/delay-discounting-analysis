@@ -27,31 +27,33 @@ classdef ModelBaseClass < handle
 	end
 
 	methods(Abstract, Access = protected)
-		doAnalysis(obj)
-		setObservedMonitoredValues(obj, data)
+		doAnalysis(obj) % <--- TODO: REMOVE THIS WRAPPER FUNCTION
+		setMonitoredValues(obj, data)
+		setObservedValues(obj, data)
 		setInitialParamValues(obj, data)
 	end
 	
 	methods (Access = public)
 		
 		% CONSTRUCTOR =====================================================
-		function obj=ModelBaseClass(toolboxPath)
+		function obj = ModelBaseClass(toolboxPath)
 			%obj.JAGSmodel = [toolboxPath '/jagsModels/seperateME.txt'];
 			%[~,obj.modelType,~] = fileparts(obj.JAGSmodel);
-			obj = obj.setSampler('JAGS');
-			obj = obj.setMCMCparams();
+			obj.setSampler('JAGS');
+			obj.setMCMCparams();
 		end
 		% =================================================================
 		
-		function obj=conductInference(obj, data)
+		function conductInference(obj, data)
 			
 			switch obj.sampler
 				case{'JAGS'}
 					assert(obj.mcmcparams.nchains>=2,'Use a minimum of 2 MCMC chains')
 					if isempty(gcp('nocreate')), parpool, end % Start parallel pool
-					obj = obj.setInitialParamValues(data);
-					obj = obj.setObservedMonitoredValues(data);
-					obj = obj.invokeJAGS();					
+					obj.setInitialParamValues(data);
+					obj.setMonitoredValues(data);
+					obj.setObservedValues(data);
+					obj.invokeJAGS();					
 				otherwise
 					error('sampler should be JAGS')
 			end
@@ -62,7 +64,7 @@ classdef ModelBaseClass < handle
 		end
 		
 		
-		function obj = setMCMCtotalSamples(obj, totalSamples)
+		function setMCMCtotalSamples(obj, totalSamples)
 			%samplesPerChain				= totalSamples / obj.mcmcparams.nchains;
 			obj.mcmcparams.nsamples     = totalSamples / obj.mcmcparams.nchains;
 			obj.mcmcparams.totalSamples = totalSamples;
@@ -72,7 +74,7 @@ classdef ModelBaseClass < handle
 		end
 		
 		
-		function obj = setMCMCnumberOfChains(obj, nchains)
+		function setMCMCnumberOfChains(obj, nchains)
 			obj.mcmcparams.nchains = nchains;
 			obj.mcmcparams.nsamples= obj.mcmcparams.totalSamples / obj.mcmcparams.nchains;
 			fprintf('Total samples: %d\n', obj.mcmcparams.totalSamples)
@@ -81,13 +83,13 @@ classdef ModelBaseClass < handle
 		end
 		
 
-		function obj = setBurnIn(obj, nburnin)
+		function setBurnIn(obj, nburnin)
 			obj.mcmcparams.nburnin = nburnin;
 			fprintf('Burn in: %d samples\n', obj.mcmcparams.nburnin)
 		end
 		
 		
-		function obj = setSampler(obj, sampler)
+		function setSampler(obj, sampler)
 			switch sampler
 				case{'JAGS'}
 					obj.sampler	  = 'JAGS';
@@ -179,18 +181,18 @@ classdef ModelBaseClass < handle
 	
 	
 	methods (Access = protected)
-		function obj = setMCMCparams(obj)
+		function setMCMCparams(obj)
 			% define mcmc parameters
 			obj.mcmcparams.doparallel 	= 1;
 			obj.mcmcparams.nchains  	= 2;
 			obj.mcmcparams.nburnin      = 1000;
-			obj.mcmcparams.nsamples     = 100000; % 100,000 min for GOOD results
+			obj.mcmcparams.nsamples     = 10^5; % 10^5 - 10^6 min for GOOD results
 			obj.mcmcparams.model        = obj.JAGSmodel;
 			obj.mcmcparams.totalSamples = obj.mcmcparams.nchains * obj.mcmcparams.nsamples;
 		end
 		
 
-		function obj = invokeJAGS(obj)
+		function invokeJAGS(obj)
 			fprintf('\nRunning JAGS (%d chains, %d samples each)\n',...
 				obj.mcmcparams.nchains,...
 				obj.mcmcparams.nsamples);
@@ -212,7 +214,7 @@ classdef ModelBaseClass < handle
 		end
 		
 
-		function figParticipantLevelWRAPPER(obj, data)
+		function figParticipantLevelWrapper(obj, data)
 			% PLOT INDIVIDUAL LEVEL STUFF HERE ----------
 			for n=1:data.nParticipants
 				fh = figure;

@@ -52,7 +52,7 @@
 % 			
 % 			obj.figGroupLevel(data)
 % 			
-% 			obj.figParticipantLevelWRAPPER(data)
+% 			obj.figParticipantLevelWrapper(data)
 % 			
 % 			%obj.MCMCdiagnostics(data)
 % 		end
