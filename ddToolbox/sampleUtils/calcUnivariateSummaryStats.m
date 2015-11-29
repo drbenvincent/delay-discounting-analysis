@@ -55,8 +55,8 @@ switch method
 end
 
 % now calculate the mode
-[~,index]=max(F);
-estimated_mode = XI(index);
+%[~,index]=max(F);
+estimated_mode = XI( argmax(F) );
 
 % normalise
 p=F./sum(F);

@@ -43,7 +43,6 @@ classdef ModelHierarchical < ModelBaseClass
 		
 		
 		function figGroupLevelPriorPost(obj)
-			% plot prior and posterior distributions of the group level parameters
 			figure
 			
 			subplot(2,2,1)
@@ -72,8 +71,7 @@ classdef ModelHierarchical < ModelBaseClass
 		% TODO: CAN THIS BE MOVED TO THE BASE CLASS?
 		% *********
 		function conditionalDiscountRates(obj, reward, plotFlag)
-			% For group level and all participants...
-			% Extract and plot P( log(k) | reward)
+			% For group level and all participants, extract and plot P( log(k) | reward)
 			
 			count=1;
 			
@@ -111,13 +109,11 @@ classdef ModelHierarchical < ModelBaseClass
 				'VariableNames',{'logK_posteriorMode'},...)
 				'RowNames', row )
 			
-			if plotFlag
-				% FORMATTING OF FIGURE
+			if plotFlag % FORMATTING OF FIGURE
 				removeYaxis
 				title(sprintf('$P(\\log(k)|$reward=$\\pounds$%d$)$', reward),'Interpreter','latex')
 				xlabel('$\log(k)$','Interpreter','latex')
 				axis square
-				% If you want the legend, then uncomment the next line
 				%legend(lh.DisplayName)
 			end
 			
@@ -189,8 +185,7 @@ classdef ModelHierarchical < ModelBaseClass
 
 		function setObservedValues(obj, data)
 			obj.observed = data.observedData;
-			obj.observed.logBInterp = log( logspace(0,5,99) );
-			% group-level stuff
+			%obj.observed.logBInterp = log( logspace(0,5,99) );
 			obj.observed.nParticipants	= data.nParticipants;
 			obj.observed.totalTrials	= data.totalTrials;
 		end
@@ -255,20 +250,13 @@ classdef ModelHierarchical < ModelBaseClass
 		
 		function setInitialParamValues(obj, data)
 			for n=1:obj.mcmcparams.nchains
-				% Values for which there are just one of
-				%obj.initial_param(n).groupW = rand/10; % group mean lapse rate
-				
 				obj.initial_param(n).groupMmu = normrnd(-0.243,1);
 				obj.initial_param(n).groupCmu = normrnd(0,2);
-				
 				obj.initial_param(n).mprior = normrnd(-0.243,2);
 				obj.initial_param(n).cprior = normrnd(0,4);
-				
-				% One value for each participant
 				for p=1:data.nParticipants
-					obj.initial_param(n).alpha(p)	= abs(normrnd(0.01,0.001));
-					obj.initial_param(n).lr(p)		= rand/10;
-					
+					obj.initial_param(n).alpha(p) = abs(normrnd(0.01,0.001));
+					obj.initial_param(n).lr(p) = rand/10;
 					obj.initial_param(n).m(p) = normrnd(-0.243,2);
 					obj.initial_param(n).c(p) = normrnd(0,4);
 				end
@@ -309,8 +297,7 @@ classdef ModelHierarchical < ModelBaseClass
 			[f,xi] = ksdensity(logKsamples, 'function', 'pdf');
 			
 			% Calculate posterior mode
-			[~, index] = max(f);
-			posteriorMode = xi(index);
+			posteriorMode = xi( argmax(f) );
 			
 			if plotFlag
 				figure(1)

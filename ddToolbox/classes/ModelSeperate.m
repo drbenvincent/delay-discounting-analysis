@@ -48,13 +48,6 @@ classdef ModelSeperate < ModelBaseClass
 		
 		function setInitialParamValues(obj, data)
 			for n=1:obj.mcmcparams.nchains
-				% Values for which there are just one of
-				%obj.initial_param(n).groupW = rand/10; % group mean lapse rate
-				
-				%obj.initial_param(n).mprior = normrnd(-0.243,1);
-				%obj.initial_param(n).cprior = normrnd(0,4);
-				
-				% One value for each participant
 				for p=1:data.nParticipants
 					obj.initial_param(n).alpha(p)	= abs(normrnd(0.01,0.01));
 					obj.initial_param(n).lr(p)		= rand/10;
@@ -76,10 +69,8 @@ classdef ModelSeperate < ModelBaseClass
 
 		function setObservedValues(obj, data)
 			obj.observed = data.observedData;
-			%obj.observed.logBInterp = log( logspace(0,5,99) );
-			% group-level stuff
-			obj.observed.nParticipants	= data.nParticipants;
-			obj.observed.totalTrials	= data.totalTrials;
+			obj.observed.nParticipants = data.nParticipants;
+			obj.observed.totalTrials = data.totalTrials;
 		end
 
 

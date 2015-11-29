@@ -45,7 +45,6 @@ classdef ModelBaseClass < handle
 		% =================================================================
 		
 		function conductInference(obj, data)
-			
 			switch obj.sampler
 				case{'JAGS'}
 					assert(obj.mcmcparams.nchains>=2,'Use a minimum of 2 MCMC chains')
@@ -76,7 +75,7 @@ classdef ModelBaseClass < handle
 		
 		function setMCMCnumberOfChains(obj, nchains)
 			obj.mcmcparams.nchains = nchains;
-			obj.mcmcparams.nsamples= obj.mcmcparams.totalSamples / obj.mcmcparams.nchains;
+			obj.mcmcparams.nsamples = obj.mcmcparams.totalSamples / obj.mcmcparams.nchains;
 			fprintf('Total samples: %d\n', obj.mcmcparams.totalSamples)
 			fprintf('%d chains, with %d samples each\n', ...
 				obj.mcmcparams.nchains, obj.mcmcparams.nsamples)
@@ -102,11 +101,10 @@ classdef ModelBaseClass < handle
 
 		function calcSampleRange(obj)
 			% Define limits for each of the variables here for plotting purposes
-			%obj.range.epsilon=[0 min([prctile(obj.samples.epsilon(:),[99]), 0.5])];
-			obj.range.epsilon=[0 0.5]; % show full range
-			obj.range.alpha=[0 prctile(obj.samples.alpha(:), [99])];
-			obj.range.m=prctile(obj.samples.m(:), [0.5 99.5]);
-			obj.range.c=prctile(obj.samples.c(:), [1 99]);
+			obj.range.epsilon = [0 0.5]; % show full range
+			obj.range.alpha = [0 prctile(obj.samples.alpha(:), [99])];
+			obj.range.m = prctile(obj.samples.m(:), [0.5 99.5]);
+			obj.range.c = prctile(obj.samples.c(:), [1 99]);
 		end
 		
 		
@@ -182,7 +180,6 @@ classdef ModelBaseClass < handle
 	
 	methods (Access = protected)
 		function setMCMCparams(obj)
-			% define mcmc parameters
 			obj.mcmcparams.doparallel 	= 1;
 			obj.mcmcparams.nchains  	= 2;
 			obj.mcmcparams.nburnin      = 1000;
@@ -216,7 +213,7 @@ classdef ModelBaseClass < handle
 
 		function figParticipantLevelWrapper(obj, data)
 			% PLOT INDIVIDUAL LEVEL STUFF HERE ----------
-			for n=1:data.nParticipants
+			for n = 1:data.nParticipants
 				fh = figure;
 				fh.Name=['participant: ' data.IDname{n}];
 				
@@ -228,10 +225,8 @@ classdef ModelBaseClass < handle
 				obj.figParticipant(samples, pData)
 				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 				
-				% EXPORTING ---------------------
 				latex_fig(16, 18, 4)
 				myExport(data.saveName, obj.modelType, ['-' data.IDname{n}])
-				% -------------------------------
 				
 				% close the figure to keep everything tidy
 				close(fh)
@@ -276,18 +271,6 @@ classdef ModelBaseClass < handle
 
 		
 		function [samples] = getParticipantSamples(obj,participant)
-			% grabs samples just from one participant.
-			% For the purposes of plotting data for 1 participant
-			
-			% 			names = fieldnames(obj.samples);
-			% 			for n=1:numel(names)
-			% 				if size(obj.samples.(names{n}),3)>1
-			% 					temp = obj.samples.(names{n});
-			% 					temp = temp(:,:,participant);
-			% 					samples.(names{n}) = temp;
-			% 				end
-			% 			end
-			
 			fieldsToGet={'m','c','alpha','epsilon'};
 			for n=1:numel(fieldsToGet)
 				temp = obj.samples.(fieldsToGet{n});

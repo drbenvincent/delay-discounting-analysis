@@ -236,8 +236,8 @@ classdef DataClass < handle
 			% calc proportion of responses explained
 			prop_explained = (data.trialsForThisParticant - err) / data.trialsForThisParticant;
 
-			[~, index] = max(prop_explained); 
-			k_optimal = kvec(index);
+			%[~, index] = max(prop_explained); 
+			k_optimal = kvec( argmax(prop_explained) );
 			logk = log(k_optimal);
 		end
 	end
