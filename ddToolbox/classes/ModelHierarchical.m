@@ -236,60 +236,26 @@ classdef ModelHierarchical < ModelBaseClass
 
 	methods (Access = protected)
 
-		% ******
-		% TODO: CAN WE MAKE figParticipant() IN THE BASE CLASS MORE GENERAL SO WE CAN AVOID THE REPETIION OF HAVING THIS FUNCTION?
 		function figGroupLevel(obj)
-
 			figure(99)
 			set(gcf,'Name','GROUP LEVEL')
 			clf
 
+			% TODO: Use a group level equivalent of the following code
+			% [pSamples] = obj.sampler.getParticipantSamples(n, {'m','c','alpha','epsilon'});
+			% [pData] = obj.data.getParticipantData(n);
 
-			% BIVARIATE PLOT: lapse rate & comparison accuity
-			figure(99), subplot(1, 5, 1)
-			[structName] = plot2DErrorAccuity(obj.sampler.samples.glEpsilon(:),...
-				obj.sampler.samples.glALPHA(:),...
-				obj.range.epsilon,...
-				obj.range.alpha);
-			lrMODE = structName.modex;
-			alphaMODE= structName.modey;
+			pSamples.epsilon = obj.sampler.samples.glEpsilon(:);
+			pSamples.alpha = obj.sampler.samples.glALPHA(:);
+			pSamples.m = obj.sampler.samples.glM(:);
+			pSamples.c = obj.sampler.samples.glC(:);
 
-			% PSYCHOMETRIC FUNCTION (using my posterior-prediction-plot-matlab GitHub repository)
-			figure(99), subplot(1, 5, 2)
-			tempsamples.epsilon = obj.sampler.samples.glEpsilon;
-			tempsamples.alpha = obj.sampler.samples.glALPHA;
-			plotPsychometricFunc(tempsamples, [lrMODE, alphaMODE])
-			clear tempsamples
-
-
-			figure(99), subplot(1,5,3)
-			[groupLevelMCinfo] = plot2Dmc(obj.sampler.samples.glM(:),...
-				obj.sampler.samples.glC(:), obj.range.m, obj.range.c);
-
-			GROUPmodeM = groupLevelMCinfo.modex;
-			GROUPmodeC = groupLevelMCinfo.modey;
-
-
-			figure(99), subplot(1,5,4)
-			tempsamples.m = obj.sampler.samples.glM(:);
-			tempsamples.c = obj.sampler.samples.glC(:);
-			plotMagnitudeEffect(tempsamples, [GROUPmodeM, GROUPmodeC])
-
-
-			figure(99), subplot(1, 5, 5)
-			opts.maxlogB	= max(abs(obj.data.observedData.B(:)));
-			opts.maxD		= max(obj.data.observedData.DB(:));
-			% PLOT A POINT-ESTIMATE DISCOUNT SURFACE
-			plotDiscountSurface(GROUPmodeM, GROUPmodeC, opts);
-			%set(gca,'XTick',[10 100])
-			%set(gca,'XTickLabel',[10 100])
-			%set(gca,'XLim',[10 100])
+			figParticipant(obj, pSamples, [])
 
 			% EXPORTING ---------------------
 			latex_fig(16, 18, 4)
 			myExport(obj.data.saveName, obj.modelType, '-GROUP')
 			% -------------------------------
-
 		end
 
 

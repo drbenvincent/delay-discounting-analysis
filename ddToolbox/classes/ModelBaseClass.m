@@ -160,7 +160,14 @@ classdef ModelBaseClass < handle
 
 			% Plot in 3D data space
 			subplot(rows, cols, 5)
-			plot3DdataSpace(pData, [modeM, modeC])
+			if ~isempty(pData)
+				plot3DdataSpace(pData, [modeM, modeC])
+			else
+				warning('PLOT SURFACE HERE')
+				opts.maxlogB	= max(abs(obj.data.observedData.B(:)));
+				opts.maxD		= max(obj.data.observedData.DB(:));
+				plotDiscountSurface(modeM, modeC, opts);
+			end
 % 			set(gca,'XTick',[10 100])
 % 			set(gca,'XTickLabel',[10 100])
 % 			set(gca,'XLim',[10 100])
