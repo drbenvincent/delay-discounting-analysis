@@ -162,48 +162,12 @@ classdef ModelHierarchical < ModelBaseClass
 			fprintf('\t%s\n\n',savename)
 		end
 
-		% *********
-		% TODO: CAN THIS BE MOVED TO THE BASE CLASS?
-		% *********
+
 		function conditionalDiscountRates(obj, reward, plotFlag)
 			% For group level and all participants, extract and plot P( log(k) | reward)
-
-			count=1;
-
-			%% Participant level
-			nParticipants = size(obj.sampler.samples.m,3);
-			for p = 1:nParticipants
-				samples.m = vec(obj.sampler.samples.m(:,:,p));
-				samples.c = vec(obj.sampler.samples.c(:,:,p));
-				params(:,1) = samples.m(:);
-				params(:,2) = samples.c(:);
-				% ==============================================
-				[posteriorMode(count) , lh(count)] =...
-					obj.calculateLogK_ConditionOnReward(reward, params, plotFlag);
-				lh(count).DisplayName=sprintf('participant %d', p);
-				row(count) = {sprintf('participant %d', p)};
-				%title(['Participant: ' num2str(p)])
-				% ==============================================
-				count=count+1;
-			end
-
-			%% Group level
-			samples.m = obj.sampler.samples.glM(:);
-			samples.c = obj.sampler.samples.glC(:);
-			params(:,1) = samples.m(:);
-			params(:,2) = samples.c(:);
-			% ==============================================
-			[posteriorMode(count) , lh(count)] = obj.calculateLogK_ConditionOnReward(reward, params, plotFlag);
-			lh(count).LineWidth = 3;
-			lh(end).Color= 'k';
-			lh(count).DisplayName = 'Group level';
-			row(count) = {sprintf('Group level')};
-			% ==============================================
-
-			logkCondition = array2table([posteriorMode'],...
-				'VariableNames',{'logK_posteriorMode'},...)
-				'RowNames', row )
-
+			warning('THIS METHOD IS A TOTAL MESS - PLAN THIS AGAIN FROM SCRATCH')
+			obj.conditionalDiscountRates_ParticipantLevel(reward, plotFlag)
+			obj.conditionalDiscountRates_GroupLevel(reward, plotFlag)
 			if plotFlag % FORMATTING OF FIGURE
 				removeYaxis
 				title(sprintf('$P(\\log(k)|$reward=$\\pounds$%d$)$', reward),'Interpreter','latex')
@@ -211,15 +175,30 @@ classdef ModelHierarchical < ModelBaseClass
 				axis square
 				%legend(lh.DisplayName)
 			end
-
 		end
 
+		function conditionalDiscountRates_GroupLevel(obj, reward, plotFlag)
+
+			samples.m = obj.sampler.samples.glM(:);
+			samples.c = obj.sampler.samples.glC(:);
+			params(:,1) = samples.m(:);
+			params(:,2) = samples.c(:);
+			% ==============================================
+			[posteriorMode, lh] = calculateLogK_ConditionOnReward(reward, params, plotFlag);
+			lh.LineWidth = 3;
+			lh.Color= 'k';
+			%lh(count).DisplayName = 'Group level';
+			%row(count) = {sprintf('Group level')};
+			% ==============================================
+		end
 
 
 	end
 
 
 	methods(Static)
+
+
 
 		function figUnivariateSummary(uni, participantIDlist)
 			figure
@@ -315,92 +294,7 @@ classdef ModelHierarchical < ModelBaseClass
 
 
 
-
-
-
-
 	end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	methods (Static)
-
-		function [posteriorMode,lh] = calculateLogK_ConditionOnReward(reward, params, plotFlag)
-			lh=[];
-			% -----------------------------------------------------------
-			% log(k) = m * log(B) + c
-			% k = exp( m * log(B) + c )
-			%fh = @(x,params) exp( params(:,1) * log(x) + params(:,2));
-			% a FAST vectorised version of above ------------------------
-			fh = @(x,params) exp( bsxfun(@plus, ...
-				bsxfun(@times,params(:,1),log(x)),...
-				params(:,2)));
-			% -----------------------------------------------------------
-
-			myplot = PosteriorPredictionPlot(fh, reward, params);
-			myplot = myplot.evaluateFunction([]);
-
-			% Extract samples of P(k|reward)
-			kSamples = myplot.Y;
-			logKsamples = log(kSamples);
-
-			% Calculate kernel density estimate
-			[f,xi] = ksdensity(logKsamples, 'function', 'pdf');
-
-			% Calculate posterior mode
-			posteriorMode = xi( argmax(f) );
-
-			if plotFlag
-				figure(1)
-				lh = plot(xi,f);
-				hold on
-				drawnow
-			end
-
-		end
-
-	end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

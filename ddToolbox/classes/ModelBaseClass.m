@@ -68,6 +68,43 @@ classdef ModelBaseClass < handle
 			fprintf('\t%s\n\n',savename)
 		end
 
+		function conditionalDiscountRates(obj, reward, plotFlag)
+			% Extract and plot P( log(k) | reward)
+			warning('THIS METHOD IS A TOTAL MESS - PLAN THIS AGAIN FROM SCRATCH')
+			obj.conditionalDiscountRates_ParticipantLevel(reward, plotFlag)
+			%conditionalDiscountRates_GroupLevel(reward, plotFlag)
+			if plotFlag % FORMATTING OF FIGURE
+				removeYaxis
+				title(sprintf('$P(\\log(k)|$reward=$\\pounds$%d$)$', reward),'Interpreter','latex')
+				xlabel('$\log(k)$','Interpreter','latex')
+				axis square
+				%legend(lh.DisplayName)
+			end
+		end
+
+		function conditionalDiscountRates_ParticipantLevel(obj, reward, plotFlag)
+			nParticipants = obj.data.nParticipants;
+			count=1;
+			for p = 1:nParticipants
+				samples.m = vec(obj.sampler.samples.m(:,:,p));
+				samples.c = vec(obj.sampler.samples.c(:,:,p));
+				params(:,1) = samples.m(:);
+				params(:,2) = samples.c(:);
+				% ==============================================
+				[posteriorMode(count), lh(count)] =...
+					calculateLogK_ConditionOnReward(reward, params, plotFlag);
+				%lh(count).DisplayName=sprintf('participant %d', p);
+				%row(count) = {sprintf('participant %d', p)};
+				% ==============================================
+				count=count+1;
+			end
+			warning('GET THESE NUMBERS PRINTED TO SCREEN')
+		% 			logkCondition = array2table([posteriorMode'],...
+		% 				'VariableNames',{'logK_posteriorMode'},...)
+		% 				'RowNames', num2cell([1:nParticipants]) )
+		end
+
+
 	end
 
 	methods (Access = protected)
