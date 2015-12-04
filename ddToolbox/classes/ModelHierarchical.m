@@ -171,10 +171,10 @@ classdef ModelHierarchical < ModelBaseClass
 			count=1;
 
 			%% Participant level
-			nParticipants = size(obj.samples.m,3);
+			nParticipants = size(obj.sampler.samples.m,3);
 			for p = 1:nParticipants
-				samples.m = vec(obj.samples.m(:,:,p));
-				samples.c = vec(obj.samples.c(:,:,p));
+				samples.m = vec(obj.sampler.samples.m(:,:,p));
+				samples.c = vec(obj.sampler.samples.c(:,:,p));
 				params(:,1) = samples.m(:);
 				params(:,2) = samples.c(:);
 				% ==============================================
@@ -188,8 +188,8 @@ classdef ModelHierarchical < ModelBaseClass
 			end
 
 			%% Group level
-			samples.m = obj.samples.glM(:);
-			samples.c = obj.samples.glC(:);
+			samples.m = obj.sampler.samples.glM(:);
+			samples.c = obj.sampler.samples.glC(:);
 			params(:,1) = samples.m(:);
 			params(:,2) = samples.c(:);
 			% ==============================================
