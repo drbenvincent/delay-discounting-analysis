@@ -25,13 +25,8 @@ classdef ModelSeperate < ModelBaseClass
 
 			% give sampler a handle back to the model (ie this hierarchicalME model)
 			obj.sampler.modelHandle = obj;
-
-			%obj.JAGSmodel = [toolboxPath '/jagsModels/seperateME.txt'];
-
 		end
 		% ================================================================
-
-
 
 
 		function plot(obj)

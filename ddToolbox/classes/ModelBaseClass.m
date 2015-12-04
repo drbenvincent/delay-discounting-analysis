@@ -10,19 +10,9 @@ classdef ModelBaseClass < handle
 		monitorparams
 	end
 
-	properties (Access = protected)
-		% inputs into `matjags` *** TODO These could all exist within a single `matjags` object? ***
-		%observed % struct
-		%JAGSmodel % string
-		%initial_param % struct
-		%mcmcparams % struct
-		 % struct
-	end
 	properties (GetAccess = public, SetAccess = protected)
-		%samples, stats % structures returned by `matjags`
 		analyses % struct
 	end
-
 
 	methods(Abstract, Access = public)
 		plot(obj, data)
@@ -37,77 +27,12 @@ classdef ModelBaseClass < handle
 		% CONSTRUCTOR =====================================================
 		function obj = ModelBaseClass(toolboxPath, sampler, data)
 			obj.data = data;
-			% switch sampler
-			% 	case{'JAGS'}
-			% 		obj.sampler = JAGSSampler([toolboxPath '/jagsModels/seperateME.txt'])
-			% 	case{'STAN'}
-			% 		error('NOT IMPLEMENTED YET')
-			% end
-			%obj.JAGSmodel = [toolboxPath '/jagsModels/seperateME.txt'];
-			%[~,obj.modelType,~] = fileparts(obj.JAGSmodel);
-			%obj.setSampler('JAGS');
-			%obj.setMCMCparams();
 		end
 		% =================================================================
 
 		function conductInference(obj)
 			obj.sampler.conductInference()
 		end
-
-		% function conductInference(obj, data)
-		% 	switch obj.sampler
-		% 		case{'JAGS'}
-		% 			assert(obj.mcmcparams.nchains>=2,'Use a minimum of 2 MCMC chains')
-		% 			if isempty(gcp('nocreate')), parpool, end % Start parallel pool
-		% 			obj.setInitialParamValues(data);
-		% 			obj.setMonitoredValues(data);
-		% 			obj.setObservedValues(data);
-		% 			obj.invokeJAGS();
-		% 		otherwise
-		% 			error('sampler should be JAGS')
-		% 	end
-		% 	obj.calcSampleRange()
-		% 	obj.doAnalysis()
-		% 	obj.convergenceSummary(data)
-		% 	display('***** SAVE THE MODEL OBJECT HERE *****')
-		% end
-
-
-		% function setMCMCtotalSamples(obj, totalSamples)
-		% 	%samplesPerChain				= totalSamples / obj.mcmcparams.nchains;
-		% 	obj.mcmcparams.nsamples     = totalSamples / obj.mcmcparams.nchains;
-		% 	obj.mcmcparams.totalSamples = totalSamples;
-		% 	fprintf('Total samples: %d\n', obj.mcmcparams.totalSamples)
-		% 	fprintf('%d chains, with %d samples each\n', ...
-		% 		obj.mcmcparams.nchains, obj.mcmcparams.nsamples)
-		% end
-
-
-		% function setMCMCnumberOfChains(obj, nchains)
-		% 	obj.mcmcparams.nchains = nchains;
-		% 	obj.mcmcparams.nsamples = obj.mcmcparams.totalSamples / obj.mcmcparams.nchains;
-		% 	fprintf('Total samples: %d\n', obj.mcmcparams.totalSamples)
-		% 	fprintf('%d chains, with %d samples each\n', ...
-		% 		obj.mcmcparams.nchains, obj.mcmcparams.nsamples)
-		% end
-
-
-		% function setBurnIn(obj, nburnin)
-		% 	obj.mcmcparams.nburnin = nburnin;
-		% 	fprintf('Burn in: %d samples\n', obj.mcmcparams.nburnin)
-		% end
-
-
-		% function setSampler(obj, sampler)
-		% 	switch sampler
-		% 		case{'JAGS'}
-		% 			obj.sampler	  = 'JAGS';
-		% 		otherwise
-		% 			error('currently, sampler must be ''JAGS''')
-		% 	end
-		% 	fprintf('MCMC sampling software now set as: %s\n',obj.sampler)
-		% end
-
 
 		function calcSampleRange(obj)
 			% Define limits for each of the variables here for plotting purposes
@@ -116,48 +41,6 @@ classdef ModelBaseClass < handle
 			obj.range.m = prctile(obj.sampler.samples.m(:), [0.5 99.5]);
 			obj.range.c = prctile(obj.sampler.samples.c(:), [1 99]);
 		end
-
-
-		% function convergenceSummary(obj, data)
-		% 	% save to a text file
-		% 	if ~exist(fullfile('figs',data.saveName),'dir')
-		% 		mkdir(fullfile('figs',data.saveName))
-		% 	end
-		% 	fname = fullfile('figs',data.saveName,['ConvergenceReport.txt']);
-		% 	fid=fopen(fname,'w');
-		% 	% MCMC parameter report
-		% 	logInfo(fid, 'MCMC inference was conducted with %d chains. ', obj.mcmcparams.nchains)
-		% 	%fprintf(fid,'MCMC inference was conducted with %d chains. ', obj.mcmcparams.nchains )
-		% 	logInfo(fid,'The first %d samples were discarded from each chain, ', obj.mcmcparams.nburnin )
-		% 	logInfo(fid,'resulting in a total of %d samples to approximate the posterior distribution. ', obj.mcmcparams.totalSamples )
-		% 	logInfo(fid,'\n\n\n');
-		% 	warningFlag = false;
-		% 	% get fields that we have Rhat statistic for
-		% 	names = fieldnames(obj.stats.Rhat);
-		% 	% loop over fields and report for either single values or
-		% 	% multiple values (eg when we have multiple participants)
-		% 	for n=1:numel(names)
-		% 		RhatValues = obj.stats.Rhat.(names{n});
-		% 		logInfo(fid,'\nRhat for: %s.\n',names{n});
-		% 		for i=1:numel(RhatValues)
-		% 			if numel(RhatValues)>1
-		% 				logInfo(fid,'%s\t', data.IDname{i});
-		% 			end
-		% 			logInfo(fid,'%2.5f\t', RhatValues(i));
-		% 			if RhatValues(i)>1.001
-		% 				warningFlag = true;
-		% 				logInfo(fid,'WARNING: poor convergence');
-		% 			end
-		% 			logInfo(fid,'\n');
-		% 		end
-		% 	end
-		% 	if warningFlag
-		% 		logInfo(fid,'\n\n\n**** WARNING: convergence issues ****\n\n\n')
-		% 		beep
-		% 	end
-		% 	fclose(fid);
-		% 	fprintf('Convergence report saved in:\n\t%s\n\n',fname)
-		% end
 
 		% **************************************************************************************************
 		% TODO: THIS FUNCTION CAN BE GENERALISED TO LOOP OVER WHATEVER FIELDS ARE IN obj.analyses.univariate
@@ -187,39 +70,7 @@ classdef ModelBaseClass < handle
 
 	end
 
-
 	methods (Access = protected)
-		% function setMCMCparams(obj)
-		% 	obj.mcmcparams.doparallel 	= 1;
-		% 	obj.mcmcparams.nchains  	= 2;
-		% 	obj.mcmcparams.nburnin      = 1000;
-		% 	obj.mcmcparams.nsamples     = 10^5; % 10^5 - 10^6 min for GOOD results
-		% 	obj.mcmcparams.model        = obj.JAGSmodel;
-		% 	obj.mcmcparams.totalSamples = obj.mcmcparams.nchains * obj.mcmcparams.nsamples;
-		% end
-
-
-		% function invokeJAGS(obj)
-		% 	fprintf('\nRunning JAGS (%d chains, %d samples each)\n',...
-		% 		obj.mcmcparams.nchains,...
-		% 		obj.mcmcparams.nsamples);
-		% 	[obj.samples, obj.stats] = matjags( ...
-		% 		obj.observed, ...
-		% 		obj.JAGSmodel,... %obj.mcmcparams.model, ...
-		% 		obj.initial_param, ...
-		% 		'doparallel' , obj.mcmcparams.doparallel, ...
-		% 		'nchains', obj.mcmcparams.nchains,...
-		% 		'nburnin', obj.mcmcparams.nburnin,...
-		% 		'nsamples', obj.mcmcparams.nsamples, ...
-		% 		'thin', 1, ...
-		% 		'monitorparams', obj.monitorparams, ...
-		% 		'savejagsoutput' , 0 , ...
-		% 		'verbosity' , 1 , ...
-		% 		'cleanup' , 1 ,...
-		% 		'rndseed', 1,...
-		% 		'dic',0);
-		% end
-
 
 		function figParticipantLevelWrapper(obj)
 			% PLOT INDIVIDUAL LEVEL STUFF HERE ----------
@@ -242,7 +93,6 @@ classdef ModelBaseClass < handle
 				close(fh)
 			end
 		end
-
 
 		function figParticipant(obj, pSamples, pData)
 			rows=1; cols=5;
@@ -279,16 +129,6 @@ classdef ModelBaseClass < handle
 % 			set(gca,'XLim',[10 100])
 		end
 
-
-		% function [samples] = getParticipantSamples(obj,participant)
-		% 	fieldsToGet={'m','c','alpha','epsilon'};
-		% 	for n=1:numel(fieldsToGet)
-		% 		temp = obj.samples.(fieldsToGet{n});
-		% 		samples.(fieldsToGet{n}) = vec(temp(:,:,participant));
-		% 	end
-		% end
-
 	end
-
 
 end
