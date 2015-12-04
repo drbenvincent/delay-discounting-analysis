@@ -349,7 +349,6 @@ classdef ModelHierarchical < ModelBaseClass
 
 
 	methods (Static)
-
 		function [posteriorMode,lh] = calculateLogK_ConditionOnReward(reward, params, plotFlag)
 			lh=[];
 			% -----------------------------------------------------------
@@ -384,54 +383,23 @@ classdef ModelHierarchical < ModelBaseClass
 
 		end
 
+
+
+
 	end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
 	% HYPOTHESIS TEST FUNCTIONS ================================================
 	methods (Access = public)
-		function HTgroupSlopeLessThanZero(obj)
+		function HTgroupSlopeLessThanZero(obj, data)
 			% Test the hypothesis that the group level slope (G^m) is less
 			% than one
 
-			% METHODS 1
-			obj.HT_BayesFactor()
-
-			% METHOD 2
-			obj.HT_PosteriorHDI()
-
-			%%
-			myExport(obj.data.saveName, [], '-BayesFactorMLT1')
-		end
-
-
-		function  HT_BayesFactor(obj)
-			binsize = 0.05;
 			%% METHOD 1 - BAYES FACTOR ------------------------------------
 			% extract samples
-			priorSamples = obj.sampler.samples.glMprior(:);
-			posteriorSamples = obj.sampler.samples.glM(:);
+			priorSamples = obj.samples.glMprior(:);
+			posteriorSamples = obj.samples.glM(:);
 			% in order to evaluate the order-restricted hypothesis m<0, then we need to
 			% remove samples where either prior or posterior contain samples
 			priorSamples = priorSamples(priorSamples<0);
@@ -496,14 +464,12 @@ classdef ModelHierarchical < ModelBaseClass
 			%ylabel('density')
 			xlabel('G^m')
 			title('Bayesian hypothesis testing')
-		end
 
-		function HT_PosteriorHDI(obj)
-			binsize = 0.05;
+			%% METHOD 2 ----------------------------------------------------
 			% Now plot posterior distribution and examine HDI
 			subplot(1,2,2)
-			priorSamples = obj.sampler.samples.glMprior(:);
-			posteriorSamples = obj.sampler.samples.glM(:);
+			priorSamples = obj.samples.glMprior(:);
+			posteriorSamples = obj.samples.glM(:);
 
 			edges = [-5:binsize:2];
 			% prior
@@ -539,8 +505,9 @@ classdef ModelHierarchical < ModelBaseClass
 			% 			xlabel('G^m')
 			% 			xlim([-1.5 1])
 
+			%%
+			myExport(data.saveName, [], '-BayesFactorMLT1')
 		end
-
 	end
 
 end

@@ -73,7 +73,7 @@ hModel.plot()
 %% Example research conclusions...
 
 % Calculate Bayes Factor, and plot 95% CI on the posterior
-hModel.HTgroupSlopeLessThanZero()
+hModel.HTgroupSlopeLessThanZero(myData)
 
 % Summary information of the group and participant level infererences are
 % stored in a structure in the model object, eg:
