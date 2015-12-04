@@ -49,26 +49,26 @@ myData.quickAnalysis();
 
 % First we create a model object, which we will call hModel. This is an
 % instance of the class 'ModelHierarchical'
-hModel = ModelHierarchical(toolboxPath);
+hModel = ModelHierarchical(toolboxPath, 'JAGS', myData);
 
 % Here we should change default parameters
-hModel.setMCMCtotalSamples(5000); % default is 10^5
+hModel.sampler.setMCMCtotalSamples(5000); % default is 10^5
 % If you have more than 2 cores on your machine you can uncomment this next
 % line
-%hModel.setMCMCnumberOfChains(4);
+%hModel.sampler.setMCMCnumberOfChains(4);
 
 % This will initiate MCMC sampling. This can take some time to run,
 % depending on number of samples, chains, computer speed and cores etc.
 % It's probably best to start with a low number of MCMC samples to get a
 % feel for how long the sampling takes.
-hModel.conductInference(myData);
+hModel.conductInference();
 
 % Export posterior mode (and credible intervals) of all parameter and group
 % level parameters to a text file
-hModel.exportParameterEstimates(myData);
+hModel.exportParameterEstimates();
 
 % Plot all the results
-hModel.plot(myData)
+hModel.plot()
 
 %% Example research conclusions...
 
@@ -106,7 +106,7 @@ participant_level_m = array2table([hModel.analyses.univariate.m.mode' hModel.ana
 % magnitude.
 
 % Below we calculate and plot the discount rates for reward magnitudes of
-% £100 and £1,000
+% Â£100 and Â£1,000
 
 figure(1), clf
 plotFlag=true;
@@ -126,11 +126,11 @@ pathToData='data';
 sepData = DataClass(saveName,pathToData);
 sepData.loadDataFiles(fnames);
 
-sModel = ModelSeperate(toolboxPath);
-sModel.setMCMCtotalSamples(5000); 
-sModel.setMCMCnumberOfChains(4);
-sModel.conductInference(sepData);
-sModel.exportParameterEstimates(sepData);
-sModel.plot(sepData)
+sModel = ModelSeperate(toolboxPath, 'JAGS', sepData);
+sModel.sampler.setMCMCtotalSamples(5000);
+sModel.sampler.setMCMCnumberOfChains(4);
+sModel.conductInference();
+sModel.exportParameterEstimates();
+sModel.plot()
 
 return

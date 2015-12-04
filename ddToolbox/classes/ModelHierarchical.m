@@ -1,80 +1,91 @@
 classdef ModelHierarchical < ModelBaseClass
 	%ModelHierarchical A model to estimate the magnitide effect
 	%   Detailed explanation goes here
-	
+
 	properties
 	end
-	
-	
+
+
 	methods (Access = public)
 		% =================================================================
-		function obj = ModelHierarchical(toolboxPath)
+		function obj = ModelHierarchical(toolboxPath, sampler, data)
 			% Because this class is a subclass of "modelME" then we use
 			% this next line to create an instance
-			obj = obj@ModelBaseClass(toolboxPath);
-			
-			obj.JAGSmodel = [toolboxPath '/jagsModels/hierarchicalME.txt'];
-			[~,obj.modelType,~] = fileparts(obj.JAGSmodel);
+			obj = obj@ModelBaseClass(toolboxPath, sampler, data);
+
+			switch sampler
+				case{'JAGS'}
+					obj.sampler = JAGSSampler([toolboxPath '/jagsModels/hierarchicalME.txt'])
+					[~,obj.modelType,~] = fileparts(obj.sampler.fileName);
+				case{'STAN'}
+					error('NOT IMPLEMENTED YET')
+			end
+
+			% give sampler a handle back to the model (ie this hierarchicalME model)
+			obj.sampler.modelHandle = obj;
+
+			% obj.fileName = [toolboxPath '/jagsModels/hierarchicalME.txt'];
+			% [~,obj.modelType,~] = fileparts(obj.JAGSmodel);
 		end
 		% =================================================================
-		
-		
-		function plot(obj, data)
+
+
+		function plot(obj)
 			close all
 			% plot univariate summary statistics for the parameters we have
 			% made inferences about
-			obj.figUnivariateSummary(obj.analyses.univariate, data.IDname)
+			obj.figUnivariateSummary(obj.analyses.univariate, obj.data.IDname)
 			% EXPORTING ---------------------
 			latex_fig(16, 5, 5)
-			myExport(data.saveName, obj.modelType, '-UnivariateSummary')
+			myExport(obj.data.saveName, obj.modelType, '-UnivariateSummary')
 			% -------------------------------
-			
-			obj.figGroupLevelPriorPost()
-			obj.figGroupLevel(data)
-			obj.figParticipantLevelWrapper(data)
 
-			MCMCdiagnoticsPlot(obj.samples, obj.stats, [],...
+			obj.figGroupLevelPriorPost()
+			obj.figGroupLevel()
+			obj.figParticipantLevelWrapper()
+
+			MCMCdiagnoticsPlot(obj.sampler.samples, obj.sampler.stats, [],...
 				{'glM', 'glC', 'glEpsilon', 'glALPHA', 'm', 'c', 'groupALPHAmu', 'groupALPHAsigma'},...
 				{[], [], [0 0.5], 'positive', [], [], [], 'positive'},...
 				{'G^m', 'G^c', 'G^{\epsilon}', 'G^{\alpha}', 'm', 'c', '\mu^\alpha', '\sigma^\alpha'},...
-				data,...
+				obj.data,...
 				obj.modelType);
 		end
-		
-		
+
+
 		function figGroupLevelPriorPost(obj)
 			figure
-			
+
 			subplot(2,2,1)
-			plotPriorPosterior(obj.samples.glEpsilonprior(:),...
-				obj.samples.glEpsilon(:),...
+			plotPriorPosterior(obj.sampler.samples.glEpsilonprior(:),...
+				obj.sampler.samples.glEpsilon(:),...
 				'G^\epsilon')
-			
+
 			subplot(2,2,2)
-			plotPriorPosterior(obj.samples.glALPHAprior(:),...
-				obj.samples.glALPHA(:),...
+			plotPriorPosterior(obj.sampler.samples.glALPHAprior(:),...
+				obj.sampler.samples.glALPHA(:),...
 				'G^\alpha')
-			
+
 			subplot(2,2,3)
-			plotPriorPosterior(obj.samples.glMprior(:),...
-				obj.samples.glM(:),...
+			plotPriorPosterior(obj.sampler.samples.glMprior(:),...
+				obj.sampler.samples.glM(:),...
 				'G^m')
-			
+
 			subplot(2,2,4)
-			plotPriorPosterior(obj.samples.glCprior(:),...
-				obj.samples.glC(:),...
+			plotPriorPosterior(obj.sampler.samples.glCprior(:),...
+				obj.sampler.samples.glC(:),...
 				'G^c')
 		end
-		
+
 
 		% *********
 		% TODO: CAN THIS BE MOVED TO THE BASE CLASS?
 		% *********
 		function conditionalDiscountRates(obj, reward, plotFlag)
 			% For group level and all participants, extract and plot P( log(k) | reward)
-			
+
 			count=1;
-			
+
 			%% Participant level
 			nParticipants = size(obj.samples.m,3);
 			for p = 1:nParticipants
@@ -91,7 +102,7 @@ classdef ModelHierarchical < ModelBaseClass
 				% ==============================================
 				count=count+1;
 			end
-			
+
 			%% Group level
 			samples.m = obj.samples.glM(:);
 			samples.c = obj.samples.glC(:);
@@ -104,11 +115,11 @@ classdef ModelHierarchical < ModelBaseClass
 			lh(count).DisplayName = 'Group level';
 			row(count) = {sprintf('Group level')};
 			% ==============================================
-			
+
 			logkCondition = array2table([posteriorMode'],...
 				'VariableNames',{'logK_posteriorMode'},...)
 				'RowNames', row )
-			
+
 			if plotFlag % FORMATTING OF FIGURE
 				removeYaxis
 				title(sprintf('$P(\\log(k)|$reward=$\\pounds$%d$)$', reward),'Interpreter','latex')
@@ -116,12 +127,12 @@ classdef ModelHierarchical < ModelBaseClass
 				axis square
 				%legend(lh.DisplayName)
 			end
-			
+
 		end
-		
+
 
 		% TODO: NOW THIS OVERIDES THE BASE CLASS METHOD, BUT IDEALLY WE WANT TO MAKE THAT BASECLASS METHOD MODE GENERAL SO WE CAN REMOVE THIS FUNCTION
-		function exportParameterEstimates(obj, data)
+		function exportParameterEstimates(obj)
 			participant_level = array2table(...
 				[obj.analyses.univariate.m.mode'...
 				obj.analyses.univariate.m.CI95'...
@@ -135,8 +146,8 @@ classdef ModelHierarchical < ModelBaseClass
 				'c_mode' 'c_CI5' 'c_CI95'...
 				'alpha_mode' 'alpha_CI5' 'alpha_CI95'...
 				'epsilon_mode' 'epsilon_CI5' 'epsilon_CI95'},...
-				'RowNames',data.participantFilenames);
-			
+				'RowNames',obj.data.participantFilenames);
+
 			group_level = array2table(...
 				[obj.analyses.univariate.glM.mode'...
 				obj.analyses.univariate.glM.CI95'...
@@ -151,23 +162,19 @@ classdef ModelHierarchical < ModelBaseClass
 				'alpha_mode' 'alpha_CI5' 'alpha_CI95'...
 				'epsilon_mode' 'epsilon_CI5' 'epsilon_CI95'},...
 				'RowNames',{'GroupLevelInference'});
-			
+
 			combinedParameterEstimates = [participant_level ; group_level]
-			
-			savename = ['parameterEstimates_' data.saveName '.txt'];
+
+			savename = ['parameterEstimates_' obj.data.saveName '.txt'];
 			writetable(combinedParameterEstimates, savename,...
 				'Delimiter','\t')
 			fprintf('The above table of participant and group-level parameter estimates was exported to:\n')
 			fprintf('\t%s\n\n',savename)
 		end
-		
-	end
-	
 
-	
-	methods (Access = protected)
 
-		function setMonitoredValues(obj, data)
+
+		function setMonitoredValues(obj)
 			obj.monitorparams = {'epsilon',...
 				'alpha',...
 				'm',...
@@ -183,96 +190,106 @@ classdef ModelHierarchical < ModelBaseClass
 				};
 		end
 
-		function setObservedValues(obj, data)
-			obj.observed = data.observedData;
-			%obj.observed.logBInterp = log( logspace(0,5,99) );
-			obj.observed.nParticipants	= data.nParticipants;
-			obj.observed.totalTrials	= data.totalTrials;
+		function setObservedValues(obj)
+			% the model is changing sampler information
+			obj.sampler.observed = obj.data.observedData;
+			obj.sampler.observed.nParticipants	= obj.data.nParticipants;
+			obj.sampler.observed.totalTrials	= obj.data.totalTrials;
 		end
-		
+
+		function setInitialParamValues(obj)
+			% the model is changing sampler information
+			for n=1:obj.sampler.mcmcparams.nchains
+				obj.sampler.initial_param(n).groupMmu = normrnd(-0.243,1);
+				obj.sampler.initial_param(n).groupCmu = normrnd(0,2);
+				obj.sampler.initial_param(n).mprior = normrnd(-0.243,2);
+				obj.sampler.initial_param(n).cprior = normrnd(0,4);
+				for p=1:obj.data.nParticipants
+					obj.sampler.initial_param(n).alpha(p) = abs(normrnd(0.01,0.001));
+					obj.sampler.initial_param(n).lr(p) = rand/10;
+					obj.sampler.initial_param(n).m(p) = normrnd(-0.243,2);
+					obj.sampler.initial_param(n).c(p) = normrnd(0,4);
+				end
+			end
+		end
+
+		function doAnalysis(obj) % <--- TODO: REMOVE THIS WRAPPER FUNCTION
+			obj.analyses.univariate = univariateAnalysis(obj.sampler.samples,...
+				{'epsilon', 'alpha', 'm', 'c', 'glM', 'glC', 'glEpsilon','glALPHA'},...
+				{'positive', 'positive', [], [], [], [], 'positive', 'positive'} );
+		end
+
+	end
+
+
+
+	methods (Access = protected)
 
 		% ******
 		% TODO: CAN WE MAKE figParticipant() IN THE BASE CLASS MORE GENERAL SO WE CAN AVOID THE REPETIION OF HAVING THIS FUNCTION?
-		function figGroupLevel(obj, data)
-			
+		function figGroupLevel(obj)
+
 			figure(99)
 			set(gcf,'Name','GROUP LEVEL')
 			clf
-			
-			
+
+
 			% BIVARIATE PLOT: lapse rate & comparison accuity
 			figure(99), subplot(1, 5, 1)
-			[structName] = plot2DErrorAccuity(obj.samples.glEpsilon(:),...
-				obj.samples.glALPHA(:),...
+			[structName] = plot2DErrorAccuity(obj.sampler.samples.glEpsilon(:),...
+				obj.sampler.samples.glALPHA(:),...
 				obj.range.epsilon,...
 				obj.range.alpha);
 			lrMODE = structName.modex;
 			alphaMODE= structName.modey;
-			
+
 			% PSYCHOMETRIC FUNCTION (using my posterior-prediction-plot-matlab GitHub repository)
 			figure(99), subplot(1, 5, 2)
-			tempsamples.epsilon = obj.samples.glEpsilon;
-			tempsamples.alpha = obj.samples.glALPHA;
+			tempsamples.epsilon = obj.sampler.samples.glEpsilon;
+			tempsamples.alpha = obj.sampler.samples.glALPHA;
 			plotPsychometricFunc(tempsamples, [lrMODE, alphaMODE])
 			clear tempsamples
-			
-			
+
+
 			figure(99), subplot(1,5,3)
-			[groupLevelMCinfo] = plot2Dmc(obj.samples.glM(:),...
-				obj.samples.glC(:), obj.range.m, obj.range.c);
-			
+			[groupLevelMCinfo] = plot2Dmc(obj.sampler.samples.glM(:),...
+				obj.sampler.samples.glC(:), obj.range.m, obj.range.c);
+
 			GROUPmodeM = groupLevelMCinfo.modex;
 			GROUPmodeC = groupLevelMCinfo.modey;
-			
-			
+
+
 			figure(99), subplot(1,5,4)
-			tempsamples.m = obj.samples.glM(:);
-			tempsamples.c = obj.samples.glC(:);
+			tempsamples.m = obj.sampler.samples.glM(:);
+			tempsamples.c = obj.sampler.samples.glC(:);
 			plotMagnitudeEffect(tempsamples, [GROUPmodeM, GROUPmodeC])
-			
-			
+
+
 			figure(99), subplot(1, 5, 5)
-			opts.maxlogB	= max(abs(data.observedData.B(:)));
-			opts.maxD		= max(data.observedData.DB(:));
+			opts.maxlogB	= max(abs(obj.data.observedData.B(:)));
+			opts.maxD		= max(obj.data.observedData.DB(:));
 			% PLOT A POINT-ESTIMATE DISCOUNT SURFACE
 			plotDiscountSurface(GROUPmodeM, GROUPmodeC, opts);
 			%set(gca,'XTick',[10 100])
 			%set(gca,'XTickLabel',[10 100])
 			%set(gca,'XLim',[10 100])
-						
+
 			% EXPORTING ---------------------
 			latex_fig(16, 18, 4)
-			myExport(data.saveName, obj.modelType, '-GROUP')
+			myExport(obj.data.saveName, obj.modelType, '-GROUP')
 			% -------------------------------
-	
+
 		end
-		
-		
-		function setInitialParamValues(obj, data)
-			for n=1:obj.mcmcparams.nchains
-				obj.initial_param(n).groupMmu = normrnd(-0.243,1);
-				obj.initial_param(n).groupCmu = normrnd(0,2);
-				obj.initial_param(n).mprior = normrnd(-0.243,2);
-				obj.initial_param(n).cprior = normrnd(0,4);
-				for p=1:data.nParticipants
-					obj.initial_param(n).alpha(p) = abs(normrnd(0.01,0.001));
-					obj.initial_param(n).lr(p) = rand/10;
-					obj.initial_param(n).m(p) = normrnd(-0.243,2);
-					obj.initial_param(n).c(p) = normrnd(0,4);
-				end
-			end
-		end
-		
-		
-		function doAnalysis(obj) % <--- TODO: REMOVE THIS WRAPPER FUNCTION
-			obj.analyses.univariate = univariateAnalysis(obj.samples,...
-				{'epsilon', 'alpha', 'm', 'c', 'glM', 'glC', 'glEpsilon','glALPHA'},...
-				{'positive', 'positive', [], [], [], [], 'positive', 'positive'} );
-		end
-		
+
+
+
+
+
+
+
 	end
-	
-	
+
+
 	methods (Static)
 		function [posteriorMode,lh] = calculateLogK_ConditionOnReward(reward, params, plotFlag)
 			lh=[];
@@ -285,30 +302,30 @@ classdef ModelHierarchical < ModelBaseClass
 				bsxfun(@times,params(:,1),log(x)),...
 				params(:,2)));
 			% -----------------------------------------------------------
-			
+
 			myplot = PosteriorPredictionPlot(fh, reward, params);
 			myplot = myplot.evaluateFunction([]);
-			
+
 			% Extract samples of P(k|reward)
 			kSamples = myplot.Y;
 			logKsamples = log(kSamples);
-			
+
 			% Calculate kernel density estimate
 			[f,xi] = ksdensity(logKsamples, 'function', 'pdf');
-			
+
 			% Calculate posterior mode
 			posteriorMode = xi( argmax(f) );
-			
+
 			if plotFlag
 				figure(1)
 				lh = plot(xi,f);
 				hold on
 				drawnow
 			end
-			
+
 		end
-		
-		
+
+
 		function figUnivariateSummary(uni, participantIDlist)
 			figure
 
@@ -320,20 +337,20 @@ classdef ModelHierarchical < ModelBaseClass
 			hline(0,...
 				'Color','k',...
 				'LineStyle','--')
-			
+
 			subplot(4,1,2)
 			plotErrorBars({'G^c' participantIDlist{:}},...
 				[uni.glC.mode uni.c.mode],...
 				[uni.glC.CI95 uni.c.CI95], '$c$')
 			%xlim([0.5 N+0.5])
-			
+
 			subplot(4,1,3) % LAPSE RATE
 			plotErrorBars({'G^\epsilon' participantIDlist{:}},...
 				[uni.glEpsilon.mode uni.epsilon.mode]*100,...
-				[uni.glEpsilon.CI95 uni.epsilon.CI95]*100, '$\epsilon (\%)$') 
+				[uni.glEpsilon.CI95 uni.epsilon.CI95]*100, '$\epsilon (\%)$')
 			a=axis; ylim([0 a(4)])
 			clear CI95 modeVals CI95
-			
+
 			subplot(4,1,4) % COMPARISON ACUITY
 			plotErrorBars({'G^\alpha' participantIDlist{:}},...
 				[uni.glALPHA.mode uni.alpha.mode],...
@@ -341,7 +358,7 @@ classdef ModelHierarchical < ModelBaseClass
 			%xlim([0.5 N+0.5])
 			a=axis; ylim([0 a(4)])
 		end
-		
+
 	end
 
 
@@ -351,7 +368,7 @@ classdef ModelHierarchical < ModelBaseClass
 		function HTgroupSlopeLessThanZero(obj, data)
 			% Test the hypothesis that the group level slope (G^m) is less
 			% than one
-			
+
 			%% METHOD 1 - BAYES FACTOR ------------------------------------
 			% extract samples
 			priorSamples = obj.samples.glMprior(:);
@@ -360,7 +377,7 @@ classdef ModelHierarchical < ModelBaseClass
 			% remove samples where either prior or posterior contain samples
 			priorSamples = priorSamples(priorSamples<0);
 			posteriorSamples = posteriorSamples(posteriorSamples<0);
-			
+
 			% 			% calculate the density at m=0, using kernel density estimation
 			% 			MMIN = min([priorSamples; posteriorSamples])*1.1;
 			% 			[bandwidth,priordensity,xmesh,cdf]=kde(priorSamples,500,MMIN,0);
@@ -373,9 +390,9 @@ classdef ModelHierarchical < ModelBaseClass
 			% 			% calculate log bayes factor
 			% 			BF_01 =  priordensity(xmesh==0) / postdensity(xmesh==0) ;
 			% 			BF_10 =  postdensity(xmesh==0) / priordensity(xmesh==0) ;
-			
+
 			binsize = 0.05;
-			
+
 			edges = [-5:binsize:0];
 			% 			% First plot
 			% 			histogram(priorSamples, edges, 'Normalization','pdf', 'DisplayStyle','stairs')
@@ -388,11 +405,11 @@ classdef ModelHierarchical < ModelBaseClass
 			postDensityAtZero	= Npost(end);
 			priorDensityAtZero	= Nprior(end);
 			% Calculate Bayes Factor
-			
+
 			BF_10 = postDensityAtZero / priorDensityAtZero
 			BF_01 = priorDensityAtZero / postDensityAtZero
-			
-			
+
+
 			% plot
 			figure
 			subplot(1,2,1)
@@ -420,37 +437,37 @@ classdef ModelHierarchical < ModelBaseClass
 			%ylabel('density')
 			xlabel('G^m')
 			title('Bayesian hypothesis testing')
-			
+
 			%% METHOD 2 ----------------------------------------------------
 			% Now plot posterior distribution and examine HDI
 			subplot(1,2,2)
 			priorSamples = obj.samples.glMprior(:);
 			posteriorSamples = obj.samples.glM(:);
-			
+
 			edges = [-5:binsize:2];
 			% prior
 			h = histogram(priorSamples, edges, 'Normalization','pdf');
 			h.EdgeColor = 'none';
 			h.FaceColor = [0.7 0.7 0.7];
 			hold on
-			
+
 			% posterior
 			h = histogram(posteriorSamples, edges, 'Normalization','pdf');
 			h.EdgeColor = 'none';
 			h.FaceColor = [0.2 0.2 0.2];
-			
+
 			%legend('prior','post', 'Location','NorthWest')
 			%legend boxoff
 			axis square
 			box off
 			axis tight, xlim([-2 1])
 			removeYaxis()
-			
+
 			xlabel('G^m')
 			title('Parameter estimation')
-			
+
 			showHDI(posteriorSamples)
-			
+
 			% 			opts.PlotBoxAspectRatio=[1 1 1];
 			% 			opts.plotStyle = 'line';
 			% 			opts.priorSamples = priorSamples;
@@ -460,11 +477,10 @@ classdef ModelHierarchical < ModelBaseClass
 			% 			title('b.')
 			% 			xlabel('G^m')
 			% 			xlim([-1.5 1])
-			
+
 			%%
 			myExport(data.saveName, [], '-BayesFactorMLT1')
 		end
 	end
-	
-end
 
+end

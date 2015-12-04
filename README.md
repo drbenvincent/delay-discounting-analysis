@@ -7,7 +7,7 @@ This repository contains the code for the paper:
 
 # What does this do?
 
-This code conducts Bayesian estimation and hypothesis testing on data obtained from delay discounting (aka inter-temporal choice) experiments. 
+This code conducts Bayesian estimation and hypothesis testing on data obtained from delay discounting (aka inter-temporal choice) experiments.
 
 ![](ddToolbox/pics/overview.png)
 
@@ -22,7 +22,7 @@ Go to the [wiki](https://github.com/drbenvincent/delay-discounting-analysis/wiki
 # Key features:
 
 * Know how confident you are in delay discounting parameters from the posterior distributions calculated.
-* Improved accuracy of delay discounting parameter estimates using hierarchical Bayesian estimation. Trial-level responses, and participant- and group-level parameters are all modelled. 
+* Improved accuracy of delay discounting parameter estimates using hierarchical Bayesian estimation. Trial-level responses, and participant- and group-level parameters are all modelled.
 * Easily interpretable results due to using the 1-parameter hyperbolic discount function
 * Richer results as we model the magnitude effect (how discount rate varies as a function of reward magnitude).
 * More robust discounting parameter estimates due to explicitly modelling participant errors.
@@ -33,8 +33,8 @@ The commands use to get your analysis up and running are quite quick and easy. H
     toolboxPath = setToolboxPath('/Users/benvincent/git-local/delay-discounting-analysis/ddToolbox')
     cd('/Users/benvincent/git-local/delay-discounting-analysis/demo')
     myData = DataClass('methodspaper-kirby27.txt','data');
-    myData.loadDataFiles({'AC-kirby27-DAYS.txt','CS-kirby27-DAYS.txt','NA-kirby27-DAYS.txt','SB-kirby27-DAYS.txt','bv-kirby27.txt','rm-kirby27.txt','vs-kirby27.txt','BL-kirby27.txt','EP-kirby27.txt','JR-kirby27.txt','KA-kirby27.txt','LJ-kirby27.txt','LY-kirby27.txt','SK-kirby27.txt','VD-kirby27.txt'}); 
-    hModel = ModelHierarchical(toolboxPath);
-    hModel.conductInference(myData);
-    hModel.exportParameterEstimates(myData);
-    hModel.plot(myData)
+    myData.loadDataFiles({'AC-kirby27-DAYS.txt','CS-kirby27-DAYS.txt','NA-kirby27-DAYS.txt','SB-kirby27-DAYS.txt','bv-kirby27.txt','rm-kirby27.txt','vs-kirby27.txt','BL-kirby27.txt','EP-kirby27.txt','JR-kirby27.txt','KA-kirby27.txt','LJ-kirby27.txt','LY-kirby27.txt','SK-kirby27.txt','VD-kirby27.txt'});
+    hModel = ModelHierarchical(toolboxPath, 'JAGS', myData);
+    hModel.conductInference();
+    hModel.exportParameterEstimates();
+    hModel.plot();
