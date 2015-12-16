@@ -116,7 +116,7 @@ classdef ModelBaseClass < handle
 				fh.Name=['participant: ' obj.data.IDname{n}];
 
 				% get samples and data for this participant
-				[pSamples] = obj.sampler.getParticipantSamples(n, {'m','c','alpha','epsilon'});
+				[pSamples] = obj.sampler.getSamplesAtIndex(n, {'m','c','alpha','epsilon'});
 				[pData] = obj.data.getParticipantData(n);
 
 				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

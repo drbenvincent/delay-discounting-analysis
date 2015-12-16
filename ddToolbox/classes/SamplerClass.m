@@ -26,7 +26,7 @@ classdef (Abstract) SamplerClass < handle
 		%setMonitoredValues(obj, data) % DONE IN THE MODEL
 		%setObservedValues(obj, data) % DONE IN THE MODEL
 		%setInitialParamValues(obj, data) % DONE IN THE MODEL
-		getParticipantSamples(obj,participant)
+		getSamplesAtIndex(obj,index)
 		invokeSampler(obj)
 
 		setMCMCtotalSamples(obj, totalSamples)

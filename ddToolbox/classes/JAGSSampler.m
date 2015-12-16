@@ -66,15 +66,33 @@ classdef JAGSSampler < SamplerClass
 			display('***** SAVE THE MODEL OBJECT HERE *****')
 		end
 
-		function startParallelPool(obj)
-			if isempty(gcp('nocreate')), parpool, end
+		function [samples] = getSamplesAtIndex(obj, index, fieldsToGet)
+			% get all the samples for a given value of the 3rd dimension of
+			% samples. Dimensions are:
+			% 1. mcmc chain number
+			% 2. mcmc sample number
+			% 3. index of variable, meaning depends upon context of the
+			% model
+			[samples] = obj.flattenChains(fieldsToGet);
+			for i = 1:numel(fieldsToGet)
+			  samples.(fieldsToGet{i}) = samples.(fieldsToGet{i})(:,index);
+			end
 		end
 
-		function [samples] = getParticipantSamples(obj,participant, fieldsToGet)
-			%fieldsToGet={'m','c','alpha','epsilon'};
+		function [samples] = getSamples(obj, fieldsToGet)
+			for n=1:numel(fieldsToGet)
+				samples.(fieldsToGet{n}) = obj.samples.(fieldsToGet{n});
+			end
+		end
+
+		function [samples] = flattenChains(obj, fieldsToGet)
+			% collapse the first 2 dimensions of samples (number of MCMC
+			% chains, number of MCMC samples)
 			for n=1:numel(fieldsToGet)
 				temp = obj.samples.(fieldsToGet{n});
-				samples.(fieldsToGet{n}) = vec(temp(:,:,participant));
+				oldDims = size(temp);
+				newDims = [oldDims(1)*oldDims(2) oldDims([3:end])];
+				samples.(fieldsToGet{n}) = reshape(temp, newDims);
 			end
 		end
 
@@ -143,5 +161,11 @@ classdef JAGSSampler < SamplerClass
 
 
 
+	end
+
+	methods(Static)
+		function startParallelPool()
+			if isempty(gcp('nocreate')), parpool, end
+		end
 	end
 end
