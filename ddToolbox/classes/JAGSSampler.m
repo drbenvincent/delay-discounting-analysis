@@ -143,7 +143,7 @@ classdef JAGSSampler < SamplerClass
 						logInfo(fid,'%s\t', obj.modelHandle.data.IDname{i});
 					end
 					logInfo(fid,'%2.5f\t', RhatValues(i));
-					if RhatValues(i)>1.001
+					if RhatValues(i)>1.01
 						warningFlag = true;
 						logInfo(fid,'WARNING: poor convergence');
 					end
@@ -151,8 +151,10 @@ classdef JAGSSampler < SamplerClass
 				end
 			end
 			if warningFlag
-				logInfo(fid,'\n\n\n**** WARNING: convergence issues ****\n\n\n')
+				logInfo(fid,'\n\n\n**** WARNING: convergence issues :( ****\n\n\n')
 				beep
+			else
+				logInfo(fid,'\n\n\n**** No convergence issues :) ****\n\n\n')
 			end
 			fclose(fid);
 			fprintf('Convergence report saved in:\n\t%s\n\n',fname)
