@@ -55,7 +55,7 @@ classdef ModelSeperate < ModelBaseClass
 			for n=1:obj.sampler.mcmcparams.nchains
 				for p=1:obj.data.nParticipants
 					obj.sampler.initial_param(n).alpha(p)	= abs(normrnd(0.01,0.01));
-					obj.sampler.initial_param(n).lr(p)		= rand/10;
+					obj.sampler.initial_param(n).lr(p)		= 0.1 + rand/10;
 
 					obj.sampler.initial_param(n).m(p) = normrnd(-0.243,1);
 					obj.sampler.initial_param(n).c(p) = normrnd(0,4);
@@ -98,6 +98,7 @@ classdef ModelSeperate < ModelBaseClass
 			figure(87)
 			triPlotSamples(samples, priorSamples, {'m', 'c','alpha','epsilon'}, [])
 		end
+		
 	end
 
 

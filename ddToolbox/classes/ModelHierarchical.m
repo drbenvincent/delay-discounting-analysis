@@ -43,6 +43,9 @@ classdef ModelHierarchical < ModelBaseClass
 			myExport(obj.data.saveName, obj.modelType, '-PriorPost_GroupLevel')
 			% -------------------------------
 
+			obj.figGroupLevelTriPlot()
+			myExport(obj.data.saveName, obj.modelType, ['-GROUP-triplot'])
+
 			obj.figGroupLevel()
 			obj.figParticipantLevelWrapper()
 		end
@@ -65,7 +68,7 @@ classdef ModelHierarchical < ModelBaseClass
 				obj.sampler.initial_param(n).cprior = normrnd(0,4);
 				for p=1:obj.data.nParticipants
 					obj.sampler.initial_param(n).alpha(p) = abs(normrnd(0.01,0.001));
-					obj.sampler.initial_param(n).lr(p) = rand/10;
+					obj.sampler.initial_param(n).lr(p) = 0.1 + rand/10;
 					obj.sampler.initial_param(n).m(p) = normrnd(-0.243,2);
 					obj.sampler.initial_param(n).c(p) = normrnd(0,4);
 				end
@@ -210,6 +213,21 @@ classdef ModelHierarchical < ModelBaseClass
 			triPlotSamples(samples, priorSamples, {'m', 'c','alpha','epsilon'}, [])
 		end
 
+		function figGroupLevelTriPlot(obj)
+			% samples from posterior
+			samples= [obj.sampler.samples.glM(:),...
+				obj.sampler.samples.glC(:),...
+				obj.sampler.samples.glALPHA(:),...
+				obj.sampler.samples.glEpsilon(:)];
+			% samples from prior
+			% NOTE: we do not have direct priors over group level m, c, alpha, epsilon, but we do have then as the result of the relevant hyperpriors. So the appropriate priors here are the group level priors - which are effectively our prior for an unknown participant, before we see any data of course.
+			priorSamples= [obj.sampler.samples.glMprior(:),...
+				obj.sampler.samples.glCprior(:),...
+				obj.sampler.samples.glALPHAprior(:),...
+				obj.sampler.samples.glEpsilonprior(:)];
+			figure(87)
+			triPlotSamples(samples, priorSamples, {'m', 'c','alpha','epsilon'}, [])
+		end
 
 	end
 
