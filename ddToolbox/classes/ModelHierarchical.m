@@ -38,6 +38,11 @@ classdef ModelHierarchical < ModelBaseClass
 			% -------------------------------
 
 			obj.figGroupLevelPriorPost()
+			% EXPORTING ---------------------
+			latex_fig(16, 5, 5)
+			myExport(obj.data.saveName, obj.modelType, '-PriorPost_GroupLevel')
+			% -------------------------------
+
 			obj.figGroupLevel()
 			obj.figParticipantLevelWrapper()
 		end
