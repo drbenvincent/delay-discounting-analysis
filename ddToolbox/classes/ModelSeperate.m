@@ -40,7 +40,9 @@ classdef ModelSeperate < ModelBaseClass
 			% -------------------------------
 
 			obj.figParticipantLevelWrapper()
+		end
 
+		function plotMCMCchains(obj)
 			MCMCdiagnoticsPlot(obj.sampler.samples, obj.sampler.stats,...
 				[],...
 				{'epsilon', 'alpha', 'm', 'c'},...
@@ -48,7 +50,6 @@ classdef ModelSeperate < ModelBaseClass
 				{'\epsilon', '\alpha', 'm', 'c'}, obj.data,...
 				obj.modelType);
 		end
-
 
 		function setInitialParamValues(obj)
 			for n=1:obj.sampler.mcmcparams.nchains
