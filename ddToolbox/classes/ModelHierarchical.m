@@ -196,6 +196,20 @@ classdef ModelHierarchical < ModelBaseClass
 			% ==============================================
 		end
 
+		function figParticiantTriPlot(obj,n)
+			% samples from posterior
+			temp = obj.sampler.getSamplesAtIndex(n, {'m', 'c','alpha','epsilon'});
+			samples= [temp.m, temp.c, temp.alpha, temp.epsilon];
+			% samples from prior
+			% NOTE: we do not have direct priors over group level m, c, alpha, epsilon, but we do have then as the result of the relevant hyperpriors. So the appropriate priors here are the group level priors - which are effectively our prior for an unknown participant, before we see any data of course.
+			priorSamples= [obj.sampler.samples.glMprior(:),...
+				obj.sampler.samples.glCprior(:),...
+				obj.sampler.samples.glALPHAprior(:),...
+				obj.sampler.samples.glEpsilonprior(:)];
+			figure(87)
+			triPlotSamples(samples, priorSamples, {'m', 'c','alpha','epsilon'}, [])
+		end
+
 
 	end
 

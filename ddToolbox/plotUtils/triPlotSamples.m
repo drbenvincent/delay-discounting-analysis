@@ -1,4 +1,4 @@
-function triPlotSamples(X, labels, trueVals)
+function triPlotSamples(X, PRIOR, labels, trueVals)
 % Tri plot for grid approximation
 % X has one column for each parameter, and one row for each sample. The value of X is the parameter value for the corresponding parameter.
 %
@@ -23,10 +23,20 @@ for row = 1:ND
 		if col == row
 			% draw histogram of dimension 'col'
 			ax(row,col) = subplot(ROWS, COLS, sub2ind([COLS ROWS], col, row) );
-			% plot hist
-			h(row,col) = histogram(X(:,col), 'EdgeColor','none');
+
+			h(row,col) = histogram(X(:,col), 'EdgeColor','none',...
+				'Normalization','pdf',...
+				'FaceColor',[0.2 0.2 0.2]);
 			axis tight, a=axis; ylim([0 a(4)]);
+			a=axis;
+			hold on
+			% plot hist for prior
+			histogram(PRIOR(:,col), 'EdgeColor','none',...
+				'Normalization','pdf',...
+				'FaceColor',[0.8 0.8 0.8]);
+			axis(a);
 			box off
+			
 			axis square
 
 			% plot true value

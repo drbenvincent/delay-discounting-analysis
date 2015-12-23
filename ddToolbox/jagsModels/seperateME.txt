@@ -11,8 +11,8 @@
 model{
 
 	# WARNING  ************************************************************
-	# These priors have been guesstimated based on what is reasonable. But 
-	# if you are using this participant-level only analysis then you will 
+	# These priors have been guesstimated based on what is reasonable. But
+	# if you are using this participant-level only analysis then you will
 	# want to think about what appropriate priors are.
 
     w <- 0.01   # mode for the beta distribution of lapse rates
@@ -25,13 +25,13 @@ model{
         alpha[p]~ dexp(0.01)
         epsilon[p] ~ dbeta( w*(k-2)+1 , (1-w)*(k-2)+1 ) T(,0.5)
     }
-    # These priors are seperated from the data and are only included here 
+    # These priors are seperated from the data and are only included here
 	# so that we can plot the prior distributions. They are duplicated from
 	# the priors above.
     mprior    ~ dnorm(-0.243, 1/10)
     cprior    ~ dnorm(0, 1/100)
     alphaprior ~ dexp(0.01)
-    epsilonprior   ~ dbeta( w*(k-2)+1 , (1-w)*(k-2)+1 )
+    epsilonprior   ~ dbeta( w*(k-2)+1 , (1-w)*(k-2)+1 ) T(,0.5)
 	# *********************************************************************
 
 
