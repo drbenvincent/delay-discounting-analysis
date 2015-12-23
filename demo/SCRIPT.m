@@ -70,6 +70,9 @@ hModel.exportParameterEstimates();
 % Plot all the results
 hModel.plot()
 
+% If you want to see the MCMC chains, call this function
+hModel.plotMCMCchains()
+
 %% Example research conclusions...
 
 % Calculate Bayes Factor, and plot 95% CI on the posterior

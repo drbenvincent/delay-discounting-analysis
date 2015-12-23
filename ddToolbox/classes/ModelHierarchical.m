@@ -40,7 +40,9 @@ classdef ModelHierarchical < ModelBaseClass
 			obj.figGroupLevelPriorPost()
 			obj.figGroupLevel()
 			obj.figParticipantLevelWrapper()
+		end
 
+		function plotMCMCchains(obj)
 			MCMCdiagnoticsPlot(obj.sampler.samples, obj.sampler.stats, [],...
 				{'glM', 'glC', 'glEpsilon', 'glALPHA', 'm', 'c', 'groupALPHAmu', 'groupALPHAsigma'},...
 				{[], [], [0 0.5], 'positive', [], [], [], 'positive'},...
