@@ -139,6 +139,14 @@ classdef ModelBaseClass < handle
 
 				% close the figure to keep everything tidy
 				close(fh)
+
+
+				% ALSO DO TRI-PLOT
+				temp = obj.sampler.getSamplesAtIndex(n, {'m', 'c','alpha','epsilon'});
+				samples= [temp.m, temp.c, temp.alpha, temp.epsilon];
+				figure(87)
+				triPlotSamples(samples, {'m', 'c','alpha','epsilon'}, [])
+				myExport(obj.data.saveName, obj.modelType, ['-' obj.data.IDname{n} '-triplot'])
 			end
 		end
 
