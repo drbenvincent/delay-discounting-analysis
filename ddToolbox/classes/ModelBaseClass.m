@@ -105,6 +105,17 @@ classdef ModelBaseClass < handle
 		end
 
 
+		function setBurnIn(obj, nburnin)
+			obj.sampler.setBurnIn(nburnin)
+		end
+		function setMCMCtotalSamples(obj, totalSamples)
+			obj.sampler.setMCMCtotalSamples(totalSamples)
+		end
+		function setMCMCnumberOfChains(obj, nchains)
+			obj.sampler.setMCMCnumberOfChains(nchains)
+		end
+
+
 	end
 
 	methods (Access = protected)

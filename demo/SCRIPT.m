@@ -3,9 +3,9 @@ function SCRIPT
 
 %% Preamble
 % Update the path below to point toward the '/ddToolbox' folder
-toolboxPath = setToolboxPath('/Users/btvincent/git-local/delay-discounting-analysis/ddToolbox')
+toolboxPath = setToolboxPath('/Users/benvincent/git-local/delay-discounting-analysis/ddToolbox')
 % Ensure the current directory is the 'project folder', in this case '\demo'
-cd('/Users/btvincent/git-local/delay-discounting-analysis/demo')
+cd('/Users/benvincent/git-local/delay-discounting-analysis/demo')
 
 % set some graphics preferences
 setPlotTheme
@@ -52,10 +52,10 @@ myData.quickAnalysis();
 hModel = ModelHierarchical(toolboxPath, 'JAGS', myData);
 
 % Here we should change default parameters
-hModel.sampler.setMCMCtotalSamples(5000); % default is 10^5
+hModel.setMCMCtotalSamples(5000); % default is 10^5
 % If you have more than 2 cores on your machine you can uncomment this next
 % line
-%hModel.sampler.setMCMCnumberOfChains(4);
+%hModel.setMCMCnumberOfChains(4);
 
 % This will initiate MCMC sampling. This can take some time to run,
 % depending on number of samples, chains, computer speed and cores etc.
