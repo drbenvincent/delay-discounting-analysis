@@ -39,6 +39,9 @@ classdef ModelSeperate < ModelBaseClass
 			myExport(obj.data.saveName, obj.modelType, '-UnivariateSummary')
 			% -------------------------------
 
+			obj.plotPsychometricParams(obj.sampler.samples)
+			myExport(obj.data.saveName, obj.modelType, '-PsychometricParams')
+
 			obj.figParticipantLevelWrapper()
 		end
 
@@ -49,6 +52,7 @@ classdef ModelSeperate < ModelBaseClass
 				{[0 0.5], 'positive', [], []},...
 				{'\epsilon', '\alpha', 'm', 'c'}, obj.data,...
 				obj.modelType);
+				clf
 		end
 
 		function setInitialParamValues(obj)
@@ -98,11 +102,52 @@ classdef ModelSeperate < ModelBaseClass
 			figure(87)
 			triPlotSamples(samples, priorSamples, {'m', 'c','alpha','epsilon'}, [])
 		end
-		
+
 	end
 
 
 	methods(Static)
+		
+		function plotPsychometricParams(samples)
+			% Plot priors/posteriors for parameters related to the psychometric
+			% function, ie how response 'errors' are characterised
+			figure(7), clf
+			P=size(samples.m,3); % number of participants
+			%====================================
+			subplot(2,2,1)
+			plotPriorPostHist(samples.alphaprior(:), []);
+			title('\alpha prior')
+			
+			subplot(2,2,3)
+			for p=1:P % plot participant level alpha (alpha(:,:,p))
+				%histogram(vec(samples.alpha(:,:,p)));
+				[F,XI]=ksdensity(vec(samples.alpha(:,:,p)),...
+					'support','positive',...
+					'function','pdf');
+				plot(XI, F)
+				hold on
+			end
+			xlabel('\alpha_p')
+			box off
+			%====================================
+			subplot(2,2,2)
+			plotPriorPostHist(samples.epsilon(:), []);
+			title('\epsilon prior')
+			
+			subplot(2,2,4)
+			for p=1:P % plot participant level alpha (alpha(:,:,p))
+				%histogram(vec(samples.epsilon(:,:,p)));
+				[F,XI]=ksdensity(vec(samples.epsilon(:,:,p)),...
+					'support','positive',...
+					'function','pdf');
+				plot(XI, F)
+				hold on
+			end
+			xlabel('\epsilon_p')
+			box off
+		end
+
+
 		function figUnivariateSummary(uni, participantIDlist)
 			figure
 

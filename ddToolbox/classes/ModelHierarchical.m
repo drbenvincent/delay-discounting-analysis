@@ -48,6 +48,9 @@ classdef ModelHierarchical < ModelBaseClass
 
 			obj.figGroupLevel()
 			obj.figParticipantLevelWrapper()
+
+			obj.plotPsychometricParams(obj.sampler.samples)
+			myExport(obj.data.saveName, obj.modelType, '-PsychometricParams')
 		end
 
 		function plotMCMCchains(obj)
@@ -57,6 +60,7 @@ classdef ModelHierarchical < ModelBaseClass
 				{'G^m', 'G^c', 'G^{\epsilon}', 'G^{\alpha}', 'm', 'c', '\mu^\alpha', '\sigma^\alpha'},...
 				obj.data,...
 				obj.modelType);
+				clf
 		end
 
 		function setInitialParamValues(obj)
@@ -78,9 +82,11 @@ classdef ModelHierarchical < ModelBaseClass
 		function setMonitoredValues(obj)
 			obj.monitorparams = {'epsilon', 'alpha', 'm', 'c',...
 				'groupMmu',...
-				'groupW',...
+				'groupW','groupK',...
+				'groupWprior','groupKprior',...
 				'groupMsigma','groupCsigma',...
 				'groupALPHAmu','groupALPHAsigma'....
+				'groupALPHAmuprior','groupALPHAsigmaprior'....
 				'glM', 'glMprior',...
 				'glC', 'glCprior',...
 				'glEpsilon', 'glEpsilonprior',...
@@ -229,11 +235,73 @@ classdef ModelHierarchical < ModelBaseClass
 			triPlotSamples(samples, priorSamples, {'m', 'c','alpha','epsilon'}, [])
 		end
 
+
+
+
+
 	end
 
 
 	methods(Static)
 
+
+		function plotPsychometricParams(samples)
+			% Plot priors/posteriors for parameters related to the psychometric
+			% function, ie how response 'errors' are characterised
+			%
+			% plotPsychometricParams(hModel.sampler.samples)
+			figure(7), clf
+			P=size(samples.m,3); % number of participants
+			%====================================
+			subplot(3,2,1)
+			plotPriorPostHist(samples.glALPHAprior(:), samples.glALPHA(:));
+			title('Group \alpha')
+
+			subplot(3,4,5)
+			plotPriorPostHist(samples.groupALPHAmuprior(:), samples.groupALPHAmu(:));
+			xlabel('\mu_\alpha')
+
+			subplot(3,4,6)
+			plotPriorPostHist(samples.groupALPHAsigmaprior(:), samples.groupALPHAsigma(:));
+			xlabel('\sigma_\alpha')
+
+			subplot(3,2,5),
+			for p=1:P % plot participant level alpha (alpha(:,:,p))
+				%histogram(vec(samples.alpha(:,:,p)));
+				[F,XI]=ksdensity(vec(samples.alpha(:,:,p)),...
+					'support','positive',...
+					'function','pdf');
+				plot(XI, F)
+				hold on
+			end
+			xlabel('\alpha_p')
+			box off
+
+			%====================================
+			subplot(3,2,2)
+			plotPriorPostHist(samples.glEpsilonprior(:), samples.glEpsilon(:));
+			title('Group \epsilon')
+
+			subplot(3,4,7),
+			plotPriorPostHist(samples.groupWprior(:), samples.groupW(:));
+			xlabel('\omega (mode)')
+
+			subplot(3,4,8),
+			plotPriorPostHist(samples.groupKprior(:), samples.groupK(:));
+			xlabel('\kappa (concentration)')
+
+			subplot(3,2,6),
+			for p=1:P % plot participant level alpha (alpha(:,:,p))
+				%histogram(vec(samples.epsilon(:,:,p)));
+					[F,XI]=ksdensity(vec(samples.epsilon(:,:,p)),...
+					'support','positive',...
+					'function','pdf');
+				plot(XI, F)
+				hold on
+			end
+			xlabel('\epsilon_p')
+			box off
+		end
 
 
 		function figUnivariateSummary(uni, participantIDlist)
