@@ -24,9 +24,9 @@ classdef JAGSSampler < SamplerClass
 			obj.mcmcparams.doparallel = 1;
 			obj.mcmcparams.nburnin = 1000;
 			obj.mcmcparams.nchains = 4;
-			obj.setMCMCtotalSamples(10^5) % 10^5 - 10^6 min for GOOD results
+			obj.setMCMCtotalSamples(10^5); % 10^5 - 10^6 min for GOOD results
 			obj.mcmcparams.model = obj.fileName;
-			obj.setMCMCnumberOfChains(4)
+			obj.setMCMCnumberOfChains(4);
 			obj.mcmcparams.totalSamples = obj.mcmcparams.nchains * obj.mcmcparams.nsamples;
 		end
 
@@ -138,6 +138,10 @@ classdef JAGSSampler < SamplerClass
 			% loop over fields and report for either single values or
 			% multiple values (eg when we have multiple participants)
 			for n=1:numel(names)
+				% skip posterior predictive variables
+				if strcmp(names(n),'Rpostpred')
+					continue
+				end
 				RhatValues = obj.stats.Rhat.(names{n});
 				logInfo(fid,'\nRhat for: %s.\n',names{n});
 				for i=1:numel(RhatValues)

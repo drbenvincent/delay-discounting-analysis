@@ -89,6 +89,7 @@ classdef ModelHierarchical < ModelBaseClass
 				'glC', 'glCprior',...
 				'glEpsilon', 'glEpsilonprior',...
 				'glALPHA', 'glALPHAprior',...
+				'Rpostpred',... % posterior prediction
 				};
 		end
 
@@ -232,10 +233,6 @@ classdef ModelHierarchical < ModelBaseClass
 			figure(87)
 			triPlotSamples(samples, priorSamples, {'m', 'c','alpha','epsilon'}, [])
 		end
-
-
-
-
 
 	end
 

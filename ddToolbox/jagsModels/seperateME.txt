@@ -49,7 +49,7 @@ model{
           R[p,t] ~ dbin(P[p,t],1)
 
           # posterior predictive
-          #Rpostpred[t] ~ dbin(P[t],1)
+          Rpostpred[p,t] ~ dbin(P[p,t],1)
       }
   }
 }

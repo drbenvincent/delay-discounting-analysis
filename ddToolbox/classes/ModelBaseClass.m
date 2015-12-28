@@ -115,6 +115,51 @@ classdef ModelBaseClass < handle
 			obj.sampler.setMCMCnumberOfChains(nchains)
 		end
 
+		function posteriorPredictive(obj)
+			figure(77), clf, colormap(gray)
+			samples = obj.sampler.samples.Rpostpred;
+
+			% flatten chains
+			s=size(samples);
+			samples = reshape(samples, s(1)*s(2), s(3), s(4));
+			[nSamples, nParticipants, nTrials] = size(samples);
+
+			for p=1:nParticipants
+
+				%% plot predicted probability of choosing delayed
+				participantSamples = squeeze(samples(:,p,:));
+				predicted = sum(participantSamples,1)./nSamples;
+				subplot(nParticipants,1,p)
+				bar(predicted,'BarWidth',1)
+				if p<nParticipants
+					set(gca,'XTick',[])
+				end
+				box off
+
+				%% plot actual data
+				hold on
+				responses = obj.data.participantLevel(p).data.R;
+				trialsForThisParticipant = obj.data.participantLevel(p).trialsForThisParticant;
+				plot([1:trialsForThisParticipant],...
+					responses,'o')
+
+				%addTextToFigure('TR', obj.data.IDname{p}, 10);
+
+				%% Calculate posterior prob of data
+				pModel = prod(binopdf(responses, ones(trialsForThisParticipant,1), predicted'));
+
+				random = ones(size(predicted)) .* 0.5;
+				pRandom = prod(binopdf(responses, ones(trialsForThisParticipant,1), random'));
+
+				logSomething = log( pModel ./ pRandom);
+				info = sprintf('%s: %3.2f\n', obj.data.IDname{p},logSomething)
+
+				addTextToFigure('TR', info, 10);
+			end
+
+			xlabel('trials')
+		end
+
 
 	end
 
