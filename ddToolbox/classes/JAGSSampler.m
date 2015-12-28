@@ -20,11 +20,13 @@ classdef JAGSSampler < SamplerClass
 		% =================================================================
 
 		function setMCMCparams(obj)
+			% Default parameters
 			obj.mcmcparams.doparallel = 1;
-			obj.mcmcparams.nchains = 2;
 			obj.mcmcparams.nburnin = 1000;
-			obj.mcmcparams.nsamples = 10^5; % 10^5 - 10^6 min for GOOD results
+			obj.mcmcparams.nchains = 4;
+			obj.setMCMCtotalSamples(10^5) % 10^5 - 10^6 min for GOOD results
 			obj.mcmcparams.model = obj.fileName;
+			obj.setMCMCnumberOfChains(4)
 			obj.mcmcparams.totalSamples = obj.mcmcparams.nchains * obj.mcmcparams.nsamples;
 		end
 
