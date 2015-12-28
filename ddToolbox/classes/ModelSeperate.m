@@ -50,9 +50,7 @@ classdef ModelSeperate < ModelBaseClass
 				[],...
 				{'epsilon', 'alpha', 'm', 'c'},...
 				{[0 0.5], 'positive', [], []},...
-				{'\epsilon', '\alpha', 'm', 'c'}, obj.data,...
-				obj.modelType);
-				clf
+				{'\epsilon', '\alpha', 'm', 'c'});
 		end
 
 		function setInitialParamValues(obj)
@@ -107,18 +105,18 @@ classdef ModelSeperate < ModelBaseClass
 
 
 	methods(Static)
-		
+
 		function plotPsychometricParams(samples)
 			% Plot priors/posteriors for parameters related to the psychometric
 			% function, ie how response 'errors' are characterised
 			figure(7), clf
 			P=size(samples.m,3); % number of participants
 			%====================================
-			subplot(2,2,1)
+			subplot(3,2,1)
 			plotPriorPostHist(samples.alphaprior(:), []);
 			title('\alpha prior')
-			
-			subplot(2,2,3)
+
+			subplot(3,2,5)
 			for p=1:P % plot participant level alpha (alpha(:,:,p))
 				%histogram(vec(samples.alpha(:,:,p)));
 				[F,XI]=ksdensity(vec(samples.alpha(:,:,p)),...
@@ -130,11 +128,19 @@ classdef ModelSeperate < ModelBaseClass
 			xlabel('\alpha_p')
 			box off
 			%====================================
-			subplot(2,2,2)
-			plotPriorPostHist(samples.epsilon(:), []);
+			subplot(3,2,2)
+			plotPriorPostHist(samples.epsilonprior(:), []);
 			title('\epsilon prior')
-			
-			subplot(2,2,4)
+
+			% subplot(3,4,7),
+			% plotPriorPostHist(samples.wprior(:), samples.w(:));
+			% xlabel('\omega (mode)')
+			%
+			% subplot(3,4,8),
+			% plotPriorPostHist(samples.kprior(:), samples.k(:));
+			% xlabel('\kappa (concentration)')
+
+			subplot(3,2,6)
 			for p=1:P % plot participant level alpha (alpha(:,:,p))
 				%histogram(vec(samples.epsilon(:,:,p)));
 				[F,XI]=ksdensity(vec(samples.epsilon(:,:,p)),...

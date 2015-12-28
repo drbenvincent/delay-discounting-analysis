@@ -37,6 +37,9 @@ classdef ModelHierarchical < ModelBaseClass
 			myExport(obj.data.saveName, obj.modelType, '-UnivariateSummary')
 			% -------------------------------
 
+			obj.plotPsychometricParams(obj.sampler.samples)
+			myExport(obj.data.saveName, obj.modelType, '-PsychometricParams')
+
 			obj.figGroupLevelPriorPost()
 			% EXPORTING ---------------------
 			latex_fig(16, 5, 5)
@@ -49,18 +52,13 @@ classdef ModelHierarchical < ModelBaseClass
 			obj.figGroupLevel()
 			obj.figParticipantLevelWrapper()
 
-			obj.plotPsychometricParams(obj.sampler.samples)
-			myExport(obj.data.saveName, obj.modelType, '-PsychometricParams')
 		end
 
 		function plotMCMCchains(obj)
 			MCMCdiagnoticsPlot(obj.sampler.samples, obj.sampler.stats, [],...
 				{'glM', 'glC', 'glEpsilon', 'glALPHA', 'm', 'c', 'groupALPHAmu', 'groupALPHAsigma'},...
 				{[], [], [0 0.5], 'positive', [], [], [], 'positive'},...
-				{'G^m', 'G^c', 'G^{\epsilon}', 'G^{\alpha}', 'm', 'c', '\mu^\alpha', '\sigma^\alpha'},...
-				obj.data,...
-				obj.modelType);
-				clf
+				{'G^m', 'G^c', 'G^{\epsilon}', 'G^{\alpha}', 'm', 'c', '\mu^\alpha', '\sigma^\alpha'});
 		end
 
 		function setInitialParamValues(obj)

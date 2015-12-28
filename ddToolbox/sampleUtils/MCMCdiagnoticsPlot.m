@@ -1,4 +1,4 @@
-function MCMCdiagnoticsPlot(samples,stats,trueValue,fields, supp, paramString, data, modelType)
+function MCMCdiagnoticsPlot(samples,stats,trueValue,fields, supp, paramString)
 %
 % MCMCdiagnoticsPlot(samples,stats,{'a','b','c'})
 %
@@ -17,119 +17,67 @@ else
 	PLOT_trueValue_VALUE=0;
 end
 
-nSamplesDisplayLimit=10^4;
 
-
-for f = 1:numel(fields) % LOOP OVER VARIABLES
+for f = 1:numel(fields)
+	
+	% NEW FIGURE FOR EACH FIELD
 	figure
-	latex_fig(16, 12,4)
+	latex_fig(16, 12,10)
 	
 	mcmcsamples = getfield(samples, fields{f});
-	[chains,Nsamples,nValues] = size(mcmcsamples);
-	
-	% 	if nValues==1
-	
-	rows = nValues;
-	cols = 2; % chains, posterior
-	
-	% plot MCMC chains --------------
-	col=1;
-	for r=1:rows
-		intPlotChains()
-	end
-	
-	% plot distributions ------------
-	col=2;
-	for r=1:rows
-		intPlotDistribution()
-		% adjust positions
-		% [left bottom width height]
-
-	end
-	
-	if nValues==1
-		hHist.Position		= [0.8 0.1 0.1 0.8];
-		hChain.Position		= [0.1 0.1 0.7 0.8];
-	end
-	
-	drawnow
-	
-	%% EXPORTING ---------------------
-	latex_fig(16, 12,4)
-	myExport(data.saveName, [modelType], ['-MCMCchain-' fields{f}])
-	% -------------------------------
-	
-end
-
-
-
-
-
-	function intPlotChains
+	[chains,Nsamples,rows] = size(mcmcsamples);
 		
-		ksdensitySupport = supp{f};
-		
-		overLimitFlag=false;
-		% extract samples
-		if size(mcmcsamples,2)>nSamplesDisplayLimit
-			overLimitFlag=true;
-			mcmcsamplesSubset = mcmcsamples(:,[1:nSamplesDisplayLimit],r);
-		else
-			mcmcsamplesSubset = mcmcsamples(:,:,r);
-		end
-		
-		% select the right subplot
-		hChain = subplot(rows,cols,[(cols*r)-cols+1 : (cols*r)-1]);
-		
-		p=plot(mcmcsamplesSubset',...
-			'LineWidth',0.5);
-		%         %make lines transparent
-		%         for c=1:chains
-		%             p(c).Color(4) = 0.1;
-		%         end
-		
-		if PLOT_trueValue_VALUE
-			trueValueValue = getfield(trueValue, fields{f});
-			hline(trueValueValue(r));
-		end
-		 
-		ylabel(sprintf('$$ %s $$', paramString{f}),...
-			'Interpreter','latex')
-		%set(gca,'XTick',[0:1000:samplesPerChainDisplayed])
-		
-		%%
-		% print Rhat statistic
+	for row=1:rows
 		rhat = getfield(stats.Rhat, fields{f});
-		rhat= rhat(r);
-		% 		addTextToFigure('T',...
-		% 			['$\hat{R}$ = ' num2str(rhat)],...
-		% 			16, 'latex');
-		str = sprintf('$$ \\hat{R} = %1.5f$$', rhat);
-		h = addTextToFigure('T',str, 16, 'latex');
-		h.BackgroundColor=[1 1 1 0.7];
-		
-		box off
-		
-		if overLimitFlag
-			addTextToFigure('TR','up to the first 10,000 samples',8);
-		end
-		
-		if r==rows
-			xlabel('MCMC sample')
-		end
-		
+		rhat= rhat(row);
+		% plot MCMC chains --------------
+		hChain(row) = intPlotChain(mcmcsamples(:,:,row), row, rows, paramString{f}, rhat);
+		% plot distributions ------------
+		intPlotDistribution(mcmcsamples(:,:,row), row, rows)
 	end
-
-
-	function intPlotDistribution
-		% select the right subplot
-		hHist = subplot(rows,cols,(cols*r));
-		
-		% extract samples
-		mcmcsamplesSubset = mcmcsamples(:,:,r);
-		mcmcsamplesSubset=mcmcsamplesSubset(:);
-		
-		plotMCMCdist(mcmcsamplesSubset,[]);
-	end
-
+	
+	linkaxes(hChain,'x')
+	
 end
+
+return
+
+
+
+
+function hChain = intPlotChain(samples, row, rows, paramString, rhat)
+
+assert(size(samples,3)==1)
+% select the right subplot
+start = (6*row)-(6-1);
+hChain = subplot(rows,6,[start:(start-1)+(6-1)]);
+
+h = plot(samples', 'LineWidth',0.5);
+
+ylabel(sprintf('$$ %s $$', paramString), 'Interpreter','latex')
+
+str = sprintf('$$ \\hat{R} = %1.5f$$', rhat);
+hText = addTextToFigure('T',str, 10, 'latex');
+if rhat<1.01
+	hText.BackgroundColor=[1 1 1 0.7];
+else
+	hText.BackgroundColor=[1 0 0 0.7];
+end
+
+box off
+
+if row~=rows
+	set(gca,'XTick',[])
+end
+if row==rows
+	xlabel('MCMC sample')
+end
+
+return
+
+
+function intPlotDistribution(samples, row, rows)
+% select the right subplot
+hHist = subplot(rows,6,row*6);
+plotMCMCdist(samples,[]);
+return
