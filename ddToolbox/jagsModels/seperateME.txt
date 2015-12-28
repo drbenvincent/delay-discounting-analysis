@@ -10,53 +10,46 @@
 
 model{
 
-	# WARNING  ************************************************************
-	# These priors have been guesstimated based on what is reasonable. But
-	# if you are using this participant-level only analysis then you will
-	# want to think about what appropriate priors are.
+  # Separate and independent priors for each participant.
+  for (p in 1:nParticipants){
+      m[p]       ~ dnorm(-0.243, 1/(10^2))
+      c[p]       ~ dnorm(0, 1/(100^2))
+      alpha[p]   ~ dexp(0.01)
+      epsilon[p] ~ dbeta(1.1, 10.9) T(,0.5)
+  }
 
-    w <- 0.01   # mode for the beta distribution of lapse rates
-    k <- 5      # concentration param for the beta distribution of lapse rates
-
-    # Seperate and indendent parameter estimates for each person
-    for (p in 1:nParticipants){
-        m[p]    ~ dnorm(-0.243, 1/10)
-        c[p]    ~ dnorm(0, 1/100)
-        alpha[p]~ dexp(0.01)
-        epsilon[p] ~ dbeta( w*(k-2)+1 , (1-w)*(k-2)+1 ) T(,0.5)
-    }
-    # These priors are seperated from the data and are only included here
+  # These priors are separated from the data and are only included here
 	# so that we can plot the prior distributions. They are duplicated from
 	# the priors above.
-    mprior    ~ dnorm(-0.243, 1/10)
-    cprior    ~ dnorm(0, 1/100)
-    alphaprior ~ dexp(0.01)
-    epsilonprior   ~ dbeta( w*(k-2)+1 , (1-w)*(k-2)+1 ) T(,0.5)
+  mprior       ~  dnorm(-0.243, 1/(10^2))
+  cprior       ~  dnorm(0, 1/(100^2))
+  alphaprior   ~  dexp(0.01)
+  epsilonprior ~  dbeta(1.1, 10.9) T(,0.5)
+
 	# *********************************************************************
 
+  for (p in 1:nParticipants){
 
-    for (p in 1:nParticipants){
+      # loop over the number of trials for this participant
+      for (t in 1:T[p]) {
 
-        # loop over the number of trials for this participant
-        for (t in 1:T[p]) {
+          # MAGNITUDE EFFECT
+          # what is log(k) on this trial?
+          lkA[p,t] <- m[p]*log(abs(A[p,t]))+c[p]
+          lkB[p,t] <- m[p]*log(abs(B[p,t]))+c[p]
 
-            # MAGNITUDE EFFECT
-            # what is log(k) on this trial?
-            lkA[p,t] <- m[p]*log(abs(A[p,t]))+c[p]
-            lkB[p,t] <- m[p]*log(abs(B[p,t]))+c[p]
+          # calculate present subjective value for each reward
+          VA[p,t] <- A[p,t] / (1+(exp(lkA[p,t])*DA[p,t]))
+          VB[p,t] <- B[p,t] / (1+(exp(lkB[p,t])*DB[p,t]))
 
-            # calculate present subjective value for each reward
-            VA[p,t] <- A[p,t] / (1+(exp(lkA[p,t])*DA[p,t]))
-            VB[p,t] <- B[p,t] / (1+(exp(lkB[p,t])*DB[p,t]))
+          # Psychometric function
+          P[p,t] <- epsilon[p] + (1-2*epsilon[p]) * phi( (VB[p,t]-VA[p,t]) / alpha[p] )
 
-            # Psychometric function
-            P[p,t] <- epsilon[p] + (1-2*epsilon[p]) * phi( (VB[p,t]-VA[p,t]) / alpha[p] )
+          # response
+          R[p,t] ~ dbin(P[p,t],1)
 
-            # response
-            R[p,t] ~ dbin(P[p,t],1)
-
-            # posterior predictive
-            #Rpostpred[t] ~ dbin(P[t],1)
-        }
-    }
+          # posterior predictive
+          #Rpostpred[t] ~ dbin(P[t],1)
+      }
+  }
 }
