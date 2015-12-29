@@ -39,11 +39,6 @@ pathToData='data';
 myData = DataClass(saveName,pathToData);
 myData.loadDataFiles(fnames);
 
-% It is important to visualise your participant data. It may well be that
-% some participant's have produced meaningless data, in which case you may
-% want to discard these participants at this stage. The quickAnalysis()
-% method of the DataClass provides some simple visualisation and analysis.
-myData.quickAnalysis();
 
 %% Analyse the data with the hierarchical model
 
@@ -51,17 +46,18 @@ myData.quickAnalysis();
 % instance of the class 'ModelHierarchical'
 hModel = ModelHierarchical(toolboxPath, 'JAGS', myData);
 
-% Here we should change default parameters
-hModel.setMCMCtotalSamples(5000); % default is 10^5
-% If you have more than 2 cores on your machine you can uncomment this next
-% line
-%hModel.setMCMCnumberOfChains(4);
+% Uncomment lines below to change
+%hModel.setMCMCtotalSamples(10^6); % default is 10^5
+%hModel.setMCMCnumberOfChains(8);
 
 % This will initiate MCMC sampling. This can take some time to run,
 % depending on number of samples, chains, computer speed and cores etc.
 % It's probably best to start with a low number of MCMC samples to get a
 % feel for how long the sampling takes.
 hModel.conductInference();
+
+% Conduct some posterior predictive analysis
+hModel.posteriorPredictive();
 
 % Export posterior mode (and credible intervals) of all parameter and group
 % level parameters to a text file
@@ -109,7 +105,7 @@ participant_level_m = array2table([hModel.analyses.univariate.m.mode' hModel.ana
 % magnitude.
 
 % Below we calculate and plot the discount rates for reward magnitudes of
-% Â£100 and Â£1,000
+% £100 and £1,000
 
 figure(1), clf
 plotFlag=true;
@@ -130,10 +126,12 @@ sepData = DataClass(saveName,pathToData);
 sepData.loadDataFiles(fnames);
 
 sModel = ModelSeperate(toolboxPath, 'JAGS', sepData);
-sModel.sampler.setMCMCtotalSamples(5000);
+sModel.sampler.setMCMCtotalSamples(10^5);
 sModel.sampler.setMCMCnumberOfChains(4);
 sModel.conductInference();
+sModel.posteriorPredictive();
 sModel.exportParameterEstimates();
 sModel.plot()
+sModel.plotMCMCchains()
 
 return
