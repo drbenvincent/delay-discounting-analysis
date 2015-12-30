@@ -21,39 +21,33 @@ classdef ModelHierarchical < ModelBaseClass
 					error('NOT IMPLEMENTED YET')
 			end
 
+			% give sampler a handle back to the model
+			obj.sampler.modelHandle = obj;
+
 			%% Create variables
+			% -------------------------------------------------------------------
+			% Participant-level -------------------------------------------------
 			m = Variable('m','m', [], true)
 			m.seed.func = @() normrnd(-0.243,2);
 			m.seed.single = false;
-
-			% mprior = Variable('mprior','mprior', [], true)
-			% mprior.seed.func = @() normrnd(-0.243,2);
-			% mprior.seed.single = true;
 
 			c = Variable('c','c', [], true)
 			c.seed.func = @() normrnd(0,4);
 			c.seed.single = false;
 
-			% cprior = Variable('cprior','cprior', [], true)
-			% cprior.seed.func = @() normrnd(0,4);
-			% cprior.seed.single = true;
-
 			epsilon = Variable('epsilon','\epsilon', [0 0.5], true)
 			epsilon.seed.func = @() 0.1 + rand/10;
 			epsilon.seed.single = false;
-
-			% epsilonprior = Variable('epsilonprior','\epsilon prior', [0 0.5], true)
-			% epsilonprior.seed.func = @() 0.1 + rand/10;
-			% epsilonprior.seed.single = true;
 
 			alpha = Variable('alpha','\alpha', 'positive', true)
 			alpha.seed.func = @() abs(normrnd(0.01,0.001));
 			alpha.seed.single = false;
 
-			% alphaprior = Variable('alphaprior','\alpha prior', 'positive', true)
-			% alphaprior.seed.func = @() abs(normrnd(0.01,0.001));
-			% alphaprior.seed.single = true;
-
+			% -------------------------------------------------------------------
+			% group level (ie what we expect from an as yet unobserved person ---
+			% TODO: This could be implemented just by having another participant
+			% with no observed data? This would remove the need for all these gl*
+			% variables here and in the JAGS model and make things much simpler.
 			glM = Variable('glM','glM', [], true)
 			glMprior = Variable('glMprior','glMprior', [], true)
 
@@ -63,6 +57,11 @@ classdef ModelHierarchical < ModelBaseClass
 			glEpsilon = Variable('glEpsilon','glEpsilon', [0 0.5], true)
 			glEpsilonprior = Variable('glEpsilonprior','glEpsilonprior', [0 0.5], true)
 
+			glALPHA = Variable('glALPHA','glALPHA', 'positive', true)
+			glALPHAprior = Variable('glALPHAprior','glALPHAprior', 'positive', true)
+
+			% -------------------------------------------------------------------
+			% group level priors ------------------------------------------------
 			groupMmu = Variable('groupMmu','groupMmu', [], true)
 			groupMsigma = Variable('groupMsigma','groupMsigma', [], true)
 
@@ -74,18 +73,16 @@ classdef ModelHierarchical < ModelBaseClass
 			groupK = Variable('groupK','groupK', [0 0.5], true)
 			groupKprior = Variable('groupKprior','groupKprior', [0 0.5], true)
 
-			glALPHA = Variable('glALPHA','glALPHA', 'positive', true)
-			glALPHAprior = Variable('glALPHAprior','glALPHAprior', 'positive', true)
-
 			groupALPHAmu = Variable('groupALPHAmu','groupALPHAmu', 'positive', true)
 			groupALPHAsigma = Variable('groupALPHAsigma','groupALPHAsigma', 'positive', true)
 			groupALPHAmuprior = Variable('groupALPHAmuprior','groupALPHAmuprior', 'positive', true)
 			groupALPHAsigmaprior = Variable('groupALPHAsigmaprior','groupALPHAsigmaprior', 'positive', true)
 
+			% posterior predictive ----------------------------------------------
 			Rpostpred = Variable('Rpostpred','Rpostpred', [0 1], true)
 			Rpostpred.plotMCMCchainFlag = false;
 
-			% define which to analyse (univariate analysis)
+			% define which to analyse (univariate analysis) ---------------------
 			m.analysisFlag = true;
 			c.analysisFlag = true;
 			epsilon.analysisFlag = true;
@@ -96,7 +93,7 @@ classdef ModelHierarchical < ModelBaseClass
 			glEpsilon.analysisFlag = true;
 			glALPHA.analysisFlag = true;
 
-			% Create a Variable array
+			% Create a Variable array -------------------------------------------
 			obj.variables = [m, c, epsilon, alpha,... % mprior, cprior, epsilonprior, alphaprior,...
 				glM, glMprior,...
 				glC, glCprior,...
@@ -106,9 +103,6 @@ classdef ModelHierarchical < ModelBaseClass
 				glALPHA, glALPHAprior, groupALPHAmu, groupALPHAmuprior, groupALPHAsigma, groupALPHAsigmaprior,...
 				Rpostpred];
 
-
-			% give sampler a handle back to the model (ie this hierarchicalME model)
-			obj.sampler.modelHandle = obj;
 		end
 		% =================================================================
 
@@ -139,31 +133,7 @@ classdef ModelHierarchical < ModelBaseClass
 			obj.figParticipantLevelWrapper()
 
 		end
-
-
-% 		function setInitialParamValues(obj)
-% 			% the model is changing sampler information
-% 			for n=1:obj.sampler.mcmcparams.nchains
-% 				obj.sampler.initial_param(n).groupMmu = normrnd(-0.243,1);
-% 				obj.sampler.initial_param(n).groupCmu = normrnd(0,2);
-% 				obj.sampler.initial_param(n).mprior = normrnd(-0.243,2);
-% 				obj.sampler.initial_param(n).cprior = normrnd(0,4);
-% 				for p=1:obj.data.nParticipants
-% 					obj.sampler.initial_param(n).alpha(p) = abs(normrnd(0.01,0.001));
-% 					obj.sampler.initial_param(n).epsilon(p) = 0.1 + rand/10;
-% 					obj.sampler.initial_param(n).m(p) = normrnd(-0.243,2);
-% 					obj.sampler.initial_param(n).c(p) = normrnd(0,4);
-% 				end
-% 			end
-% 		end
-
-
-		% function doAnalysis(obj) % <--- TODO: REMOVE THIS WRAPPER FUNCTION
-		% 	obj.analyses.univariate = univariateAnalysis(obj.sampler.samples,...
-		% 		{'epsilon', 'alpha', 'm', 'c', 'glM', 'glC', 'glEpsilon','glALPHA'},...
-		% 		{'positive', 'positive', [], [], [], [], 'positive', 'positive'} );
-		% end
-
+		
 
 		function figGroupLevelPriorPost(obj)
 			figure
