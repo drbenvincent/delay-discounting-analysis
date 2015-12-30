@@ -8,6 +8,7 @@ classdef ModelBaseClass < handle
 		sampler % handle to Sampler class
 		range % struct
 		monitorparams
+		variables % array of variables 
 	end
 
 	properties (GetAccess = public, SetAccess = protected)
@@ -38,6 +39,19 @@ classdef ModelBaseClass < handle
 			obj.sampler.observed = obj.data.observedData;
 			obj.sampler.observed.nParticipants	= obj.data.nParticipants;
 			obj.sampler.observed.totalTrials	= obj.data.totalTrials;
+		end
+		
+		function plotMCMCchains(obj)
+			% 			MCMCdiagnoticsPlot(obj.sampler.samples, obj.sampler.stats,...
+			% 				[],...
+			% 				{'epsilon', 'alpha', 'm', 'c'},...
+			% 				{[0 0.5], 'positive', [], []},...
+			% 				{'\epsilon', '\alpha', 'm', 'c'});
+			MCMCdiagnoticsPlot(obj.sampler.samples, obj.sampler.stats,...
+				[],...
+				{obj.variables.str},...
+				{obj.variables.bounds},...
+				{obj.variables.str_latex});
 		end
 
 		function calcSampleRange(obj)

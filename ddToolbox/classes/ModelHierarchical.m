@@ -21,6 +21,21 @@ classdef ModelHierarchical < ModelBaseClass
 					error('NOT IMPLEMENTED YET')
 			end
 
+			%% Create variables
+			m = Variable('m','m', [], true, @() normrnd(-0.243,2))
+			c = Variable('c','c', [], true, @() normrnd(0,4))
+			epsilon = Variable('epsilon','\epsilon', [0 0.5], true, @() 0.1 + rand/10)
+			alpha = Variable('alpha','\alpha', 'positive', true, @() abs(normrnd(0.01,0.001)))
+			glM = Variable('glM','glM', [], true, [])
+			glC = Variable('glM','glM', [], true, [])
+			glEpsilon = Variable('glEpsilon','glEpsilon', [0 0.5], true, [])
+			glALPHA = Variable('glALPHA','glALPHA', 'positive', true, [])
+			groupALPHAmu = Variable('groupALPHAmu','groupALPHAmu', 'positive', true, [])
+			groupALPHAsigma = Variable('groupALPHAsigma','groupALPHAsigma', 'positive', true, [])
+			% Create a Variable array
+			obj.variables = [m, c, epsilon, alpha, glM, glC, glEpsilon, glALPHA, groupALPHAmu, groupALPHAsigma];
+
+
 			% give sampler a handle back to the model (ie this hierarchicalME model)
 			obj.sampler.modelHandle = obj;
 		end
@@ -54,12 +69,12 @@ classdef ModelHierarchical < ModelBaseClass
 
 		end
 
-		function plotMCMCchains(obj)
-			MCMCdiagnoticsPlot(obj.sampler.samples, obj.sampler.stats, [],...
-				{'glM', 'glC', 'glEpsilon', 'glALPHA', 'm', 'c', 'groupALPHAmu', 'groupALPHAsigma'},...
-				{[], [], [0 0.5], 'positive', [], [], [], 'positive'},...
-				{'G^m', 'G^c', 'G^{\epsilon}', 'G^{\alpha}', 'm', 'c', '\mu^\alpha', '\sigma^\alpha'});
-		end
+		% function plotMCMCchains(obj)
+		% 	MCMCdiagnoticsPlot(obj.sampler.samples, obj.sampler.stats, [],...
+		% 		{'glM', 'glC', 'glEpsilon', 'glALPHA', 'm', 'c', 'groupALPHAmu', 'groupALPHAsigma'},...
+		% 		{[], [], [0 0.5], 'positive', [], [], [], 'positive'},...
+		% 		{'G^m', 'G^c', 'G^{\epsilon}', 'G^{\alpha}', 'm', 'c', '\mu^\alpha', '\sigma^\alpha'});
+		% end
 
 		function setInitialParamValues(obj)
 			% the model is changing sampler information

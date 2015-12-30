@@ -23,6 +23,14 @@ classdef ModelSeperate < ModelBaseClass
 					error('NOT IMPLEMENTED YET')
 			end
 
+			%% Create variables
+			m = Variable('m','m', [], true, @() normrnd(-0.243,2))
+			c = Variable('c','c', [], true, @() normrnd(0,4))
+			epsilon = Variable('epsilon','\epsilon', [0 0.5], true, @() 0.1 + rand/10)
+			alpha = Variable('alpha','\alpha', 'positive', true, @() abs(normrnd(0.01,0.001)))
+			% Create a Variable array
+			obj.variables = [m, c, epsilon, alpha];
+
 			% give sampler a handle back to the model (ie this hierarchicalME model)
 			obj.sampler.modelHandle = obj;
 		end
@@ -45,13 +53,18 @@ classdef ModelSeperate < ModelBaseClass
 			obj.figParticipantLevelWrapper()
 		end
 
-		function plotMCMCchains(obj)
-			MCMCdiagnoticsPlot(obj.sampler.samples, obj.sampler.stats,...
-				[],...
-				{'epsilon', 'alpha', 'm', 'c'},...
-				{[0 0.5], 'positive', [], []},...
-				{'\epsilon', '\alpha', 'm', 'c'});
-		end
+% 		function plotMCMCchains(obj)
+% % 			MCMCdiagnoticsPlot(obj.sampler.samples, obj.sampler.stats,...
+% % 				[],...
+% % 				{'epsilon', 'alpha', 'm', 'c'},...
+% % 				{[0 0.5], 'positive', [], []},...
+% % 				{'\epsilon', '\alpha', 'm', 'c'});
+% 			MCMCdiagnoticsPlot(obj.sampler.samples, obj.sampler.stats,...
+% 				[],...
+% 				{obj.variables.str},...
+% 				{obj.variables.bounds},...
+% 				{obj.variables.str_latex});
+% 		end
 
 		function setInitialParamValues(obj)
 			for n=1:obj.sampler.mcmcparams.nchains

@@ -26,7 +26,8 @@ for f = 1:numel(fields)
 	
 	mcmcsamples = getfield(samples, fields{f});
 	[chains,Nsamples,rows] = size(mcmcsamples);
-		
+	
+	hChain=[];
 	for row=1:rows
 		rhat = getfield(stats.Rhat, fields{f});
 		rhat= rhat(row);
