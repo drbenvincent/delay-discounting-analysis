@@ -8,7 +8,7 @@ classdef ModelBaseClass < handle
 		sampler % handle to Sampler class
 		range % struct
 		monitorparams
-		variables % array of variables 
+		variables % array of variables
 	end
 
 	properties (GetAccess = public, SetAccess = protected)
@@ -18,7 +18,6 @@ classdef ModelBaseClass < handle
 	methods(Abstract, Access = public)
 		plot(obj, data)
 		doAnalysis(obj) % <--- TODO: REMOVE THIS WRAPPER FUNCTION
-		setMonitoredValues(obj, data)
 		setInitialParamValues(obj, data)
 	end
 
@@ -40,19 +39,21 @@ classdef ModelBaseClass < handle
 			obj.sampler.observed.nParticipants	= obj.data.nParticipants;
 			obj.sampler.observed.totalTrials	= obj.data.totalTrials;
 		end
-		
+
 		function plotMCMCchains(obj)
-			% 			MCMCdiagnoticsPlot(obj.sampler.samples, obj.sampler.stats,...
-			% 				[],...
-			% 				{'epsilon', 'alpha', 'm', 'c'},...
-			% 				{[0 0.5], 'positive', [], []},...
-			% 				{'\epsilon', '\alpha', 'm', 'c'});
 			MCMCdiagnoticsPlot(obj.sampler.samples, obj.sampler.stats,...
 				[],...
 				{obj.variables.str},...
 				{obj.variables.bounds},...
 				{obj.variables.str_latex});
 		end
+
+		function setMonitoredValues(obj)
+			% TODO: move this method to Sampler base class?
+			% currently just monitors ALL variables
+			obj.monitorparams = {obj.variables.str};
+		end
+
 
 		function calcSampleRange(obj)
 			% Define limits for each of the variables here for plotting purposes

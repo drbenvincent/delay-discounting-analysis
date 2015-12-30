@@ -26,14 +26,46 @@ classdef ModelHierarchical < ModelBaseClass
 			c = Variable('c','c', [], true, @() normrnd(0,4))
 			epsilon = Variable('epsilon','\epsilon', [0 0.5], true, @() 0.1 + rand/10)
 			alpha = Variable('alpha','\alpha', 'positive', true, @() abs(normrnd(0.01,0.001)))
+
 			glM = Variable('glM','glM', [], true, [])
-			glC = Variable('glM','glM', [], true, [])
+			glMprior = Variable('glMprior','glMprior', [], true, [])
+
+			glC = Variable('glC','glC', [], true, [])
+			glCprior = Variable('glCprior','glCprior', [], true, [])
+
 			glEpsilon = Variable('glEpsilon','glEpsilon', [0 0.5], true, [])
+			glEpsilonprior = Variable('glEpsilonprior','glEpsilonprior', [0 0.5], true, [])
+
+			groupMmu = Variable('groupMmu','groupMmu', [], true, [])
+			groupMsigma = Variable('groupMsigma','groupMsigma', [], true, [])
+
+			groupCmu = Variable('groupCmu','groupCmu', [], true, [])
+			groupCsigma = Variable('groupCsigma','groupCsigma', [], true, [])
+
+			groupW = Variable('groupW','groupW', [0 0.5], true, [])
+			groupWprior = Variable('groupWprior','groupWprior', [0 0.5], true, [])
+			groupK = Variable('groupK','groupK', [0 0.5], true, [])
+			groupKprior = Variable('groupKprior','groupKprior', [0 0.5], true, [])
+
 			glALPHA = Variable('glALPHA','glALPHA', 'positive', true, [])
+			glALPHAprior = Variable('glALPHAprior','glALPHAprior', 'positive', true, [])
+
 			groupALPHAmu = Variable('groupALPHAmu','groupALPHAmu', 'positive', true, [])
 			groupALPHAsigma = Variable('groupALPHAsigma','groupALPHAsigma', 'positive', true, [])
+			groupALPHAmuprior = Variable('groupALPHAmuprior','groupALPHAmuprior', 'positive', true, [])
+			groupALPHAsigmaprior = Variable('groupALPHAsigmaprior','groupALPHAsigmaprior', 'positive', true, [])
+
+			Rpostpred = Variable('Rpostpred','Rpostpred', [0 1], true, [])
+
 			% Create a Variable array
-			obj.variables = [m, c, epsilon, alpha, glM, glC, glEpsilon, glALPHA, groupALPHAmu, groupALPHAsigma];
+			obj.variables = [m, c, epsilon, alpha,...
+				glM, glMprior,...
+				glC, glCprior,...
+				groupMmu, groupMsigma,...
+				groupCmu, groupCsigma,...
+				glEpsilon, glEpsilonprior, groupW, groupWprior, groupK, groupKprior,...
+				glALPHA, glALPHAprior, groupALPHAmu, groupALPHAmuprior, groupALPHAsigma, groupALPHAsigmaprior,...
+				Rpostpred];
 
 
 			% give sampler a handle back to the model (ie this hierarchicalME model)
@@ -69,12 +101,6 @@ classdef ModelHierarchical < ModelBaseClass
 
 		end
 
-		% function plotMCMCchains(obj)
-		% 	MCMCdiagnoticsPlot(obj.sampler.samples, obj.sampler.stats, [],...
-		% 		{'glM', 'glC', 'glEpsilon', 'glALPHA', 'm', 'c', 'groupALPHAmu', 'groupALPHAsigma'},...
-		% 		{[], [], [0 0.5], 'positive', [], [], [], 'positive'},...
-		% 		{'G^m', 'G^c', 'G^{\epsilon}', 'G^{\alpha}', 'm', 'c', '\mu^\alpha', '\sigma^\alpha'});
-		% end
 
 		function setInitialParamValues(obj)
 			% the model is changing sampler information
@@ -90,22 +116,6 @@ classdef ModelHierarchical < ModelBaseClass
 					obj.sampler.initial_param(n).c(p) = normrnd(0,4);
 				end
 			end
-		end
-
-		function setMonitoredValues(obj)
-			obj.monitorparams = {'epsilon', 'alpha', 'm', 'c',...
-				'groupMmu',...
-				'groupW','groupK',...
-				'groupWprior','groupKprior',...
-				'groupMsigma','groupCsigma',...
-				'groupALPHAmu','groupALPHAsigma'....
-				'groupALPHAmuprior','groupALPHAsigmaprior'....
-				'glM', 'glMprior',...
-				'glC', 'glCprior',...
-				'glEpsilon', 'glEpsilonprior',...
-				'glALPHA', 'glALPHAprior',...
-				'Rpostpred',... % posterior prediction
-				};
 		end
 
 
