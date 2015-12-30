@@ -57,10 +57,15 @@ classdef ModelHierarchical < ModelBaseClass
 			groupCmu = Variable('groupCmu','groupCmu', [], true)
 			groupCsigma = Variable('groupCsigma','groupCsigma', [], true)
 
-			groupW = Variable('groupW','groupW', [0 0.5], true)
-			groupWprior = Variable('groupWprior','groupWprior', [0 0.5], true)
-			groupK = Variable('groupK','groupK', [0 0.5], true)
-			groupKprior = Variable('groupKprior','groupKprior', [0 0.5], true)
+			groupW = Variable('groupW','groupW', [0 1], true)
+			groupWprior = Variable('groupWprior','groupWprior', [0 1], true)
+
+			groupK = Variable('groupK','groupK', 'positive', true)
+			%groupK.seed.func = @() abs(normrnd(0,10));
+			%groupK.seed.single = true;
+			groupKprior = Variable('groupKprior','groupKprior', 'positive', true)
+			%groupKprior.seed.func = @() abs(normrnd(0,10));
+			%groupKprior.seed.single = true;
 
 			groupALPHAmu = Variable('groupALPHAmu','groupALPHAmu', 'positive', true)
 			groupALPHAsigma = Variable('groupALPHAsigma','groupALPHAsigma', 'positive', true)
@@ -78,11 +83,11 @@ classdef ModelHierarchical < ModelBaseClass
 			epsilon.analysisFlag = 1;
 			alpha.analysisFlag = 1;
 
-			% 2 = group level
-			glM.analysisFlag = 2;
-			glC.analysisFlag = 2;
-			glEpsilon.analysisFlag = 2;
-			glALPHA.analysisFlag = 2;
+% 			% 2 = group level
+% 			glM.analysisFlag = 2;
+% 			glC.analysisFlag = 2;
+% 			glEpsilon.analysisFlag = 2;
+% 			glALPHA.analysisFlag = 2;
 
 			% Create a Variable array -------------------------------------------
 			obj.variables = [m, c, epsilon, alpha,... % mprior, cprior, epsilonprior, alphaprior,...
@@ -112,10 +117,12 @@ classdef ModelHierarchical < ModelBaseClass
 			obj.plotPsychometricParams()
 			myExport(obj.data.saveName, obj.modelType, '-PsychometricParams')
 
-			obj.figGroupLevelTriPlot()
-			myExport(obj.data.saveName, obj.modelType, ['-GROUP-triplot'])
+			% obj.figGroupLevelTriPlot()
+			% myExport(obj.data.saveName, obj.modelType, ['-GROUP-triplot'])
 
+			% TODO : REMOVE figGroupLevel *********************
 			obj.figGroupLevel()
+			% *************************************************
 			obj.figParticipantLevelWrapper()
 
 		end
@@ -148,43 +155,6 @@ classdef ModelHierarchical < ModelBaseClass
 			%lh(count).DisplayName = 'Group level';
 			%row(count) = {sprintf('Group level')};
 			% ==============================================
-		end
-
-% 		function figParticiantTriPlot(obj,n)
-% 			participantSamples = obj.sampler.getSamplesFromParticipant({'m','c','alpha','epsilon'}, n);
-% 			samples= [participantSamples.m,...
-% 				participantSamples.c,...
-% 				participantSamples.alpha,...
-% 				participantSamples.epsilon];
-%
-% 			% samples from prior
-% 			% NOTE: we do not have direct priors over group level m, c, alpha, epsilon, but we do have then as the result of the relevant hyperpriors. So the appropriate priors here are the group level priors - which are effectively our prior for an unknown participant, before we see any data of course.
-% % 			priorSamples= [obj.sampler.samples.glMprior(:),...
-% % 				obj.sampler.samples.glCprior(:),...
-% % 				obj.sampler.samples.glALPHAprior(:),...
-% % 				obj.sampler.samples.glEpsilonprior(:)];
-% 			figure(87)
-% 			%triPlotSamples(samples, priorSamples, {'m', 'c','alpha','epsilon'}, [])
-% 			triPlotSamples(samples, [], {'m', 'c','alpha','epsilon'}, [])
-% 		end
-
-		function figGroupLevelTriPlot(obj)
-			GROUP = obj.data.nParticipants;
-			groupSamples = obj.sampler.getSamplesFromParticipant({'m','c','alpha','epsilon'}, GROUP);
-			samples= [groupSamples.m,...
-				groupSamples.c,...
-				groupSamples.alpha,...
-				groupSamples.epsilon];
-
-			% samples from prior
-			% NOTE: we do not have direct priors over group level m, c, alpha, epsilon, but we do have then as the result of the relevant hyperpriors. So the appropriate priors here are the group level priors - which are effectively our prior for an unknown participant, before we see any data of course.
-			priorSamples= [obj.sampler.samples.glMprior(:),...
-				obj.sampler.samples.glCprior(:),...
-				obj.sampler.samples.glALPHAprior(:),...
-				obj.sampler.samples.glEpsilonprior(:)];
-			figure(87)
-			triPlotSamples(samples, priorSamples, {'m', 'c','alpha','epsilon'}, [])
-			%triPlotSamples(samples, [], {'m', 'c','alpha','epsilon'}, [])
 		end
 
 
@@ -270,6 +240,7 @@ classdef ModelHierarchical < ModelBaseClass
 
 	methods (Access = protected)
 
+		% TODO: TO BE REMOVED ***********************************
 		function figGroupLevel(obj)
 			figure(99)
 			set(gcf,'Name','GROUP LEVEL')
@@ -285,6 +256,7 @@ classdef ModelHierarchical < ModelBaseClass
 			myExport(obj.data.saveName, obj.modelType, '-GROUP')
 			% -------------------------------
 		end
+		% ********************************************************
 
 
 

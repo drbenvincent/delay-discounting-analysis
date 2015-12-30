@@ -81,7 +81,7 @@ classdef DataClass < handle
 			
 			% CREATE UNKNOWN PARTICIPANT HERE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			n = numel(fnames)+1;
-			obj.IDname{n} = 'UNKNOWN';
+			obj.IDname{n} = '**G**';
 			obj.participantLevel(n).table = [];
 			obj.participantLevel(n).trialsForThisParticant=1;
 			obj.participantLevel(n).data.A = 1;
