@@ -122,11 +122,11 @@ classdef ModelHierarchical < ModelBaseClass
 			obj.plotPsychometricParams(obj.sampler.samples)
 			myExport(obj.data.saveName, obj.modelType, '-PsychometricParams')
 
-			obj.figGroupLevelPriorPost()
-			% EXPORTING ---------------------
-			latex_fig(16, 5, 5)
-			myExport(obj.data.saveName, obj.modelType, '-PriorPost_GroupLevel')
-			% -------------------------------
+			% obj.figGroupLevelPriorPost()
+			% % EXPORTING ---------------------
+			% latex_fig(16, 5, 5)
+			% myExport(obj.data.saveName, obj.modelType, '-PriorPost_GroupLevel')
+			% % -------------------------------
 
 			obj.figGroupLevelTriPlot()
 			myExport(obj.data.saveName, obj.modelType, ['-GROUP-triplot'])
@@ -137,29 +137,29 @@ classdef ModelHierarchical < ModelBaseClass
 		end
 
 
-		function figGroupLevelPriorPost(obj)
-			figure
-
-			subplot(2,2,1)
-			plotPriorPosterior(obj.sampler.samples.glEpsilonprior(:),...
-				obj.sampler.samples.glEpsilon(:),...
-				'G^\epsilon')
-
-			subplot(2,2,2)
-			plotPriorPosterior(obj.sampler.samples.glALPHAprior(:),...
-				obj.sampler.samples.glALPHA(:),...
-				'G^\alpha')
-
-			subplot(2,2,3)
-			plotPriorPosterior(obj.sampler.samples.glMprior(:),...
-				obj.sampler.samples.glM(:),...
-				'G^m')
-
-			subplot(2,2,4)
-			plotPriorPosterior(obj.sampler.samples.glCprior(:),...
-				obj.sampler.samples.glC(:),...
-				'G^c')
-		end
+		% function figGroupLevelPriorPost(obj)
+		% 	figure
+		%
+		% 	subplot(2,2,1)
+		% 	plotPriorPosterior(obj.sampler.samples.glEpsilonprior(:),...
+		% 		obj.sampler.samples.glEpsilon(:),...
+		% 		'G^\epsilon')
+		%
+		% 	subplot(2,2,2)
+		% 	plotPriorPosterior(obj.sampler.samples.glALPHAprior(:),...
+		% 		obj.sampler.samples.glALPHA(:),...
+		% 		'G^\alpha')
+		%
+		% 	subplot(2,2,3)
+		% 	plotPriorPosterior(obj.sampler.samples.glMprior(:),...
+		% 		obj.sampler.samples.glM(:),...
+		% 		'G^m')
+		%
+		% 	subplot(2,2,4)
+		% 	plotPriorPosterior(obj.sampler.samples.glCprior(:),...
+		% 		obj.sampler.samples.glC(:),...
+		% 		'G^c')
+		% end
 
 
 		function conditionalDiscountRates(obj, reward, plotFlag)
