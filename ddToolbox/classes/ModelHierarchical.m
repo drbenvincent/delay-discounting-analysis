@@ -284,40 +284,7 @@ classdef ModelHierarchical < ModelBaseClass
 			xlabel('\epsilon_p')
 			box off
 		end
-
-
-		function figUnivariateSummary(uni, participantIDlist)
-			figure
-
-			subplot(4,1,1)
-			plotErrorBars({'G^m' participantIDlist{:}},...
-				[uni.glM.mode  uni.m.mode],...
-				[uni.glM.CI95 uni.m.CI95], '$m$')
-			%xlim([0.5 N+0.5])
-			hline(0,...
-				'Color','k',...
-				'LineStyle','--')
-
-			subplot(4,1,2)
-			plotErrorBars({'G^c' participantIDlist{:}},...
-				[uni.glC.mode uni.c.mode],...
-				[uni.glC.CI95 uni.c.CI95], '$c$')
-			%xlim([0.5 N+0.5])
-
-			subplot(4,1,3) % LAPSE RATE
-			plotErrorBars({'G^\epsilon' participantIDlist{:}},...
-				[uni.glEpsilon.mode uni.epsilon.mode]*100,...
-				[uni.glEpsilon.CI95 uni.epsilon.CI95]*100, '$\epsilon (\%)$')
-			a=axis; ylim([0 a(4)])
-			clear CI95 modeVals CI95
-
-			subplot(4,1,4) % COMPARISON ACUITY
-			plotErrorBars({'G^\alpha' participantIDlist{:}},...
-				[uni.glALPHA.mode uni.alpha.mode],...
-				[uni.glALPHA.CI95 uni.alpha.CI95], '$\alpha$')
-			%xlim([0.5 N+0.5])
-			a=axis; ylim([0 a(4)])
-		end
+		
 	end
 
 	methods (Access = protected)

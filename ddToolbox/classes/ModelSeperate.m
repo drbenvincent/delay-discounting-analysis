@@ -163,29 +163,6 @@ classdef ModelSeperate < ModelBaseClass
 			box off
 		end
 
-
-		function figUnivariateSummary(uni, participantIDlist)
-			figure
-
-			subplot(4,1,1)
-			plotErrorBars(participantIDlist, [uni.m.mode], [uni.m.CI95], '$m$')
-			hline(0,...
-				'Color','k',...
-				'LineStyle','--')
-
-			subplot(4,1,2)
-			plotErrorBars(participantIDlist, [uni.c.mode], [uni.c.CI95], '$c$')
-
-			subplot(4,1,3) % LAPSE RATE
-			plotErrorBars(participantIDlist, [uni.epsilon.mode]*100, [uni.epsilon.CI95]*100, '$\epsilon (\%)$') % plot as %
-			%xlim([0.5 N+0.5])
-			a=axis; ylim([0 a(4)])
-
-			subplot(4,1,4) % COMPARISON ACUITY
-			plotErrorBars(participantIDlist, [uni.alpha.mode], [uni.alpha.CI95], '$\alpha$')
-			%xlim([0.5 N+0.5])
-			a=axis; ylim([0 a(4)])
-		end
 	end
 
 
