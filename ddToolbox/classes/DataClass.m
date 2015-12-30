@@ -11,7 +11,7 @@ classdef DataClass < handle
 
 		participantLevel
 		covariateSupplied
-		covariateProbeVals
+		%covariateProbeVals
 
 		groupTable
 		observedData
@@ -102,9 +102,9 @@ classdef DataClass < handle
 
 			% by default, assume we do not have any covariate data
 			obj.covariateSupplied = false;
-			% set all covariate values to zero
-			covariateValues = zeros([1, obj.nParticipants]);
-			obj.setCovariateValues(covariateValues);
+% 			% set all covariate values to zero
+% 			covariateValues = zeros([1, obj.nParticipants]);
+% 			obj.setCovariateValues(covariateValues);
 
 			% save
 			saveLocation = fullfile(obj.dataFolder,'groupLevelData');
@@ -189,28 +189,28 @@ classdef DataClass < handle
 		% end
 
 
-		function obj = setCovariateValues(obj,covariateValues)
-			% set the values
-			obj.observedData.covariate = covariateValues;
-			% If the values are not all zero, then we are dealing with a
-			% dataset where meaningful covariate data has been provided.
-			if sum((covariateValues==0)~=1) > 0
-				display('COVARIATE DATA SUPPLIED')
-				obj.covariateSupplied = true;
-				% create a vector of probe covariate values for
-				% visualisation purposes
+% 		function obj = setCovariateValues(obj,covariateValues)
+% 			% set the values
+% 			obj.observedData.covariate = covariateValues;
+% 			% If the values are not all zero, then we are dealing with a
+% 			% dataset where meaningful covariate data has been provided.
+% 			if sum((covariateValues==0)~=1) > 0
+% 				display('COVARIATE DATA SUPPLIED')
+% 				obj.covariateSupplied = true;
+% 				% create a vector of probe covariate values for
+% 				% visualisation purposes
+% 
+% 				% set default values
+% 				obj.observedData.covariateProbeVals = linspace( min(covariateValues), max(covariateValues) ,20);
+% 			else
+% 				display('COVARIATE DEFINED AS NOT PRESENT')
+% 			end
+% 		end
 
-				% set default values
-				obj.observedData.covariateProbeVals = linspace( min(covariateValues), max(covariateValues) ,20);
-			else
-				display('COVARIATE DEFINED AS NOT PRESENT')
-			end
-		end
 
-
-		function obj = setCovariateProbeValues(obj, CovariateProbeValues)
-			obj.observedData.covariateProbeVals = CovariateProbeValues;
-		end
+% 		function obj = setCovariateProbeValues(obj, CovariateProbeValues)
+% 			obj.observedData.covariateProbeVals = CovariateProbeValues;
+% 		end
 
 	end
 
