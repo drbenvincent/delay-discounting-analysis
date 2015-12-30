@@ -8,6 +8,8 @@ classdef Variable < handle
 		bounds
 		monitoredFlag
 		rnd % function handle to generate initial values
+		analysisFlag
+		plotMCMCchainFlag
 	end
 
 	properties (GetAccess = public, SetAccess = protected)
@@ -22,6 +24,8 @@ classdef Variable < handle
 			obj.str_latex = str_latex;
 			obj.bounds = bounds;
 			obj.monitoredFlag = monitoredFlag;
+			obj.analysisFlag = false; % default
+			obj.plotMCMCchainFlag = true; % default
 			obj.rnd = rnd;
 		end
 

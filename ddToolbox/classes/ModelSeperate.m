@@ -37,8 +37,18 @@ classdef ModelSeperate < ModelBaseClass
 			alphaprior = Variable('alphaprior','\alphaprior', 'positive', true, @() abs(normrnd(0.01,0.001)))
 
 			Rpostpred = Variable('Rpostpred','Rpostpred', [0 1], true, [])
+			Rpostpred.plotMCMCchainFlag = false;
+
+			% define which to analyse (univariate analysis)
+			m.analysisFlag = true;
+			c.analysisFlag = true;
+			epsilon.analysisFlag = true;
+			alpha.analysisFlag = true;
+
 			% Create a Variable array
-			obj.variables = [m, c, epsilon, alpha, Rpostpred];
+			obj.variables = [m, c, epsilon, alpha,...
+				mprior, cprior, epsilonprior, alphaprior,...
+				Rpostpred];
 
 			% give sampler a handle back to the model (ie this hierarchicalME model)
 			obj.sampler.modelHandle = obj;
@@ -61,7 +71,7 @@ classdef ModelSeperate < ModelBaseClass
 
 			obj.figParticipantLevelWrapper()
 		end
-		
+
 
 		function setInitialParamValues(obj)
 			for n=1:obj.sampler.mcmcparams.nchains
@@ -76,11 +86,11 @@ classdef ModelSeperate < ModelBaseClass
 		end
 
 
-		function doAnalysis(obj) % <--- TODO: REMOVE THIS WRAPPER FUNCTION
-			obj.analyses.univariate  = univariateAnalysis(obj.sampler.samples,...
-			{'epsilon', 'alpha', 'm', 'c'},...
-			{'positive', 'positive', [], []});
-		end
+		% function doAnalysis(obj) % <--- TODO: REMOVE THIS WRAPPER FUNCTION
+		% 	obj.analyses.univariate  = univariateAnalysis(obj.sampler.samples,...
+		% 	{'epsilon', 'alpha', 'm', 'c'},...
+		% 	{'positive', 'positive', [], []});
+		% end
 
 		function figParticiantTriPlot(obj,n)
 			% samples from posterior

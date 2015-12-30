@@ -56,7 +56,19 @@ classdef ModelHierarchical < ModelBaseClass
 			groupALPHAsigmaprior = Variable('groupALPHAsigmaprior','groupALPHAsigmaprior', 'positive', true, [])
 
 			Rpostpred = Variable('Rpostpred','Rpostpred', [0 1], true, [])
-
+			Rpostpred.plotMCMCchainFlag = false;
+			
+			% define which to analyse (univariate analysis)
+			m.analysisFlag = true;
+			c.analysisFlag = true;
+			epsilon.analysisFlag = true;
+			alpha.analysisFlag = true;
+			
+			glM.analysisFlag = true;
+			glC.analysisFlag = true;
+			glEpsilon.analysisFlag = true;
+			glALPHA.analysisFlag = true;
+			
 			% Create a Variable array
 			obj.variables = [m, c, epsilon, alpha,...
 				glM, glMprior,...
@@ -119,11 +131,11 @@ classdef ModelHierarchical < ModelBaseClass
 		end
 
 
-		function doAnalysis(obj) % <--- TODO: REMOVE THIS WRAPPER FUNCTION
-			obj.analyses.univariate = univariateAnalysis(obj.sampler.samples,...
-				{'epsilon', 'alpha', 'm', 'c', 'glM', 'glC', 'glEpsilon','glALPHA'},...
-				{'positive', 'positive', [], [], [], [], 'positive', 'positive'} );
-		end
+		% function doAnalysis(obj) % <--- TODO: REMOVE THIS WRAPPER FUNCTION
+		% 	obj.analyses.univariate = univariateAnalysis(obj.sampler.samples,...
+		% 		{'epsilon', 'alpha', 'm', 'c', 'glM', 'glC', 'glEpsilon','glALPHA'},...
+		% 		{'positive', 'positive', [], [], [], [], 'positive', 'positive'} );
+		% end
 
 
 		function figGroupLevelPriorPost(obj)

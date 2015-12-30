@@ -17,7 +17,6 @@ classdef ModelBaseClass < handle
 
 	methods(Abstract, Access = public)
 		plot(obj, data)
-		doAnalysis(obj) % <--- TODO: REMOVE THIS WRAPPER FUNCTION
 		setInitialParamValues(obj, data)
 	end
 
@@ -41,11 +40,19 @@ classdef ModelBaseClass < handle
 		end
 
 		function plotMCMCchains(obj)
+			str				= {obj.variables.str};
+			bounds		= {obj.variables.bounds};
+			str_latex = {obj.variables.str_latex};
+			% select just those with analysisFlag
+			str				= str([obj.variables.plotMCMCchainFlag]==true);
+			bounds		= bounds([obj.variables.plotMCMCchainFlag]==true);
+			str_latex	= str_latex([obj.variables.plotMCMCchainFlag]==true);
+			
 			MCMCdiagnoticsPlot(obj.sampler.samples, obj.sampler.stats,...
 				[],...
-				{obj.variables.str},...
-				{obj.variables.bounds},...
-				{obj.variables.str_latex});
+				str,...
+				bounds,...
+				str_latex);
 		end
 
 		function setMonitoredValues(obj)
@@ -54,6 +61,18 @@ classdef ModelBaseClass < handle
 			obj.monitorparams = {obj.variables.str};
 		end
 
+		function doAnalysis(obj)
+			str = {obj.variables.str};
+			bounds = {obj.variables.bounds};
+			% select just those with analysisFlag
+			str = str([obj.variables.analysisFlag]==1);
+			bounds = bounds([obj.variables.analysisFlag]==1);
+			
+			obj.analyses.univariate  = univariateAnalysis(...
+				obj.sampler.samples,...
+				str,...
+				bounds);
+		end
 
 		function calcSampleRange(obj)
 			% Define limits for each of the variables here for plotting purposes
