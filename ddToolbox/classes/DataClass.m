@@ -78,12 +78,29 @@ classdef DataClass < handle
 				% append participant to group table
 				obj.groupTable = [obj.groupTable;participantTable];
 			end
+			
+			% CREATE UNKNOWN PARTICIPANT HERE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			n = numel(fnames)+1;
+			obj.IDname{n} = 'UNKNOWN';
+			obj.participantLevel(n).table = [];
+			obj.participantLevel(n).trialsForThisParticant=1;
+			obj.participantLevel(n).data.A = 1;
+			obj.participantLevel(n).data.B = 2;
+			obj.participantLevel(n).data.DA = 0;
+			obj.participantLevel(n).data.DB = 1;
+			obj.participantLevel(n).data.R = NaN;
+			obj.participantLevel(n).data.ID = obj.IDname{n};
+			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 			%% Copy the observed data into a structure
 			maxTrials = max([obj.participantLevel.trialsForThisParticant]);
 			nParticipants = numel(obj.participantLevel);
 			% create an empty matrix which we then fill with data
-			obj.observedData.A = NaN(nParticipants, maxTrials);
+			obj.observedData.A  = NaN(nParticipants, maxTrials);
+			obj.observedData.B  = NaN(nParticipants, maxTrials);
+			obj.observedData.DA = NaN(nParticipants, maxTrials);
+			obj.observedData.DB = NaN(nParticipants, maxTrials);
+			obj.observedData.R  = NaN(nParticipants, maxTrials);
 			for p=1:nParticipants
 				Tp = obj.participantLevel(p).trialsForThisParticant;
 				obj.observedData.A(p,[1:Tp]) = obj.participantLevel(p).data.A;
@@ -92,12 +109,21 @@ classdef DataClass < handle
 				obj.observedData.DB(p,[1:Tp]) = obj.participantLevel(p).data.DB;
 				obj.observedData.R(p,[1:Tp]) = obj.participantLevel(p).data.R;
 			end
+			
+% 			% we need to provide some fake question data to the made up
+% 			% participant. We need to do this because the values feed into the
+% 			% deterministic nodes (VA and VB).
+% 			obj.observedData.A(end,1)=1;
+% 			obj.observedData.B(end,1)=2;
+% 			obj.observedData.DA(end,1)=0;
+% 			obj.observedData.DB(end,1)=1;
+			
 			% T is a vector containing number of trials for each participant
 			obj.observedData.T = [obj.participantLevel.trialsForThisParticant];
 
 			% calculate more things
 			obj.totalTrials = height(obj.groupTable);
-			obj.nParticipants = max(obj.groupTable.ID);
+			obj.nParticipants = nParticipants; 
 			obj.participantFilenames = fnames;
 
 			% by default, assume we do not have any covariate data

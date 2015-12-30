@@ -128,7 +128,7 @@ classdef ModelBaseClass < handle
 
 			param_estimates = array2table(data,...
 				'VariableNames',colHeader,...
-				'RowNames', obj.data.participantFilenames);
+				'RowNames', obj.data.IDname);
 
 			%% see if there are any group-level parameters
 			if sum([obj.variables.analysisFlag]==2)>0
