@@ -17,7 +17,6 @@ classdef ModelBaseClass < handle
 
 	methods(Abstract, Access = public)
 		plot(obj, data)
-		setInitialParamValues(obj, data)
 	end
 
 	methods (Access = public)
@@ -47,7 +46,7 @@ classdef ModelBaseClass < handle
 			str				= str([obj.variables.plotMCMCchainFlag]==true);
 			bounds		= bounds([obj.variables.plotMCMCchainFlag]==true);
 			str_latex	= str_latex([obj.variables.plotMCMCchainFlag]==true);
-			
+
 			MCMCdiagnoticsPlot(obj.sampler.samples, obj.sampler.stats,...
 				[],...
 				str,...
@@ -61,13 +60,39 @@ classdef ModelBaseClass < handle
 			obj.monitorparams = {obj.variables.str};
 		end
 
+		function setInitialParamValues(obj)
+			for chain=1:obj.sampler.mcmcparams.nchains
+				
+				% create initial values for some single-value items (ie
+				% non-participant level
+				for v = 1:numel(obj.variables)
+					if isempty(obj.variables(v).seed), continue, end
+					if obj.variables(v).seed.single==false, continue, end
+					
+					varName = obj.variables(v).str;
+					obj.sampler.initial_param(chain).(varName) = obj.variables(v).seed.func();
+				end
+				
+				for p=1:obj.data.nParticipants
+					
+					for v = 1:numel(obj.variables)
+						if isempty(obj.variables(v).seed), continue, end
+						if obj.variables(v).seed.single==true, continue, end
+						
+						varName = obj.variables(v).str;
+						obj.sampler.initial_param(chain).(varName)(p) = obj.variables(v).seed.func();
+					end
+				end
+			end
+		end
+		
 		function doAnalysis(obj)
 			str = {obj.variables.str};
 			bounds = {obj.variables.bounds};
 			% select just those with analysisFlag
 			str = str([obj.variables.analysisFlag]==1);
 			bounds = bounds([obj.variables.analysisFlag]==1);
-			
+
 			obj.analyses.univariate  = univariateAnalysis(...
 				obj.sampler.samples,...
 				str,...

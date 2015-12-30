@@ -22,55 +22,82 @@ classdef ModelHierarchical < ModelBaseClass
 			end
 
 			%% Create variables
-			m = Variable('m','m', [], true, @() normrnd(-0.243,2))
-			c = Variable('c','c', [], true, @() normrnd(0,4))
-			epsilon = Variable('epsilon','\epsilon', [0 0.5], true, @() 0.1 + rand/10)
-			alpha = Variable('alpha','\alpha', 'positive', true, @() abs(normrnd(0.01,0.001)))
+			m = Variable('m','m', [], true)
+			m.seed.func = @() normrnd(-0.243,2);
+			m.seed.single = false;
 
-			glM = Variable('glM','glM', [], true, [])
-			glMprior = Variable('glMprior','glMprior', [], true, [])
+			% mprior = Variable('mprior','mprior', [], true)
+			% mprior.seed.func = @() normrnd(-0.243,2);
+			% mprior.seed.single = true;
 
-			glC = Variable('glC','glC', [], true, [])
-			glCprior = Variable('glCprior','glCprior', [], true, [])
+			c = Variable('c','c', [], true)
+			c.seed.func = @() normrnd(0,4);
+			c.seed.single = false;
 
-			glEpsilon = Variable('glEpsilon','glEpsilon', [0 0.5], true, [])
-			glEpsilonprior = Variable('glEpsilonprior','glEpsilonprior', [0 0.5], true, [])
+			% cprior = Variable('cprior','cprior', [], true)
+			% cprior.seed.func = @() normrnd(0,4);
+			% cprior.seed.single = true;
 
-			groupMmu = Variable('groupMmu','groupMmu', [], true, [])
-			groupMsigma = Variable('groupMsigma','groupMsigma', [], true, [])
+			epsilon = Variable('epsilon','\epsilon', [0 0.5], true)
+			epsilon.seed.func = @() 0.1 + rand/10;
+			epsilon.seed.single = false;
 
-			groupCmu = Variable('groupCmu','groupCmu', [], true, [])
-			groupCsigma = Variable('groupCsigma','groupCsigma', [], true, [])
+			% epsilonprior = Variable('epsilonprior','\epsilon prior', [0 0.5], true)
+			% epsilonprior.seed.func = @() 0.1 + rand/10;
+			% epsilonprior.seed.single = true;
 
-			groupW = Variable('groupW','groupW', [0 0.5], true, [])
-			groupWprior = Variable('groupWprior','groupWprior', [0 0.5], true, [])
-			groupK = Variable('groupK','groupK', [0 0.5], true, [])
-			groupKprior = Variable('groupKprior','groupKprior', [0 0.5], true, [])
+			alpha = Variable('alpha','\alpha', 'positive', true)
+			alpha.seed.func = @() abs(normrnd(0.01,0.001));
+			alpha.seed.single = false;
 
-			glALPHA = Variable('glALPHA','glALPHA', 'positive', true, [])
-			glALPHAprior = Variable('glALPHAprior','glALPHAprior', 'positive', true, [])
+			% alphaprior = Variable('alphaprior','\alpha prior', 'positive', true)
+			% alphaprior.seed.func = @() abs(normrnd(0.01,0.001));
+			% alphaprior.seed.single = true;
 
-			groupALPHAmu = Variable('groupALPHAmu','groupALPHAmu', 'positive', true, [])
-			groupALPHAsigma = Variable('groupALPHAsigma','groupALPHAsigma', 'positive', true, [])
-			groupALPHAmuprior = Variable('groupALPHAmuprior','groupALPHAmuprior', 'positive', true, [])
-			groupALPHAsigmaprior = Variable('groupALPHAsigmaprior','groupALPHAsigmaprior', 'positive', true, [])
+			glM = Variable('glM','glM', [], true)
+			glMprior = Variable('glMprior','glMprior', [], true)
 
-			Rpostpred = Variable('Rpostpred','Rpostpred', [0 1], true, [])
+			glC = Variable('glC','glC', [], true)
+			glCprior = Variable('glCprior','glCprior', [], true)
+
+			glEpsilon = Variable('glEpsilon','glEpsilon', [0 0.5], true)
+			glEpsilonprior = Variable('glEpsilonprior','glEpsilonprior', [0 0.5], true)
+
+			groupMmu = Variable('groupMmu','groupMmu', [], true)
+			groupMsigma = Variable('groupMsigma','groupMsigma', [], true)
+
+			groupCmu = Variable('groupCmu','groupCmu', [], true)
+			groupCsigma = Variable('groupCsigma','groupCsigma', [], true)
+
+			groupW = Variable('groupW','groupW', [0 0.5], true)
+			groupWprior = Variable('groupWprior','groupWprior', [0 0.5], true)
+			groupK = Variable('groupK','groupK', [0 0.5], true)
+			groupKprior = Variable('groupKprior','groupKprior', [0 0.5], true)
+
+			glALPHA = Variable('glALPHA','glALPHA', 'positive', true)
+			glALPHAprior = Variable('glALPHAprior','glALPHAprior', 'positive', true)
+
+			groupALPHAmu = Variable('groupALPHAmu','groupALPHAmu', 'positive', true)
+			groupALPHAsigma = Variable('groupALPHAsigma','groupALPHAsigma', 'positive', true)
+			groupALPHAmuprior = Variable('groupALPHAmuprior','groupALPHAmuprior', 'positive', true)
+			groupALPHAsigmaprior = Variable('groupALPHAsigmaprior','groupALPHAsigmaprior', 'positive', true)
+
+			Rpostpred = Variable('Rpostpred','Rpostpred', [0 1], true)
 			Rpostpred.plotMCMCchainFlag = false;
-			
+
 			% define which to analyse (univariate analysis)
 			m.analysisFlag = true;
 			c.analysisFlag = true;
 			epsilon.analysisFlag = true;
 			alpha.analysisFlag = true;
-			
+
 			glM.analysisFlag = true;
 			glC.analysisFlag = true;
 			glEpsilon.analysisFlag = true;
 			glALPHA.analysisFlag = true;
-			
+
 			% Create a Variable array
-			obj.variables = [m, c, epsilon, alpha,...
+			obj.variables = [m, c, epsilon, alpha,... % mprior, cprior, epsilonprior, alphaprior,...
 				glM, glMprior,...
 				glC, glCprior,...
 				groupMmu, groupMsigma,...
@@ -114,21 +141,21 @@ classdef ModelHierarchical < ModelBaseClass
 		end
 
 
-		function setInitialParamValues(obj)
-			% the model is changing sampler information
-			for n=1:obj.sampler.mcmcparams.nchains
-				obj.sampler.initial_param(n).groupMmu = normrnd(-0.243,1);
-				obj.sampler.initial_param(n).groupCmu = normrnd(0,2);
-				obj.sampler.initial_param(n).mprior = normrnd(-0.243,2);
-				obj.sampler.initial_param(n).cprior = normrnd(0,4);
-				for p=1:obj.data.nParticipants
-					obj.sampler.initial_param(n).alpha(p) = abs(normrnd(0.01,0.001));
-					obj.sampler.initial_param(n).epsilon(p) = 0.1 + rand/10;
-					obj.sampler.initial_param(n).m(p) = normrnd(-0.243,2);
-					obj.sampler.initial_param(n).c(p) = normrnd(0,4);
-				end
-			end
-		end
+% 		function setInitialParamValues(obj)
+% 			% the model is changing sampler information
+% 			for n=1:obj.sampler.mcmcparams.nchains
+% 				obj.sampler.initial_param(n).groupMmu = normrnd(-0.243,1);
+% 				obj.sampler.initial_param(n).groupCmu = normrnd(0,2);
+% 				obj.sampler.initial_param(n).mprior = normrnd(-0.243,2);
+% 				obj.sampler.initial_param(n).cprior = normrnd(0,4);
+% 				for p=1:obj.data.nParticipants
+% 					obj.sampler.initial_param(n).alpha(p) = abs(normrnd(0.01,0.001));
+% 					obj.sampler.initial_param(n).epsilon(p) = 0.1 + rand/10;
+% 					obj.sampler.initial_param(n).m(p) = normrnd(-0.243,2);
+% 					obj.sampler.initial_param(n).c(p) = normrnd(0,4);
+% 				end
+% 			end
+% 		end
 
 
 		% function doAnalysis(obj) % <--- TODO: REMOVE THIS WRAPPER FUNCTION

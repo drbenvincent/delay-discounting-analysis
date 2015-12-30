@@ -24,19 +24,39 @@ classdef ModelSeperate < ModelBaseClass
 			end
 
 			%% Create variables
-			m = Variable('m','m', [], true, @() normrnd(-0.243,2))
-			mprior = Variable('mprior','mprior', [], true, @() normrnd(-0.243,2))
-
-			c = Variable('c','c', [], true, @() normrnd(0,4))
-			cprior = Variable('cprior','cprior', [], true, @() normrnd(0,4))
-
-			epsilon = Variable('epsilon','\epsilon', [0 0.5], true, @() 0.1 + rand/10)
-			epsilonprior = Variable('epsilonprior','\epsilonprior', [0 0.5], true, @() 0.1 + rand/10)
-
-			alpha = Variable('alpha','\alpha', 'positive', true, @() abs(normrnd(0.01,0.001)))
-			alphaprior = Variable('alphaprior','\alphaprior', 'positive', true, @() abs(normrnd(0.01,0.001)))
-
-			Rpostpred = Variable('Rpostpred','Rpostpred', [0 1], true, [])
+			m = Variable('m','m', [], true)
+			m.seed.func = @() normrnd(-0.243,2);
+			m.seed.single = false;
+			
+			mprior = Variable('mprior','mprior', [], true)
+			mprior.seed.func = @() normrnd(-0.243,2);
+			mprior.seed.single = true;
+			
+			c = Variable('c','c', [], true)
+			c.seed.func = @() normrnd(0,4);
+			c.seed.single = false;
+			
+			cprior = Variable('cprior','cprior', [], true)
+			cprior.seed.func = @() normrnd(0,4);
+			cprior.seed.single = true;
+			
+			epsilon = Variable('epsilon','\epsilon', [0 0.5], true)
+			epsilon.seed.func = @() 0.1 + rand/10;
+			epsilon.seed.single = false;
+			
+			epsilonprior = Variable('epsilonprior','\epsilon prior', [0 0.5], true)
+			epsilonprior.seed.func = @() 0.1 + rand/10;
+			epsilonprior.seed.single = true;
+			
+			alpha = Variable('alpha','\alpha', 'positive', true)
+			alpha.seed.func = @() abs(normrnd(0.01,0.001));
+			alpha.seed.single = false;
+			
+			alphaprior = Variable('alphaprior','\alpha prior', 'positive', true)
+			alphaprior.seed.func = @() abs(normrnd(0.01,0.001));
+			alphaprior.seed.single = true;
+			
+			Rpostpred = Variable('Rpostpred','Rpostpred', [0 1], true)
 			Rpostpred.plotMCMCchainFlag = false;
 
 			% define which to analyse (univariate analysis)
@@ -73,17 +93,17 @@ classdef ModelSeperate < ModelBaseClass
 		end
 
 
-		function setInitialParamValues(obj)
-			for n=1:obj.sampler.mcmcparams.nchains
-				for p=1:obj.data.nParticipants
-					obj.sampler.initial_param(n).alpha(p)	= abs(normrnd(0.01,0.01));
-					obj.sampler.initial_param(n).lr(p)		= 0.1 + rand/10;
-
-					obj.sampler.initial_param(n).m(p) = normrnd(-0.243,1);
-					obj.sampler.initial_param(n).c(p) = normrnd(0,4);
-				end
-			end
-		end
+		% function setInitialParamValues(obj)
+		% 	for n=1:obj.sampler.mcmcparams.nchains
+		% 		for p=1:obj.data.nParticipants
+		% 			obj.sampler.initial_param(n).alpha(p)	= abs(normrnd(0.01,0.01));
+		% 			obj.sampler.initial_param(n).lr(p)		= 0.1 + rand/10;
+		%
+		% 			obj.sampler.initial_param(n).m(p) = normrnd(-0.243,1);
+		% 			obj.sampler.initial_param(n).c(p) = normrnd(0,4);
+		% 		end
+		% 	end
+		% end
 
 
 		% function doAnalysis(obj) % <--- TODO: REMOVE THIS WRAPPER FUNCTION
