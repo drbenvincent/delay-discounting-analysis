@@ -62,36 +62,36 @@ classdef ModelBaseClass < handle
 
 		function setInitialParamValues(obj)
 			for chain=1:obj.sampler.mcmcparams.nchains
-				
+
 				% create initial values for some single-value items (ie
 				% non-participant level
 				for v = 1:numel(obj.variables)
 					if isempty(obj.variables(v).seed), continue, end
 					if obj.variables(v).seed.single==false, continue, end
-					
+
 					varName = obj.variables(v).str;
 					obj.sampler.initial_param(chain).(varName) = obj.variables(v).seed.func();
 				end
-				
+
 				for p=1:obj.data.nParticipants
-					
+
 					for v = 1:numel(obj.variables)
 						if isempty(obj.variables(v).seed), continue, end
 						if obj.variables(v).seed.single==true, continue, end
-						
+
 						varName = obj.variables(v).str;
 						obj.sampler.initial_param(chain).(varName)(p) = obj.variables(v).seed.func();
 					end
 				end
 			end
 		end
-		
+
 		function doAnalysis(obj)
 			str = {obj.variables.str};
 			bounds = {obj.variables.bounds};
-			% select just those with analysisFlag
-			str = str([obj.variables.analysisFlag]==1);
-			bounds = bounds([obj.variables.analysisFlag]==1);
+			% select just those with analysisFlag~=0
+			str = str([obj.variables.analysisFlag]~=0);
+			bounds = bounds([obj.variables.analysisFlag]~=0);
 
 			obj.analyses.univariate  = univariateAnalysis(...
 				obj.sampler.samples,...
@@ -111,25 +111,54 @@ classdef ModelBaseClass < handle
 		% TODO: THIS FUNCTION CAN BE GENERALISED TO LOOP OVER WHATEVER FIELDS ARE IN obj.analyses.univariate
 		% **************************************************************************************************
 		function exportParameterEstimates(obj)
-			participant_level = array2table(...
-				[obj.analyses.univariate.m.mode'...
-				obj.analyses.univariate.m.CI95'...
-				obj.analyses.univariate.c.mode'...
-				obj.analyses.univariate.c.CI95'...
-				obj.analyses.univariate.alpha.mode'...
-				obj.analyses.univariate.alpha.CI95'...
-				obj.analyses.univariate.epsilon.mode'...
-				obj.analyses.univariate.epsilon.CI95'],...
-				'VariableNames',{'m_mode' 'm_CI5' 'm_CI95'...
-				'c_mode' 'c_CI5' 'c_CI95'...
-				'alpha_mode' 'alpha_CI5' 'alpha_CI95'...
-				'epsilon_mode' 'epsilon_CI5' 'epsilon_CI95'},...
-				'RowNames', obj.data.participantFilenames)
+			%% Participant level -------------------------------------------
+			varNames = {obj.variables.str};
+			varNames = varNames( [obj.variables.analysisFlag]==1 );
 
+			data=[];
+			colHeader = {};
+			for n=1:numel(varNames)
+				data = [data obj.analyses.univariate.(varNames{n}).mode'];
+				data = [data obj.analyses.univariate.(varNames{n}).CI95'];
+
+				colHeader{end+1} = sprintf('%s_mode', varNames{n});
+				colHeader{end+1} = sprintf('%s_CI5', varNames{n});
+				colHeader{end+1} = sprintf('%s_CI95', varNames{n});
+			end
+
+			param_estimates = array2table(data,...
+				'VariableNames',colHeader,...
+				'RowNames', obj.data.participantFilenames);
+
+			%% see if there are any group-level parameters
+			if sum([obj.variables.analysisFlag]==2)>0
+				% there are group-level parameters
+				varNames = {obj.variables.str};
+				varNames = varNames( [obj.variables.analysisFlag]==2 );
+
+				data=[];
+				% **colHeader** Need to keep the same values so we can append group
+				% to participant table.
+				for n=1:numel(varNames)
+					data = [data obj.analyses.univariate.(varNames{n}).mode'];
+					data = [data obj.analyses.univariate.(varNames{n}).CI95'];
+				end
+
+				group_level = array2table(data,...
+					'VariableNames',colHeader,...
+					'RowNames', {'GroupLevelInference'});
+
+				param_estimates = [param_estimates ; group_level];
+			end
+			
+			% display to command window
+			param_estimates
+
+			%% Export
 			savename = ['parameterEstimates_' obj.data.saveName '.txt'];
-			writetable(participant_level, savename,...
+			writetable(param_estimates, savename,...
 				'Delimiter','\t')
-			fprintf('The above table of participant-level parameter estimates was exported to:\n')
+			fprintf('The above table of parameter estimates was exported to:\n')
 			fprintf('\t%s\n\n',savename)
 		end
 

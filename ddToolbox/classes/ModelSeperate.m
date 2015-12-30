@@ -66,10 +66,10 @@ classdef ModelSeperate < ModelBaseClass
 			Rpostpred.plotMCMCchainFlag = false;
 
 			% define which to analyse (univariate analysis)
-			m.analysisFlag = true;
-			c.analysisFlag = true;
-			epsilon.analysisFlag = true;
-			alpha.analysisFlag = true;
+			m.analysisFlag = 1;
+			c.analysisFlag = 1;
+			epsilon.analysisFlag = 1;
+			alpha.analysisFlag = 1;
 
 			% Create a Variable array -------------------------------------------
 			obj.variables = [m, c, epsilon, alpha,...
