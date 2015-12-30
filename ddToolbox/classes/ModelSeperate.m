@@ -76,13 +76,6 @@ classdef ModelSeperate < ModelBaseClass
 		end
 
 
-		function setObservedValues(obj)
-			obj.sampler.observed = obj.data.observedData;
-			obj.sampler.observed.nParticipants = obj.data.nParticipants;
-			obj.sampler.observed.totalTrials = obj.data.totalTrials;
-		end
-
-
 		function doAnalysis(obj) % <--- TODO: REMOVE THIS WRAPPER FUNCTION
 			obj.analyses.univariate  = univariateAnalysis(obj.sampler.samples,...
 			{'epsilon', 'alpha', 'm', 'c'},...

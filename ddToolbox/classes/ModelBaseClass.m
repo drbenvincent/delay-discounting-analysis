@@ -18,7 +18,6 @@ classdef ModelBaseClass < handle
 		plot(obj, data)
 		doAnalysis(obj) % <--- TODO: REMOVE THIS WRAPPER FUNCTION
 		setMonitoredValues(obj, data)
-		setObservedValues(obj, data)
 		setInitialParamValues(obj, data)
 	end
 
@@ -32,6 +31,13 @@ classdef ModelBaseClass < handle
 
 		function conductInference(obj)
 			obj.sampler.conductInference()
+		end
+
+		function setObservedValues(obj)
+			% the model is changing sampler information
+			obj.sampler.observed = obj.data.observedData;
+			obj.sampler.observed.nParticipants	= obj.data.nParticipants;
+			obj.sampler.observed.totalTrials	= obj.data.totalTrials;
 		end
 
 		function calcSampleRange(obj)

@@ -127,7 +127,7 @@ sepData.loadDataFiles(fnames);
 
 sModel = ModelSeperate(toolboxPath, 'JAGS', sepData);
 sModel.sampler.setMCMCtotalSamples(10^5);
-sModel.sampler.setMCMCnumberOfChains(4);
+%sModel.sampler.setMCMCnumberOfChains(4);
 sModel.conductInference();
 sModel.posteriorPredictive();
 sModel.exportParameterEstimates();

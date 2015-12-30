@@ -70,7 +70,7 @@ classdef ModelHierarchical < ModelBaseClass
 				obj.sampler.initial_param(n).cprior = normrnd(0,4);
 				for p=1:obj.data.nParticipants
 					obj.sampler.initial_param(n).alpha(p) = abs(normrnd(0.01,0.001));
-					obj.sampler.initial_param(n).lr(p) = 0.1 + rand/10;
+					obj.sampler.initial_param(n).epsilon(p) = 0.1 + rand/10;
 					obj.sampler.initial_param(n).m(p) = normrnd(-0.243,2);
 					obj.sampler.initial_param(n).c(p) = normrnd(0,4);
 				end
@@ -93,19 +93,12 @@ classdef ModelHierarchical < ModelBaseClass
 				};
 		end
 
-		function setObservedValues(obj)
-			% the model is changing sampler information
-			obj.sampler.observed = obj.data.observedData;
-			obj.sampler.observed.nParticipants	= obj.data.nParticipants;
-			obj.sampler.observed.totalTrials	= obj.data.totalTrials;
-		end
 
 		function doAnalysis(obj) % <--- TODO: REMOVE THIS WRAPPER FUNCTION
 			obj.analyses.univariate = univariateAnalysis(obj.sampler.samples,...
 				{'epsilon', 'alpha', 'm', 'c', 'glM', 'glC', 'glEpsilon','glALPHA'},...
 				{'positive', 'positive', [], [], [], [], 'positive', 'positive'} );
 		end
-
 
 
 		function figGroupLevelPriorPost(obj)
