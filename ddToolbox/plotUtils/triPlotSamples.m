@@ -29,12 +29,14 @@ for row = 1:ND
 				'FaceColor',[0.2 0.2 0.2]);
 			axis tight, a=axis; ylim([0 a(4)]);
 			a=axis;
-			hold on
-			% plot hist for prior
-			histogram(PRIOR(:,col), 'EdgeColor','none',...
-				'Normalization','pdf',...
-				'FaceColor',[0.8 0.8 0.8]);
-			axis(a);
+			if ~isempty(PRIOR)
+				hold on
+				% plot hist for prior
+				histogram(PRIOR(:,col), 'EdgeColor','none',...
+					'Normalization','pdf',...
+					'FaceColor',[0.8 0.8 0.8]);
+				axis(a);
+			end
 			box off
 			
 			axis square

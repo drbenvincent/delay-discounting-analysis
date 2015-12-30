@@ -254,6 +254,20 @@ classdef ModelBaseClass < handle
 			xlabel('trials')
 		end
 		
+		function figParticiantTriPlot(obj,n)
+			% samples from posterior
+			temp = obj.sampler.getSamplesAtIndex(n, {'m', 'c','alpha','epsilon'});
+			samples= [temp.m, temp.c, temp.alpha, temp.epsilon];
+			% samples from prior
+			%temp = obj.sampler.getSamplesAtIndex(n, {'mprior', 'cprior','alphaprior','epsilonprior'});
+			% 			priorSamples= [obj.sampler.samples.mprior(:),...
+			% 				obj.sampler.samples.cprior(:),...
+			% 				obj.sampler.samples.alphaprior(:),...
+			% 				obj.sampler.samples.epsilonprior(:)];
+			figure(87)
+			%triPlotSamples(samples, priorSamples, {'m', 'c','alpha','epsilon'}, [])
+			triPlotSamples(samples, [], {'m', 'c','alpha','epsilon'}, [])
+		end
 		
 	end
 	
