@@ -10,16 +10,15 @@ a=axis;
 
 
 %% PRIOR
-hold on
-hPrior=histogram(priorSamples(:),...
-	'Normalization','pdf',...
-	'EdgeColor','none',...
-	'FaceColor',[0.8 0.8 0.8]);
-
-if isempty(posteriorSamples)
-	axis tight
-else
+if ~isempty(posteriorSamples)
+	hold on
+	hPrior=histogram(priorSamples(:),...
+		'Normalization','pdf',...
+		'EdgeColor','none',...
+		'FaceColor',[0.8 0.8 0.8]);
 	axis(a)
+else
+	axis tight
 end
 
 box off

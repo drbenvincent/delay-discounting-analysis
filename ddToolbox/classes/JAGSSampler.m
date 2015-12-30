@@ -86,6 +86,12 @@ classdef JAGSSampler < SamplerClass
 				samples.(fieldsToGet{n}) = obj.samples.(fieldsToGet{n});
 			end
 		end
+		
+		function [samples] = getSamplesFromParticipant(obj, fieldsToGet, participant)
+			for n=1:numel(fieldsToGet)
+				samples.(fieldsToGet{n}) = vec(obj.samples.(fieldsToGet{n})(:,:,participant));
+			end
+		end
 
 		function [samples] = flattenChains(obj, fieldsToGet)
 			% collapse the first 2 dimensions of samples (number of MCMC

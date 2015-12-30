@@ -119,7 +119,7 @@ classdef ModelHierarchical < ModelBaseClass
 			myExport(obj.data.saveName, obj.modelType, '-UnivariateSummary')
 			% -------------------------------
 
-			obj.plotPsychometricParams(obj.sampler.samples)
+			obj.plotPsychometricParams()
 			myExport(obj.data.saveName, obj.modelType, '-PsychometricParams')
 
 			% obj.figGroupLevelPriorPost()
@@ -220,23 +220,29 @@ classdef ModelHierarchical < ModelBaseClass
 			figure(87)
 			triPlotSamples(samples, priorSamples, {'m', 'c','alpha','epsilon'}, [])
 		end
-
-	end
-
-
-	methods(Static)
-
-
-		function plotPsychometricParams(samples)
+		
+		
+		function plotPsychometricParams(obj)
 			% Plot priors/posteriors for parameters related to the psychometric
 			% function, ie how response 'errors' are characterised
 			%
 			% plotPsychometricParams(hModel.sampler.samples)
+			
+			
+			% HOW TO GET "UNKOWN" PARTICIPANT SAMPLES *****************
+			%obj.sampler.getSamplesFromParticipant({'alpha'}, 16)
+			% TEMP
+			samples = obj.sampler.samples;
+			% *********************************************************
+			GROUP = obj.data.nParticipants;
+			groupSamples = obj.sampler.getSamplesFromParticipant({'alpha','epsilon'}, GROUP);
+			
+			
 			figure(7), clf
 			P=size(samples.m,3); % number of participants
 			%====================================
 			subplot(3,2,1)
-			plotPriorPostHist(samples.glALPHAprior(:), samples.glALPHA(:));
+			plotPriorPostHist([], groupSamples.alpha);
 			title('Group \alpha')
 
 			subplot(3,4,5)
@@ -248,7 +254,7 @@ classdef ModelHierarchical < ModelBaseClass
 			xlabel('\sigma_\alpha')
 
 			subplot(3,2,5),
-			for p=1:P % plot participant level alpha (alpha(:,:,p))
+			for p=1:P-1 % plot participant level alpha (alpha(:,:,p))
 				%histogram(vec(samples.alpha(:,:,p)));
 				[F,XI]=ksdensity(vec(samples.alpha(:,:,p)),...
 					'support','positive',...
@@ -261,7 +267,7 @@ classdef ModelHierarchical < ModelBaseClass
 
 			%====================================
 			subplot(3,2,2)
-			plotPriorPostHist(samples.glEpsilonprior(:), samples.glEpsilon(:));
+			plotPriorPostHist([], groupSamples.epsilon);
 			title('Group \epsilon')
 
 			subplot(3,4,7),
@@ -284,6 +290,15 @@ classdef ModelHierarchical < ModelBaseClass
 			xlabel('\epsilon_p')
 			box off
 		end
+		
+
+	end
+
+
+	methods(Static)
+
+
+		
 		
 	end
 
