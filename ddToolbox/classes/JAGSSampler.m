@@ -22,7 +22,7 @@ classdef JAGSSampler < SamplerClass
 		function setMCMCparams(obj)
 			% Default parameters
 			obj.mcmcparams.doparallel = 1;
-			obj.mcmcparams.nburnin = 1000;
+			obj.mcmcparams.nburnin = 5000;
 			obj.mcmcparams.nchains = 4;
 			obj.setMCMCtotalSamples(10^5); % 10^5 - 10^6 min for GOOD results
 			obj.mcmcparams.model = obj.fileName;
@@ -86,7 +86,7 @@ classdef JAGSSampler < SamplerClass
 				samples.(fieldsToGet{n}) = obj.samples.(fieldsToGet{n});
 			end
 		end
-		
+
 		function [samples] = getSamplesFromParticipant(obj, fieldsToGet, participant)
 			for n=1:numel(fieldsToGet)
 				samples.(fieldsToGet{n}) = vec(obj.samples.(fieldsToGet{n})(:,:,participant));
