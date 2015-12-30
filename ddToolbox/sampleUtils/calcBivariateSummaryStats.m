@@ -52,7 +52,7 @@ outputStruc.density = density;
 outputStruc.xi = bx;
 outputStruc.yi = by;
 
-entropy = log2(density(:)) .* density(:);
-entropy(isnan(entropy)) = 0;
-outputStruc.entropy = - sum( entropy ); % in units of bits
+% entropy = log2(density(:)) .* density(:);
+% entropy(isnan(entropy)) = 0;
+% outputStruc.entropy = - sum( entropy ); % in units of bits
 return

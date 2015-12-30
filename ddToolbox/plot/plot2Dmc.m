@@ -5,7 +5,7 @@ c=c(:);
 
 [structName] = calcBivariateSummaryStats(m,c, 500, 500, mlim, clim);
 
-fprintf('\nENTROPY OF (M,C): %3.2f bits\n', structName.entropy)
+%fprintf('\nENTROPY OF (M,C): %3.2f bits\n', structName.entropy)
 
 %% plot
 imagesc(structName.xi, structName.yi, structName.density);
@@ -31,8 +31,7 @@ probMlessThanZero = sum(m<0)./numel(m);
 str(1)={ sprintf('$$ P(m<0)=%2.2f $$',probMlessThanZero) };
 
 
-display('grab this from analysis already done, no need to recompute')
-
+% TODO: grab this from analysis already done, no need to recompute
 [estimated_mode, ~, ~, ci95] = calcUnivariateSummaryStats(m, []);
 Mtext = sprintf('$$ m = %2.2f (%2.2f, %2.2f) $$',estimated_mode, ci95(1), ci95(2));
 str(2)={Mtext};
