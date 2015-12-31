@@ -8,10 +8,10 @@ classdef ModelHierarchical < ModelBaseClass
 
 	methods (Access = public)
 		% =================================================================
-		function obj = ModelHierarchical(toolboxPath, sampler, data)
+		function obj = ModelHierarchical(toolboxPath, sampler, data, saveFolder)
 			% Because this class is a subclass of "modelME" then we use
 			% this next line to create an instance
-			obj = obj@ModelBaseClass(toolboxPath, sampler, data);
+			obj = obj@ModelBaseClass(toolboxPath, sampler, data, saveFolder);
 
 			switch sampler
 				case{'JAGS'}
@@ -27,53 +27,53 @@ classdef ModelHierarchical < ModelBaseClass
 			%% Create variables
 			% -------------------------------------------------------------------
 			% Participant-level -------------------------------------------------
-			m = Variable('m','m', [], true)
+			m = Variable('m','m', [], true);
 			m.seed.func = @() normrnd(-0.243,2);
 			m.seed.single = false;
 
-			c = Variable('c','c', [], true)
+			c = Variable('c','c', [], true);
 			c.seed.func = @() normrnd(0,4);
 			c.seed.single = false;
 
-			epsilon = Variable('epsilon','\epsilon', [0 0.5], true)
+			epsilon = Variable('epsilon','\epsilon', [0 0.5], true);
 			epsilon.seed.func = @() 0.1 + rand/10;
 			epsilon.seed.single = false;
 
-			alpha = Variable('alpha','\alpha', 'positive', true)
+			alpha = Variable('alpha','\alpha', 'positive', true);
 			alpha.seed.func = @() abs(normrnd(0.01,0.001));
 			alpha.seed.single = false;
 
 
 
-			glMprior = Variable('glMprior','glMprior', [], true)
-			glCprior = Variable('glCprior','glCprior', [], true)
-			glEpsilonprior = Variable('glEpsilonprior','glEpsilonprior', [0 0.5], true)
-			glALPHAprior = Variable('glALPHAprior','glALPHAprior', 'positive', true)
+			glMprior = Variable('glMprior','glMprior', [], true);
+			glCprior = Variable('glCprior','glCprior', [], true);
+			glEpsilonprior = Variable('glEpsilonprior','glEpsilonprior', [0 0.5], true);
+			glALPHAprior = Variable('glALPHAprior','glALPHAprior', 'positive', true);
 			% -------------------------------------------------------------------
 			% group level priors ------------------------------------------------
-			groupMmu = Variable('groupMmu','groupMmu', [], true)
-			groupMsigma = Variable('groupMsigma','groupMsigma', [], true)
+			groupMmu = Variable('groupMmu','groupMmu', [], true);
+			groupMsigma = Variable('groupMsigma','groupMsigma', [], true);
 
-			groupCmu = Variable('groupCmu','groupCmu', [], true)
-			groupCsigma = Variable('groupCsigma','groupCsigma', [], true)
+			groupCmu = Variable('groupCmu','groupCmu', [], true);
+			groupCsigma = Variable('groupCsigma','groupCsigma', [], true);
 
-			groupW = Variable('groupW','groupW', [0 1], true)
-			groupWprior = Variable('groupWprior','groupWprior', [0 1], true)
+			groupW = Variable('groupW','groupW', [0 1], true);
+			groupWprior = Variable('groupWprior','groupWprior', [0 1], true);
 
-			groupK = Variable('groupK','groupK', 'positive', true)
+			groupK = Variable('groupK','groupK', 'positive', true);
 			%groupK.seed.func = @() abs(normrnd(0,10));
 			%groupK.seed.single = true;
-			groupKprior = Variable('groupKprior','groupKprior', 'positive', true)
+			groupKprior = Variable('groupKprior','groupKprior', 'positive', true);
 			%groupKprior.seed.func = @() abs(normrnd(0,10));
 			%groupKprior.seed.single = true;
 
-			groupALPHAmu = Variable('groupALPHAmu','groupALPHAmu', 'positive', true)
-			groupALPHAsigma = Variable('groupALPHAsigma','groupALPHAsigma', 'positive', true)
-			groupALPHAmuprior = Variable('groupALPHAmuprior','groupALPHAmuprior', 'positive', true)
-			groupALPHAsigmaprior = Variable('groupALPHAsigmaprior','groupALPHAsigmaprior', 'positive', true)
+			groupALPHAmu = Variable('groupALPHAmu','groupALPHAmu', 'positive', true);
+			groupALPHAsigma = Variable('groupALPHAsigma','groupALPHAsigma', 'positive', true);
+			groupALPHAmuprior = Variable('groupALPHAmuprior','groupALPHAmuprior', 'positive', true);
+			groupALPHAsigmaprior = Variable('groupALPHAsigmaprior','groupALPHAsigmaprior', 'positive', true);
 
 			% posterior predictive ----------------------------------------------
-			Rpostpred = Variable('Rpostpred','Rpostpred', [0 1], true)
+			Rpostpred = Variable('Rpostpred','Rpostpred', [0 1], true);
 			Rpostpred.plotMCMCchainFlag = false;
 
 			% define which to analyse (univariate analysis) ---------------------
@@ -111,14 +111,14 @@ classdef ModelHierarchical < ModelBaseClass
 			obj.figUnivariateSummary(obj.analyses.univariate, obj.data.IDname)
 			% EXPORTING ---------------------
 			latex_fig(16, 5, 5)
-			myExport(obj.data.saveName, obj.modelType, '-UnivariateSummary')
+			myExport(obj.saveFolder, obj.modelType, '-UnivariateSummary')
 			% -------------------------------
 
 			obj.plotPsychometricParams()
-			myExport(obj.data.saveName, obj.modelType, '-PsychometricParams')
+			myExport(obj.saveFolder, obj.modelType, '-PsychometricParams')
 
 			% obj.figGroupLevelTriPlot()
-			% myExport(obj.data.saveName, obj.modelType, ['-GROUP-triplot'])
+			% myExport(obj.saveFolder, obj.modelType, ['-GROUP-triplot'])
 
 			% TODO : REMOVE figGroupLevel *********************
 			obj.figGroupLevel()
@@ -253,7 +253,7 @@ classdef ModelHierarchical < ModelBaseClass
 
 			% EXPORTING ---------------------
 			latex_fig(16, 18, 4)
-			myExport(obj.data.saveName, obj.modelType, '-GROUP')
+			myExport(obj.saveFolder, obj.modelType, '-GROUP')
 			% -------------------------------
 		end
 		% ********************************************************
@@ -285,7 +285,7 @@ classdef ModelHierarchical < ModelBaseClass
 			plotPosteriorHDI(priorSamples, posteriorSamples)
 
 			%%
-			myExport(obj.data.saveName, [], '-BayesFactorMLT1')
+			myExport(obj.saveFolder, [], '-BayesFactorMLT1')
 		end
 	end
 

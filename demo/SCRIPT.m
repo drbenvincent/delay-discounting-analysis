@@ -32,11 +32,10 @@ fnames={'AC-kirby27-DAYS.txt',...
 % file and saved in \data\groupLevelData for inspection. Choose a
 % meaningful filename for this group-level data. This data is not used, it
 % is just provided so you can confirm everything is working properly.
-saveName = 'methodspaper-kirby27.txt';
 
 % create the group-level data object
 pathToData='data';
-myData = DataClass(saveName,pathToData);
+myData = DataClass(pathToData);
 myData.loadDataFiles(fnames);
 
 
@@ -44,11 +43,12 @@ myData.loadDataFiles(fnames);
 
 % First we create a model object, which we will call hModel. This is an
 % instance of the class 'ModelHierarchical'
-hModel = ModelHierarchical(toolboxPath, 'JAGS', myData);
+saveFolder = 'methodspaper-kirby27';
+hModel = ModelHierarchical(toolboxPath, 'JAGS', myData, saveFolder);
 
 % Uncomment lines below to change
-%hModel.setMCMCtotalSamples(10^6); % default is 10^5
-%hModel.setMCMCnumberOfChains(8);
+% hModel.setMCMCtotalSamples(10^6); % default is 10^5
+% hModel.setMCMCnumberOfChains(8);
 
 % This will initiate MCMC sampling. This can take some time to run,
 % depending on number of samples, chains, computer speed and cores etc.
@@ -120,18 +120,28 @@ linkaxes(ax,'xy')
 % If you want to avoid group-level hierarchical inference, then you can use
 % a different model class. Code below shows an example
 
-saveName = 'nonHierarchical.txt';
-pathToData='data';
-sepData = DataClass(saveName,pathToData);
-sepData.loadDataFiles(fnames);
-
-sModel = ModelSeperate(toolboxPath, 'JAGS', sepData);
+saveFolder = 'nonHierarchical';
+sModel = ModelSeperate(toolboxPath, 'JAGS', myData, saveFolder);
 sModel.sampler.setMCMCtotalSamples(10^5);
-%sModel.sampler.setMCMCnumberOfChains(4);
 sModel.conductInference();
 sModel.posteriorPredictive();
 sModel.exportParameterEstimates();
 sModel.plot()
 sModel.plotMCMCchains()
+
+%% UPDATED HIERARCHICAL MODEL
+% Since publication, I have tested the analysis code on a wider range of
+% datasets and have found it necessary to update some of the the priors in 
+% order to have more reliable MCMC chain convergence.
+% This new model is called ModelHierarchicalUpdated
+
+saveFolder = 'hierarchical_updated_priors';
+uModel = ModelHierarchicalUpdated(toolboxPath, 'JAGS', myData, saveFolder);
+uModel.sampler.setMCMCtotalSamples(10^5);
+uModel.conductInference();
+uModel.posteriorPredictive();
+uModel.exportParameterEstimates();
+uModel.plot()
+uModel.plotMCMCchains()
 
 return

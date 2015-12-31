@@ -10,30 +10,28 @@ classdef DataClass < handle
 		IDname
 
 		participantLevel
-		covariateSupplied
+		%covariateSupplied
 		%covariateProbeVals
 
 		groupTable
 		observedData
-
-		saveName
 	end
 
 
 	methods (Access = public)
 
 		% =================================================================
-		function obj=DataClass(saveName, dataFolder)
+		function obj=DataClass(dataFolder)
 			% create empty tables
 			obj.groupTable = table();
 			obj.participantLevel(1).table = table();
 			% where the data is
 			obj.dataFolder = dataFolder;
-			% by default assume we do not have any covariate data
-			obj.covariateSupplied = false;
-			% create a savename
-			[PATHSTR,NAME,EXT] = fileparts(saveName);
-			obj.saveName = NAME;
+% 			% by default assume we do not have any covariate data
+% 			obj.covariateSupplied = false;
+% 			% create a savename
+% 			[PATHSTR,NAME,EXT] = fileparts(saveName);
+% 			obj.saveName = NAME;
 			display('You have created a DataClass object')
 		end
 		% =================================================================
@@ -127,19 +125,19 @@ classdef DataClass < handle
 			obj.participantFilenames = fnames;
 
 			% by default, assume we do not have any covariate data
-			obj.covariateSupplied = false;
+%			obj.covariateSupplied = false;
 % 			% set all covariate values to zero
 % 			covariateValues = zeros([1, obj.nParticipants]);
 % 			obj.setCovariateValues(covariateValues);
 
-			% save
-			saveLocation = fullfile(obj.dataFolder,'groupLevelData');
-			if ~exist(saveLocation, 'dir'), mkdir(saveLocation), end
+ 			% save
+ 			saveLocation = fullfile(obj.dataFolder,'groupLevelData');
+ 			if ~exist(saveLocation, 'dir'), mkdir(saveLocation), end
 			writetable(obj.groupTable,...
-				fullfile(saveLocation,obj.saveName),...
+				fullfile(saveLocation,'COMBINED_DATA.txt'),...
 				'delimiter','tab')
-			fprintf('A copy of the group-level dataset just constructed has been saves as a text file:\n%s\n',...
-				fullfile(saveLocation,obj.saveName));
+			fprintf('A copy of the group-level dataset just constructed has been saved as a text file:\n%s\n',...
+				fullfile(saveLocation,'COMBINED_DATA.txt'));
 
 			display('The following participant-level data files were imported:')
 			display(fnames')

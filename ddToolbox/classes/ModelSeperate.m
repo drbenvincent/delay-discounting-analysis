@@ -10,10 +10,10 @@ classdef ModelSeperate < ModelBaseClass
 	methods (Access = public)
 
 		% CONSTRUCTOR =====================================================
-		function obj = ModelSeperate(toolboxPath, sampler, data)
+		function obj = ModelSeperate(toolboxPath, sampler, data, saveFolder)
 			% Because this class is a subclass of "ModelBaseClass" then we use
 			% this next line to create an instance
-			obj = obj@ModelBaseClass(toolboxPath, sampler, data);
+			obj = obj@ModelBaseClass(toolboxPath, sampler, data, saveFolder);
 
 			switch sampler
 				case{'JAGS'}
@@ -87,11 +87,11 @@ classdef ModelSeperate < ModelBaseClass
 			obj.figUnivariateSummary(obj.analyses.univariate, obj.data.IDname)
 			% EXPORTING ---------------------
 			latex_fig(16, 5, 5)
-			myExport(obj.data.saveName, obj.modelType, '-UnivariateSummary')
+			myExport(obj.saveFolder, obj.modelType, '-UnivariateSummary')
 			% -------------------------------
 
 			obj.plotPsychometricParams(obj.sampler.samples)
-			myExport(obj.data.saveName, obj.modelType, '-PsychometricParams')
+			myExport(obj.saveFolder, obj.modelType, '-PsychometricParams')
 
 			obj.figParticipantLevelWrapper()
 		end

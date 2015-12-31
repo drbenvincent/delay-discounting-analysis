@@ -9,6 +9,7 @@ classdef ModelBaseClass < handle
 		range % struct
 		monitorparams
 		variables % array of variables
+		saveFolder
 	end
 
 	properties (GetAccess = public, SetAccess = protected)
@@ -22,8 +23,9 @@ classdef ModelBaseClass < handle
 	methods (Access = public)
 
 		% CONSTRUCTOR =====================================================
-		function obj = ModelBaseClass(toolboxPath, sampler, data)
+		function obj = ModelBaseClass(toolboxPath, sampler, data, saveFolder)
 			obj.data = data;
+			obj.saveFolder = saveFolder;
 		end
 		% =================================================================
 
@@ -134,7 +136,7 @@ classdef ModelBaseClass < handle
 			param_estimates
 
 			%% Export
-			savename = ['parameterEstimates_' obj.data.saveName '.txt'];
+			savename = fullfile('figs', obj.saveFolder, 'parameterEstimates.txt');
 			writetable(param_estimates, savename,...
 				'Delimiter','\t')
 			fprintf('The above table of parameter estimates was exported to:\n')
@@ -272,21 +274,13 @@ classdef ModelBaseClass < handle
 				% get samples and data for this participant
 				[pSamples] = obj.sampler.getSamplesAtIndex(n, {'m','c','alpha','epsilon'});
 				[pData] = obj.data.getParticipantData(n);
-
-				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 				obj.figParticipant(pSamples, pData)
-				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 				latex_fig(16, 18, 4)
-				myExport(obj.data.saveName, obj.modelType, ['-' obj.data.IDname{n}])
-
-				% close the figure to keep everything tidy
+				myExport(obj.saveFolder, obj.modelType, ['-' obj.data.IDname{n}])
 				close(fh)
 
-
-				% ALSO DO TRI-PLOT
 				obj.figParticiantTriPlot(n)
-				myExport(obj.data.saveName, obj.modelType, ['-' obj.data.IDname{n} '-triplot'])
+				myExport(obj.saveFolder, obj.modelType, ['-' obj.data.IDname{n} '-triplot'])
 			end
 		end
 

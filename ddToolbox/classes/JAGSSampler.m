@@ -127,10 +127,10 @@ classdef JAGSSampler < SamplerClass
 
 		function convergenceSummary(obj)
 			% save to a text file
-			if ~exist(fullfile('figs',obj.modelHandle.data.saveName),'dir')
-				mkdir(fullfile('figs',obj.modelHandle.data.saveName))
+			if ~exist(fullfile('figs',obj.modelHandle.saveFolder),'dir')
+				mkdir(fullfile('figs',obj.modelHandle.saveFolder))
 			end
-			fname = fullfile('figs',obj.modelHandle.data.saveName,['ConvergenceReport.txt']);
+			fname = fullfile('figs',obj.modelHandle.saveFolder,['ConvergenceReport.txt']);
 			fid=fopen(fname,'w');
 			% MCMC parameter report
 			logInfo(fid, 'MCMC inference was conducted with %d chains. ', obj.mcmcparams.nchains)

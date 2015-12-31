@@ -7,9 +7,9 @@ classdef ModelHierarchicalUpdated < ModelHierarchical
 
 	methods (Access = public)
 		% =================================================================
-		function obj = ModelHierarchicalUpdated(toolboxPath, sampler, data)
+		function obj = ModelHierarchicalUpdated(toolboxPath, sampler, data, saveFolder)
 			% Inherit from ModelHierarchical and override selected methods
-			obj = obj@ModelHierarchical(toolboxPath, sampler, data);
+			obj = obj@ModelHierarchical(toolboxPath, sampler, data, saveFolder);
 
 			switch sampler
 				case{'JAGS'}
