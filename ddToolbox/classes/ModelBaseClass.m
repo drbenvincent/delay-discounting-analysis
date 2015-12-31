@@ -147,7 +147,7 @@ classdef ModelBaseClass < handle
 			% Extract and plot P( log(k) | reward)
 			warning('THIS METHOD IS A TOTAL MESS - PLAN THIS AGAIN FROM SCRATCH')
 			obj.conditionalDiscountRates_ParticipantLevel(reward, plotFlag)
-			%conditionalDiscountRates_GroupLevel(reward, plotFlag)
+			
 			if plotFlag % FORMATTING OF FIGURE
 				removeYaxis
 				title(sprintf('$P(\\log(k)|$reward=$\\pounds$%d$)$', reward),'Interpreter','latex')
@@ -325,6 +325,8 @@ classdef ModelBaseClass < handle
 			% 			set(gca,'XTickLabel',[10 100])
 			% 			set(gca,'XLim',[10 100])
 		end
+		
+		
 
 	end
 

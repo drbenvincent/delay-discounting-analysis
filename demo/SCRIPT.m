@@ -129,6 +129,16 @@ sModel.exportParameterEstimates();
 sModel.plot()
 sModel.plotMCMCchains()
 
+% you can also see the discount rates for particular reward magnitudes for
+% the non-hierarchical model
+figure(1), clf
+plotFlag=true;
+ax(1) = subplot(1,2,1);
+hModel.conditionalDiscountRates(100, plotFlag);
+ax(2) = subplot(1,2,2);
+hModel.conditionalDiscountRates(1000, plotFlag);
+linkaxes(ax,'xy')
+
 %% UPDATED HIERARCHICAL MODEL
 % Since publication, I have tested the analysis code on a wider range of
 % datasets and have found it necessary to update some of the the priors in 
