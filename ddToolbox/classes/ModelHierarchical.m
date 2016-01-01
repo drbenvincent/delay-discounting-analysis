@@ -106,9 +106,10 @@ classdef ModelHierarchical < ModelBaseClass
 
 		function plot(obj)
 			close all
+			variables = {'m', 'c','alpha','epsilon'};
 			% plot univariate summary statistics for the parameters we have
 			% made inferences about
-			obj.figUnivariateSummary(obj.analyses.univariate, obj.data.IDname)
+			obj.figUnivariateSummary(obj.analyses.univariate, obj.data.IDname, variables)
 			% EXPORTING ---------------------
 			latex_fig(16, 5, 5)
 			myExport(obj.saveFolder, obj.modelType, '-UnivariateSummary')
@@ -121,9 +122,9 @@ classdef ModelHierarchical < ModelBaseClass
 			% myExport(obj.saveFolder, obj.modelType, ['-GROUP-triplot'])
 
 			% TODO : REMOVE figGroupLevel *********************
-			obj.figGroupLevel()
+			obj.figGroupLevel(variables)
 			% *************************************************
-			obj.figParticipantLevelWrapper({'m', 'c','alpha','epsilon'})
+			obj.figParticipantLevelWrapper(variables)
 
 		end
 
@@ -143,11 +144,11 @@ classdef ModelHierarchical < ModelBaseClass
 		end
 
 		function conditionalDiscountRates_GroupLevel(obj, reward, plotFlag)
-			GROUP = obj.data.nParticipants;
-			samples = obj.sampler.getSamplesFromParticipant({'m','c'}, GROUP);
-
-			params(:,1) = samples.m(:);
-			params(:,2) = samples.c(:);
+			GROUP = obj.data.nParticipants; % last participant is our unobserved
+			params = obj.sampler.getSamplesFromParticipantAsMatrix(GROUP, {'m','c'});
+			% samples = obj.sampler.getSamplesFromParticipant({'m','c'}, GROUP);
+			% params(:,1) = samples.m(:);
+			% params(:,2) = samples.c(:);
 			% ==============================================
 			[posteriorMode, lh] = calculateLogK_ConditionOnReward(reward, params, plotFlag);
 			lh.LineWidth = 3;
@@ -171,8 +172,8 @@ classdef ModelHierarchical < ModelBaseClass
 			samples = obj.sampler.samples;
 			% *********************************************************
 			GROUP = obj.data.nParticipants;
-			groupSamples = obj.sampler.getSamplesFromParticipant({'alpha','epsilon'}, GROUP);
-
+			%groupSamples = obj.sampler.getSamplesFromParticipant({'alpha','epsilon'}, GROUP);
+			groupSamples = obj.sampler.getSamplesAtIndex(GROUP, {'alpha','epsilon'});
 
 			figure(7), clf
 			P=size(samples.m,3); % number of participants
@@ -233,21 +234,20 @@ classdef ModelHierarchical < ModelBaseClass
 
 	methods(Static)
 
-
-
-
 	end
 
 	methods (Access = protected)
 
 		% TODO: TO BE REMOVED ***********************************
-		function figGroupLevel(obj)
+		function figGroupLevel(obj, variables)
+			warning('figGroupLevel() to be removed')
 			figure(99)
 			set(gcf,'Name','GROUP LEVEL')
 			clf
 
 			GROUP = obj.data.nParticipants;
-			pSamples = obj.sampler.getSamplesFromParticipant({'m','c','alpha','epsilon'}, GROUP);
+			%pSamples = obj.sampler.getSamplesFromParticipant(variables, GROUP);
+			pSamples = obj.sampler.getSamplesAtIndex(GROUP, variables);
 
 			figParticipant(obj, pSamples, [])
 
@@ -257,8 +257,6 @@ classdef ModelHierarchical < ModelBaseClass
 			% -------------------------------
 		end
 		% ********************************************************
-
-
 
 	end
 

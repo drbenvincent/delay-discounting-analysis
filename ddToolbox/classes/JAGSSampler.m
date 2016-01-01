@@ -78,16 +78,21 @@ classdef JAGSSampler < SamplerClass
 			end
 		end
 
-		function [samples] = getSamples(obj, fieldsToGet)
-			for n=1:numel(fieldsToGet)
-				samples.(fieldsToGet{n}) = obj.samples.(fieldsToGet{n});
-			end
-		end
-
-		function [samples] = getSamplesFromParticipant(obj, fieldsToGet, participant)
+		function [samplesMatrix] = getSamplesFromParticipantAsMatrix(obj, participant, fieldsToGet)
 			% TODO: This function is doing the same thing as getSamplesFromParticipant() ???
 			for n=1:numel(fieldsToGet)
 				samples.(fieldsToGet{n}) = vec(obj.samples.(fieldsToGet{n})(:,:,participant));
+			end
+			% convert from struct to matrix
+			samplesMatrix = [];
+			for n=1:numel(fieldsToGet)
+				samplesMatrix = [ samplesMatrix samples.(fieldsToGet{n})];
+			end
+		end
+
+		function [samples] = getSamples(obj, fieldsToGet)
+			for n=1:numel(fieldsToGet)
+				samples.(fieldsToGet{n}) = obj.samples.(fieldsToGet{n});
 			end
 		end
 

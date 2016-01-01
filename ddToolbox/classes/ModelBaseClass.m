@@ -226,13 +226,15 @@ classdef ModelBaseClass < handle
 
 		function figParticiantTriPlot(obj,n, variables)
 			% samples from posterior
-			temp = obj.sampler.getSamplesAtIndex(n, variables);
-			% TODO *** SORT THIS OUT. DO THIS IN A METHODS IN JAGSSampler object???
-			fieldList = fields(temp);
-			samples = [];
-			for f=1:numel(fieldList)
-				samples = [ samples temp.(fieldList{f})];
-			end
+
+			samples = obj.sampler.getSamplesFromParticipantAsMatrix(n, variables);
+			% temp = obj.sampler.getSamplesAtIndex(n, variables);
+			% % TODO *** SORT THIS OUT. DO THIS IN A METHODS IN JAGSSampler object???
+			% fieldList = fields(temp);
+			% samples = [];
+			% for f=1:numel(fieldList)
+			% 	samples = [ samples temp.(fieldList{f})];
+			% end
 			% **********************************************
 
 			% *** DON'T DELETE ***
@@ -325,38 +327,19 @@ classdef ModelBaseClass < handle
 
 	methods (Static)
 
-		function figUnivariateSummary(uni, participantIDlist)
-
-			% TODO: Iterate over list {m, c, epsilon, alpha} rather than manually doing this 4 times.
-
+		function figUnivariateSummary(uni, participantIDlist, variables)
+			% loop over variables provided, plotting univariate summary
+			% statistics.
 			figure
-
-			subplot(4,1,1)
-			plotErrorBars({participantIDlist{:}}, [uni.m.mode], [uni.m.CI95], '$m$')
-			a=axis; axis([0.5 a(2)+0.5 a(3) a(4)]);
-			hline(0,...
-				'Color','k',...
-				'LineStyle','--')
-
-			subplot(4,1,2)
-			plotErrorBars({participantIDlist{:}}, [uni.c.mode], [uni.c.CI95], '$c$')
-			a=axis; axis([0.5 a(2)+0.5 a(3) a(4)]);
-
-			subplot(4,1,3) % LAPSE RATE
-			plotErrorBars({participantIDlist{:}},...
-				[uni.epsilon.mode]*100,...
-				[uni.epsilon.CI95]*100,...
-				'$\epsilon (\%)$')
-			a=axis; axis([0.5 a(2)+0.5 0 a(4)]);
-			clear CI95 modeVals CI95
-
-			subplot(4,1,4) % COMPARISON ACUITY
-			plotErrorBars({participantIDlist{:}},...
-				[uni.alpha.mode],...
-				[uni.alpha.CI95],...
-				'$\alpha$')
-			a=axis; axis([0.5 a(2)+0.5 0 a(4)]);
+			for v = 1:numel(variables)
+				subplot(numel(variables),1,v)
+				plotErrorBars({participantIDlist{:}},...
+					[uni.(variables{v}).mode], [uni.(variables{v}).CI95],...
+					variables{v});
+				a=axis; axis([0.5 a(2)+0.5 a(3) a(4)]);
+			end
 		end
+
 	end
 
 end
