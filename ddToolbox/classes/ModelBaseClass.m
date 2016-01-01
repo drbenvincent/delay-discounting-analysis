@@ -6,7 +6,6 @@ classdef ModelBaseClass < handle
 		modelType % string
 		data % handle to Data class
 		sampler % handle to Sampler class
-		range % struct
 		monitorparams
 		variables % array of variables
 		saveFolder
@@ -101,19 +100,9 @@ classdef ModelBaseClass < handle
 				bounds);
 		end
 
-		function calcSampleRange(obj)
-			% Define limits for each of the variables here for plotting purposes
-			obj.range.epsilon = [0 0.5]; % show full range
-			obj.range.alpha = [0 prctile(obj.sampler.samples.alpha(:), [99])];
-			obj.range.m = prctile(obj.sampler.samples.m(:), [0.5 99.5]);
-			obj.range.c = prctile(obj.sampler.samples.c(:), [1 99]);
-		end
-
-		% **************************************************************************************************
-		% TODO: THIS FUNCTION CAN BE GENERALISED TO LOOP OVER WHATEVER FIELDS ARE IN obj.analyses.univariate
-		% **************************************************************************************************
 		function exportParameterEstimates(obj)
-			%% Participant level -------------------------------------------
+			% Loop over all fields in obj.analyses.univariate and display the mode and CI95. Put into a table and export.
+
 			varNames = {obj.variables.str};
 			varNames = varNames( [obj.variables.analysisFlag]==1 );
 
@@ -147,7 +136,7 @@ classdef ModelBaseClass < handle
 			% Extract and plot P( log(k) | reward)
 			warning('THIS METHOD IS A TOTAL MESS - PLAN THIS AGAIN FROM SCRATCH')
 			obj.conditionalDiscountRates_ParticipantLevel(reward, plotFlag)
-			
+
 			if plotFlag % FORMATTING OF FIGURE
 				removeYaxis
 				title(sprintf('$P(\\log(k)|$reward=$\\pounds$%d$)$', reward),'Interpreter','latex')
@@ -235,10 +224,17 @@ classdef ModelBaseClass < handle
 			xlabel('trials')
 		end
 
-		function figParticiantTriPlot(obj,n)
+		function figParticiantTriPlot(obj,n, variables)
 			% samples from posterior
-			temp = obj.sampler.getSamplesAtIndex(n, {'m', 'c','alpha','epsilon'});
-			samples= [temp.m, temp.c, temp.alpha, temp.epsilon];
+			temp = obj.sampler.getSamplesAtIndex(n, variables);
+			% TODO *** SORT THIS OUT. DO THIS IN A METHODS IN JAGSSampler object???
+			fieldList = fields(temp);
+			samples = [];
+			for f=1:numel(fieldList)
+				samples = [ samples temp.(fieldList{f})];
+			end
+			% **********************************************
+
 			% *** DON'T DELETE ***
 			% samples from prior
 			%temp = obj.sampler.getSamplesAtIndex(n, {'mprior', 'cprior','alphaprior','epsilonprior'});
@@ -252,34 +248,35 @@ classdef ModelBaseClass < handle
 					obj.sampler.samples.glCprior(:),...
 					obj.sampler.samples.glALPHAprior(:),...
 					obj.sampler.samples.glEpsilonprior(:)];
-				triPlotSamples(samples, priorSamples, {'m', 'c','alpha','epsilon'}, [])
+				triPlotSamples(samples, priorSamples, variables, [])
 			else
-				triPlotSamples(samples, [], {'m', 'c','alpha','epsilon'}, [])
+				triPlotSamples(samples, [], variables, [])
 			end
 		end
-		
+
 	end
+
 
 	methods (Access = protected)
 
+		function figParticipantLevelWrapper(obj, variables)
+			% For each participant, call some plotting functions on the variables provided.
 
-
-
-		function figParticipantLevelWrapper(obj)
-			% PLOT INDIVIDUAL LEVEL STUFF HERE ----------
 			for n = 1:obj.data.nParticipants
 				fh = figure;
 				fh.Name=['participant: ' obj.data.IDname{n}];
 
+				% 1) figParticipant plot
 				% get samples and data for this participant
-				[pSamples] = obj.sampler.getSamplesAtIndex(n, {'m','c','alpha','epsilon'});
+				[pSamples] = obj.sampler.getSamplesAtIndex(n, variables);
 				[pData] = obj.data.getParticipantData(n);
 				obj.figParticipant(pSamples, pData)
 				latex_fig(16, 18, 4)
 				myExport(obj.saveFolder, obj.modelType, ['-' obj.data.IDname{n}])
 				close(fh)
 
-				obj.figParticiantTriPlot(n)
+				% 2) Triplot
+				obj.figParticiantTriPlot(n, variables)
 				myExport(obj.saveFolder, obj.modelType, ['-' obj.data.IDname{n} '-triplot'])
 			end
 		end
@@ -290,9 +287,7 @@ classdef ModelBaseClass < handle
 			% BIVARIATE PLOT: lapse rate & comparison accuity
 			subplot(rows, cols, 1)
 			[structName] = plot2DErrorAccuity(pSamples.epsilon(:),...
-				pSamples.alpha(:),...
-				obj.range.epsilon,...
-				obj.range.alpha);
+				pSamples.alpha(:));
 			lrMODE = structName.modex;
 			alphaMODE= structName.modey;
 
@@ -302,8 +297,7 @@ classdef ModelBaseClass < handle
 
 			% M/C bivariate plot
 			subplot(rows, cols, 3)
-			[structName] = plot2Dmc(pSamples.m(:), pSamples.c(:),...
-				obj.range.m, obj.range.c);
+			[structName] = plot2Dmc(pSamples.m(:), pSamples.c(:));
 			modeM = structName.modex;
 			modeC = structName.modey;
 
@@ -325,8 +319,6 @@ classdef ModelBaseClass < handle
 			% 			set(gca,'XTickLabel',[10 100])
 			% 			set(gca,'XLim',[10 100])
 		end
-		
-		
 
 	end
 
@@ -334,6 +326,9 @@ classdef ModelBaseClass < handle
 	methods (Static)
 
 		function figUnivariateSummary(uni, participantIDlist)
+
+			% TODO: Iterate over list {m, c, epsilon, alpha} rather than manually doing this 4 times.
+
 			figure
 
 			subplot(4,1,1)

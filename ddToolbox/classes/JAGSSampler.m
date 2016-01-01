@@ -60,12 +60,9 @@ classdef JAGSSampler < SamplerClass
 			obj.modelHandle.setMonitoredValues();
 			obj.modelHandle.setObservedValues();
 			obj.invokeSampler();
-
-			obj.modelHandle.calcSampleRange() % DONE IN MODEL???
 			obj.modelHandle.doAnalysis()
-
 			obj.convergenceSummary()
-			display('***** SAVE THE MODEL OBJECT HERE *****')
+			% TODO: ***** SAVE THE MODEL OBJECT HERE *****
 		end
 
 		function [samples] = getSamplesAtIndex(obj, index, fieldsToGet)
@@ -88,6 +85,7 @@ classdef JAGSSampler < SamplerClass
 		end
 
 		function [samples] = getSamplesFromParticipant(obj, fieldsToGet, participant)
+			% TODO: This function is doing the same thing as getSamplesFromParticipant() ???
 			for n=1:numel(fieldsToGet)
 				samples.(fieldsToGet{n}) = vec(obj.samples.(fieldsToGet{n})(:,:,participant));
 			end

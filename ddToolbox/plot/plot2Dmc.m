@@ -1,7 +1,12 @@
-function [structName] = plot2Dmc(m, c, mlim, clim)
+function [structName] = plot2Dmc(m, c)
+
+% TODO: plot2Dmc and plot2DErrorAccuity are basically doing the same things
 
 m=m(:);
 c=c(:);
+
+mlim = [min(m) max(m)];
+clim = [min(c) max(c)];
 
 [structName] = calcBivariateSummaryStats(m,c, 500, 500, mlim, clim);
 

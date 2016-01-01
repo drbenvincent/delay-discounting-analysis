@@ -1,7 +1,12 @@
-function [structName] = plot2DErrorAccuity(epsilon, alpha, xrange, yrange)
+function [structName] = plot2DErrorAccuity(epsilon, alpha)
+
+% TODO: plot2Dmc and plot2DErrorAccuity are basically doing the same things
 
 epsilon=epsilon(:);
 alpha=alpha(:);
+
+xrange = [min(epsilon) max(epsilon)];
+yrange = [min(alpha) max(alpha)];
 
 [structName] = calcBivariateSummaryStats(epsilon,alpha, 500, 500, xrange, yrange);
 

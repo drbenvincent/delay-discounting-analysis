@@ -38,6 +38,6 @@ estimated_mode = XI( argmax(F) );
 p = F./sum(F); % normalise
 ci95 = prctile(samples,[5 95]);
 
-fprintf('mode=%2.3f (%2.3f - %2.3f)\n', estimated_mode, ci95(1), ci95(2))
+fprintf('mode=%2.3f (%2.3f, %2.3f)\n', estimated_mode, ci95(1), ci95(2))
 
 return

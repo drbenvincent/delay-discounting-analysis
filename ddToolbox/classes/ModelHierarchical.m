@@ -123,7 +123,7 @@ classdef ModelHierarchical < ModelBaseClass
 			% TODO : REMOVE figGroupLevel *********************
 			obj.figGroupLevel()
 			% *************************************************
-			obj.figParticipantLevelWrapper()
+			obj.figParticipantLevelWrapper({'m', 'c','alpha','epsilon'})
 
 		end
 
