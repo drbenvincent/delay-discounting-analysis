@@ -3,17 +3,13 @@
 
 This repository contains the code for the paper:
 
-**Vincent, B., T. (in press) [Hierarchical Bayesian estimation and hypothesis testing for delay discounting tasks](http://link.springer.com/article/10.3758%2Fs13428-015-0672-2), Behavior Research Methods.**
+**Vincent, B., T. (in press) [Hierarchical Bayesian estimation and hypothesis testing for delay discounting tasks](http://link.springer.com/article/10.3758%2Fs13428-015-0672-2), Behavior Research Methods. doi:10.3758/s13428-015-0672-2**
 
 # What does this do?
 
 This code conducts Bayesian estimation and hypothesis testing on data obtained from delay discounting (aka inter-temporal choice) experiments.
 
 ![](ddToolbox/pics/overview.png)
-
-# Improvements?
-Please use the [GitHub Issues](https://github.com/drbenvincent/delay-discounting-analysis/issues) feature to ask question, report a bug, or request a feature. You'll need a GitHub account to do this, which isn't very hard to set up. But you could always email me instead.
-
 
 # [Documentation](https://github.com/drbenvincent/delay-discounting-analysis/wiki) and help.
 Go to the [wiki](https://github.com/drbenvincent/delay-discounting-analysis/wiki) for full instructions.
@@ -41,3 +37,5 @@ hModel.conductInference();
 hModel.exportParameterEstimates();
 hModel.plot();
 ```
+# Get in touch
+Please use the [GitHub Issues](https://github.com/drbenvincent/delay-discounting-analysis/issues) feature to ask question, report a bug, or request a feature. You'll need a GitHub account to do this, which isn't very hard to set up. But you could always email me instead.
