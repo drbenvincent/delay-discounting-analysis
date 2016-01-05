@@ -1,4 +1,4 @@
-classdef PosteriorPredictionPlot
+classdef PosteriorPredictionPlot < handle
 	%% PosteriorPredictionPlot
 	% An object to plot posterior predictions for 1D functions. This object
 	% takes plots a user-specified function
@@ -74,11 +74,12 @@ classdef PosteriorPredictionPlot
 			try
 				% If the function handle can deal with vectorised inputs
 				% then this should compute much faster
-				obj.Y = obj.fh(obj.x, obj.params(:,:))';
+				%obj.Y = obj.fh(obj.x, obj.params(:,:))';
+				obj.Y = obj.fh(obj.x, obj.params(ExamplesToPlot,:))';
 			catch
 				% but if that fails, fall back on looping through mcmc
 				% samples
-				display('*** SLOWNESS WARNING ***')
+				warning('*** SLOWNESS WARNING ***')
 				display('Recommend writing your function in a way that can handle vectorised inputs')
 				for s=1:obj.nSamples
 					obj.Y(:,s) = obj.fh(obj.x, obj.params(s,:));
@@ -99,7 +100,7 @@ classdef PosteriorPredictionPlot
 			
 			% plot the point estimate
 			hold on
-			hPointEst = plot(obj.x, YpointEstimate,'k-');
+			hPointEst = plot(obj.x, YpointEstimate,'k-', 'LineWidth', 3);
 			
 			% concatenate handle onto a list, so that we can plot multiple
 			% point estimates and have handles to each
@@ -127,10 +128,10 @@ classdef PosteriorPredictionPlot
 			
 			
 			% Evaluate the function just for these examples
-			obj = obj.evaluateFunction(ExamplesToPlot);
+			obj.evaluateFunction(ExamplesToPlot);
 
 			hExamples = plot(obj.x, obj.Y,'-',...
-				'Color',[0.8 0.8 0.8]);
+				'Color',[0.5 0.5 0.5 0.1]);
 			
 % 			hExamples = plot(obj.x, obj.Y(:,ExamplesToPlot),'k-');
 			
@@ -142,7 +143,7 @@ classdef PosteriorPredictionPlot
 		
 		function obj = plotCI(obj,ci)
 			
-			obj = obj.evaluateFunction(obj.nSamples);
+			obj = obj.evaluateFunction([1:obj.nSamples]);
 			
 			% Plots shaded 95%
 			CI = prctile(obj.Y',ci);
@@ -207,6 +208,8 @@ function [PM]=calcProbabilityMass(obj,yi)
 % probability mass function by use of the hist function. We do this for the
 % y values specified in the vector yi.
 display('Calculating probability mass...')
+
+obj.evaluateFunction([1:obj.nSamples]);
 % preallocate
 PM = zeros(size(obj.Y,1), numel(yi));
 % loop over x-values, calculating posterior mass for the corresponding

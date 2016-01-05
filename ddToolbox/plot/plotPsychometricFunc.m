@@ -19,9 +19,9 @@ params(:,2) = samples.alpha(:);
 
 % Create myplot object (class = PosteriorPredictionPlot)
 myplot = PosteriorPredictionPlot(fh, x, params);
-myplot = myplot.plotCI([5 95]);
-%myplot.plotProbMass(linspace(0,1,200))
-%myplot.plotExamples(20);
+%myplot = myplot.plotCI([5 95]);
+%myplot.plotProbMass(linspace(0,1,100))
+myplot.plotExamples(100);
 myplot.plotPointEstimate(modeVals);
 
 xlabel('$V^B-V^A$','Interpreter','latex')
