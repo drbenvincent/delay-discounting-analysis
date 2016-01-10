@@ -686,8 +686,7 @@ for fi=1:length(fld)
     ci_samples_overall_high = ci_samples_overall( 2,: );
     
 		% get the 95% highest density intervals
-		hdi_samples_overall_low = HDIofSamples(reshaped_samples);
-		hdi_samples_overall_high = HDIofSamples(reshaped_samples);
+		[hdi_samples_overall_low, hdi_samples_overall_high] = HDIofSamples(reshaped_samples);
 		
     if ~isnan(Rhat)
         stats.Rhat = setfield(stats.Rhat, fname, squeeze(Rhat));

@@ -135,7 +135,7 @@ classdef ModelHierarchical < ModelBaseClass
 			variables = {'m', 'c','alpha','epsilon'};
 
 			% plot univariate summary statistics --------------------------------
-			obj.figUnivariateSummary(obj.analyses.univariate, obj.data.IDname, variables)
+			obj.figUnivariateSummary(obj.data.IDname, variables)
 			latex_fig(16, 5, 5)
 			myExport(obj.saveFolder, obj.modelType, '-UnivariateSummary')
 			% -------------------------------------------------------------------
@@ -244,40 +244,45 @@ classdef ModelHierarchical < ModelBaseClass
 			xlabel('\epsilon_p')
 			box off
 		end
-
-
+		
 	end
 
 
-	methods(Static)
 
 
-		function figUnivariateSummary(uni, participantIDlist, variables)
+
+
+
+	methods (Access = protected)
+		
+		function figUnivariateSummary(obj, participantIDlist, variables)
 			% loop over variables provided, plotting univariate summary
 			% statistics.
-			warning('Add group-level inferences to this plot (m_group, c_group, alpha_group,epsilon_group)')
-
+			
 			% We are going to add on group level inferences to the end of the
 			% participant list. This is because the group-level inferences an be
 			% seen as inferences we can make about an as yet unobserved
 			% participant, in the light of the participant data available thus
 			% far.
 			participantIDlist{end+1}='GROUP';
-
+			
 			figure
 			for v = 1:numel(variables)
 				subplot(numel(variables),1,v)
+				
+				% TODO: all this nonsense needs to be hidden in a get methods in
+				% the sampler class.
+				hdi = [obj.sampler.stats.hdi_low.(variables{v}) obj.sampler.stats.hdi_low.([variables{v} '_group']) ;...
+					obj.sampler.stats.hdi_high.(variables{v}) obj.sampler.stats.hdi_high.([variables{v} '_group'])];
+				
 				plotErrorBars({participantIDlist{:}},...
-					[uni.(variables{v}).mode uni.([variables{v} '_group']).mode],...
-					[uni.(variables{v}).CI95 uni.([variables{v} '_group']).CI95],...
+					[obj.sampler.stats.mean.(variables{v}) obj.sampler.stats.mean.([variables{v} '_group'])],...
+					hdi,...
 					variables{v});
 				a=axis; axis([0.5 a(2)+0.5 a(3) a(4)]);
 			end
 		end
-
-	end
-
-	methods (Access = protected)
+		
 
 		function figGroupLevel(obj, variables)
 			% get group level parameters in a form ready to pass off to
@@ -295,8 +300,13 @@ classdef ModelHierarchical < ModelBaseClass
 
 			figure(99), clf
 			set(gcf,'Name','GROUP LEVEL')
+			
+			mMEAN = obj.sampler.stats.mean.m_group;
+			cMEAN = obj.sampler.stats.mean.c_group;
+			epsilonMEAN = obj.sampler.stats.mean.epsilon_group;
+			alphaMEAN = obj.sampler.stats.mean.alpha_group;
 
-			obj.figParticipant(pSamples, pData)
+			obj.figParticipant(pSamples, pData, mMEAN, cMEAN, epsilonMEAN, alphaMEAN)
 
 			% EXPORTING ---------------------
 			latex_fig(16, 18, 4)
@@ -304,8 +314,7 @@ classdef ModelHierarchical < ModelBaseClass
 			% -------------------------------
 		end
 
-
-
+		
 		function figGroupTriPlot(obj)
 			% samples from posterior
 			[posteriorSamples] = obj.sampler.getSamplesAsMatrix({'m_group',...
@@ -322,8 +331,6 @@ classdef ModelHierarchical < ModelBaseClass
 			variable_label_names={'m','c','alpha','epsilon'};
 			triPlotSamples(posteriorSamples, priorSamples, variable_label_names, [])
 		end
-
-
 
 	end
 

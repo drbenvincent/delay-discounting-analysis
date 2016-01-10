@@ -11,10 +11,6 @@ classdef ModelBaseClass < handle
 		saveFolder
 	end
 
-	properties (GetAccess = public, SetAccess = protected)
-		analyses % struct
-	end
-
 	methods(Abstract, Access = public)
 		plot(obj, data)
 	end
@@ -85,21 +81,8 @@ classdef ModelBaseClass < handle
 						obj.sampler.initial_param(chain).(varName)(p) = obj.variables(v).seed.func();
 					end
 				end
-				
+
 			end
-		end
-
-		function doAnalysis(obj)
-			str = {obj.variables.str};
-			bounds = {obj.variables.bounds};
-			% select just those with analysisFlag~=0
-			str = str([obj.variables.analysisFlag]~=0);
-			bounds = bounds([obj.variables.analysisFlag]~=0);
-
-			obj.analyses.univariate  = univariateAnalysis(...
-				obj.sampler.getAllSamples(),...
-				str,...
-				bounds);
 		end
 
 		function exportParameterEstimates(obj)
@@ -111,39 +94,39 @@ classdef ModelBaseClass < handle
 			data=[];
 			colHeader = {};
 			for n=1:numel(varNames)
-				data = [data obj.analyses.univariate.(varNames{n}).mode'];
-				data = [data obj.analyses.univariate.(varNames{n}).CI95'];
+				data = [data obj.sampler.stats.mean.(varNames{n})'];
+				data = [data [obj.sampler.stats.hdi_low.(varNames{n}); obj.sampler.stats.hdi_high.(varNames{n})]' ];
 
 				colHeader{end+1} = sprintf('%s_mode', varNames{n});
 				colHeader{end+1} = sprintf('%s_CI5', varNames{n});
 				colHeader{end+1} = sprintf('%s_CI95', varNames{n});
 			end
-			
+
 			param_estimates = array2table(data,...
 				'VariableNames',colHeader,...
 				'RowNames', obj.data.IDname);
-			
+
 			%% see if there are any group-level parameters
 			if sum([obj.variables.analysisFlag]==2)>0
 				% there are group-level parameters
 				varNames = {obj.variables.str};
 				varNames = varNames( [obj.variables.analysisFlag]==2 );
-				
+
 				data=[];
 				% **colHeader** Need to keep the same values so we can append group
 				% to participant table.
 				for n=1:numel(varNames)
-					data = [data obj.analyses.univariate.(varNames{n}).mode'];
-					data = [data obj.analyses.univariate.(varNames{n}).CI95'];
+					data = [data obj.sampler.stats.mean.(varNames{n})'];
+					data = [data [obj.sampler.stats.hdi_low.(varNames{n}); obj.sampler.stats.hdi_high.(varNames{n})]' ];
 				end
-				
+
 				group_level = array2table(data,...
 					'VariableNames',colHeader,...
 					'RowNames', {'GroupLevelInference'});
-				
+
 				param_estimates = [param_estimates ; group_level];
 			end
-			
+
 			%% display to command window
 			param_estimates
 
@@ -204,7 +187,7 @@ classdef ModelBaseClass < handle
 			figure(77), clf, colormap(gray)
 			temp = obj.sampler.getSamples({'Rpostpred'});
 			samples = temp.Rpostpred;
-			
+
 			% flatten chains
 			s=size(samples);
 			samples = reshape(samples, s(1)*s(2), s(3), s(4));
@@ -288,7 +271,11 @@ classdef ModelBaseClass < handle
 				% get samples and data for this participant
 				[pSamples] = obj.sampler.getSamplesAtIndex(n, variables);
 				[pData] = obj.data.getParticipantData(n);
-				obj.figParticipant(pSamples, pData)
+				mMEAN				= obj.sampler.stats.mean.m(n);
+				cMEAN				= obj.sampler.stats.mean.c(n);
+				epsilonMEAN = obj.sampler.stats.mean.epsilon(n);
+				alphaMEAN		= obj.sampler.stats.mean.alpha(n);
+				obj.figParticipant(pSamples, pData, mMEAN, cMEAN, epsilonMEAN, alphaMEAN)
 				latex_fig(16, 18, 4)
 				myExport(obj.saveFolder, obj.modelType, ['-' obj.data.IDname{n}])
 				close(fh)
@@ -299,51 +286,42 @@ classdef ModelBaseClass < handle
 			end
 		end
 
-		function figParticipant(obj, pSamples, pData)
+		function figParticipant(obj, pSamples, pData, mMEAN, cMEAN, epsilonMEAN, alphaMEAN)
 			rows=1; cols=5;
 
 			% BIVARIATE PLOT: lapse rate & comparison accuity
 			subplot(rows, cols, 1)
-			[structName] = plot2DErrorAccuity(pSamples.epsilon(:),...
-				pSamples.alpha(:));
-			lrMODE = structName.modex;
-			alphaMODE= structName.modey;
+			plot2DErrorAccuity(pSamples.epsilon(:), pSamples.alpha(:), epsilonMEAN, alphaMEAN);
 
 			% PSYCHOMETRIC FUNCTION (using my posterior-prediction-plot-matlab GitHub repository)
 			subplot(rows, cols, 2)
-			plotPsychometricFunc(pSamples, [lrMODE, alphaMODE])
+			plotPsychometricFunc(pSamples, [epsilonMEAN, alphaMEAN])
 
 			% M/C bivariate plot
 			subplot(rows, cols, 3)
-			[structName] = plot2Dmc(pSamples.m(:), pSamples.c(:));
-			modeM = structName.modex;
-			modeC = structName.modey;
+			plot2Dmc(pSamples.m(:), pSamples.c(:), mMEAN, cMEAN);
 
 			% PLOT magnitude effect
 			subplot(rows, cols, 4)
-			plotMagnitudeEffect(pSamples, [modeM, modeC])
+			plotMagnitudeEffect(pSamples, [mMEAN, cMEAN])
 
 			% Plot in 3D data space
 			subplot(rows, cols, 5)
 			if ~isempty(pData)
-				plot3DdataSpace(pData, [modeM, modeC])
+				plot3DdataSpace(pData, [mMEAN, cMEAN])
 			else
 				warning('PLOT SURFACE HERE')
 				opts.maxlogB	= max(abs(obj.data.observedData.B(:)));
 				opts.maxD		= max(obj.data.observedData.DB(:));
-				plotDiscountSurface(modeM, modeC, opts);
+				plotDiscountSurface(mMEAN, cMEAN, opts);
 			end
 			% 			set(gca,'XTick',[10 100])
 			% 			set(gca,'XTickLabel',[10 100])
 			% 			set(gca,'XLim',[10 100])
 		end
 
-	end
-
-
-	methods (Static)
-
-		function figUnivariateSummary(uni, participantIDlist, variables)
+		
+		function figUnivariateSummary(obj, participantIDlist, variables)
 			% loop over variables provided, plotting univariate summary
 			% statistics.
 			warning('Add group-level inferences to this plot (glM, glC, glALPHA,glEpsilon)')
@@ -351,12 +329,13 @@ classdef ModelBaseClass < handle
 			for v = 1:numel(variables)
 				subplot(numel(variables),1,v)
 				plotErrorBars({participantIDlist{:}},...
-					[uni.(variables{v}).mode], [uni.(variables{v}).CI95],...
+					obj.sampler.stats.mean.(variables{v}),...
+					[obj.sampler.stats.hdi_low.(variables{v}); obj.sampler.stats.hdi_high.(variables{v})],...
 					variables{v});
 				a=axis; axis([0.5 a(2)+0.5 a(3) a(4)]);
 			end
 		end
-
+		
 	end
 
 end

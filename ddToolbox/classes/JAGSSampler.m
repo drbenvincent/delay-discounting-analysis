@@ -63,7 +63,6 @@ classdef JAGSSampler < SamplerClass
 			obj.modelHandle.setMonitoredValues();
 			obj.modelHandle.setObservedValues();
 			obj.invokeSampler();
-			obj.modelHandle.doAnalysis()
 			obj.convergenceSummary()
 			% TODO: ***** SAVE THE MODEL OBJECT HERE *****
 		end

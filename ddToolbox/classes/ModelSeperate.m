@@ -86,7 +86,7 @@ classdef ModelSeperate < ModelBaseClass
 			
 			% plot univariate summary statistics for the parameters we have
 			% made inferences about
-			obj.figUnivariateSummary(obj.analyses.univariate, obj.data.IDname, variables)
+			obj.figUnivariateSummary(obj.data.IDname, variables)
 			% EXPORTING ---------------------
 			latex_fig(16, 5, 5)
 			myExport(obj.saveFolder, obj.modelType, '-UnivariateSummary')
