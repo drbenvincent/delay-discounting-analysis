@@ -30,35 +30,35 @@ classdef ModelSeperate < ModelBaseClass
 			% -------------------------------------------------------------------
 			% Participant-level -------------------------------------------------
 			m = Variable('m','m', [], true)
-			m.seed.func = @() normrnd(-0.243,2);
+			m.seed.func = @() normrnd(-0.243,10);
 			m.seed.single = false;
 
 			mprior = Variable('mprior','mprior', [], true)
-			mprior.seed.func = @() normrnd(-0.243,2);
+			mprior.seed.func = @() normrnd(-0.243,10);
 			mprior.seed.single = true;
 
 			c = Variable('c','c', [], true)
-			c.seed.func = @() normrnd(0,4);
+			c.seed.func = @() normrnd(0,10);
 			c.seed.single = false;
 
 			cprior = Variable('cprior','cprior', [], true)
-			cprior.seed.func = @() normrnd(0,4);
+			cprior.seed.func = @() normrnd(0,10);
 			cprior.seed.single = true;
 
 			epsilon = Variable('epsilon','\epsilon', [0 0.5], true)
-			epsilon.seed.func = @() 0.1 + rand/10;
+			epsilon.seed.func = @() rand/2;
 			epsilon.seed.single = false;
 
 			epsilonprior = Variable('epsilonprior','\epsilon prior', [0 0.5], true)
-			epsilonprior.seed.func = @() 0.1 + rand/10;
+			epsilonprior.seed.func = @() rand/2;
 			epsilonprior.seed.single = true;
 
 			alpha = Variable('alpha','\alpha', 'positive', true)
-			alpha.seed.func = @() abs(normrnd(0.01,0.001));
+			alpha.seed.func = @() abs(normrnd(0,10));
 			alpha.seed.single = false;
 
 			alphaprior = Variable('alphaprior','\alpha prior', 'positive', true)
-			alphaprior.seed.func = @() abs(normrnd(0.01,0.001));
+			alphaprior.seed.func = @() abs(normrnd(0,10));
 			alphaprior.seed.single = true;
 
 			% posterior predictive ----------------------------------------------
@@ -82,18 +82,20 @@ classdef ModelSeperate < ModelBaseClass
 
 		function plot(obj)
 			close all
+			variables = {'m', 'c','alpha','epsilon'};
+			
 			% plot univariate summary statistics for the parameters we have
 			% made inferences about
-			obj.figUnivariateSummary(obj.analyses.univariate, obj.data.IDname)
+			obj.figUnivariateSummary(obj.analyses.univariate, obj.data.IDname, variables)
 			% EXPORTING ---------------------
 			latex_fig(16, 5, 5)
 			myExport(obj.saveFolder, obj.modelType, '-UnivariateSummary')
 			% -------------------------------
 
-			obj.plotPsychometricParams(obj.sampler.samples)
+			obj.plotPsychometricParams( obj.sampler.getAllSamples() )
 			myExport(obj.saveFolder, obj.modelType, '-PsychometricParams')
 
-			obj.figParticipantLevelWrapper()
+			obj.figParticipantLevelWrapper(variables)
 		end
 
 	end

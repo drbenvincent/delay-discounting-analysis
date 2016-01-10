@@ -48,7 +48,8 @@ classdef ModelBaseClass < handle
 			bounds		= bounds([obj.variables.plotMCMCchainFlag]==true);
 			str_latex	= str_latex([obj.variables.plotMCMCchainFlag]==true);
 
-			MCMCdiagnoticsPlot(obj.sampler.samples, obj.sampler.stats,...
+			MCMCdiagnoticsPlot(obj.sampler.getAllSamples(),...
+				obj.sampler.stats,...
 				[],...
 				str,...
 				bounds,...
@@ -65,17 +66,17 @@ classdef ModelBaseClass < handle
 			for chain=1:obj.sampler.mcmcparams.nchains
 
 				% create initial values for some single-value items (ie
-				% non-participant level
+				% non-participant level)
 				for v = 1:numel(obj.variables)
 					if isempty(obj.variables(v).seed), continue, end
 					if obj.variables(v).seed.single==false, continue, end
 
+					beep
 					varName = obj.variables(v).str;
 					obj.sampler.initial_param(chain).(varName) = obj.variables(v).seed.func();
 				end
 
 				for p=1:obj.data.nParticipants
-
 					for v = 1:numel(obj.variables)
 						if isempty(obj.variables(v).seed), continue, end
 						if obj.variables(v).seed.single==true, continue, end
@@ -84,6 +85,7 @@ classdef ModelBaseClass < handle
 						obj.sampler.initial_param(chain).(varName)(p) = obj.variables(v).seed.func();
 					end
 				end
+				
 			end
 		end
 
@@ -95,7 +97,7 @@ classdef ModelBaseClass < handle
 			bounds = bounds([obj.variables.analysisFlag]~=0);
 
 			obj.analyses.univariate  = univariateAnalysis(...
-				obj.sampler.samples,...
+				obj.sampler.getAllSamples(),...
 				str,...
 				bounds);
 		end
@@ -116,12 +118,33 @@ classdef ModelBaseClass < handle
 				colHeader{end+1} = sprintf('%s_CI5', varNames{n});
 				colHeader{end+1} = sprintf('%s_CI95', varNames{n});
 			end
-
+			
 			param_estimates = array2table(data,...
 				'VariableNames',colHeader,...
 				'RowNames', obj.data.IDname);
-
-			% display to command window
+			
+			%% see if there are any group-level parameters
+			if sum([obj.variables.analysisFlag]==2)>0
+				% there are group-level parameters
+				varNames = {obj.variables.str};
+				varNames = varNames( [obj.variables.analysisFlag]==2 );
+				
+				data=[];
+				% **colHeader** Need to keep the same values so we can append group
+				% to participant table.
+				for n=1:numel(varNames)
+					data = [data obj.analyses.univariate.(varNames{n}).mode'];
+					data = [data obj.analyses.univariate.(varNames{n}).CI95'];
+				end
+				
+				group_level = array2table(data,...
+					'VariableNames',colHeader,...
+					'RowNames', {'GroupLevelInference'});
+				
+				param_estimates = [param_estimates ; group_level];
+			end
+			
+			%% display to command window
 			param_estimates
 
 			%% Export
@@ -181,8 +204,9 @@ classdef ModelBaseClass < handle
 
 		function posteriorPredictive(obj)
 			figure(77), clf, colormap(gray)
-			samples = obj.sampler.samples.Rpostpred;
-
+			temp = obj.sampler.getSamples({'Rpostpred'});
+			samples = temp.Rpostpred;
+			
 			% flatten chains
 			s=size(samples);
 			samples = reshape(samples, s(1)*s(2), s(3), s(4));
@@ -228,14 +252,6 @@ classdef ModelBaseClass < handle
 			% samples from posterior
 
 			samples = obj.sampler.getSamplesFromParticipantAsMatrix(n, variables);
-			% temp = obj.sampler.getSamplesAtIndex(n, variables);
-			% % TODO *** SORT THIS OUT. DO THIS IN A METHODS IN JAGSSampler object???
-			% fieldList = fields(temp);
-			% samples = [];
-			% for f=1:numel(fieldList)
-			% 	samples = [ samples temp.(fieldList{f})];
-			% end
-			% **********************************************
 
 			% *** DON'T DELETE ***
 			% samples from prior
@@ -245,15 +261,17 @@ classdef ModelBaseClass < handle
 			% 				obj.sampler.samples.alphaprior(:),...
 			% 				obj.sampler.samples.epsilonprior(:)];
 			figure(87)
-			if isfield(obj.sampler.samples,'glMprior')
-				priorSamples= [obj.sampler.samples.glMprior(:),...
-					obj.sampler.samples.glCprior(:),...
-					obj.sampler.samples.glALPHAprior(:),...
-					obj.sampler.samples.glEpsilonprior(:)];
-				triPlotSamples(samples, priorSamples, variables, [])
-			else
-				triPlotSamples(samples, [], variables, [])
-			end
+			%if isfield(obj.sampler.samples,'glMprior')
+			[priorSamples] = obj.sampler.getSamplesAsMatrix(...
+				{'glMprior','glCprior','glALPHAprior','glEpsilonprior'});
+			% 				priorSamples= [obj.sampler.samples.glMprior(:),...
+			% 					obj.sampler.samples.glCprior(:),...
+			% 					obj.sampler.samples.glALPHAprior(:),...
+			% 					obj.sampler.samples.glEpsilonprior(:)];
+			triPlotSamples(samples, priorSamples, variables, [])
+			%else
+			%	triPlotSamples(samples, [], variables, [])
+			%end
 		end
 
 	end
@@ -330,6 +348,7 @@ classdef ModelBaseClass < handle
 		function figUnivariateSummary(uni, participantIDlist, variables)
 			% loop over variables provided, plotting univariate summary
 			% statistics.
+			warning('Add group-level inferences to this plot (glM, glC, glALPHA,glEpsilon)')
 			figure
 			for v = 1:numel(variables)
 				subplot(numel(variables),1,v)

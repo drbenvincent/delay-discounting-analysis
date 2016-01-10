@@ -56,6 +56,12 @@ model{
     glALPHAprior    ~ dnorm(groupALPHAmuprior, 1/(groupALPHAsigmaprior^2)) T(0,)
     glEpsilonprior  ~ dbeta(groupWprior*(groupKprior-2)+1 , (1-groupWprior)*(groupKprior-2)+1 ) T(,0.5)
 
+    # ------------------------------------------------------------------------------------
+    # Group-level posterior predictive distributions. These samples can be seen as inferences about an as yet unobserved participant who represents what we know about the parameters at the group level.
+    glM             ~ dnorm(groupMmu, 1/(groupMsigma^2))
+    glC             ~ dnorm(groupCmu, 1/(groupCsigma^2))
+    glALPHA         ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
+    glEpsilon       ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
 
     # ------------------------------------------------------------------------------------
     # Participant-level parameters

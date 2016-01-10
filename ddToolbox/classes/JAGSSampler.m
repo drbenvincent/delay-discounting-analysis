@@ -3,8 +3,11 @@ classdef JAGSSampler < SamplerClass
 	%	xxxx
 
 	properties (GetAccess = public, SetAccess = private)
-		samples, stats % structures returned by `matjags`
-		%analyses % struct
+		stats % structure returned by `matjags`
+	end
+	
+	properties (Access = private)
+		samples % structure returned by `matjags`
 	end
 
 	methods (Access = public)
@@ -95,7 +98,26 @@ classdef JAGSSampler < SamplerClass
 				samples.(fieldsToGet{n}) = obj.samples.(fieldsToGet{n});
 			end
 		end
-
+		
+		function [samplesMatrix] = getSamplesAsMatrix(obj, fieldsToGet)
+			for n=1:numel(fieldsToGet)
+				if isfield(obj.samples,fieldsToGet{n})
+					samples.(fieldsToGet{n}) = obj.samples.(fieldsToGet{n})(:);
+				end
+			end
+			% convert from struct to matrix
+			samplesMatrix = [];
+			for n=1:numel(fieldsToGet)
+				if isfield(obj.samples,fieldsToGet{n})
+					samplesMatrix = [ samplesMatrix samples.(fieldsToGet{n})];
+				end
+			end
+		end
+		
+		function [samples] = getAllSamples(obj)
+			samples = obj.samples;
+		end
+		
 		function [samples] = flattenChains(obj, fieldsToGet)
 			% collapse the first 2 dimensions of samples (number of MCMC
 			% chains, number of MCMC samples)
