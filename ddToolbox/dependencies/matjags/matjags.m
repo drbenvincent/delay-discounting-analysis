@@ -643,7 +643,9 @@ function stats = computeStats(A,doboot)
 
 fld = fieldnames(A);
 N = length(fld);
-stats = struct('Rhat',[], 'mean', [], 'std', [], 'ci_low' , [] , 'ci_high' , [] );
+stats = struct('Rhat',[], 'mean', [], 'std', [],...
+	'ci_low' , [] , 'ci_high' , [],...
+	'hdi_low', [] , 'hdi_high' , []);
 for fi=1:length(fld)
     fname = fld{fi};
     samples = getfield(A, fname);
@@ -683,6 +685,10 @@ for fi=1:length(fld)
     ci_samples_overall_low = ci_samples_overall( 1,: );
     ci_samples_overall_high = ci_samples_overall( 2,: );
     
+		% get the 95% highest density intervals
+		hdi_samples_overall_low = HDIofSamples(reshaped_samples);
+		hdi_samples_overall_high = HDIofSamples(reshaped_samples);
+		
     if ~isnan(Rhat)
         stats.Rhat = setfield(stats.Rhat, fname, squeeze(Rhat));
     end
@@ -700,6 +706,9 @@ for fi=1:length(fld)
     
     stats.ci_low = setfield(stats.ci_low, fname, squeeze(ci_samples_overall_low));
     stats.ci_high = setfield(stats.ci_high, fname, squeeze(ci_samples_overall_high));
+		
+		stats.hdi_low = setfield(stats.hdi_low, fname, squeeze(hdi_samples_overall_low));
+    stats.hdi_high = setfield(stats.hdi_high, fname, squeeze(hdi_samples_overall_high));
 end
 end
 
@@ -900,5 +909,33 @@ if (~warn)
     else
         varargout{nout} = cell(0);
     end
+end
+end
+
+
+function [HDI_lower, HDI_upper] = HDIofSamples(samples)
+% Calculate the 95% Highest Density Intervals. This has advantages over the
+% regular 95% credible interval for some 'shapes' of distribution.
+% 
+% Translated by Benjamin T. Vincent (www.inferenceLab.com) from code in:
+% Kruschke, J. K. (2015). Doing Bayesian Data Analysis: A Tutorial with R, 
+% JAGS, and Stan. Academic Press.
+
+credibilityMass = 0.95;
+
+[nSamples, N] = size(samples);
+for i=1:N
+	selectedSortedSamples = sort(samples(:,i));
+	ciIdxInc = floor( credibilityMass * numel( selectedSortedSamples ) );
+	nCIs = numel( selectedSortedSamples ) - ciIdxInc;
+	
+	ciWidth=zeros(nCIs,1);
+	for n =1:nCIs
+		ciWidth(n) = selectedSortedSamples( n + ciIdxInc ) - selectedSortedSamples(n);
+	end
+	
+	[~, minInd] = min(ciWidth);
+	HDI_lower(i)	= selectedSortedSamples( minInd );
+	HDI_upper(i)	= selectedSortedSamples( minInd + ciIdxInc);
 end
 end
