@@ -127,6 +127,18 @@ classdef ModelHierarchical < ModelBaseClass
 
 		function plot(obj)
 			close all
+			
+			obj.plotPsychometricParams()
+			myExport(obj.saveFolder, obj.modelType, '-PsychometricParams')
+			
+			%% GROUP LEVEL
+			% Tri plot
+			obj.figGroupTriPlot()
+			myExport(obj.saveFolder, obj.modelType, ['-GROUP-triplot'])			
+			 		
+			%obj.figGroupLevel(variables)
+			
+			%% PARTICIPANT LEVEL
 			variables = {'m', 'c','alpha','epsilon'};
 
 			% plot univariate summary statistics --------------------------------
@@ -134,16 +146,7 @@ classdef ModelHierarchical < ModelBaseClass
 			latex_fig(16, 5, 5)
 			myExport(obj.saveFolder, obj.modelType, '-UnivariateSummary')
 			% -------------------------------------------------------------------
-
-			obj.plotPsychometricParams()
-			myExport(obj.saveFolder, obj.modelType, '-PsychometricParams')
-
-			% obj.figGroupLevelTriPlot()
-			% myExport(obj.saveFolder, obj.modelType, ['-GROUP-triplot'])
-
-			% TODO : REMOVE figGroupLevel *********************
-			obj.figGroupLevel(variables)
-			% *************************************************
+			
 			obj.figParticipantLevelWrapper(variables)
 
 		end
@@ -298,11 +301,6 @@ classdef ModelHierarchical < ModelBaseClass
 % 				latex_fig(16, 18, 4)
 % 				myExport(obj.saveFolder, obj.modelType, ['-' obj.data.IDname{n}])
 % 				close(fh)
-%
-% 				% 2) Triplot
-% 				obj.figParticiantTriPlot(n, variables)
-% 				myExport(obj.saveFolder, obj.modelType, ['-' obj.data.IDname{n} '-triplot'])
-
 
 
 % 			%TODO: IMPLEMENT THIS GET METHOD ****************
@@ -317,6 +315,27 @@ classdef ModelHierarchical < ModelBaseClass
 % 			myExport(obj.saveFolder, obj.modelType, '-GROUP')
 % 			% -------------------------------
 		end
+		
+		
+		
+		function figGroupTriPlot(obj)	
+			% samples from posterior
+			[posteriorSamples] = obj.sampler.getSamplesAsMatrix({'m_group',...
+				'c_group',...
+				'alpha_group',...
+				'epsilon_group'});
+			
+			[priorSamples] = obj.sampler.getSamplesAsMatrix({'m_group_prior',...
+				'c_group_prior',...
+				'alpha_group_prior',...
+				'epsilon_group_prior'});
+
+			figure(87)
+			variable_label_names={'m','c','alpha','epsilon'};
+			triPlotSamples(posteriorSamples, priorSamples, variable_label_names, [])
+		end
+		
+		
 
 	end
 
