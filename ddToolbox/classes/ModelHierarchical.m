@@ -59,11 +59,7 @@ classdef ModelHierarchical < ModelBaseClass
 
 			alpha_group				= Variable('alpha_group','alpha_group', 'positive', true);
 			alpha_group_prior	= Variable('alpha_group_prior','alpha_group_prior', 'positive', true);
-			%m_group_prior = Variable('m_group_prior','m_group_prior', [], true);
-			%c_group_prior = Variable('c_group_prior','c_group_prior', [], true);
-			%epsilon_group_prior = Variable('epsilon_group_prior','epsilon_group_prior', [0 0.5], true);
-			%alpha_group_prior = Variable('alpha_group_prior','alpha_group_prior', 'positive', true);
-
+	
 			% -------------------------------------------------------------------
 			% group level priors ------------------------------------------------
 			groupMmu = Variable('groupMmu','groupMmu', [], true);
@@ -76,11 +72,7 @@ classdef ModelHierarchical < ModelBaseClass
 			groupWprior = Variable('groupWprior','groupWprior', [0 1], true);
 
 			groupK = Variable('groupK','groupK', 'positive', true);
-			%groupK.seed.func = @() abs(normrnd(0,10));
-			%groupK.seed.single = true;
 			groupKprior = Variable('groupKprior','groupKprior', 'positive', true);
-			%groupKprior.seed.func = @() abs(normrnd(0,10));
-			%groupKprior.seed.single = true;
 
 			groupALPHAmu = Variable('groupALPHAmu','groupALPHAmu', 'positive', true);
 			groupALPHAsigma = Variable('groupALPHAsigma','groupALPHAsigma', 'positive', true);
@@ -136,7 +128,8 @@ classdef ModelHierarchical < ModelBaseClass
 			obj.figGroupTriPlot()
 			myExport(obj.saveFolder, obj.modelType, ['-GROUP-triplot'])			
 			 		
-			%obj.figGroupLevel(variables)
+			variables = {'m_group', 'c_group','alpha_group','epsilon_group'};
+			obj.figGroupLevel(variables)
 			
 			%% PARTICIPANT LEVEL
 			variables = {'m', 'c','alpha','epsilon'};
@@ -287,33 +280,28 @@ classdef ModelHierarchical < ModelBaseClass
 	methods (Access = protected)
 
 		function figGroupLevel(obj, variables)
-			warning('figGroupLevel(): PLOT GROUP-LEVEL INFERENCES')
-			figure(99)
+			% get group level parameters in a form ready to pass off to
+			% figParticipant()
+			
+			% Get group-level data
+			[pSamples] = obj.sampler.getSamples(variables);
+			% rename fields
+			[pSamples.('m')] = pSamples.('m_group'); pSamples = rmfield(pSamples,'m_group');
+			[pSamples.('c')] = pSamples.('c_group'); pSamples = rmfield(pSamples,'c_group');
+			[pSamples.('epsilon')] = pSamples.('epsilon_group'); pSamples = rmfield(pSamples,'epsilon_group');
+			[pSamples.('alpha')] = pSamples.('alpha_group'); pSamples = rmfield(pSamples,'alpha_group');
+			
+			pData = []; % no data for group level
+			
+			figure(99), clf
 			set(gcf,'Name','GROUP LEVEL')
-			clf
-%
 
-% 				% 1) figParticipant plot
-% 				% get samples and data for this participant
-% 				[pSamples] = obj.sampler.getSamplesAtIndex(n, variables);
-% 				[pData] = obj.data.getParticipantData(n);
-% 				obj.figParticipant(pSamples, pData)
-% 				latex_fig(16, 18, 4)
-% 				myExport(obj.saveFolder, obj.modelType, ['-' obj.data.IDname{n}])
-% 				close(fh)
+			obj.figParticipant(pSamples, pData)
 
-
-% 			%TODO: IMPLEMENT THIS GET METHOD ****************
-% 			%pSamples = obj.sampler.getGroupLevelSamples()
-% 			pSamples = [];
-% 			% ***********************************************
-%
-% 			obj.figParticipant(obj, pSamples, []);
-%
-% 			% EXPORTING ---------------------
-% 			latex_fig(16, 18, 4)
-% 			myExport(obj.saveFolder, obj.modelType, '-GROUP')
-% 			% -------------------------------
+			% EXPORTING ---------------------
+			latex_fig(16, 18, 4)
+			myExport(obj.saveFolder, obj.modelType, '-GROUP')
+			% -------------------------------
 		end
 		
 		
