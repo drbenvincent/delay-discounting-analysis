@@ -48,21 +48,21 @@ classdef ModelHierarchical < ModelBaseClass
 			% TODO: This could be implemented just by having another participant
 			% with no observed data? This would remove the need for all these gl*
 			% variables here and in the JAGS model and make things much simpler.
-			glM						= Variable('glM','glM', [], true);
-			glMprior			= Variable('glMprior','glMprior', [], true);
+			m_group						= Variable('m_group','m_group', [], true);
+			m_group_prior			= Variable('m_group_prior','m_group_prior', [], true);
 
-			glC						= Variable('glC','glC', [], true);
-			glCprior			= Variable('glCprior','glCprior', [], true);
+			c_group						= Variable('c_group','c_group', [], true);
+			c_group_prior			= Variable('c_group_prior','c_group_prior', [], true);
 
-			glEpsilon			= Variable('glEpsilon','glEpsilon', [0 0.5], true);
-			glEpsilonprior= Variable('glEpsilonprior','glEpsilonprior', [0 0.5], true);
+			epsilon_group			= Variable('epsilon_group','epsilon_group', [0 0.5], true);
+			epsilon_group_prior= Variable('epsilon_group_prior','epsilon_group_prior', [0 0.5], true);
 
-			glALPHA				= Variable('glALPHA','glALPHA', 'positive', true);
-			glALPHAprior	= Variable('glALPHAprior','glALPHAprior', 'positive', true);
-			%glMprior = Variable('glMprior','glMprior', [], true);
-			%glCprior = Variable('glCprior','glCprior', [], true);
-			%glEpsilonprior = Variable('glEpsilonprior','glEpsilonprior', [0 0.5], true);
-			%glALPHAprior = Variable('glALPHAprior','glALPHAprior', 'positive', true);
+			alpha_group				= Variable('alpha_group','alpha_group', 'positive', true);
+			alpha_group_prior	= Variable('alpha_group_prior','alpha_group_prior', 'positive', true);
+			%m_group_prior = Variable('m_group_prior','m_group_prior', [], true);
+			%c_group_prior = Variable('c_group_prior','c_group_prior', [], true);
+			%epsilon_group_prior = Variable('epsilon_group_prior','epsilon_group_prior', [0 0.5], true);
+			%alpha_group_prior = Variable('alpha_group_prior','alpha_group_prior', 'positive', true);
 
 			% -------------------------------------------------------------------
 			% group level priors ------------------------------------------------
@@ -99,15 +99,15 @@ classdef ModelHierarchical < ModelBaseClass
 			alpha.analysisFlag = 1;
 
 			% 2 = group level
-			glM.analysisFlag = 2;
-			glC.analysisFlag = 2;
-			glEpsilon.analysisFlag = 2;
-			glALPHA.analysisFlag = 2;
-			
-% 			glMprior.analysisFlag = 2; % don't want to analyse these
-% 			glCprior.analysisFlag = 2;
-% 			glEpsilonprior.analysisFlag = 2;
-% 			glALPHAprior.analysisFlag = 2;
+			m_group.analysisFlag = 2;
+			c_group.analysisFlag = 2;
+			epsilon_group.analysisFlag = 2;
+			alpha_group.analysisFlag = 2;
+
+% 			m_group_prior.analysisFlag = 2; % don't want to analyse these
+% 			c_group_prior.analysisFlag = 2;
+% 			epsilon_group_prior.analysisFlag = 2;
+% 			alpha_group_prior.analysisFlag = 2;
 
 			% Create a Variable array -------------------------------------------
 			obj.variables = [m, c, epsilon, alpha,... % mprior, cprior, epsilonprior, alphaprior,...
@@ -115,8 +115,8 @@ classdef ModelHierarchical < ModelBaseClass
 				groupCmu, groupCsigma,...
 				groupW, groupWprior,...
 				groupK, groupKprior,...
-				glM, glC, glALPHA, glEpsilon,...
-				glMprior, glCprior, glALPHAprior, glEpsilonprior,...
+				m_group, c_group, alpha_group, epsilon_group,...
+				m_group_prior, c_group_prior, alpha_group_prior, epsilon_group_prior,...
 				groupALPHAmu, groupALPHAmuprior,...
 				groupALPHAsigma, groupALPHAsigmaprior,...
 				Rpostpred];
@@ -128,7 +128,7 @@ classdef ModelHierarchical < ModelBaseClass
 		function plot(obj)
 			close all
 			variables = {'m', 'c','alpha','epsilon'};
-			
+
 			% plot univariate summary statistics --------------------------------
 			obj.figUnivariateSummary(obj.analyses.univariate, obj.data.IDname, variables)
 			latex_fig(16, 5, 5)
@@ -190,7 +190,7 @@ classdef ModelHierarchical < ModelBaseClass
 % 			%obj.sampler.getSamplesFromParticipant({'alpha'}, 16)
 % 			% TEMP
  			samples = obj.sampler.getAllSamples();
-% 			
+%
 % 			GROUP = obj.data.nParticipants;
 % 			%groupSamples = obj.sampler.getSamplesFromParticipant({'alpha','epsilon'}, GROUP);
 % 			groupSamples = obj.sampler.getSamplesAtIndex(GROUP, {'alpha','epsilon'});
@@ -200,7 +200,7 @@ classdef ModelHierarchical < ModelBaseClass
 			P=size(samples.m,3); % number of participants
 			%====================================
 			subplot(3,2,1)
-			plotPriorPostHist(samples.glALPHAprior(:), samples.glALPHA(:));
+			plotPriorPostHist(samples.alpha_group_prior(:), samples.alpha_group(:));
 			title('Group \alpha')
 
 			subplot(3,4,5)
@@ -225,7 +225,7 @@ classdef ModelHierarchical < ModelBaseClass
 
 			%====================================
 			subplot(3,2,2)
-			plotPriorPostHist(samples.glEpsilonprior(:), samples.glEpsilon(:));
+			plotPriorPostHist(samples.epsilon_group_prior(:), samples.epsilon_group(:));
 			title('Group \epsilon')
 
 			subplot(3,4,7),
@@ -255,23 +255,30 @@ classdef ModelHierarchical < ModelBaseClass
 
 	methods(Static)
 
-		
-% 		% TODO: THIS OVERRIDES METHOD FROM MODEL BASE CLASS. WORK OUT A WAY TO
-% 		% KILL THIS METHOD
-% 		function figUnivariateSummary(uni, participantIDlist, variables)
-% 			% loop over variables provided, plotting univariate summary
-% 			% statistics.
-% 			warning('Add group-level inferences to this plot (glM, glC, glALPHA,glEpsilon)')
-% 			figure
-% 			for v = 1:numel(variables)
-% 				subplot(numel(variables),1,v)
-% 				plotErrorBars({participantIDlist{:}},...
-% 					[uni.(variables{v}).mode], [uni.(variables{v}).CI95],...
-% 					variables{v});
-% 				a=axis; axis([0.5 a(2)+0.5 a(3) a(4)]);
-% 			end
-% 		end
-		
+
+		function figUnivariateSummary(uni, participantIDlist, variables)
+			% loop over variables provided, plotting univariate summary
+			% statistics.
+			warning('Add group-level inferences to this plot (m_group, c_group, alpha_group,epsilon_group)')
+
+			% We are going to add on group level inferences to the end of the
+			% participant list. This is because the group-level inferences an be
+			% seen as inferences we can make about an as yet unobserved
+			% participant, in the light of the participant data available thus
+			% far.
+			participantIDlist{end+1}='GROUP';
+
+			figure
+			for v = 1:numel(variables)
+				subplot(numel(variables),1,v)
+				plotErrorBars({participantIDlist{:}},...
+					[uni.(variables{v}).mode uni.([variables{v} '_group']).mode],...
+					[uni.(variables{v}).CI95 uni.([variables{v} '_group']).CI95],...
+					variables{v});
+				a=axis; axis([0.5 a(2)+0.5 a(3) a(4)]);
+			end
+		end
+
 	end
 
 	methods (Access = protected)
@@ -281,14 +288,30 @@ classdef ModelHierarchical < ModelBaseClass
 			figure(99)
 			set(gcf,'Name','GROUP LEVEL')
 			clf
-% 
+%
+
+% 				% 1) figParticipant plot
+% 				% get samples and data for this participant
+% 				[pSamples] = obj.sampler.getSamplesAtIndex(n, variables);
+% 				[pData] = obj.data.getParticipantData(n);
+% 				obj.figParticipant(pSamples, pData)
+% 				latex_fig(16, 18, 4)
+% 				myExport(obj.saveFolder, obj.modelType, ['-' obj.data.IDname{n}])
+% 				close(fh)
+%
+% 				% 2) Triplot
+% 				obj.figParticiantTriPlot(n, variables)
+% 				myExport(obj.saveFolder, obj.modelType, ['-' obj.data.IDname{n} '-triplot'])
+
+
+
 % 			%TODO: IMPLEMENT THIS GET METHOD ****************
 % 			%pSamples = obj.sampler.getGroupLevelSamples()
 % 			pSamples = [];
 % 			% ***********************************************
-% 			
+%
 % 			obj.figParticipant(obj, pSamples, []);
-% 
+%
 % 			% EXPORTING ---------------------
 % 			latex_fig(16, 18, 4)
 % 			myExport(obj.saveFolder, obj.modelType, '-GROUP')
@@ -314,8 +337,8 @@ classdef ModelHierarchical < ModelBaseClass
 			HT_BayesFactor(obj)
 
 			% METHOD 2
-			priorSamples = obj.sampler.samples.glMprior(:);
-			posteriorSamples = obj.sampler.samples.glM(:);
+			priorSamples = obj.sampler.samples.m_group_prior(:);
+			posteriorSamples = obj.sampler.samples.m_group(:);
 			subplot(1,2,2)
 			plotPosteriorHDI(priorSamples, posteriorSamples)
 
