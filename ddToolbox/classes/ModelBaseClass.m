@@ -173,10 +173,8 @@ classdef ModelBaseClass < handle
 			nParticipants = obj.data.nParticipants;
 			count=1;
 			for p = 1:nParticipants
-				samples.m = vec(obj.sampler.samples.m(:,:,p));
-				samples.c = vec(obj.sampler.samples.c(:,:,p));
-				params(:,1) = samples.m(:);
-				params(:,2) = samples.c(:);
+				params(:,1) = obj.sampler.getSamplesFromParticipantAsMatrix(p, {'m'});
+				params(:,2) = obj.sampler.getSamplesFromParticipantAsMatrix(p, {'c'});
 				% ==============================================
 				[posteriorMode(count), lh(count)] =...
 					calculateLogK_ConditionOnReward(reward, params, plotFlag);

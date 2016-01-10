@@ -48,36 +48,36 @@ classdef ModelHierarchical < ModelBaseClass
 			% TODO: This could be implemented just by having another participant
 			% with no observed data? This would remove the need for all these gl*
 			% variables here and in the JAGS model and make things much simpler.
-			m_group						= Variable('m_group','m_group', [], true);
-			m_group_prior			= Variable('m_group_prior','m_group_prior', [], true);
+			m_group						= Variable('m_group','m group', [], true);
+			m_group_prior			= Variable('m_group_prior','m group prior', [], true);
 
-			c_group						= Variable('c_group','c_group', [], true);
-			c_group_prior			= Variable('c_group_prior','c_group_prior', [], true);
+			c_group						= Variable('c_group','c group', [], true);
+			c_group_prior			= Variable('c_group_prior','c group prior', [], true);
 
-			epsilon_group			= Variable('epsilon_group','epsilon_group', [0 0.5], true);
-			epsilon_group_prior= Variable('epsilon_group_prior','epsilon_group_prior', [0 0.5], true);
+			epsilon_group			= Variable('epsilon_group','\epsilon group', [0 0.5], true);
+			epsilon_group_prior= Variable('epsilon_group_prior','\epsilon group prior', [0 0.5], true);
 
-			alpha_group				= Variable('alpha_group','alpha_group', 'positive', true);
-			alpha_group_prior	= Variable('alpha_group_prior','alpha_group_prior', 'positive', true);
-	
+			alpha_group				= Variable('alpha_group','\alpha group', 'positive', true);
+			alpha_group_prior	= Variable('alpha_group_prior','\alpha group prior', 'positive', true);
+
 			% -------------------------------------------------------------------
 			% group level priors ------------------------------------------------
-			groupMmu = Variable('groupMmu','groupMmu', [], true);
-			groupMsigma = Variable('groupMsigma','groupMsigma', [], true);
+			groupMmu = Variable('groupMmu','\mu^m', [], true);
+			groupMsigma = Variable('groupMsigma','\sigma^m', [], true);
 
-			groupCmu = Variable('groupCmu','groupCmu', [], true);
-			groupCsigma = Variable('groupCsigma','groupCsigma', [], true);
+			groupCmu = Variable('groupCmu','\mu^c', [], true);
+			groupCsigma = Variable('groupCsigma','\sigma^c', [], true);
 
-			groupW = Variable('groupW','groupW', [0 1], true);
-			groupWprior = Variable('groupWprior','groupWprior', [0 1], true);
+			groupW = Variable('groupW','\omega', [0 1], true);
+			groupWprior = Variable('groupWprior','\omega prior', [0 1], true);
 
-			groupK = Variable('groupK','groupK', 'positive', true);
-			groupKprior = Variable('groupKprior','groupKprior', 'positive', true);
+			groupK = Variable('groupK','\kappa', 'positive', true);
+			groupKprior = Variable('groupKprior','\kappa prior', 'positive', true);
 
-			groupALPHAmu = Variable('groupALPHAmu','groupALPHAmu', 'positive', true);
-			groupALPHAsigma = Variable('groupALPHAsigma','groupALPHAsigma', 'positive', true);
-			groupALPHAmuprior = Variable('groupALPHAmuprior','groupALPHAmuprior', 'positive', true);
-			groupALPHAsigmaprior = Variable('groupALPHAsigmaprior','groupALPHAsigmaprior', 'positive', true);
+			groupALPHAmu = Variable('groupALPHAmu','\mu^\alpha', 'positive', true);
+			groupALPHAsigma = Variable('groupALPHAsigma','\sigma^\alpha', 'positive', true);
+			groupALPHAmuprior = Variable('groupALPHAmuprior','\mu^\alpha prior', 'positive', true);
+			groupALPHAsigmaprior = Variable('groupALPHAsigmaprior','\sigma^\alpha prior', 'positive', true);
 
 			% posterior predictive ----------------------------------------------
 			Rpostpred = Variable('Rpostpred','Rpostpred', [0 1], true);
@@ -119,18 +119,18 @@ classdef ModelHierarchical < ModelBaseClass
 
 		function plot(obj)
 			close all
-			
+
 			obj.plotPsychometricParams()
 			myExport(obj.saveFolder, obj.modelType, '-PsychometricParams')
-			
+
 			%% GROUP LEVEL
 			% Tri plot
 			obj.figGroupTriPlot()
-			myExport(obj.saveFolder, obj.modelType, ['-GROUP-triplot'])			
-			 		
+			myExport(obj.saveFolder, obj.modelType, ['-GROUP-triplot'])
+
 			variables = {'m_group', 'c_group','alpha_group','epsilon_group'};
 			obj.figGroupLevel(variables)
-			
+
 			%% PARTICIPANT LEVEL
 			variables = {'m', 'c','alpha','epsilon'};
 
@@ -139,7 +139,7 @@ classdef ModelHierarchical < ModelBaseClass
 			latex_fig(16, 5, 5)
 			myExport(obj.saveFolder, obj.modelType, '-UnivariateSummary')
 			% -------------------------------------------------------------------
-			
+
 			obj.figParticipantLevelWrapper(variables)
 
 		end
@@ -282,7 +282,7 @@ classdef ModelHierarchical < ModelBaseClass
 		function figGroupLevel(obj, variables)
 			% get group level parameters in a form ready to pass off to
 			% figParticipant()
-			
+
 			% Get group-level data
 			[pSamples] = obj.sampler.getSamples(variables);
 			% rename fields
@@ -290,9 +290,9 @@ classdef ModelHierarchical < ModelBaseClass
 			[pSamples.('c')] = pSamples.('c_group'); pSamples = rmfield(pSamples,'c_group');
 			[pSamples.('epsilon')] = pSamples.('epsilon_group'); pSamples = rmfield(pSamples,'epsilon_group');
 			[pSamples.('alpha')] = pSamples.('alpha_group'); pSamples = rmfield(pSamples,'alpha_group');
-			
+
 			pData = []; % no data for group level
-			
+
 			figure(99), clf
 			set(gcf,'Name','GROUP LEVEL')
 
@@ -303,16 +303,16 @@ classdef ModelHierarchical < ModelBaseClass
 			myExport(obj.saveFolder, obj.modelType, '-GROUP')
 			% -------------------------------
 		end
-		
-		
-		
-		function figGroupTriPlot(obj)	
+
+
+
+		function figGroupTriPlot(obj)
 			% samples from posterior
 			[posteriorSamples] = obj.sampler.getSamplesAsMatrix({'m_group',...
 				'c_group',...
 				'alpha_group',...
 				'epsilon_group'});
-			
+
 			[priorSamples] = obj.sampler.getSamplesAsMatrix({'m_group_prior',...
 				'c_group_prior',...
 				'alpha_group_prior',...
@@ -322,8 +322,8 @@ classdef ModelHierarchical < ModelBaseClass
 			variable_label_names={'m','c','alpha','epsilon'};
 			triPlotSamples(posteriorSamples, priorSamples, variable_label_names, [])
 		end
-		
-		
+
+
 
 	end
 
@@ -344,8 +344,8 @@ classdef ModelHierarchical < ModelBaseClass
 			HT_BayesFactor(obj)
 
 			% METHOD 2
-			priorSamples = obj.sampler.samples.m_group_prior(:);
-			posteriorSamples = obj.sampler.samples.m_group(:);
+			priorSamples = obj.sampler.getSamplesAsMatrix({'m_group_prior'});
+			posteriorSamples = obj.sampler.getSamplesAsMatrix({'m_group'});
 			subplot(1,2,2)
 			plotPosteriorHDI(priorSamples, posteriorSamples)
 
