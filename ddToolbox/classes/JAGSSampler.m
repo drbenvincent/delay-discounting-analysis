@@ -5,7 +5,7 @@ classdef JAGSSampler < SamplerClass
 	properties (GetAccess = public, SetAccess = private)
 		stats % structure returned by `matjags`
 	end
-
+	
 	properties (Access = private)
 		samples % structure returned by `matjags`
 	end
@@ -69,7 +69,6 @@ classdef JAGSSampler < SamplerClass
 		end
 
 		function [samples] = getSamplesAtIndex(obj, index, fieldsToGet)
-			assert(iscell(fieldsToGet),'fieldsToGet must be a cell array')
 			% get all the samples for a given value of the 3rd dimension of
 			% samples. Dimensions are:
 			% 1. mcmc chain number
@@ -83,7 +82,6 @@ classdef JAGSSampler < SamplerClass
 		end
 
 		function [samplesMatrix] = getSamplesFromParticipantAsMatrix(obj, participant, fieldsToGet)
-			assert(iscell(fieldsToGet),'fieldsToGet must be a cell array')
 			% TODO: This function is doing the same thing as getSamplesFromParticipant() ???
 			for n=1:numel(fieldsToGet)
 				samples.(fieldsToGet{n}) = vec(obj.samples.(fieldsToGet{n})(:,:,participant));
@@ -96,14 +94,12 @@ classdef JAGSSampler < SamplerClass
 		end
 
 		function [samples] = getSamples(obj, fieldsToGet)
-			assert(iscell(fieldsToGet),'fieldsToGet must be a cell array')
 			for n=1:numel(fieldsToGet)
 				samples.(fieldsToGet{n}) = obj.samples.(fieldsToGet{n});
 			end
 		end
-
+		
 		function [samplesMatrix] = getSamplesAsMatrix(obj, fieldsToGet)
-			assert(iscell(fieldsToGet),'fieldsToGet must be a cell array')
 			for n=1:numel(fieldsToGet)
 				if isfield(obj.samples,fieldsToGet{n})
 					samples.(fieldsToGet{n}) = obj.samples.(fieldsToGet{n})(:);
@@ -117,11 +113,11 @@ classdef JAGSSampler < SamplerClass
 				end
 			end
 		end
-
+		
 		function [samples] = getAllSamples(obj)
 			samples = obj.samples;
 		end
-
+		
 		function [samples] = flattenChains(obj, fieldsToGet)
 			% collapse the first 2 dimensions of samples (number of MCMC
 			% chains, number of MCMC samples)

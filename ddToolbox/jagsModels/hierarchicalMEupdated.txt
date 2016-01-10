@@ -51,17 +51,17 @@ model{
 
 
     # Prior beliefs about the group level (equivalently, an as yet unobserved participant). As determined by priors on parameters specified above
-    m_group_prior        ~ dnorm(groupMmuprior, 1/(groupMsigmaprior^2))
-    c_group_prior        ~ dnorm(groupCmuprior, 1/(groupCsigmaprior^2))
-    alpha_group_prior    ~ dnorm(groupALPHAmuprior, 1/(groupALPHAsigmaprior^2)) T(0,)
-    epsilon_group_prior  ~ dbeta(groupWprior*(groupKprior-2)+1 , (1-groupWprior)*(groupKprior-2)+1 ) T(,0.5)
+    glMprior        ~ dnorm(groupMmuprior, 1/(groupMsigmaprior^2))
+    glCprior        ~ dnorm(groupCmuprior, 1/(groupCsigmaprior^2))
+    glALPHAprior    ~ dnorm(groupALPHAmuprior, 1/(groupALPHAsigmaprior^2)) T(0,)
+    glEpsilonprior  ~ dbeta(groupWprior*(groupKprior-2)+1 , (1-groupWprior)*(groupKprior-2)+1 ) T(,0.5)
 
     # ------------------------------------------------------------------------------------
     # Group-level posterior predictive distributions. These samples can be seen as inferences about an as yet unobserved participant who represents what we know about the parameters at the group level.
-    m_group             ~ dnorm(groupMmu, 1/(groupMsigma^2))
-    c_group             ~ dnorm(groupCmu, 1/(groupCsigma^2))
-    alpha_group         ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
-    epsilon_group       ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
+    glM             ~ dnorm(groupMmu, 1/(groupMsigma^2))
+    glC             ~ dnorm(groupCmu, 1/(groupCsigma^2))
+    glALPHA         ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
+    glEpsilon       ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
 
 
     # ------------------------------------------------------------------------------------

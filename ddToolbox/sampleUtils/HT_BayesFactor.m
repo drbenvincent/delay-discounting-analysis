@@ -1,11 +1,10 @@
 function  HT_BayesFactor(obj)
-	warning('IS THERE A MATLAB BAYES FACTOR PACKAGE FOR MCMC SAMPLES?')
+	% TODO: IS THERE A MATLAB BAYES FACTOR PACKAGE FOR MCMC SAMPLES?
+	
 	binsize = 0.05;
 	% extract samples
-% 	priorSamples = obj.sampler.samples.glMprior(:);
-% 	posteriorSamples = obj.sampler.samples.glM(:);
-	priorSamples = obj.sampler.getSamplesAsMatrix({'m_group_prior'});
-	posteriorSamples = obj.sampler.getSamplesAsMatrix({'m_group'});
+	priorSamples = obj.sampler.samples.glMprior(:);
+	posteriorSamples = obj.sampler.samples.glM(:);
 	% in order to evaluate the order-restricted hypothesis m<0, then we need to
 	% remove samples where either prior or posterior contain samples
 	priorSamples = priorSamples(priorSamples<0);

@@ -70,11 +70,6 @@ classdef PosteriorPredictionPlot < handle
 			fprintf('Evaluating the function over %d MCMC samples...\n',...
 				numel(ExamplesToPlot));
 			
-			% if ExamplesToPlot is empty (ie equal to []) then assume we want to
-			% evaluate over all values
-			if isempty(ExamplesToPlot)
-				ExamplesToPlot = [1:obj.nSamples];
-			end
 			
 			try
 				% If the function handle can deal with vectorised inputs
