@@ -1,4 +1,4 @@
-classdef ModelSeperate < ModelBaseClass
+classdef ModelSeparate < ModelBaseClass
 	%ModelSeperate A model to estimate the magnitide effect.
 	%	Models a number of participants, but they are all treated as independent.
 	%	There is no group-level estimation.
@@ -10,14 +10,14 @@ classdef ModelSeperate < ModelBaseClass
 	methods (Access = public)
 
 		% CONSTRUCTOR =====================================================
-		function obj = ModelSeperate(toolboxPath, sampler, data, saveFolder)
+		function obj = ModelSeparate(toolboxPath, sampler, data, saveFolder)
 			% Because this class is a subclass of "ModelBaseClass" then we use
 			% this next line to create an instance
 			obj = obj@ModelBaseClass(toolboxPath, sampler, data, saveFolder);
 
 			switch sampler
 				case{'JAGS'}
-					obj.sampler = JAGSSampler([toolboxPath '/jagsModels/seperateME.txt'])
+					obj.sampler = JAGSSampler([toolboxPath '/jagsModels/separateME.txt'])
 					[~,obj.modelType,~] = fileparts(obj.sampler.fileName);
 				case{'STAN'}
 					error('NOT IMPLEMENTED YET')
@@ -29,40 +29,40 @@ classdef ModelSeperate < ModelBaseClass
 			%% Create variables
 			% -------------------------------------------------------------------
 			% Participant-level -------------------------------------------------
-			m = Variable('m','m', [], true)
+			m = Variable('m','m', [], true);
 			m.seed.func = @() normrnd(-0.243,10);
 			m.seed.single = false;
 
-			mprior = Variable('mprior','mprior', [], true)
+			mprior = Variable('mprior','mprior', [], true);
 			mprior.seed.func = @() normrnd(-0.243,10);
 			mprior.seed.single = true;
 
-			c = Variable('c','c', [], true)
+			c = Variable('c','c', [], true);
 			c.seed.func = @() normrnd(0,10);
 			c.seed.single = false;
 
-			cprior = Variable('cprior','cprior', [], true)
+			cprior = Variable('cprior','cprior', [], true);
 			cprior.seed.func = @() normrnd(0,10);
 			cprior.seed.single = true;
 
-			epsilon = Variable('epsilon','\epsilon', [0 0.5], true)
+			epsilon = Variable('epsilon','\epsilon', [0 0.5], true);
 			epsilon.seed.func = @() rand/2;
 			epsilon.seed.single = false;
 
-			epsilonprior = Variable('epsilonprior','\epsilon prior', [0 0.5], true)
+			epsilonprior = Variable('epsilonprior','\epsilon prior', [0 0.5], true);
 			epsilonprior.seed.func = @() rand/2;
 			epsilonprior.seed.single = true;
 
-			alpha = Variable('alpha','\alpha', 'positive', true)
+			alpha = Variable('alpha','\alpha', 'positive', true);
 			alpha.seed.func = @() abs(normrnd(0,10));
 			alpha.seed.single = false;
 
-			alphaprior = Variable('alphaprior','\alpha prior', 'positive', true)
+			alphaprior = Variable('alphaprior','\alpha prior', 'positive', true);
 			alphaprior.seed.func = @() abs(normrnd(0,10));
 			alphaprior.seed.single = true;
 
 			% posterior predictive ----------------------------------------------
-			Rpostpred = Variable('Rpostpred','Rpostpred', [0 1], true)
+			Rpostpred = Variable('Rpostpred','Rpostpred', [0 1], true);
 			Rpostpred.plotMCMCchainFlag = false;
 
 			% define which to analyse (univariate analysis)

@@ -122,23 +122,25 @@ linkaxes(ax,'xy')
 % order to have more reliable MCMC chain convergence.
 % This new model is called ModelHierarchicalUpdated
 
-saveFolder = 'hierarchical_updated_priors';
-uModel = ModelHierarchicalUpdated(toolboxPath, 'JAGS', myData, saveFolder);
-uModel.sampler.setMCMCtotalSamples(10^5);
-uModel.conductInference();
-uModel.posteriorPredictive();
-uModel.exportParameterEstimates();
-uModel.plot()
-uModel.plotMCMCchains()
+% saveFolder = 'hierarchical_updated_priors';
+% uModel = ModelHierarchicalUpdated(toolboxPath, 'JAGS', myData, saveFolder);
+% uModel.sampler.setMCMCtotalSamples(10^5);
+% uModel.conductInference();
+% uModel.posteriorPredictive();
+% uModel.exportParameterEstimates();
+% uModel.plot()
+% uModel.plotMCMCchains()
 
 
-%% CODE FOR PARTICIPANT-LEVEL ONLY INFERENCE IS EXPERIMENTAL... NOT RECOMMENDED
-% % PARTICIPANT-LEVEL ONLY INFERENCES
+%% CODE FOR PARTICIPANT-LEVEL ONLY
+% THIS IS CURRENTLY EXPERIMENTAL. IT WORKS FINE WITH THE DEMO DATASET, BUT
+% I HAVE BEEN HAVING MCMC CHAIN CONVERGENCE ISSUES WITH OTHER DATASETS.
+
 % % If you want to avoid group-level hierarchical inference, then you can use
 % % a different model class. Code below shows an example
 % 
 % saveFolder = 'nonHierarchical';
-% sModel = ModelSeperate(toolboxPath, 'JAGS', myData, saveFolder);
+% sModel = ModelSeparate(toolboxPath, 'JAGS', myData, saveFolder);
 % sModel.sampler.setMCMCtotalSamples(10^5);
 % sModel.conductInference();
 % sModel.posteriorPredictive();

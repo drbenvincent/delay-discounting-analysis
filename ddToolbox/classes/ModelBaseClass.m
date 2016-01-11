@@ -324,7 +324,6 @@ classdef ModelBaseClass < handle
 		function figUnivariateSummary(obj, participantIDlist, variables)
 			% loop over variables provided, plotting univariate summary
 			% statistics.
-			warning('Add group-level inferences to this plot (glM, glC, glALPHA,glEpsilon)')
 			figure
 			for v = 1:numel(variables)
 				subplot(numel(variables),1,v)
