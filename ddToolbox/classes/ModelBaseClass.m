@@ -120,8 +120,6 @@ classdef ModelBaseClass < handle
 				% **colHeader** Need to keep the same values so we can append group
 				% to participant table.
 				for n=1:numel(varNames)
-% 					data = [data obj.sampler.stats.mean.(varNames{n})'];
-% 					data = [data [obj.sampler.stats.hdi_low.(varNames{n}); obj.sampler.stats.hdi_high.(varNames{n})]' ];
 					data = [data obj.sampler.getStats('mean',varNames{n})];
 					data = [data obj.sampler.getStats('hdi_low',varNames{n})];
 					data = [data obj.sampler.getStats('hdi_high',varNames{n})];
@@ -150,12 +148,11 @@ classdef ModelBaseClass < handle
 			warning('THIS METHOD IS A TOTAL MESS - PLAN THIS AGAIN FROM SCRATCH')
 			obj.conditionalDiscountRates_ParticipantLevel(reward, plotFlag)
 
-			if plotFlag % FORMATTING OF FIGURE
+			if plotFlag
 				removeYaxis
 				title(sprintf('$P(\\log(k)|$reward=$\\pounds$%d$)$', reward),'Interpreter','latex')
 				xlabel('$\log(k)$','Interpreter','latex')
 				axis square
-				%legend(lh.DisplayName)
 			end
 		end
 
@@ -318,9 +315,11 @@ classdef ModelBaseClass < handle
 			figure
 			for v = 1:numel(variables)
 				subplot(numel(variables),1,v)
+				hdi = [obj.sampler.getStats('hdi_low',variables{v})';...
+					obj.sampler.getStats('hdi_high',variables{v})'];
 				plotErrorBars({participantIDlist{:}},...
 					obj.sampler.getStats('mean',variables{v}),...
-					[obj.sampler.getStats('hdi_low',variables{v})'; obj.sampler.getStats('hdi_high',variables{v})'],...
+					hdi,...
 					variables{v});
 				a=axis; axis([0.5 a(2)+0.5 a(3) a(4)]);
 			end

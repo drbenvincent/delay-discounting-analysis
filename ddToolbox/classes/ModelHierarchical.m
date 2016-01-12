@@ -48,30 +48,30 @@ classdef ModelHierarchical < ModelBaseClass
 			% TODO: This could be implemented just by having another participant
 			% with no observed data? This would remove the need for all these gl*
 			% variables here and in the JAGS model and make things much simpler.
-			m_group						= Variable('m_group','m group', [], true);
-			m_group_prior			= Variable('m_group_prior','m group prior', [], true);
+			m_group				= Variable('m_group','m group', [], true);
+			m_group_prior		= Variable('m_group_prior','m group prior', [], true);
 
-			c_group						= Variable('c_group','c group', [], true);
-			c_group_prior			= Variable('c_group_prior','c group prior', [], true);
+			c_group				= Variable('c_group','c group', [], true);
+			c_group_prior		= Variable('c_group_prior','c group prior', [], true);
 
-			epsilon_group			= Variable('epsilon_group','\epsilon group', [0 0.5], true);
-			epsilon_group_prior= Variable('epsilon_group_prior','\epsilon group prior', [0 0.5], true);
+			epsilon_group		= Variable('epsilon_group','\epsilon group', [0 0.5], true);
+			epsilon_group_prior = Variable('epsilon_group_prior','\epsilon group prior', [0 0.5], true);
 
-			alpha_group				= Variable('alpha_group','\alpha group', 'positive', true);
+			alpha_group			= Variable('alpha_group','\alpha group', 'positive', true);
 			alpha_group_prior	= Variable('alpha_group_prior','\alpha group prior', 'positive', true);
 
 			% -------------------------------------------------------------------
 			% group level priors ------------------------------------------------
-			groupMmu = Variable('groupMmu','\mu^m', [], true);
+			groupMmu	= Variable('groupMmu','\mu^m', [], true);
 			groupMsigma = Variable('groupMsigma','\sigma^m', [], true);
 
-			groupCmu = Variable('groupCmu','\mu^c', [], true);
+			groupCmu	= Variable('groupCmu','\mu^c', [], true);
 			groupCsigma = Variable('groupCsigma','\sigma^c', [], true);
 
-			groupW = Variable('groupW','\omega', [0 1], true);
+			groupW		= Variable('groupW','\omega', [0 1], true);
 			groupWprior = Variable('groupWprior','\omega prior', [0 1], true);
 
-			groupK = Variable('groupK','\kappa', 'positive', true);
+			groupK		= Variable('groupK','\kappa', 'positive', true);
 			groupKprior = Variable('groupKprior','\kappa prior', 'positive', true);
 
 			groupALPHAmu = Variable('groupALPHAmu','\mu^\alpha', 'positive', true);
@@ -175,16 +175,9 @@ classdef ModelHierarchical < ModelBaseClass
 		function conditionalDiscountRates_GroupLevel(obj, reward, plotFlag)
 			GROUP = obj.data.nParticipants; % last participant is our unobserved
 			params = obj.sampler.getSamplesFromParticipantAsMatrix(GROUP, {'m','c'});
-			% samples = obj.sampler.getSamplesFromParticipant({'m','c'}, GROUP);
-			% params(:,1) = samples.m(:);
-			% params(:,2) = samples.c(:);
-			% ==============================================
 			[posteriorMode, lh] = calculateLogK_ConditionOnReward(reward, params, plotFlag);
 			lh.LineWidth = 3;
 			lh.Color= 'k';
-			%lh(count).DisplayName = 'Group level';
-			%row(count) = {sprintf('Group level')};
-			% ==============================================
 		end
 
 
@@ -194,16 +187,7 @@ classdef ModelHierarchical < ModelBaseClass
 			%
 			% plotPsychometricParams(hModel.sampler.samples)
 
-
-% 			% HOW TO GET "UNKOWN" PARTICIPANT SAMPLES *****************
-% 			%obj.sampler.getSamplesFromParticipant({'alpha'}, 16)
-% 			% TEMP
  			samples = obj.sampler.getAllSamples();
-%
-% 			GROUP = obj.data.nParticipants;
-% 			%groupSamples = obj.sampler.getSamplesFromParticipant({'alpha','epsilon'}, GROUP);
-% 			groupSamples = obj.sampler.getSamplesAtIndex(GROUP, {'alpha','epsilon'});
-% 			% *********************************************************
 
 			figure(7), clf
 			P=size(samples.m,3); % number of participants
@@ -282,10 +266,8 @@ classdef ModelHierarchical < ModelBaseClass
 			figure
 			for v = 1:numel(variables)
 				subplot(numel(variables),1,v)
-				
 				hdi = [obj.sampler.getStats('hdi_low',variables{v})' obj.sampler.getStats('hdi_low',[variables{v} '_group']) ;...
 					obj.sampler.getStats('hdi_high',variables{v})' obj.sampler.getStats('hdi_high',[variables{v} '_group'])];
-				
 				plotErrorBars({participantIDlist{:}},...
 					[obj.sampler.getStats('mean',variables{v})' obj.sampler.getStats('mean',[variables{v} '_group'])],...
 					hdi,...
