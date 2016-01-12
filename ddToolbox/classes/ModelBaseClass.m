@@ -87,60 +87,58 @@ classdef ModelBaseClass < handle
 		end
 
 		function exportParameterEstimates(obj)
-			% Loop over all fields in obj.analyses.univariate and display 
-			% the posterior mean and CI95. 
-			% Put into a table and export.
-
+			
+			% grab variable names for participant level
 			varNames = {obj.variables.str};
 			varNames = varNames( [obj.variables.analysisFlag]==1 );
-
-			data=[];
+			
+			% Create list of column labels
 			colHeader = {};
 			for n=1:numel(varNames)
-				data = [data obj.sampler.getStats('mean',varNames{n})];
-				data = [data obj.sampler.getStats('hdi_low',varNames{n})];
-				data = [data obj.sampler.getStats('hdi_high',varNames{n})];
-				
 				colHeader{end+1} = sprintf('%s_mean', varNames{n});
 				colHeader{end+1} = sprintf('%s_HDI5', varNames{n});
 				colHeader{end+1} = sprintf('%s_HDI95', varNames{n});
 			end
-
-			param_estimates = array2table(data,...
+			
+			% create table for participant params
+			varNames = {obj.variables.str};
+			varNames = varNames( [obj.variables.analysisFlag]==1 );
+			paramEstimates = obj.grabParamEstimates(obj.sampler, varNames);
+			paramEstimateTable = array2table(paramEstimates,...
 				'VariableNames',colHeader,...
 				'RowNames', obj.data.IDname);
 
-			%% see if there are any group-level parameters
+			%% create table for group-level params, if there are any
 			if sum([obj.variables.analysisFlag]==2)>0
-				% there are group-level parameters
+				% grab variable names for group level
 				varNames = {obj.variables.str};
 				varNames = varNames( [obj.variables.analysisFlag]==2 );
-
-				data=[];
-				% **colHeader** Need to keep the same values so we can append group
-				% to participant table.
-				for n=1:numel(varNames)
-					data = [data obj.sampler.getStats('mean',varNames{n})];
-					data = [data obj.sampler.getStats('hdi_low',varNames{n})];
-					data = [data obj.sampler.getStats('hdi_high',varNames{n})];
-				end
-
-				group_level = array2table(data,...
+				% create table for group level params
+				paramEstimates = obj.grabParamEstimates(obj.sampler, varNames);
+				group_level = array2table(paramEstimates,...
 					'VariableNames',colHeader,...
 					'RowNames', {'GroupLevelInference'});
-
-				param_estimates = [param_estimates ; group_level];
+				paramEstimateTable = [paramEstimateTable ; group_level];
 			end
 
 			%% display to command window
-			param_estimates
+			paramEstimateTable
 
 			%% Export
 			savename = fullfile('figs', obj.saveFolder, 'parameterEstimates.txt');
-			writetable(param_estimates, savename,...
+			writetable(paramEstimateTable, savename,...
 				'Delimiter','\t')
 			fprintf('The above table of parameter estimates was exported to:\n')
 			fprintf('\t%s\n\n',savename)
+		end
+		
+		function data = grabParamEstimates(obj, sampler, varNames)
+			data=[];
+			for n=1:numel(varNames)
+				data = [data sampler.getStats('mean',varNames{n})];
+				data = [data sampler.getStats('hdi_low',varNames{n})];
+				data = [data sampler.getStats('hdi_high',varNames{n})];
+			end
 		end
 
 		function conditionalDiscountRates(obj, reward, plotFlag)
