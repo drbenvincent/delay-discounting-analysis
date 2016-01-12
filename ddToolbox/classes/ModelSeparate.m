@@ -75,18 +75,24 @@ classdef ModelSeparate < ModelBaseClass
 			obj.variables = [m, c, epsilon, alpha,...
 				m_prior, c_prior, epsilon_prior, alpha_prior,...
 				Rpostpred];
-
+			
+			% Variable list, used for plotting
+			obj.varList.participant_level_variables = {'m', 'c','alpha','epsilon'};
+			
+			obj.varList.participant_level_prior_variables={'m_prior',...
+				'c_prior',...
+				'alpha_prior',...
+				'epsilon_prior'};
 		end
 		% ================================================================
-
-
+		
+		
 		function plot(obj)
 			close all
-			variables = {'m', 'c','alpha','epsilon'};
 			
 			% plot univariate summary statistics for the parameters we have
 			% made inferences about
-			obj.figUnivariateSummary(obj.data.IDname, variables)
+			obj.figUnivariateSummary(obj.data.IDname, obj.varList.participant_level_variables)
 			% EXPORTING ---------------------
 			latex_fig(16, 5, 5)
 			myExport(obj.saveFolder, obj.modelType, '-UnivariateSummary')
@@ -95,11 +101,8 @@ classdef ModelSeparate < ModelBaseClass
 			obj.plotPsychometricParams( obj.sampler.getAllSamples() )
 			myExport(obj.saveFolder, obj.modelType, '-PsychometricParams')
 			
-			participant_prior_variables={'m_prior',...
-				'c_prior',...
-				'alpha_prior',...
-				'epsilon_prior'};
-			obj.figParticipantLevelWrapper(variables, participant_prior_variables)
+			obj.figParticipantLevelWrapper(obj.varList.participant_level_variables,...
+				obj.varList.participant_level_prior_variables)
 		end
 
 	end

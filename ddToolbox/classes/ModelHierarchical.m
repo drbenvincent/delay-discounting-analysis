@@ -112,6 +112,21 @@ classdef ModelHierarchical < ModelBaseClass
 				groupALPHAmu, groupALPHAmuprior,...
 				groupALPHAsigma, groupALPHAsigmaprior,...
 				Rpostpred];
+			
+			% Variable list, used for plotting
+			obj.varList.participant_level_variables = {'m', 'c','alpha','epsilon'};
+			
+			obj.varList.participant_level_prior_variables = {'m_group_prior',...
+				'c_group_prior',...
+				'alpha_group_prior',...
+				'epsilon_group_prior'};
+			
+			obj.varList.group_level_variables = {'m_group', 'c_group','alpha_group','epsilon_group'};
+			
+			obj.varList.group_level_prior_variables = {'m_group_prior',...
+				'c_group_prior',...
+				'alpha_group_prior',...
+				'epsilon_group_prior'};
 
 		end
 		% =================================================================
@@ -124,32 +139,22 @@ classdef ModelHierarchical < ModelBaseClass
 			myExport(obj.saveFolder, obj.modelType, '-PsychometricParams')
 
 			%% GROUP LEVEL
-			variables = {'m_group', 'c_group','alpha_group','epsilon_group'};
-			group_level_prior_variables = {'m_group_prior',...
-				'c_group_prior',...
-				'alpha_group_prior',...
-				'epsilon_group_prior'};
 			% Tri plot
-			obj.figGroupTriPlot(variables, group_level_prior_variables)
+			obj.figGroupTriPlot(obj.varList.group_level_variables, obj.varList.group_level_prior_variables)
 			myExport(obj.saveFolder, obj.modelType, ['-GROUP-triplot'])
 
-			
-			obj.figGroupLevel(variables)
+			obj.figGroupLevel(obj.varList.group_level_variables)
 
 			%% PARTICIPANT LEVEL
-			variables = {'m', 'c','alpha','epsilon'};
-			participant_prior_variables = {'m_group_prior',...
-				'c_group_prior',...
-				'alpha_group_prior',...
-				'epsilon_group_prior'};
+
 			% plot univariate summary statistics --------------------------------
-			obj.figUnivariateSummary(obj.data.IDname, variables)
+			obj.figUnivariateSummary(obj.data.IDname, obj.varList.participant_level_variables)
 			latex_fig(16, 5, 5)
 			myExport(obj.saveFolder, obj.modelType, '-UnivariateSummary')
 			% -------------------------------------------------------------------
 
-			obj.figParticipantLevelWrapper(variables, participant_prior_variables)
-
+			obj.figParticipantLevelWrapper(obj.varList.participant_level_variables,...
+				obj.varList.participant_level_prior_variables)
 		end
 
 

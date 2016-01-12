@@ -8,6 +8,7 @@ classdef ModelBaseClass < handle
 		sampler % handle to Sampler class
 		monitorparams
 		variables % array of variables
+		varList
 		saveFolder
 	end
 
