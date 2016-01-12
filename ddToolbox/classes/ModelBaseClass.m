@@ -188,56 +188,44 @@ classdef ModelBaseClass < handle
 		end
 
 		function posteriorPredictive(obj)
-			figure(77), clf, colormap(gray)
- 			temp = obj.sampler.getSamples({'Rpostpred'});
- 			samples = temp.Rpostpred;
-
-			% flatten chains
-			s=size(samples);
-			samples = reshape(samples, s(1)*s(2), s(3), s(4));
-			[nSamples, nParticipants, nTrials] = size(samples);
-
+			%% Calculation
+			% Calculate log posterior odds of data under the model and a
+			% control model where prob of responding is 0.5.
+			prob = @(responses, predicted) prod(binopdf(responses, ...
+				ones(size(responses)),...
+				predicted));
+			nParticipants = obj.data.nParticipants;
 			for p=1:nParticipants
-
-				%% plot predicted probability of choosing delayed
-				participantSamples = squeeze(samples(:,p,:));
-				predicted = sum(participantSamples,1)./nSamples;
-				subplot(nParticipants,1,p)
-				bar(predicted,'BarWidth',1)
-				if p<nParticipants
-					set(gca,'XTick',[])
-				end
-				box off
-
-				%% plot actual data
-				hold on
-				responses = obj.data.participantLevel(p).data.R;
-				trialsForThisParticipant = obj.data.participantLevel(p).trialsForThisParticant;
-				plot([1:trialsForThisParticipant],...
-					responses,'o')
-
-				%addTextToFigure('TR', obj.data.IDname{p}, 10);
-
-				%% Calculate posterior prob of data
-				pModel = prod(binopdf(responses, ones(trialsForThisParticipant,1), predicted'));
-
-				random = ones(size(predicted)) .* 0.5;
-				pRandom = prod(binopdf(responses, ones(trialsForThisParticipant,1), random'));
-
-				logSomething = log( pModel ./ pRandom);
-				info = sprintf('%s: %3.2f\n', obj.data.IDname{p},logSomething)
-
-				addTextToFigure('TR', info, 10);
+				participantResponses = obj.data.participantLevel(p).data.R;% <-- replace with a get method
+				participant(p).predicted = obj.sampler.getParticipantPredictedResponses(p);
+				pModel = prob(participantResponses, participant(p).predicted');
+				controlPredictions = ones(size(participantResponses)) .* 0.5;
+				pRandom = prob(participantResponses, controlPredictions);
+				logSomething(p) = log( pModel ./ pRandom);
 			end
-
+			%% Plotting
+			figure(77), clf, colormap(gray)
+			for p=1:nParticipants
+				subplot(nParticipants,1,p)
+				% plot predicted probability of choosing delayed
+				bar(participant(p).predicted,'BarWidth',1)
+				if p<nParticipants, set(gca,'XTick',[]), end
+				box off
+				% plot response data
+				hold on
+				plot([1:obj.data.participantLevel(p).trialsForThisParticant],... % <-- replace with a get method
+					obj.data.participantLevel(p).data.R,... % <-- replace with a get method
+					'o')
+				addTextToFigure('TR',...
+					sprintf('%s: %3.2f\n', obj.data.IDname{p}, logSomething(p)),...
+					10);
+			end
 			xlabel('trials')
 		end
 
 		function figParticiantTriPlot(obj,n, variables, participant_prior_variables)
 			posteriorSamples = obj.sampler.getSamplesFromParticipantAsMatrix(n, variables);
-			
-			[priorSamples] = obj.sampler.getSamplesAsMatrix(participant_prior_variables);
-			
+			priorSamples = obj.sampler.getSamplesAsMatrix(participant_prior_variables);
 			figure(87)
 			triPlotSamples(posteriorSamples, priorSamples, variables, [])
 		end
@@ -298,7 +286,7 @@ classdef ModelBaseClass < handle
 			if ~isempty(pData)
 				plot3DdataSpace(pData, [mMEAN, cMEAN])
 			else
-				warning('PLOT SURFACE HERE')
+				%warning('PLOT SURFACE HERE')
 				opts.maxlogB	= max(abs(obj.data.observedData.B(:)));
 				opts.maxD		= max(obj.data.observedData.DB(:));
 				plotDiscountSurface(mMEAN, cMEAN, opts);

@@ -153,9 +153,9 @@ classdef JAGSSampler < SamplerClass
 			% 3. index of variable, meaning depends upon context of the
 			% model
 			
-			[samples] = obj.flattenChains(obj.samples, fieldsToGet);
+			[flatSamples] = obj.flattenChains(obj.samples, fieldsToGet);
 			for i = 1:numel(fieldsToGet)
-				samples.(fieldsToGet{i}) = samples.(fieldsToGet{i})(:,index);
+				samples.(fieldsToGet{i}) = flatSamples.(fieldsToGet{i})(:,index);
 			end
 		end
 
@@ -207,6 +207,20 @@ classdef JAGSSampler < SamplerClass
 		function [output] = getAllStats(obj)
 			warning('Try to remove this function')
 			output = obj.stats;
+		end
+		
+		function [predicted] = getParticipantPredictedResponses(obj, participant)
+			% calculate the probability of choosing the delayed reward, for
+			% all trials, for a particular participant.
+			temp = obj.samples.Rpostpred;
+			% extract samples from the participant 
+			temp = squeeze(temp(:,:,participant,:));
+			% flatten over chains
+			s = size(temp);
+			participantRpostpredSamples = reshape(temp, s(1)*s(2), s(3));
+			[nSamples,~] = size(participantRpostpredSamples);
+			% predicted probability of choosing delayed (response = 1)
+			predicted = sum(participantRpostpredSamples,1)./nSamples;
 		end
 
 	end
