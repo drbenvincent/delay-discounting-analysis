@@ -45,7 +45,7 @@ classdef ModelBaseClass < handle
 			str_latex	= str_latex([obj.variables.plotMCMCchainFlag]==true);
 
 			MCMCdiagnoticsPlot(obj.sampler.getAllSamples(),...
-				obj.sampler.stats,...
+				obj.sampler.getAllStats(),...
 				[],...
 				str,...
 				bounds,...
@@ -96,9 +96,10 @@ classdef ModelBaseClass < handle
 			data=[];
 			colHeader = {};
 			for n=1:numel(varNames)
-				data = [data obj.sampler.stats.mean.(varNames{n})'];
-				data = [data [obj.sampler.stats.hdi_low.(varNames{n}); obj.sampler.stats.hdi_high.(varNames{n})]' ];
-
+				data = [data obj.sampler.getStats('mean',varNames{n})];
+				data = [data obj.sampler.getStats('hdi_low',varNames{n})];
+				data = [data obj.sampler.getStats('hdi_high',varNames{n})];
+				
 				colHeader{end+1} = sprintf('%s_mean', varNames{n});
 				colHeader{end+1} = sprintf('%s_HDI5', varNames{n});
 				colHeader{end+1} = sprintf('%s_HDI95', varNames{n});
@@ -118,8 +119,11 @@ classdef ModelBaseClass < handle
 				% **colHeader** Need to keep the same values so we can append group
 				% to participant table.
 				for n=1:numel(varNames)
-					data = [data obj.sampler.stats.mean.(varNames{n})'];
-					data = [data [obj.sampler.stats.hdi_low.(varNames{n}); obj.sampler.stats.hdi_high.(varNames{n})]' ];
+% 					data = [data obj.sampler.stats.mean.(varNames{n})'];
+% 					data = [data [obj.sampler.stats.hdi_low.(varNames{n}); obj.sampler.stats.hdi_high.(varNames{n})]' ];
+					data = [data obj.sampler.getStats('mean',varNames{n})];
+					data = [data obj.sampler.getStats('hdi_low',varNames{n})];
+					data = [data obj.sampler.getStats('hdi_high',varNames{n})];
 				end
 
 				group_level = array2table(data,...
@@ -231,15 +235,10 @@ classdef ModelBaseClass < handle
 			xlabel('trials')
 		end
 
-		function figParticiantTriPlot(obj,n, variables)
+		function figParticiantTriPlot(obj,n, variables, participant_prior_variables)
 			posteriorSamples = obj.sampler.getSamplesFromParticipantAsMatrix(n, variables);
 			
-			% 			prior_variables = {'m_group_prior','c_group_prior','alpha_group_prior','epsilon_group_prior'};
-			% 			[priorSamples] = obj.sampler.getSamplesAsMatrix(prior_variables);
-			[priorSamples] = obj.sampler.getSamplesAsMatrix({'m_group_prior',...
-				'c_group_prior',...
-				'alpha_group_prior',...
-				'epsilon_group_prior'});
+			[priorSamples] = obj.sampler.getSamplesAsMatrix(participant_prior_variables);
 			
 			figure(87)
 			triPlotSamples(posteriorSamples, priorSamples, variables, [])
@@ -250,9 +249,14 @@ classdef ModelBaseClass < handle
 
 	methods (Access = protected)
 
-		function figParticipantLevelWrapper(obj, variables)
+		function figParticipantLevelWrapper(obj, variables, participant_prior_variables)
 			% For each participant, call some plotting functions on the variables provided.
 
+			mMEAN = obj.sampler.getStats('mean', 'm');
+			cMEAN = obj.sampler.getStats('mean', 'c');
+			epsilonMEAN = obj.sampler.getStats('mean', 'epsilon');
+			alphaMEAN = obj.sampler.getStats('mean', 'alpha');
+			
 			for n = 1:obj.data.nParticipants
 				fh = figure;
 				fh.Name=['participant: ' obj.data.IDname{n}];
@@ -261,17 +265,13 @@ classdef ModelBaseClass < handle
 				% get samples and data for this participant
 				[pSamples] = obj.sampler.getSamplesAtIndex(n, variables);
 				[pData] = obj.data.getParticipantData(n);
-				mMEAN				= obj.sampler.stats.mean.m(n);
-				cMEAN				= obj.sampler.stats.mean.c(n);
-				epsilonMEAN = obj.sampler.stats.mean.epsilon(n);
-				alphaMEAN		= obj.sampler.stats.mean.alpha(n);
-				obj.figParticipant(pSamples, pData, mMEAN, cMEAN, epsilonMEAN, alphaMEAN)
+				obj.figParticipant(pSamples, pData, mMEAN(n), cMEAN(n), epsilonMEAN(n), alphaMEAN(n))
 				latex_fig(16, 18, 4)
 				myExport(obj.saveFolder, obj.modelType, ['-' obj.data.IDname{n}])
 				close(fh)
 
 				% 2) Triplot
-				obj.figParticiantTriPlot(n, variables)
+				obj.figParticiantTriPlot(n, variables, participant_prior_variables)
 				myExport(obj.saveFolder, obj.modelType, ['-' obj.data.IDname{n} '-triplot'])
 			end
 		end
@@ -318,8 +318,8 @@ classdef ModelBaseClass < handle
 			for v = 1:numel(variables)
 				subplot(numel(variables),1,v)
 				plotErrorBars({participantIDlist{:}},...
-					obj.sampler.stats.mean.(variables{v}),...
-					[obj.sampler.stats.hdi_low.(variables{v}); obj.sampler.stats.hdi_high.(variables{v})],...
+					obj.sampler.getStats('mean',variables{v}),...
+					[obj.sampler.getStats('hdi_low',variables{v})'; obj.sampler.getStats('hdi_high',variables{v})'],...
 					variables{v});
 				a=axis; axis([0.5 a(2)+0.5 a(3) a(4)]);
 			end

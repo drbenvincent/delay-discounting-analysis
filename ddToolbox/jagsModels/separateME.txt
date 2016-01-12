@@ -21,10 +21,10 @@ model{
   # These priors are separated from the data and are only included here
 	# so that we can plot the prior distributions. They are duplicated from
 	# the priors above.
-  mprior       ~  dnorm(-0.243, 1/(10^2))
-  cprior       ~  dnorm(0, 1/(100^2))
-  alphaprior   ~  dexp(0.01)
-  epsilonprior ~  dbeta(1.1, 10.9) T(,0.5)
+  m_prior       ~  dnorm(-0.243, 1/(10^2))
+  c_prior       ~  dnorm(0, 1/(100^2))
+  alpha_prior   ~  dexp(0.01)
+  epsilon_prior ~  dbeta(1.1, 10.9) T(,0.5)
 
 	# *********************************************************************
 

@@ -33,33 +33,33 @@ classdef ModelSeparate < ModelBaseClass
 			m.seed.func = @() normrnd(-0.243,10);
 			m.seed.single = false;
 
-			mprior = Variable('mprior','mprior', [], true);
-			mprior.seed.func = @() normrnd(-0.243,10);
-			mprior.seed.single = true;
+			m_prior = Variable('m_prior','m prior', [], true);
+			m_prior.seed.func = @() normrnd(-0.243,10);
+			m_prior.seed.single = true;
 
 			c = Variable('c','c', [], true);
 			c.seed.func = @() normrnd(0,10);
 			c.seed.single = false;
 
-			cprior = Variable('cprior','cprior', [], true);
-			cprior.seed.func = @() normrnd(0,10);
-			cprior.seed.single = true;
+			c_prior = Variable('c_prior','c prior', [], true);
+			c_prior.seed.func = @() normrnd(0,10);
+			c_prior.seed.single = true;
 
 			epsilon = Variable('epsilon','\epsilon', [0 0.5], true);
 			epsilon.seed.func = @() rand/2;
 			epsilon.seed.single = false;
 
-			epsilonprior = Variable('epsilonprior','\epsilon prior', [0 0.5], true);
-			epsilonprior.seed.func = @() rand/2;
-			epsilonprior.seed.single = true;
+			epsilon_prior = Variable('epsilon_prior','\epsilon prior', [0 0.5], true);
+			epsilon_prior.seed.func = @() rand/2;
+			epsilon_prior.seed.single = true;
 
 			alpha = Variable('alpha','\alpha', 'positive', true);
 			alpha.seed.func = @() abs(normrnd(0,10));
 			alpha.seed.single = false;
 
-			alphaprior = Variable('alphaprior','\alpha prior', 'positive', true);
-			alphaprior.seed.func = @() abs(normrnd(0,10));
-			alphaprior.seed.single = true;
+			alpha_prior = Variable('alpha_prior','\alpha prior', 'positive', true);
+			alpha_prior.seed.func = @() abs(normrnd(0,10));
+			alpha_prior.seed.single = true;
 
 			% posterior predictive ----------------------------------------------
 			Rpostpred = Variable('Rpostpred','Rpostpred', [0 1], true);
@@ -73,7 +73,7 @@ classdef ModelSeparate < ModelBaseClass
 
 			% Create a Variable array -------------------------------------------
 			obj.variables = [m, c, epsilon, alpha,...
-				mprior, cprior, epsilonprior, alphaprior,...
+				m_prior, c_prior, epsilon_prior, alpha_prior,...
 				Rpostpred];
 
 		end
@@ -91,11 +91,15 @@ classdef ModelSeparate < ModelBaseClass
 			latex_fig(16, 5, 5)
 			myExport(obj.saveFolder, obj.modelType, '-UnivariateSummary')
 			% -------------------------------
-
+			
 			obj.plotPsychometricParams( obj.sampler.getAllSamples() )
 			myExport(obj.saveFolder, obj.modelType, '-PsychometricParams')
-
-			obj.figParticipantLevelWrapper(variables)
+			
+			participant_prior_variables={'m_prior',...
+				'c_prior',...
+				'alpha_prior',...
+				'epsilon_prior'};
+			obj.figParticipantLevelWrapper(variables, participant_prior_variables)
 		end
 
 	end
@@ -110,7 +114,7 @@ classdef ModelSeparate < ModelBaseClass
 			P=size(samples.m,3); % number of participants
 			%====================================
 			subplot(3,2,1)
-			plotPriorPostHist(samples.alphaprior(:), []);
+			plotPriorPostHist(samples.alpha_prior(:), []);
 			title('\alpha prior')
 
 			subplot(3,2,5)
@@ -126,7 +130,7 @@ classdef ModelSeparate < ModelBaseClass
 			box off
 			%====================================
 			subplot(3,2,2)
-			plotPriorPostHist(samples.epsilonprior(:), []);
+			plotPriorPostHist(samples.epsilon_prior(:), []);
 			title('\epsilon prior')
 
 			% subplot(3,4,7),

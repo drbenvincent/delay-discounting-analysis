@@ -124,23 +124,31 @@ classdef ModelHierarchical < ModelBaseClass
 			myExport(obj.saveFolder, obj.modelType, '-PsychometricParams')
 
 			%% GROUP LEVEL
+			variables = {'m_group', 'c_group','alpha_group','epsilon_group'};
+			group_level_prior_variables = {'m_group_prior',...
+				'c_group_prior',...
+				'alpha_group_prior',...
+				'epsilon_group_prior'};
 			% Tri plot
-			obj.figGroupTriPlot()
+			obj.figGroupTriPlot(variables, group_level_prior_variables)
 			myExport(obj.saveFolder, obj.modelType, ['-GROUP-triplot'])
 
-			variables = {'m_group', 'c_group','alpha_group','epsilon_group'};
+			
 			obj.figGroupLevel(variables)
 
 			%% PARTICIPANT LEVEL
 			variables = {'m', 'c','alpha','epsilon'};
-
+			participant_prior_variables = {'m_group_prior',...
+				'c_group_prior',...
+				'alpha_group_prior',...
+				'epsilon_group_prior'};
 			% plot univariate summary statistics --------------------------------
 			obj.figUnivariateSummary(obj.data.IDname, variables)
 			latex_fig(16, 5, 5)
 			myExport(obj.saveFolder, obj.modelType, '-UnivariateSummary')
 			% -------------------------------------------------------------------
 
-			obj.figParticipantLevelWrapper(variables)
+			obj.figParticipantLevelWrapper(variables, participant_prior_variables)
 
 		end
 
@@ -270,13 +278,11 @@ classdef ModelHierarchical < ModelBaseClass
 			for v = 1:numel(variables)
 				subplot(numel(variables),1,v)
 				
-				% TODO: all this nonsense needs to be hidden in a get methods in
-				% the sampler class.
-				hdi = [obj.sampler.stats.hdi_low.(variables{v}) obj.sampler.stats.hdi_low.([variables{v} '_group']) ;...
-					obj.sampler.stats.hdi_high.(variables{v}) obj.sampler.stats.hdi_high.([variables{v} '_group'])];
+				hdi = [obj.sampler.getStats('hdi_low',variables{v})' obj.sampler.getStats('hdi_low',[variables{v} '_group']) ;...
+					obj.sampler.getStats('hdi_high',variables{v})' obj.sampler.getStats('hdi_high',[variables{v} '_group'])];
 				
 				plotErrorBars({participantIDlist{:}},...
-					[obj.sampler.stats.mean.(variables{v}) obj.sampler.stats.mean.([variables{v} '_group'])],...
+					[obj.sampler.getStats('mean',variables{v})' obj.sampler.getStats('mean',[variables{v} '_group'])],...
 					hdi,...
 					variables{v});
 				a=axis; axis([0.5 a(2)+0.5 a(3) a(4)]);
@@ -301,10 +307,10 @@ classdef ModelHierarchical < ModelBaseClass
 			figure(99), clf
 			set(gcf,'Name','GROUP LEVEL')
 			
-			mMEAN = obj.sampler.stats.mean.m_group;
-			cMEAN = obj.sampler.stats.mean.c_group;
-			epsilonMEAN = obj.sampler.stats.mean.epsilon_group;
-			alphaMEAN = obj.sampler.stats.mean.alpha_group;
+			mMEAN = obj.sampler.getStats('mean', 'm_group');
+			cMEAN = obj.sampler.getStats('mean', 'c_group');
+			epsilonMEAN = obj.sampler.getStats('mean', 'epsilon_group');
+			alphaMEAN = obj.sampler.getStats('mean', 'alpha_group');
 
 			obj.figParticipant(pSamples, pData, mMEAN, cMEAN, epsilonMEAN, alphaMEAN)
 
@@ -313,19 +319,13 @@ classdef ModelHierarchical < ModelBaseClass
 			myExport(obj.saveFolder, obj.modelType, '-GROUP')
 			% -------------------------------
 		end
-
 		
-		function figGroupTriPlot(obj)
+		function figGroupTriPlot(obj, variables, group_level_prior_variables)
+			warning('Heavy but not exact duplication of figParticiantTriPlot() in ModelBaseClass')
 			% samples from posterior
-			[posteriorSamples] = obj.sampler.getSamplesAsMatrix({'m_group',...
-				'c_group',...
-				'alpha_group',...
-				'epsilon_group'});
+			[posteriorSamples] = obj.sampler.getSamplesAsMatrix(variables);
 
-			[priorSamples] = obj.sampler.getSamplesAsMatrix({'m_group_prior',...
-				'c_group_prior',...
-				'alpha_group_prior',...
-				'epsilon_group_prior'});
+			[priorSamples] = obj.sampler.getSamplesAsMatrix(group_level_prior_variables);
 
 			figure(87)
 			variable_label_names={'m','c','alpha','epsilon'};

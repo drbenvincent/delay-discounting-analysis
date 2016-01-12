@@ -3,11 +3,12 @@ classdef JAGSSampler < SamplerClass
 	%	xxxx
 
 	properties (GetAccess = public, SetAccess = private)
-		stats % structure returned by `matjags`
+		
 	end
 
 	properties (Access = private)
 		samples % structure returned by `matjags`
+		stats % structure returned by `matjags`
 	end
 
 	methods (Access = public)
@@ -172,6 +173,7 @@ classdef JAGSSampler < SamplerClass
 		function [samples] = getSamples(obj, fieldsToGet)
 			% This will not flatten across chains
 			assert(iscell(fieldsToGet),'fieldsToGet must be a cell array')
+			samples = [];
 			for n=1:numel(fieldsToGet)
 				if isfield(obj.samples,fieldsToGet{n})
 					samples.(fieldsToGet{n}) = obj.samples.(fieldsToGet{n});
@@ -195,6 +197,16 @@ classdef JAGSSampler < SamplerClass
 		function [samples] = getAllSamples(obj)
 			warning('Try to remove this method')
 			samples = obj.samples;
+		end
+		
+		function [output] = getStats(obj, field, variable)
+			% return column vector
+			output = obj.stats.(field).(variable)';
+		end
+		
+		function [output] = getAllStats(obj)
+			warning('Try to remove this function')
+			output = obj.stats;
 		end
 
 	end
