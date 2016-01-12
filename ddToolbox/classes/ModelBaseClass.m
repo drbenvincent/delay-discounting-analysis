@@ -37,12 +37,16 @@ classdef ModelBaseClass < handle
 		end
 
 		function plotMCMCchains(obj)
-			str				= {obj.variables.str};
+			% TODO: refactor this. Maybe all variables just get passed to 
+			% MCMCdiagnoticsPlot(). In which case this method can be
+			% removed and called directly from whatever calls this method.
+			
+			% select just those with analysisFlag == true
+			str			= {obj.variables.str};
+			str			= str([obj.variables.plotMCMCchainFlag]==true);
 			bounds		= {obj.variables.bounds};
-			str_latex = {obj.variables.str_latex};
-			% select just those with analysisFlag
-			str				= str([obj.variables.plotMCMCchainFlag]==true);
 			bounds		= bounds([obj.variables.plotMCMCchainFlag]==true);
+			str_latex	= {obj.variables.str_latex};
 			str_latex	= str_latex([obj.variables.plotMCMCchainFlag]==true);
 
 			MCMCdiagnoticsPlot(obj.sampler.getAllSamples(),...
@@ -57,33 +61,6 @@ classdef ModelBaseClass < handle
 			% TODO: move this method to Sampler base class?
 			% currently just monitors ALL variables
 			obj.monitorparams = {obj.variables.str};
-		end
-
-		function setInitialParamValues(obj)
-			for chain=1:obj.sampler.mcmcparams.nchains
-
-				% create initial values for some single-value items (ie
-				% non-participant level)
-				for v = 1:numel(obj.variables)
-					if isempty(obj.variables(v).seed), continue, end
-					if obj.variables(v).seed.single==false, continue, end
-
-					beep
-					varName = obj.variables(v).str;
-					obj.sampler.initial_param(chain).(varName) = obj.variables(v).seed.func();
-				end
-
-				for p=1:obj.data.nParticipants
-					for v = 1:numel(obj.variables)
-						if isempty(obj.variables(v).seed), continue, end
-						if obj.variables(v).seed.single==true, continue, end
-
-						varName = obj.variables(v).str;
-						obj.sampler.initial_param(chain).(varName)(p) = obj.variables(v).seed.func();
-					end
-				end
-
-			end
 		end
 
 		function exportParameterEstimates(obj)
@@ -246,7 +223,6 @@ classdef ModelBaseClass < handle
 				fh.Name=['participant: ' obj.data.IDname{n}];
 
 				% 1) figParticipant plot
-				% get samples and data for this participant
 				[pSamples] = obj.sampler.getSamplesAtIndex(n, variables);
 				[pData] = obj.data.getParticipantData(n);
 				obj.figParticipant(pSamples, pData, mMEAN(n), cMEAN(n), epsilonMEAN(n), alphaMEAN(n))
@@ -284,7 +260,6 @@ classdef ModelBaseClass < handle
 			if ~isempty(pData)
 				plot3DdataSpace(pData, [mMEAN, cMEAN])
 			else
-				%warning('PLOT SURFACE HERE')
 				opts.maxlogB	= max(abs(obj.data.observedData.B(:)));
 				opts.maxD		= max(obj.data.observedData.DB(:));
 				plotDiscountSurface(mMEAN, cMEAN, opts);

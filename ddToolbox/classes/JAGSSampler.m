@@ -27,12 +27,31 @@ classdef JAGSSampler < SamplerClass
 			assert(obj.mcmcparams.nchains>=2,'Use a minimum of 2 MCMC chains')
 			obj.startParallelPool();
 			% Ask the model to set some things up, because it's model specific
-			obj.modelHandle.setInitialParamValues();
+			obj.setInitialParamValues(obj.modelHandle.variables);
 			obj.modelHandle.setMonitoredValues();
 			obj.modelHandle.setObservedValues();
 			obj.invokeSampler();
 			obj.convergenceSummary()
 			% TODO: ***** SAVE THE MODEL OBJECT HERE *****
+		end
+		
+		function setInitialParamValues(obj, variables)
+			for chain=1:obj.mcmcparams.nchains
+				for v = 1:numel(variables)
+					if isempty(variables(v).seed), continue, end
+					if variables(v).seed.single==false
+						% participant level
+						for p=1:obj.modelHandle.data.nParticipants
+							varName = variables(v).str;
+							obj.initial_param(chain).(varName)(p) = variables(v).seed.func();
+						end
+					else
+						% non-participant level
+						varName = variables(v).str;
+						obj.sampler.initial_param(chain).(varName) = variables(v).seed.func();
+					end
+				end
+			end
 		end
 		
 		function invokeSampler(obj)
