@@ -40,7 +40,7 @@ classdef (Abstract) SamplerClass < handle
 	methods (Access = public)
 
 		% CONSTRUCTOR =====================================================
-		function obj = SamplerClass(toolboxPath)
+		function obj = SamplerClass()
 		end
 		% =================================================================
 

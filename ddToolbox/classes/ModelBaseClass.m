@@ -86,7 +86,9 @@ classdef ModelBaseClass < handle
 		end
 
 		function exportParameterEstimates(obj)
-			% Loop over all fields in obj.analyses.univariate and display the mode and CI95. Put into a table and export.
+			% Loop over all fields in obj.analyses.univariate and display 
+			% the posterior mean and CI95. 
+			% Put into a table and export.
 
 			varNames = {obj.variables.str};
 			varNames = varNames( [obj.variables.analysisFlag]==1 );
@@ -97,9 +99,9 @@ classdef ModelBaseClass < handle
 				data = [data obj.sampler.stats.mean.(varNames{n})'];
 				data = [data [obj.sampler.stats.hdi_low.(varNames{n}); obj.sampler.stats.hdi_high.(varNames{n})]' ];
 
-				colHeader{end+1} = sprintf('%s_mode', varNames{n});
-				colHeader{end+1} = sprintf('%s_CI5', varNames{n});
-				colHeader{end+1} = sprintf('%s_CI95', varNames{n});
+				colHeader{end+1} = sprintf('%s_mean', varNames{n});
+				colHeader{end+1} = sprintf('%s_HDI5', varNames{n});
+				colHeader{end+1} = sprintf('%s_HDI95', varNames{n});
 			end
 
 			param_estimates = array2table(data,...
@@ -185,8 +187,8 @@ classdef ModelBaseClass < handle
 
 		function posteriorPredictive(obj)
 			figure(77), clf, colormap(gray)
-			temp = obj.sampler.getSamples({'Rpostpred'});
-			samples = temp.Rpostpred;
+ 			temp = obj.sampler.getSamples({'Rpostpred'});
+ 			samples = temp.Rpostpred;
 
 			% flatten chains
 			s=size(samples);
@@ -230,29 +232,17 @@ classdef ModelBaseClass < handle
 		end
 
 		function figParticiantTriPlot(obj,n, variables)
-			% samples from posterior
-
-			samples = obj.sampler.getSamplesFromParticipantAsMatrix(n, variables);
-
-			% *** DON'T DELETE ***
-			% samples from prior
-			%temp = obj.sampler.getSamplesAtIndex(n, {'mprior', 'cprior','alphaprior','epsilonprior'});
-			% 			priorSamples= [obj.sampler.samples.mprior(:),...
-			% 				obj.sampler.samples.cprior(:),...
-			% 				obj.sampler.samples.alphaprior(:),...
-			% 				obj.sampler.samples.epsilonprior(:)];
+			posteriorSamples = obj.sampler.getSamplesFromParticipantAsMatrix(n, variables);
+			
+			% 			prior_variables = {'m_group_prior','c_group_prior','alpha_group_prior','epsilon_group_prior'};
+			% 			[priorSamples] = obj.sampler.getSamplesAsMatrix(prior_variables);
+			[priorSamples] = obj.sampler.getSamplesAsMatrix({'m_group_prior',...
+				'c_group_prior',...
+				'alpha_group_prior',...
+				'epsilon_group_prior'});
+			
 			figure(87)
-			%if isfield(obj.sampler.samples,'glMprior')
-			[priorSamples] = obj.sampler.getSamplesAsMatrix(...
-				{'glMprior','glCprior','glALPHAprior','glEpsilonprior'});
-			% 				priorSamples= [obj.sampler.samples.glMprior(:),...
-			% 					obj.sampler.samples.glCprior(:),...
-			% 					obj.sampler.samples.glALPHAprior(:),...
-			% 					obj.sampler.samples.glEpsilonprior(:)];
-			triPlotSamples(samples, priorSamples, variables, [])
-			%else
-			%	triPlotSamples(samples, [], variables, [])
-			%end
+			triPlotSamples(posteriorSamples, priorSamples, variables, [])
 		end
 
 	end
