@@ -6,7 +6,6 @@ classdef ModelBaseClass < handle
 		modelType % string
 		data % handle to Data class
 		sampler % handle to Sampler class
-		monitorparams
 		variables % array of variables
 		varList
 		saveFolder
@@ -55,12 +54,6 @@ classdef ModelBaseClass < handle
 				str,...
 				bounds,...
 				str_latex);
-		end
-
-		function setMonitoredValues(obj)
-			% TODO: move this method to Sampler base class?
-			% currently just monitors ALL variables
-			obj.monitorparams = {obj.variables.str};
 		end
 
 		function exportParameterEstimates(obj)

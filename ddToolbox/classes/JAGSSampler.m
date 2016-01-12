@@ -28,7 +28,7 @@ classdef JAGSSampler < SamplerClass
 			obj.startParallelPool();
 			% Ask the model to set some things up, because it's model specific
 			obj.setInitialParamValues(obj.modelHandle.variables);
-			obj.modelHandle.setMonitoredValues();
+			obj.setMonitoredValues();
 			obj.modelHandle.setObservedValues();
 			obj.invokeSampler();
 			obj.convergenceSummary()
@@ -48,10 +48,16 @@ classdef JAGSSampler < SamplerClass
 					else
 						% non-participant level
 						varName = variables(v).str;
-						obj.sampler.initial_param(chain).(varName) = variables(v).seed.func();
+						obj.initial_param(chain).(varName) = variables(v).seed.func();
 					end
 				end
 			end
+		end
+		
+		function setMonitoredValues(obj)
+			% TODO: move this method to Sampler base class?
+			% currently just monitors ALL variables
+			obj.monitorparams = {obj.modelHandle.variables.str};
 		end
 		
 		function invokeSampler(obj)
@@ -67,7 +73,7 @@ classdef JAGSSampler < SamplerClass
 				'nburnin', obj.mcmcparams.nburnin,...
 				'nsamples', obj.mcmcparams.nsamples, ...
 				'thin', 1, ...
-				'monitorparams', obj.modelHandle.monitorparams, ...
+				'monitorparams', obj.monitorparams, ...
 				'savejagsoutput' , 0 , ...
 				'verbosity' , 1 , ...
 				'cleanup' , 1 ,...
