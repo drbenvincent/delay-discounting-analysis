@@ -161,7 +161,7 @@ classdef ModelBaseClass < handle
 				params(:,1) = obj.sampler.getSamplesFromParticipantAsMatrix(p, {'m'});
 				params(:,2) = obj.sampler.getSamplesFromParticipantAsMatrix(p, {'c'});
 				% ==============================================
-				[posteriorMode(count), lh(count)] =...
+				[posteriorMean(count), lh(count)] =...
 					calculateLogK_ConditionOnReward(reward, params, plotFlag);
 				%lh(count).DisplayName=sprintf('participant %d', p);
 				%row(count) = {sprintf('participant %d', p)};

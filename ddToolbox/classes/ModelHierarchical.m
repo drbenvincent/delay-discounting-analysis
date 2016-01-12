@@ -175,7 +175,7 @@ classdef ModelHierarchical < ModelBaseClass
 		function conditionalDiscountRates_GroupLevel(obj, reward, plotFlag)
 			GROUP = obj.data.nParticipants; % last participant is our unobserved
 			params = obj.sampler.getSamplesFromParticipantAsMatrix(GROUP, {'m','c'});
-			[posteriorMode, lh] = calculateLogK_ConditionOnReward(reward, params, plotFlag);
+			[posteriorMean, lh] = calculateLogK_ConditionOnReward(reward, params, plotFlag);
 			lh.LineWidth = 3;
 			lh.Color= 'k';
 		end
