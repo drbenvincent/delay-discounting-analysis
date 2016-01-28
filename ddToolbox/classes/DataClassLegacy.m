@@ -1,6 +1,6 @@
-classdef DataClass < handle
-	%data A class to load and handle data
-	%   Detailed explanation goes here
+classdef DataClassLegacy < handle
+	%DataClassLegacy Should support older versions of Matlab without
+	%Tables.
 	
 	properties (GetAccess = public, SetAccess = private)
 		participantFilenames
@@ -19,13 +19,8 @@ classdef DataClass < handle
 	methods (Access = public)
 		
 		% =================================================================
-		function obj=DataClass(dataFolder)
-			try
-				table();
-			catch
-				error( strcat('ERROR: This version of Matlab does not support the Table data type. ',...
-					'You will need to call DataClassLegacy() instead of DataClass().'))
-			end
+		function obj=DataClassLegacy(dataFolder)
+			
 			obj.dataFolder = dataFolder;
 			display('You have created a Data object')
 		end
@@ -35,21 +30,21 @@ classdef DataClass < handle
 		function [obj] = loadDataFiles(obj,fnames)
 			% INPUT:
 			% - fnames	a cell arrage of filenames of participant data
-						
+			
 			obj.nParticipants = numel(fnames);
 			obj.participantFilenames = fnames;
 			
 			for n=1:obj.nParticipants
 				obj.IDname{n} = obj.extractParticipantInitialsFromFilename(fnames{n});
-				participantTable = readtable(fullfile(obj.dataFolder,fnames{n}), 'delimiter','tab');
-				participantTable = obj.appendParticipantIDcolumn(participantTable, n);
- 				obj.participantLevel(n).table = participantTable;
- 				obj.participantLevel(n).trialsForThisParticant = height(participantTable);
+				participantStruct = obj.importParticipantData( fullfile(obj.dataFolder,fnames{n}) );
+				participantStruct = obj.appendParticipantIDcolumn(participantStruct, n);
+				obj.participantLevel(n).struct = participantStruct;
+				obj.participantLevel(n).trialsForThisParticant = size(participantStruct.R,1);
 			end
-
+			
 			obj.constructObservedDataForMCMC()
 			obj.exportGroupDataFile()
-			obj.totalTrials = height(obj.groupTable);
+			obj.totalTrials = numel(obj.groupTable.R);
 			
 			display('The following participant-level data files were imported:')
 			display(fnames')
@@ -59,17 +54,22 @@ classdef DataClass < handle
 			obj.buildGroupDataTable();
 			saveLocation = fullfile(obj.dataFolder,'groupLevelData');
 			if ~exist(saveLocation, 'dir'), mkdir(saveLocation), end
-			writetable(obj.groupTable,...
-				fullfile(saveLocation,'COMBINED_DATA.txt'),...
-				'delimiter','tab')
+			obj.exportGroupData(obj.groupTable, fullfile(saveLocation,'COMBINED_DATA.txt'))
 			fprintf('A copy of the group-level dataset just constructed has been saved as a text file:\n%s\n',...
 				fullfile(saveLocation,'COMBINED_DATA.txt'));
 		end
 		
 		function buildGroupDataTable(obj)
-			obj.groupTable = table();
-			for n=1:obj.nParticipants
-				obj.groupTable = [obj.groupTable; obj.participantLevel(n).table];
+			% create a group level structure, fieldnames correspond to
+			% columns.
+			fieldnames = fields(obj.participantLevel(1).struct);
+			for f = 1:numel(fieldnames)
+				obj.groupTable.(fieldnames{f}) = [];
+				for p=1:obj.nParticipants
+					obj.groupTable.(fieldnames{f}) = ...
+						[ obj.groupTable.(fieldnames{f}) ; ...
+						obj.participantLevel(p).struct.(fieldnames{f})];
+				end
 			end
 		end
 		
@@ -80,9 +80,8 @@ classdef DataClass < handle
 			%  - A, B, DA, DB, R, ID (all column vectors)
 			%  - trialsForThisParticant (a single value)
 			
-			data = table2struct(obj.participantLevel(participant).table,...
-				'ToScalar',true);
-
+			data = obj.participantLevel(participant).struct;
+			
 			data.trialsForThisParticant =...
 				obj.participantLevel(participant).trialsForThisParticant;
 		end
@@ -99,11 +98,11 @@ classdef DataClass < handle
 			obj.observedData.R  = NaN(obj.nParticipants, maxTrials);
 			for p=1:obj.nParticipants
 				Tp = obj.participantLevel(p).trialsForThisParticant;
-				obj.observedData.A(p,[1:Tp]) = obj.participantLevel(p).table.('A');
-				obj.observedData.B(p,[1:Tp]) = obj.participantLevel(p).table.('B');
-				obj.observedData.DA(p,[1:Tp]) = obj.participantLevel(p).table.('DA');
-				obj.observedData.DB(p,[1:Tp]) = obj.participantLevel(p).table.('DB');
-				obj.observedData.R(p,[1:Tp]) = obj.participantLevel(p).table.('R');
+				obj.observedData.A(p,[1:Tp]) = obj.participantLevel(p).struct.('A');
+				obj.observedData.B(p,[1:Tp]) = obj.participantLevel(p).struct.('B');
+				obj.observedData.DA(p,[1:Tp]) = obj.participantLevel(p).struct.('DA');
+				obj.observedData.DB(p,[1:Tp]) = obj.participantLevel(p).struct.('DB');
+				obj.observedData.R(p,[1:Tp]) = obj.participantLevel(p).struct.('R');
 			end
 			
 			% T is a vector containing number of trials for each participant
@@ -119,9 +118,19 @@ classdef DataClass < handle
 			participantInitials = strtok(fname, '-');
 		end
 		
-		function pTable = appendParticipantIDcolumn(pTable, n)
-			ID = ones( height(pTable), 1) * n;
-			pTable = [pTable table(ID)];
+		function participantStruct = appendParticipantIDcolumn(participantStruct, n)
+			nTrials = size(participantStruct.R,1);
+			participantStruct.ID = ones( nTrials, 1) * n;
+		end
+		
+		function participantStruct = importParticipantData(filePath)
+			% tdfread imports into a structure, fields correspond to column
+			% titles. Data in fields are column vectors
+			participantStruct = tdfread(filePath);
+		end
+		
+		function exportGroupData(groupStruct, savePath)
+			tdfwrite(savePath, groupStruct);
 		end
 		
 	end
