@@ -97,7 +97,8 @@ classdef ModelBaseClass < handle
 			%% Export
 			savename = fullfile('figs', obj.saveFolder, 'parameterEstimates.txt');
 			writetable(paramEstimateTable, savename,...
-				'Delimiter','\t')
+				'Delimiter','\t',...
+				'WriteRowNames',true)
 			fprintf('The above table of parameter estimates was exported to:\n')
 			fprintf('\t%s\n\n',savename)
 		end
