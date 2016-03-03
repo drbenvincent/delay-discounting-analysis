@@ -4,49 +4,78 @@
 # - separate parameters (for each participant) for lapse rate and alpha
 # - Hierarchical estimation of discount rates
 
+
 model{
 
-    # Group-level hyperpriors ------------------------
-    groupLogKmu     ~ dnorm(-1,1/5)
-    groupKsigma  ~ dunif(0,100)
-    # for lapse rates ~~~~~~~~~~~
-    groupW       ~ dbeta(1.1, 10.9) # mode for lapse rate
-    groupKminus2 ~ dgamma(0.01,0.01)
-    groupK <- groupKminus2+2
+    # --------------------------------------------------------------------------
+    # Group-level hyperpriors
 
+    groupLogKmu       ~ dnorm(-0.243,1/1000)
+    groupLogKsigma    ~ dunif(0,100)
 
+    # comparison acuity (alpha)
+    groupALPHAmu        ~ dnorm(0,1/(100^2)) T(0,) ## UPDATED SINCE PAPER
+    groupALPHAsigma     ~ dunif(0,500) ## UPDATED SINCE PAPER
 
-    # Participant-level ------------------------------
-    # HIERACHICAL i.e. parameter estimates for each person, but each variable is drawn from a group-level distribution.
+    # error rates (epsilon)
+    groupW          ~ dbeta(1.1, 10.9)  # mode for lapse rate
+    groupKminus2    ~ dgamma(0.5,0.5) # concentration parameter ## UPDATED SINCE PAPER
+    groupK          <- groupKminus2+2
+
+    # --------------------------------------------------------------------------
+    # Sample hyperpriors (Make sure values correspond to the priors given above)
+    # We draw these samples, that are independent from the data, so that we can plot our prior beliefs of group-level parameters. These will be determined by the actual values given in the priors.
+    # IMPORTANT - Make sure the numerical values you provide below match the priors above.
+
+    groupLogKmuprior       ~ dnorm(-0.243,1/1000)
+    groupLogKsigmaprior    ~ dunif(0,100)
+
+    # comparison acuity
+    groupALPHAmuprior    ~ dnorm(0,1/(100^2)) T(0,) ## UPDATED SINCE PAPER
+    groupALPHAsigmaprior ~ dunif(0,500) ## UPDATED SINCE PAPER
+
+    # error rates
+    groupWprior          ~ dbeta(1.1, 10.9)  # mode for lapse rate
+    groupKminus2prior    ~ dgamma(0.5,0.5) # concentration parameter
+    groupKprior          <- groupKminus2prior+2
+
+    # Prior beliefs about the group level (equivalently, an as yet unobserved participant). As determined by priors on parameters specified above
+    logk_group_prior     ~ dnorm(groupLogKmuprior, 1/(groupLogKsigmaprior^2))
+    alpha_group_prior    ~ dnorm(groupALPHAmuprior, 1/(groupALPHAsigmaprior^2)) T(0,)
+    epsilon_group_prior  ~ dbeta(groupWprior*(groupKprior-2)+1 , (1-groupWprior)*(groupKprior-2)+1 ) T(,0.5)
+
+    # --------------------------------------------------------------------------
+    # Group-level posterior predictive distributions. These samples can be seen as inferences about an as yet unobserved participant who represents what we know about the parameters at the group level.
+    logk_group          ~ dnorm(groupLogKmu, 1/(groupLogKsigma^2))
+    alpha_group         ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
+    epsilon_group       ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
+
+    # --------------------------------------------------------------------------
+    # Participant-level parameters
     for (p in 1:nParticipants){
-        participantLogK[p] ~ dnorm(groupLogKmu, 1/groupKsigma)
-        lr[p]   ~ dbeta( groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 )
+        # magnitude effect (m,c) for each person
+        logk[p]     ~ dnorm(groupLogKmu, 1/(groupLogKsigma^2))
+        epsilon[p]  ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
+        alpha[p]    ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
     }
-    # Participant-level, but NON-HEIRACHICAL. Seperate and indendent parameter estimates for each person
+
     for (p in 1:nParticipants){
-        alpha[p]~ dexp(0.001)
-    }
+        # ----------------------------------------------------------------------
+        # Trial-level
+        for (t in 1:T[p]) {
 
-    # same priors for all participants
-    lrprior   ~ dbeta( groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1)
-    alphaprior~ dexp(0.001)
-    participantLogKprior ~ dnorm(groupLogKmu, 1/groupKsigma)
+            # calculate present subjective value for each reward
+            VA[p,t] <- A[p,t] / (1+(exp(logk[p])*DA[p,t]))
+            VB[p,t] <- B[p,t] / (1+(exp(logk[p])*DB[p,t]))
 
-    # trial-level ------------------------------------
-    for (t in 1:totalTrials) {
+            # Psychometric function
+            P[p,t] <- epsilon[p] + (1-2*epsilon[p]) * phi( (VB[p,t]-VA[p,t]) / alpha[p] )
 
-        # MAGNITUDE EFFECT
-        # what is log(k) on this trial?
-        lk[t] <- participantLogK[ID[t]]
+            # response
+            R[p,t] ~ dbin(P[p,t],1)
 
-        # present value of B
-        PB[t] <- B[t] / (1+(exp(lk[t])*D[t]))
-
-        # Psychometric function
-        P[t] <- lr[ID[t]] + (1-2*lr[ID[t]]) * phi( (PB[t]-A[t]) / alpha[ID[t]] )
-
-        # response
-        R[t] ~ dbin(P[t],1)
-
+            # posterior predictive
+            Rpostpred[p,t] ~ dbin(P[p,t],1)
+        }
     }
 }

@@ -1,394 +1,369 @@
-% % CURRENTLY NOT SUPPORTED
-% 
-% classdef ModelHierarchicalNOMAG < ModelHierarchical
-% 	%modelME A model to estimate the magnitide effect
-% 	%   Detailed explanation goes here
-% 	
-% 	properties
-% 		
-% 	end
-% 	
-% 	
-% 	
-% 	methods (Access = public)
-% 		% =================================================================
-% 		function obj = ModelHierarchicalNOMAG(toolboxPath)
-% 			% Because this class is a subclass of "ModelSeperate" then we use
-% 			% this next line to create an instance
-% 			obj = obj@ModelHierarchical(toolboxPath);
-% 			
-% 			% Overwrite
-% 			obj.JAGSmodel = [toolboxPath '/jagsModels/hierarchicalNOMAG.txt'];
-% 			[~,obj.modelType,~] = fileparts(obj.JAGSmodel);
-% 			
-% 			obj = obj.setMCMCparams();
-% 		end
-% 		% =================================================================
-% 		
-% 		
-% 		% 		% OVERLOAD
-% 		% 		function obj = setInitialParamValues(obj)
-% 		% 			for n=1:obj.mcmcparams.nchains
-% 		% 				for p=1:obj.participant.data.nParticipants
-% 		% 					obj.initial_param(n).sigma(p)	= abs(normrnd(0.01,0.001));
-% 		% 				end
-% 		% 			end
-% 		% 		end
-% 		
-% 		
-% 		
-% 
-% 		
-% 		% OVERLOAD
-% 		function plot(obj, data)
-% 			close all
-% 			
-% 			% Define limits for each of the variables here for plotting
-% 			% purposes
-% 			obj.range.lr=[0 min([prctile(obj.samples.lr(:),[99]) , 1])];
-% 			%obj.range.sigma=[0 max(obj.samples.sigma(:))];
-% 			obj.range.sigma=[0 prctile(obj.samples.sigma(:),[99])];
-% 			% ranges for m and c to contain ALL samples.
-% 			%obj.range.logK=[min(obj.samples.participantLogK(:)) max(obj.samples.participantLogK(:))];
-% 			% zoom to contain virtually all samples.
-% 			obj.range.logK=prctile(obj.samples.participantLogK(:),[0.1 100-0.1]);
-% 			
-% 			
-% 			% plot univariate summary statistics for the parameters we have
-% 			% made inferences about
-% 			obj.stackedForestPlot(obj.analyses.univariate)
-% 			
-% 			obj.figGroupLevel(data)
-% 			obj.figParticipantLevelWrapper(data)
-% 			
-% 			% plot MCMC diagnostics
-% 			obj.MCMCdiagnostics(data)
-% 		end
-% 		
-% 		
-% 		function MCMCdiagnostics(obj, data)
-% 			% Choose what to plot ---------------
-% 			
-% 			variablesToPlot = {'groupLogKmu', 'participantLogK', 'lr', 'sigma'};
-% 			supp			= {[], [], [0 1], 'positive'};
-% 			paramString		= {'groupLogKmu','pLogK','\mu_m', '\mu_c', '\eta', '\sigma'};
-% 			true=[];
-% 			
-% 			% PLOT -------------------
-% 			MCMCdiagnoticsPlot(obj.samples, obj.stats,...
-% 				true,...
-% 				variablesToPlot, supp, paramString, data,...
-% 				obj.modelType);
-% 		end
-% 		
-% 		
-% 		
-% 	end
-% 	
-% 	methods (Access = protected)		
-% 		
-% 		
-% 		% OVERLOAD
-% 		function [obj] = setObservedMonitoredValues(obj, data)
-% 			obj.observed = data.observedData;
-% 			obj.observed.logBInterp = log( logspace(0,5,99) );
-% 			% group-level stuff
-% 			obj.observed.nParticipants	= data.nParticipants;
-% 			obj.observed.totalTrials	= data.totalTrials;
-% 			
-% 			% 			% Do account for the magnitude effect, and estimate slope
-% 			% 			obj.plotOpts.EstimateMagnitiudeEffect = false;
-% 			
-% 			obj.monitorparams = {'lr','lrprior',...
-% 				'sigma','sigmaprior',...
-% 				'participantLogK', 'groupLogKmu',...
-% 				'groupW'};
-% 			
-% 		end
-% 		
-% 		function figGroupLevel(obj, data)
-% 			
-% 			figure(99)
-% 			set(gcf,'Name','GROUP LEVEL')
-% 			clf
-% 			
-% 			cols = 4;
-% 			
-% 			
-% 			figure(99), subplot(1,cols,1), axis square
-% 			%addTextToFigure('TL','delete this panel', 10)
-% 			histogram(obj.samples.groupW(:)), axis square
-% 			xlabel('lapse rate $\epsilon$','Interpreter','latex')
-% 			ylabel('comparison accuity $\sigma$','Interpreter','latex')
-% 			
-% 			
-% 			% 			figure(99), subplot(1,5,3)
-% 			% 			% M/C bivariate plot
-% 			% 			tempsamples.m = obj.samples.groupMmu;
-% 			% 			tempsamples.c = obj.samples.groupCmu;
-% 			% 			xlim = obj.range.m;
-% 			% 			ylim = obj.range.c;
-% 			% 			[structName] = plot2Dmc(tempsamples.m, tempsamples.c, xlim, ylim);
-% 			% 			GROUPmodeM = structName.modex;
-% 			% 			GROUPmodeC = structName.modey;
-% 			% 			xlabel('$\mu_m$', 'interpreter', 'latex')
-% 			% 			ylabel('$\mu_c$', 'interpreter', 'latex')
-% 			
-% 			figure(99), subplot(1,cols,3)
-% 			% -------
-% 			plotDiscountRateDistribution(obj.samples.groupLogKmu(:))
-% 			% -------
-% 			
-% 			% 			figure(99), subplot(1,5,4)
-% 			% 			tempsamples.m = obj.samples.groupMmu;
-% 			% 			tempsamples.c = obj.samples.groupCmu;
-% 			% 			plotMagnitudeEffect(tempsamples, [GROUPmodeM, GROUPmodeC])
-% 			
-% 			
-% 			figure(99), subplot(1, cols, 4)
-% 			%opts.maxlogB	= max(data.observedData.B);
-% 			%opts.maxD		= max(data.observedData.D);
-% 			
-% 			% plot data + inferred discount curve
-% 			subplot(1, cols, 4)
-% 			% plot inferred discount function
-% 			plotDiscountFunctionNOMAG(obj.samples.groupLogKmu(:), data.observedData)
-% 			
-% 			
-% 			
-% 			% EXPORTING ---------------------
-% 			latex_fig(16, 18, 4)
-% 			myExport(data.saveName, obj.modelType, '-GROUP')
-% 			% -------------------------------
-% 			
-% 			
-% 			% 			figure
-% 			% 			rows=2; cols=3;
-% 			% 			subplot(rows,cols,1), plotMCMCdist(obj.samples.groupMmu,[]); title('groupMmu')
-% 			% 			subplot(rows,cols,4), plotMCMCdist(obj.samples.groupCmu,[]); title('groupCmu')
-% 			
-% 		end
-% 		
-% 		function obj = doAnalysis(obj)
-% 			% univariate summary stats
-% 			fields ={'lr', 'sigma','groupW', 'groupLogKmu', 'participantLogK'};
-% 			support={'positive', 'positive', [0 1], [], []};
-% 			uni = univariateAnalysis(obj.samples, fields, support );
-% 			obj.analyses.univariate = uni;
-% 			
-% 			% bivariate summary stats
-% 			
-% 		end
-% 		
-% 		
-% 		
-% 		
-% 		function stackedForestPlot(obj, uni)
-% 			
-% 			% how many participants do we have
-% 			N = numel(uni.lr.mode);
-% 			
-% 			% create x labels
-% 			xlabels=cell(N+1,1);
-% 			xlabels{1} = 'group';
-% 			for n=1:N
-% 				xlabels{n+1} = n;
+classdef ModelHierarchicalNOMAG < ModelBaseClass
+	%ModelHierarchical A model to estimate the magnitide effect
+	%   Detailed explanation goes here
+
+	properties
+	end
+
+
+	methods (Access = public)
+		% =================================================================
+		function obj = ModelHierarchicalNOMAG(toolboxPath, sampler, data, saveFolder)
+			% Because this class is a subclass of "modelME" then we use
+			% this next line to create an instance
+			obj = obj@ModelBaseClass(toolboxPath, sampler, data, saveFolder);
+
+			switch sampler
+				case{'JAGS'}
+					obj.sampler = JAGSSampler([toolboxPath '/jagsModels/hierarchicalNOMAG.txt'])
+					[~,obj.modelType,~] = fileparts(obj.sampler.fileName);
+				case{'STAN'}
+					error('NOT IMPLEMENTED YET')
+			end
+
+			% give sampler a handle back to the model
+			obj.sampler.modelHandle = obj;
+
+			%% Create variables
+			% -------------------------------------------------------------------
+			% Participant-level -------------------------------------------------
+			logk = Variable('logk','\log(k)', [], true);
+			logk.seed.func = @() normrnd(-0.243,10);
+			logk.seed.single = false;
+
+			epsilon = Variable('epsilon','\epsilon', [0 0.5], true);
+			epsilon.seed.func = @() 0.1 + rand/10;
+			epsilon.seed.single = false;
+
+			alpha = Variable('alpha','\alpha', 'positive', true);
+			alpha.seed.func = @() abs(normrnd(0.01,0.001));
+			alpha.seed.single = false;
+
+			% -------------------------------------------------------------------
+			% group level (ie what we expect from an as yet unobserved person ---
+			% TODO: This could be implemented just by having another participant
+			% with no observed data? This would remove the need for all these gl*
+			% variables here and in the JAGS model and make things much simpler.
+			logk_group				= Variable('logk_group','logk group', [], true);
+			logk_group_prior	= Variable('logk_group_prior','logk group prior', [], true);
+
+			epsilon_group		= Variable('epsilon_group','\epsilon group', [0 0.5], true);
+			epsilon_group_prior = Variable('epsilon_group_prior','\epsilon group prior', [0 0.5], true);
+
+			alpha_group			= Variable('alpha_group','\alpha group', 'positive', true);
+			alpha_group_prior	= Variable('alpha_group_prior','\alpha group prior', 'positive', true);
+
+			% -------------------------------------------------------------------
+			% group level priors ------------------------------------------------
+			groupLogKmu	= Variable('groupLogKmu','groupLogKmu', [], true);
+			groupLogKmuprior = Variable('groupLogKmuprior','groupLogKmuprior', [], true);
+
+			groupLogKsigma	= Variable('groupLogKsigma','groupLogKsigma', [], true);
+			groupLogKsigmaprior = Variable('groupLogKsigmaprior','groupLogKsigmaprior', [], true);
+			
+			groupW		= Variable('groupW','\omega', [0 1], true);
+			groupWprior = Variable('groupWprior','\omega prior', [0 1], true);
+
+			groupK		= Variable('groupK','\kappa', 'positive', true);
+			groupKprior = Variable('groupKprior','\kappa prior', 'positive', true);
+
+			groupALPHAmu = Variable('groupALPHAmu','\mu^\alpha', 'positive', true);
+			groupALPHAsigma = Variable('groupALPHAsigma','\sigma^\alpha', 'positive', true);
+			groupALPHAmuprior = Variable('groupALPHAmuprior','\mu^\alpha prior', 'positive', true);
+			groupALPHAsigmaprior = Variable('groupALPHAsigmaprior','\sigma^\alpha prior', 'positive', true);
+
+			% posterior predictive ----------------------------------------------
+			Rpostpred = Variable('Rpostpred','Rpostpred', [0 1], true);
+			Rpostpred.plotMCMCchainFlag = false;
+
+			% define which to analyse (univariate analysis) ---------------------
+			% 1 = participant level
+			logk.analysisFlag = 1;
+			epsilon.analysisFlag = 1;
+			alpha.analysisFlag = 1;
+
+			% 2 = group level
+			groupLogKmu.analysisFlag = 2;
+			groupLogKsigma.analysisFlag = 2;
+			epsilon_group.analysisFlag = 2;
+			alpha_group.analysisFlag = 2;
+
+
+			% Create a Variable array -------------------------------------------
+			obj.variables = [logk, epsilon, alpha,... % mprior, cprior, epsilonprior, alphaprior,...
+				groupLogKmu, groupLogKsigma,...
+				groupW, groupWprior,...
+				groupK, groupKprior,...
+				logk_group, alpha_group, epsilon_group,...
+				logk_group_prior, alpha_group_prior, epsilon_group_prior,...
+				groupALPHAmu, groupALPHAmuprior,...
+				groupALPHAsigma, groupALPHAsigmaprior,...
+				Rpostpred];
+			
+			% Variable list, used for plotting
+			obj.varList.participant_level_variables = {'logk','alpha','epsilon'};
+			
+			obj.varList.participant_level_prior_variables = {'logk_group_prior',...
+				'alpha_group_prior',...
+				'epsilon_group_prior'};
+			
+			obj.varList.group_level_variables = {'logk_group','alpha_group','epsilon_group'};
+			
+			obj.varList.group_level_prior_variables = {'logk_group_prior',...
+				'alpha_group_prior',...
+				'epsilon_group_prior'};
+
+		end
+		% =================================================================
+
+
+		function plot(obj)
+			close all
+
+			obj.plotPsychometricParams()
+			myExport(obj.saveFolder, obj.modelType, '-PsychometricParams')
+
+			%% GROUP LEVEL
+			% Tri plot
+			obj.figGroupTriPlot(obj.varList.group_level_variables, obj.varList.group_level_prior_variables)
+			myExport(obj.saveFolder, obj.modelType, ['-GROUP-triplot'])
+
+			obj.figGroupLevel(obj.varList.group_level_variables)
+
+			%% PARTICIPANT LEVEL
+
+			% plot univariate summary statistics --------------------------------
+			obj.figUnivariateSummary(obj.data.IDname, obj.varList.participant_level_variables)
+			latex_fig(16, 5, 5)
+			myExport(obj.saveFolder, obj.modelType, '-UnivariateSummary')
+			% -------------------------------------------------------------------
+
+			obj.figParticipantLevelWrapper(obj.varList.participant_level_variables,...
+				obj.varList.participant_level_prior_variables)
+		end
+
+
+		function conditionalDiscountRates(obj, reward, plotFlag)
+			error('Not applicable to this model that calculates log(k)')
+		end
+
+		function conditionalDiscountRates_GroupLevel(obj, reward, plotFlag)
+			error('Not applicable to this model that calculates log(k)')
+		end
+
+
+		function plotPsychometricParams(obj)
+			% Plot priors/posteriors for parameters related to the psychometric
+			% function, ie how response 'errors' are characterised
+			%
+			% plotPsychometricParams(hModel.sampler.samples)
+
+ 			samples = obj.sampler.getAllSamples();
+
+			figure(7), clf
+			P=obj.data.nParticipants; 
+			%====================================
+			subplot(3,2,1)
+			plotPriorPostHist(samples.alpha_group_prior(:), samples.alpha_group(:));
+			title('Group \alpha')
+
+			subplot(3,4,5)
+			plotPriorPostHist(samples.groupALPHAmuprior(:), samples.groupALPHAmu(:));
+			xlabel('\mu_\alpha')
+
+			subplot(3,4,6)
+			plotPriorPostHist(samples.groupALPHAsigmaprior(:), samples.groupALPHAsigma(:));
+			xlabel('\sigma_\alpha')
+
+			subplot(3,2,5),
+			for p=1:P-1 % plot participant level alpha (alpha(:,:,p))
+				%histogram(vec(samples.alpha(:,:,p)));
+				[F,XI]=ksdensity(vec(samples.alpha(:,:,p)),...
+					'support','positive',...
+					'function','pdf');
+				plot(XI, F)
+				hold on
+			end
+			xlabel('\alpha_p')
+			box off
+
+			%====================================
+			subplot(3,2,2)
+			plotPriorPostHist(samples.epsilon_group_prior(:), samples.epsilon_group(:));
+			title('Group \epsilon')
+
+			subplot(3,4,7),
+			plotPriorPostHist(samples.groupWprior(:), samples.groupW(:));
+			xlabel('\omega (mode)')
+
+			subplot(3,4,8),
+			plotPriorPostHist(samples.groupKprior(:), samples.groupK(:));
+			xlabel('\kappa (concentration)')
+
+			subplot(3,2,6),
+			for p=1:P-1 % plot participant level alpha (alpha(:,:,p))
+				%histogram(vec(samples.epsilon(:,:,p)));
+					[F,XI]=ksdensity(vec(samples.epsilon(:,:,p)),...
+					'support','positive',...
+					'function','pdf');
+				plot(XI, F)
+				hold on
+			end
+			xlabel('\epsilon_p')
+			box off
+		end
+		
+	end
+
+
+
+
+
+
+
+	methods (Access = protected)
+		
+		function figUnivariateSummary(obj, participantIDlist, variables)
+			% loop over variables provided, plotting univariate summary
+			% statistics.
+			
+			% We are going to add on group level inferences to the end of the
+			% participant list. This is because the group-level inferences an be
+			% seen as inferences we can make about an as yet unobserved
+			% participant, in the light of the participant data available thus
+			% far.
+			participantIDlist{end+1}='GROUP';
+			
+			figure
+			for v = 1:numel(variables)
+				subplot(numel(variables),1,v)
+				hdi = [obj.sampler.getStats('hdi_low',variables{v})' obj.sampler.getStats('hdi_low',[variables{v} '_group']) ;...
+					obj.sampler.getStats('hdi_high',variables{v})' obj.sampler.getStats('hdi_high',[variables{v} '_group'])];
+				plotErrorBars({participantIDlist{:}},...
+					[obj.sampler.getStats('mean',variables{v})' obj.sampler.getStats('mean',[variables{v} '_group'])],...
+					hdi,...
+					variables{v});
+				a=axis; axis([0.5 a(2)+0.5 a(3) a(4)]);
+			end
+		end
+		
+		% *********************************************************************
+		% *********************************************************************
+		% *********************************************************************
+		% *********************************************************************
+		% THIS IS WHAT CHANGES WITH LOGK
+		% *********************************************************************
+		% *********************************************************************
+		function figGroupLevel(obj, variables)
+			% get group level parameters in a form ready to pass off to
+			% figParticipant()
+
+			% Get group-level data
+			[pSamples] = obj.sampler.getSamples(variables);
+			% rename fields
+			[pSamples.('logk')] = pSamples.('logk_group'); pSamples = rmfield(pSamples,'logk_group');
+			[pSamples.('epsilon')] = pSamples.('epsilon_group'); pSamples = rmfield(pSamples,'epsilon_group');
+			[pSamples.('alpha')] = pSamples.('alpha_group'); pSamples = rmfield(pSamples,'alpha_group');
+
+			pData = []; % no data for group level
+
+			figure(99), clf
+			set(gcf,'Name','GROUP LEVEL')
+			
+			logkMEAN = obj.sampler.getStats('mean', 'logk_group');
+			epsilonMEAN = obj.sampler.getStats('mean', 'epsilon_group');
+			alphaMEAN = obj.sampler.getStats('mean', 'alpha_group');
+
+			obj.figParticipant(pSamples, pData, logkMEAN, epsilonMEAN, alphaMEAN)
+
+			% EXPORTING ---------------------
+			latex_fig(16, 18, 4)
+			myExport(obj.saveFolder, obj.modelType, '-GROUP')
+			% -------------------------------
+		end
+		% *********************************************************************
+		% *********************************************************************
+		
+		
+		% OVERRIDDEN FROM BASE CLASS ******************************************
+		% *********************************************************************
+		function figParticipant(obj, pSamples, pData, logkMEAN, epsilonMEAN, alphaMEAN)
+			rows=1; cols=4;
+			
+			% BIVARIATE PLOT: lapse rate & comparison accuity
+			subplot(rows, cols, 1)
+			plot2DErrorAccuity(pSamples.epsilon(:), pSamples.alpha(:), epsilonMEAN, alphaMEAN);
+			
+			% PSYCHOMETRIC FUNCTION (using my posterior-prediction-plot-matlab GitHub repository)
+			subplot(rows, cols, 2)
+			plotPsychometricFunc(pSamples, [epsilonMEAN, alphaMEAN])
+			
+			% TODO: logk
+			subplot(rows, cols, 3)
+			histogram(pSamples.logk(:))
+			axis square
+			
+			% TODO:
+			% Plot in 2D data space
+			subplot(rows, cols, 4)
+% 			if ~isempty(pData)
+% 				plot3DdataSpace(pData, [mMEAN, cMEAN])
+% 			else
+% 				opts.maxlogB	= max(abs(obj.data.observedData.B(:)));
+% 				opts.maxD		= max(obj.data.observedData.DB(:));
+% 				plotDiscountSurface(mMEAN, cMEAN, opts);
 % 			end
-% 			
-% 			subplot(4,1,1)
-% 			forestPlot(xlabels, [uni.groupLogKmu.mode uni.participantLogK.mode],...
-% 				[uni.groupLogKmu.CI95 uni.participantLogK.CI95],...
-% 				'logK')
-% 			
-% 			subplot(4,1,3)
-% 			forestPlot(xlabels, [uni.groupW.mode uni.lr.mode],...
-% 				[uni.groupW.CI95 uni.lr.CI95], '\lambda')
-% 			%xlim([-1 N+1])
-% 			
-% 			subplot(4,1,4)
-% 			forestPlot(1:N, uni.sigma.mode, uni.sigma.CI95, '\sigma')
-% 			xlim([-1 N+1])
-% 			
-% 		end
-% 		
-% 		
-% 		
-% 		
-% 		
-% 		
-% 		function figParticipant(obj, samples, data)
-% 			% samples and data should contain information for the current
-% 			% participant of interest
-% 			
-% 			rows=1; cols=4;
-% 			
-% 			% BIVARIATE PLOT: lapse rate & comparison accuity
-% 			subplot(rows, cols, 1)
-% 			[structName] = plot2DErrorAccuity(samples.lr(:),...
-% 				samples.sigma(:),...
-% 				obj.range.lr,...
-% 				obj.range.sigma);
-% 			lrMODE = structName.modex;
-% 			sigmaMODE= structName.modey;
-% 			
-% 			% PSYCHOMETRIC FUNCTION (using my posterior-prediction-plot-matlab GitHub repository)
-% 			subplot(rows, cols, 2)
-% 			plotPsychometricFunc(samples, [lrMODE, sigmaMODE])
-% 			
-% 			% 			% M/C bivariate plot
-% 			% 			subplot(rows, cols, 3)
-% 			% 			[structName] = plot2Dmc(samples.m(:), samples.c(:),...
-% 			% 				obj.range.m, obj.range.c);
-% 			% 			modeM = structName.modex;
-% 			% 			modeC = structName.modey;
-% 			
-% 			% PLOT LOG(K)
-% 			subplot(rows, cols, 3)
-% 			% -------
-% 			plotDiscountRateDistribution(samples.participantLogK(:))
-% 			% -------
-% 			
-% 			
-% 			
-% 			
-% 			
-% 			
-% 			
-% 			
-% 			% plot data + inferred discount curve
-% 			subplot(rows, cols, 4)
-% 			% plot inferred discount function
-% 			plotDiscountFunctionNOMAG(samples.participantLogK(:), data)
-% 			% plot data
-% 			plotRawDataNOMAG(data)
-% 			
-% 			
-% 			
-% 			
-% 			
-% 			axis square
-% 			
-% 		end
-% 		
-% 		
-% 		
-% 		
-% 		
-% 		% 		function stackedGroupedForestPlot2(uni)
-% 		% 			% stackedGroupedForestPlot
-% 		% 			% is basically a wrapper to plot multiple subplots of
-% 		% 			% groupedForestPlot
-% 		% 			%
-% 		% 			% takes in a structure called uni
-% 		% 			% uni holds stats for multiple model fits
-% 		%
-% 		%
-% 		%
-% 		% 			figure
-% 		%
-% 		% 			GROUPS = numel(uni);
-% 		%
-% 		% 			clear CI95
-% 		%
-% 		% 			% -----------------------------------------------------------
-% 		% 			subplot(4,1,1)
-% 		% 			for g=1:GROUPS
-% 		% 				modeVals(:,g) = [uni(g).groupMmu.mode  uni(g).m.mode];
-% 		% 				CI95(:,:,g) = [uni(g).groupMmu.CI95 uni(g).m.CI95];
-% 		% 			end
-% 		%
-% 		% 			[N, nGroups] = size(modeVals);
-% 		%
-% 		% 			% create labels ---
-% 		% 			xlabels=cell(N+1,1);
-% 		% 			xlabels{1} = 'group';
-% 		% 			for n=1:N, xlabels{n+1} = n; end
-% 		% 			% -------
-% 		%
-% 		% 			groupedForestPlot(xlabels, modeVals, CI95, '$m$')
-% 		% 			xlim([0.5 N+0.5])
-% 		% 			hline(0,...
-% 		% 				'Color','k',...
-% 		% 				'LineStyle','--')
-% 		%
-% 		% 			clear CI95 modeValsCI95
-% 		%
-% 		% 			% -----------------------------------------------------------
-% 		% 			subplot(4,1,2)
-% 		% 			for g=1:GROUPS
-% 		% 				modeVals(:,g) = [uni(g).groupCmu.mode  uni(g).c.mode];
-% 		% 				CI95(:,:,g) = [uni(g).groupCmu.CI95 uni(g).c.CI95];
-% 		% 			end
-% 		% 			groupedForestPlot(xlabels, modeVals, CI95, '$c$')
-% 		% 			xlim([0.5 N+0.5])
-% 		%
-% 		% 			clear CI95 modeValsCI95
-% 		%
-% 		% 			% -----------------------------------------------------------
-% 		% 			subplot(4,1,3)
-% 		% 			for g=1:GROUPS
-% 		% 				modeVals(:,g) = [uni(g).groupW.mode uni(g).lr.mode];
-% 		% 				CI95(:,:,g) = [uni(g).groupW.CI95 uni(g).lr.CI95];
-% 		% 			end
-% 		% 			% modeVals = [uniH.lr.mode ; uniS.lr.mode];
-% 		% 			% CI95(:,:,1) = uniH.lr.CI95;
-% 		% 			% CI95(:,:,2) = uniS.lr.CI95;
-% 		% 			groupedForestPlot(xlabels, modeVals, CI95, '$\lambda$')
-% 		% 			xlim([0.5 N+0.5])
-% 		% 			a=axis; ylim([0 a(4)])
-% 		% 			clear CI95 modeVals CI95
-% 		%
-% 		% 			% -----------------------------------------------------------
-% 		% 			subplot(4,1,4)
-% 		% 			for g=1:GROUPS
-% 		% 				modeVals(:,g) = uni(g).sigma.mode;
-% 		% 				CI95(:,:,g) = uni(g).sigma.CI95;
-% 		% 			end
-% 		% 			% modeVals = [uniH.sigma.mode ; uniS.sigma.mode];
-% 		% 			% CI95(:,:,1) = uniH.sigma.CI95;
-% 		% 			% CI95(:,:,2) = uniS.sigma.CI95;
-% 		% 			groupedForestPlot([1:N], modeVals, CI95, '$\sigma$')
-% 		% 			xlim([0.5-1 N-1+0.5])
-% 		% 			a=axis; ylim([0 a(4)])
-% 		%
-% 		% 		end
-% 		%
-% 		
-% 		
-% 		% OVERLOAD
-% 		function obj = setInitialParamValues(obj, data)
-% 			% It is important to start with reasonable initial parameters,
-% 			% otherwise the chains can not converge, or take a long time to
-% 			% converge.
-% 			
-% 			for n=1:obj.mcmcparams.nchains
-% 				% Values for which there are just one of
-% 				obj.initial_param(n).groupW = rand/10; % group mean lapse rate
-% 				
-% 				obj.initial_param(n).groupLogKmu =  normrnd( log(0.01), 1);
-% 				
-% 				% One value for each participant
-% 				for p=1:data.nParticipants
-% 					obj.initial_param(n).sigma(p)	= abs(normrnd(0.01,0.001));
-% 					obj.initial_param(n).lr(p)		= rand/10;
-% 					
-% 					% -----------------------------------------------------
-% 					% Calcualte a quick and dirty estimate of the logk for
-% 					% this participant
-% 					[pData] = data.getParticipantData(p);
-% 					logk(p) = quickAndDirtyEstimateOfLogK(pData);
-% 					% -----------------------------------------------------
-% 					obj.initial_param(n).participantLogK(p) =  normrnd( logk(p), 0.01);
-% 					% -----------------------------------------------------
-% 					
-% 					% 					obj.initial_param(n).m(p) = normrnd(-1,2);
-% 					% 					obj.initial_param(n).c(p) = normrnd(0,2);
-% 				end
-% 			end
-% 		end
-% 		
-% 		
-% 	end
-% 	
-% end
-% 
+
+		end
+		% *********************************************************************
+		% *********************************************************************
+		
+		
+		
+		% OVERRIDDEN FROM BASE CLASS ******************************************
+		% *********************************************************************
+
+		function figParticipantLevelWrapper(obj, variables, participant_prior_variables)
+			% For each participant, call some plotting functions on the variables provided.
+
+			logkMEAN = obj.sampler.getStats('mean', 'logk');
+			epsilonMEAN = obj.sampler.getStats('mean', 'epsilon');
+			alphaMEAN = obj.sampler.getStats('mean', 'alpha');
+			
+			for n = 1:obj.data.nParticipants
+				fh = figure;
+				fh.Name=['participant: ' obj.data.IDname{n}];
+
+				% 1) figParticipant plot
+				[pSamples] = obj.sampler.getSamplesAtIndex(n, variables);
+				[pData] = obj.data.getParticipantData(n);
+				obj.figParticipant(pSamples, pData, logkMEAN(n), epsilonMEAN(n), alphaMEAN(n))
+				latex_fig(16, 18, 4)
+				myExport(obj.saveFolder, obj.modelType, ['-' obj.data.IDname{n}])
+				close(fh)
+
+				% 2) Triplot
+				obj.figParticiantTriPlot(n, variables, participant_prior_variables)
+				myExport(obj.saveFolder, obj.modelType, ['-' obj.data.IDname{n} '-triplot'])
+			end
+		end
+		% *********************************************************************
+		% *********************************************************************
+		
+				
+				
+		function figGroupTriPlot(obj, variables, group_level_prior_variables)
+			warning('Heavy but not exact duplication of figParticiantTriPlot() in ModelBaseClass')
+			% samples from posterior
+			[posteriorSamples] = obj.sampler.getSamplesAsMatrix(variables);
+
+			[priorSamples] = obj.sampler.getSamplesAsMatrix(group_level_prior_variables);
+
+			figure(87)
+			variable_label_names={'m','c','alpha','epsilon'};
+			triPlotSamples(posteriorSamples, priorSamples, variable_label_names, [])
+		end
+
+	end
+
+end

@@ -132,6 +132,18 @@ linkaxes(ax,'xy')
 % uModel.plotMCMCchains()
 
 
+%%  HIERARCHICAL MODEL Log(k) MODEL (no magnitude effect)
+
+saveFolder = 'hierarchical_logk';
+kModel = ModelHierarchicalNOMAG(toolboxPath, 'JAGS', myData, saveFolder);
+kModel.sampler.setMCMCtotalSamples(10^5);
+kModel.conductInference();
+kModel.plot()
+%kModel.exportParameterEstimates(); %<--- fix this
+kModel.plotMCMCchains()
+kModel.posteriorPredictive(); %<--- fix this
+
+
 %% CODE FOR PARTICIPANT-LEVEL ONLY
 % THIS IS CURRENTLY EXPERIMENTAL. IT WORKS FINE WITH THE DEMO DATASET, BUT
 % I HAVE BEEN HAVING MCMC CHAIN CONVERGENCE ISSUES WITH OTHER DATASETS.
