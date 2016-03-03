@@ -298,21 +298,22 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 			subplot(rows, cols, 2)
 			plotPsychometricFunc(pSamples, [epsilonMEAN, alphaMEAN])
 			
-			% TODO: logk
+			% logk
 			subplot(rows, cols, 3)
-			histogram(pSamples.logk(:))
+			plotPriorPostHist([], pSamples.logk(:));
+			%histogram(pSamples.logk(:))
 			axis square
 			
 			% TODO:
 			% Plot in 2D data space
 			subplot(rows, cols, 4)
-% 			if ~isempty(pData)
-% 				plot3DdataSpace(pData, [mMEAN, cMEAN])
-% 			else
-% 				opts.maxlogB	= max(abs(obj.data.observedData.B(:)));
-% 				opts.maxD		= max(obj.data.observedData.DB(:));
-% 				plotDiscountSurface(mMEAN, cMEAN, opts);
-% 			end
+			if ~isempty(pData)
+				% participant level
+				plot2DdataSpace(pData, logkMEAN)
+			else
+				% for group level where there is no data
+				plotDiscountFunction(logkMEAN);
+			end
 
 		end
 		% *********************************************************************
