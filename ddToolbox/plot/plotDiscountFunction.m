@@ -7,7 +7,8 @@ function plotDiscountFunction(logk)
 k		= exp(logk);
 
 %% Calculate discount fraction
-D = linspace(0,365*5,1000);
+%D = linspace(0,365*5,10000);
+D = logspace(-2,365*4,10000);
 AB		= 1 ./ (1 + k.*D); % discount fraction
 
 
