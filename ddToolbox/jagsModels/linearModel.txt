@@ -49,7 +49,7 @@ model{
 
 
     # Participant-level ------------------------------
-    
+
     # same priors for all participants
     lrprior   ~ dbeta( groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1)
     alphaprior~ dnorm(groupALPHAmu, 1/groupALPHAsigma) T(0,) # TRUNCATION ------
@@ -73,7 +73,7 @@ model{
     # loop over all trials for all participants
 
     for (p in 1:nParticipants){
-        for (t in 1:T[p]) {  
+        for (t in 1:T[p]) {
 
             # MAGNITUDE EFFECT
             lkA[p,t] <- m[p]*log(A[p,t])+c[p]
@@ -87,10 +87,10 @@ model{
             P[p,t] <- lr[p] + (1-2*lr[p]) * phi( (VB[p,t]-VA[p,t]) / alpha[p] )
 
             # response
-            R[p,t] ~ dbin(P[p,t],1)
+            R[p,t] ~ dbern(P[p,t])
 
             # posterior predictive
-            #Rpostpred[t] ~ dbin(P[t],1)
+            Rpostpred[p,t] ~ dbern(P[p,t])
         }
     }
 }
