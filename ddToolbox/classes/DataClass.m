@@ -40,7 +40,8 @@ classdef DataClass < handle
 			obj.participantFilenames = fnames;
 			
 			for n=1:obj.nParticipants
-				obj.IDname{n} = obj.extractParticipantInitialsFromFilename(fnames{n});
+				%obj.IDname{n} = obj.extractParticipantInitialsFromFilename(fnames{n});
+				obj.IDname{n} = obj.extractIDfromFilename(fnames{n});
 				participantTable = readtable(fullfile(obj.dataFolder,fnames{n}), 'delimiter','tab');
 				participantTable = obj.appendParticipantIDcolumn(participantTable, n);
  				obj.participantLevel(n).table = participantTable;
@@ -115,8 +116,11 @@ classdef DataClass < handle
 	
 	methods(Static)
 		
-		function participantInitials = extractParticipantInitialsFromFilename(fname)
-			participantInitials = strtok(fname, '-');
+		function ID = extractIDfromFilename(fname)
+			% use the line below if you just want ID, assuming it's defined
+			% before a '-'
+			%ID = strtok(fname, '-');
+			[~,ID,~] = fileparts(fname); % just get filename
 		end
 		
 		function pTable = appendParticipantIDcolumn(pTable, n)
