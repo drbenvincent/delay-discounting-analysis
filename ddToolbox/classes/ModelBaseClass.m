@@ -58,35 +58,23 @@ classdef ModelBaseClass < handle
 
 		function exportParameterEstimates(obj)
 			
-			% grab variable names for participant level
-			varNames = {obj.variables.str};
-			varNames = varNames( [obj.variables.analysisFlag]==1 );
-			
-			% Create list of column labels
-			colHeader = {};
-			for n=1:numel(varNames)
-				colHeader{end+1} = sprintf('%s_mean', varNames{n});
-				colHeader{end+1} = sprintf('%s_HDI5', varNames{n});
-				colHeader{end+1} = sprintf('%s_HDI95', varNames{n});
-			end
-			
-			% create table for participant params
-			varNames = {obj.variables.str};
-			varNames = varNames( [obj.variables.analysisFlag]==1 );
+			%% participant level
+			LEVEL = 1;
+			varNames = obj.extractLevelNVarNames(LEVEL); 
+			colHeaderNames = obj.createColumnHeaders(varNames);
 			paramEstimates = obj.grabParamEstimates(obj.sampler, varNames);
 			paramEstimateTable = array2table(paramEstimates,...
-				'VariableNames',colHeader,...
+				'VariableNames',colHeaderNames,...
 				'RowNames', obj.data.IDname);
 
-			%% create table for group-level params, if there are any
+			%% group level
 			if sum([obj.variables.analysisFlag]==2)>0
-				% grab variable names for group level
-				varNames = {obj.variables.str};
-				varNames = varNames( [obj.variables.analysisFlag]==2 );
-				% create table for group level params
+				LEVEL = 2;
+				varNames = obj.extractLevelNVarNames(LEVEL);
+				%colHeaderNames = obj.createColumnHeaders(varNames);
 				paramEstimates = obj.grabParamEstimates(obj.sampler, varNames);
 				group_level = array2table(paramEstimates,...
-					'VariableNames',colHeader,...
+					'VariableNames',colHeaderNames,...
 					'RowNames', {'GroupLevelInference'});
 				paramEstimateTable = [paramEstimateTable ; group_level];
 			end
@@ -101,6 +89,20 @@ classdef ModelBaseClass < handle
 				'WriteRowNames',true)
 			fprintf('The above table of parameter estimates was exported to:\n')
 			fprintf('\t%s\n\n',savename)
+		end
+		
+		function colHeaderNames = createColumnHeaders(obj, varNames)
+			colHeaderNames = {};
+			for n=1:numel(varNames)
+				colHeaderNames{end+1} = sprintf('%s_mean', varNames{n});
+				colHeaderNames{end+1} = sprintf('%s_HDI5', varNames{n});
+				colHeaderNames{end+1} = sprintf('%s_HDI95', varNames{n});
+			end
+		end
+		
+		function varNames = extractLevelNVarNames(obj, N)
+			varNames = {obj.variables.str};
+			varNames = varNames( [obj.variables.analysisFlag]==N );
 		end
 		
 		function data = grabParamEstimates(obj, sampler, varNames)

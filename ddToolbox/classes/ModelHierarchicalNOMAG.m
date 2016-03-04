@@ -83,8 +83,9 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 			alpha.analysisFlag = 1;
 
 			% 2 = group level
-			groupLogKmu.analysisFlag = 2;
-			groupLogKsigma.analysisFlag = 2;
+			logk_group.analysisFlag = 2;
+% 			groupLogKmu.analysisFlag = 2;
+% 			groupLogKsigma.analysisFlag = 2;
 			epsilon_group.analysisFlag = 2;
 			alpha_group.analysisFlag = 2;
 
