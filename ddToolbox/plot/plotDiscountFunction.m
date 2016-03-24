@@ -2,23 +2,35 @@ function plotDiscountFunction(logk)
 %
 % plotDiscountSurface(-1, 10^-1);
 
+% CHOICE ~~~~~~~~~~
+xScale = 'linear';
+% ~~~~~~~~~~~~~~~~~
 
+k = exp(logk);
+halfLife = 1/k;
 
-k		= exp(logk);
+discountFraction = @(k,D) 1 ./ (1 + k.*D);
 
-%% Calculate discount fraction
-%D = linspace(0,365*5,10000);
-D = logspace(-2,365*4,10000);
-AB		= 1 ./ (1 + k.*D); % discount fraction
-
-
-plot(D, AB);
-
+switch xScale
+	case{'linear'}
+		D = linspace(0, halfLife*100, 10000);
+		AB		= discountFraction(k,D);
+		plot(D, AB);
+	case{'log'}
+		D = logspace(-2,4,10000);
+		AB		= discountFraction(k,D);
+		semilogx(D, AB);
+end
 
 % formatting
 axis tight
 axis square
+box off
 xlabel('delay', 'interpreter','latex')
 ylabel('discount factor', 'interpreter','latex')
 ylim([0 1])
+
+% default scale the x axis from 0 to a multiple of the half life
+xlim([0 halfLife*5])
+
 return

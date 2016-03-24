@@ -44,6 +44,6 @@ xlim([0 opts.maxD*1.1])
 ylim([0 1])
 box off
 % set x axis (B) to log scale
-set(gca,'XScale','log')
+%set(gca,'XScale','log')
 
 return
