@@ -28,6 +28,12 @@ fnames={'AC-kirby27-DAYS.txt',...
 'LY-kirby27.txt',...
 'SK-kirby27.txt',...
 'VD-kirby27.txt'};
+
+% You can use this function below if you would like to exlude participants.
+% Just pass in a cell array of strings of the participant filenames to
+% exclude
+%fnames = excludeTheseParticipants(fnames, {'SK-kirby27.txt', 'VD-kirby27.txt'})
+
 % Participant-level data will be aggregated into a larger group-level text
 % file and saved in \data\groupLevelData for inspection. Choose a
 % meaningful filename for this group-level data. This data is not used, it
