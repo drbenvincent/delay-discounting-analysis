@@ -155,6 +155,9 @@ classdef ModelHierarchical < ModelBaseClass
 
 			obj.figParticipantLevelWrapper(obj.varList.participant_level_variables,...
 				obj.varList.participant_level_prior_variables)
+			
+			%% mc contour plot of all participants
+			obj.plotMCclusters()
 		end
 
 
@@ -178,6 +181,18 @@ classdef ModelHierarchical < ModelBaseClass
 			[posteriorMean, lh] = calculateLogK_ConditionOnReward(reward, params, plotFlag);
 			lh.LineWidth = 3;
 			lh.Color= 'k';
+		end
+		
+		
+		function plotMCclusters(obj)
+			% plot posteriors over (m,c) for all participants, as contour
+			% plots
+			figure(12)
+			nParticipants = obj.data.nParticipants;
+			for p = 1:nParticipants
+				[samples] = obj.sampler.getSamplesAtIndex(p, {'m','c'});
+				plot2DmcContour(samples.m, samples.c);
+			end
 		end
 
 
