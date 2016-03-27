@@ -32,7 +32,7 @@ switch method
 	case{'kde2d'}
 		MIN_XY = [XRANGE(1) YRANGE(1)];
 		MAX_XY = [XRANGE(2) YRANGE(2)];
-		[~,density,X,Y]=kde2d([x y],288,MIN_XY,MAX_XY);
+		[~,density,X,Y]=kde2d([x y],288*2,MIN_XY,MAX_XY);
 
 		bx = X(1,:);
 		by = Y(:,1);
@@ -48,9 +48,9 @@ end
 
 outputStruc.modex = modex;
 outputStruc.modey = modey;
-outputStruc.density = density;
-outputStruc.xi = bx;
-outputStruc.yi = by;
+outputStruc.density = density ./ sum(density(:));
+outputStruc.xi = bx(:);
+outputStruc.yi = by(:);
 
 % entropy = log2(density(:)) .* density(:);
 % entropy(isnan(entropy)) = 0;

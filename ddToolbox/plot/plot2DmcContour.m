@@ -1,4 +1,4 @@
-function [structName] = plot2DmcContour(m, c)
+function [bi] = plot2DmcContour(m, c, probabilityMass, plotOpts)
 
 m=m(:);
 c=c(:);
@@ -6,18 +6,51 @@ c=c(:);
 mlim = [min(m) max(m)];
 clim = [min(c) max(c)];
 
-[structName] = calcBivariateSummaryStats(m,c, 500, 500, mlim, clim);
-% normalise to a probability mass function
-structName.density = structName.density./sum(structName.density(:));
+[bi] = calcBivariateSummaryStats(m,c, 400, 400, mlim, clim);
 
-%% plot
-%imagesc(structName.xi, structName.yi, structName.density);
-val = max(structName.density(:))/2;% <---- MAKE THIS MORE MEANINGFUL
-[M, C] = meshgrid(structName.xi, structName.yi);
-%contour(M,C,structName.density, [val val])
-[XY,h] = contour(M,C,structName.density, [val val]);
-%h.LineStyle = 'none';
 
+%% The aim is to draw a contour which contains 50% of the probability mass.
+normalisedVec = bi.density(:);
+options	=optimset('MaxIter',1000, 'Display','off');
+[val, err, exitflag] = fminbnd(@errorfunction,0, max(normalisedVec), options, bi.density);
+
+	function err = errorfunction(val, FnormalisedVec)
+		pm = sum( FnormalisedVec(FnormalisedVec>val) );
+		err = abs( pm - probabilityMass );
+	end
+
+
+%%
+contourmatrix = contourc(bi.xi, bi.yi, bi.density, [val, val]);
+
+% Code below solves a plotting issue I was having, solved by a contributor
+% from Stackoverflow.
+% http://stackoverflow.com/questions/36220201/multiple-matlab-contour-plots-with-one-level
+parsed = false ;
+iShape = 1 ;
+while ~parsed
+    %// get coordinates for each isolevel profile
+    %level   = contourmatrix(1,1) ; %// current isolevel
+    nPoints = contourmatrix(2,1) ; %// number of coordinate points for this shape
+
+    idx = 2:nPoints+1 ; %// prepare the column indices of this shape coordinates
+    xp = contourmatrix(1,idx) ;     %// retrieve shape x-values
+    yp = contourmatrix(2,idx) ;     %// retrieve shape y-values
+    hp(iShape) = patch(xp,yp,'k') ; %// generate path object and save handle for future shape control.
+
+    if size(c,2) > (nPoints+1)
+        %// There is another shape to draw
+        contourmatrix(:,1:nPoints+1) = [] ; %// remove processed points from the contour matrix
+        iShape = iShape+1 ;     %// increment shape counter
+    else
+       %// we are done => exit while loop
+       parsed  = true ;
+    end
+end
+grid on
+
+% apply plotOptions
+set(hp, plotOpts);
 
 axis xy
 colormap(gca, flipud(gray));
@@ -49,4 +82,4 @@ box off
 % h.BackgroundColor=[1 1 1 0.7];
 
 drawnow
-return
+end

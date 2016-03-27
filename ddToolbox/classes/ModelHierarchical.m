@@ -157,7 +157,8 @@ classdef ModelHierarchical < ModelBaseClass
 				obj.varList.participant_level_prior_variables)
 			
 			%% mc contour plot of all participants
-			obj.plotMCclusters()
+			probMass = 0.95;
+			obj.plotMCclusters([1 0 0], probMass)
 		end
 
 
@@ -184,14 +185,40 @@ classdef ModelHierarchical < ModelBaseClass
 		end
 		
 		
-		function plotMCclusters(obj)
+		function plotMCclusters(obj, col, probMass)
 			% plot posteriors over (m,c) for all participants, as contour
 			% plots
 			figure(12)
-			nParticipants = obj.data.nParticipants;
-			for p = 1:nParticipants
+			% participants
+			for p = 1:obj.data.nParticipants
 				[samples] = obj.sampler.getSamplesAtIndex(p, {'m','c'});
-				plot2DmcContour(samples.m, samples.c);
+				plot2DmcContour(...
+					samples.m,...
+					samples.c,...
+					probMass,...
+					definePlotOptions4Participant(col));
+			end
+			% group
+			plot2DmcContour(...
+				obj.sampler.getSamplesAsMatrix({'m_group'}),...
+				obj.sampler.getSamplesAsMatrix({'c_group'}),...
+				probMass,...
+				definePlotOptions4Group(col));
+			
+			axis tight
+			set(gca,'XAxisLocation','origin')
+			set(gca,'YAxisLocation','origin')
+			
+			function plotOpts = definePlotOptions4Participant(col)
+				plotOpts.FaceAlpha = '0.1';
+				plotOpts.FaceColor = col;
+				plotOpts.LineStyle = 'none';
+			end
+			
+			function plotOpts = definePlotOptions4Group(col)
+				plotOpts.FaceColor = 'none';
+				plotOpts.EdgeColor = col;
+				plotOpts.LineWidth = 2;
 			end
 		end
 
