@@ -1,27 +1,42 @@
 function [bi] = plot2DmcContour(m, c, probabilityMass, plotOpts)
 
-m=m(:);
-c=c(:);
 
-mlim = [min(m) max(m)];
-clim = [min(c) max(c)];
+%% Create a bivariate pmf
+[bi] = calcBivariateSummaryStats(m(:), c(:), 400, 400);
+%imagesc(bi.xi, bi.yi, bi.density)
+%plot(bi.modex, bi.modey, 'ko')
+%axis xy
 
-[bi] = calcBivariateSummaryStats(m,c, 400, 400, mlim, clim);
+%% Find density value containing `probabilityMass` of the pmf
+normalisedVec = bi.density(:) ./ sum(bi.density(:));
+options	=optimset('MaxIter',10000, 'Display','off');
+
+errFunc = @(val,normalisedVec) abs( sum( normalisedVec(normalisedVec>val) ) - probabilityMass );
+valvec = linspace(0,max(normalisedVec),1000);
+for n=1:numel(valvec)
+	err(n) = errFunc( valvec(n), normalisedVec);
+end
+%plot(valvec, err)
+[a b] = min(err);
+val = valvec(b);
+
+% %[val, err, exitflag] = fminbnd(@errorfunction,0, max(normalisedVec), options, bi.density);
+% [val, err, exitflag] = fminbnd(@errorfunction,0, max(normalisedVec), options, normalisedVec);
+% %[val, err, exitflag] = fminbnd( errFunc, 0, max(normalisedVec), options, normalisedVec);
+% err
+% assert(exitflag==1)
+% 
+% 	function err = errorfunction(val, normalisedVec)
+% 		err = abs( sum( normalisedVec(normalisedVec>val) ) - probabilityMass );
+% 	end
 
 
-%% The aim is to draw a contour which contains 50% of the probability mass.
-normalisedVec = bi.density(:);
-options	=optimset('MaxIter',1000, 'Display','off');
-[val, err, exitflag] = fminbnd(@errorfunction,0, max(normalisedVec), options, bi.density);
-
-	function err = errorfunction(val, FnormalisedVec)
-		pm = sum( FnormalisedVec(FnormalisedVec>val) );
-		err = abs( pm - probabilityMass );
-	end
-
-
-%%
+%% Calculate contour
 contourmatrix = contourc(bi.xi, bi.yi, bi.density, [val, val]);
+
+%% Draw
+% figure
+% subplot(1,2,1)
 
 % Code below solves a plotting issue I was having, solved by a contributor
 % from Stackoverflow.
@@ -48,9 +63,24 @@ while ~parsed
     end
 end
 grid on
+axis([-1.5 0.5 -20 5])
+
+
+% subplot(1,2,2)
+% imagesc(bi.xi, bi.yi, bi.density)
+% hold on
+% plot(bi.modex, bi.modey, 'ko')
+% axis xy
+% axis([-1.5 0.5 -20 5])
+
+
 
 % apply plotOptions
 set(hp, plotOpts);
+
+% hold on
+% plot(bi.modex, bi.modey, 'ko')
+
 
 axis xy
 colormap(gca, flipud(gray));

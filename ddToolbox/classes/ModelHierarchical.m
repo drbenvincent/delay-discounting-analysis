@@ -157,7 +157,7 @@ classdef ModelHierarchical < ModelBaseClass
 				obj.varList.participant_level_prior_variables)
 			
 			%% mc contour plot of all participants
-			probMass = 0.95;
+			probMass = 0.5; % <---- 50% prob mass chosen to avoid too much clutter on graph
 			obj.plotMCclusters([1 0 0], probMass)
 		end
 
@@ -186,17 +186,26 @@ classdef ModelHierarchical < ModelBaseClass
 		
 		
 		function plotMCclusters(obj, col, probMass)
+			display('** WARNING ** Making this plot takes time...')
 			% plot posteriors over (m,c) for all participants, as contour
 			% plots
 			figure(12)
 			% participants
 			for p = 1:obj.data.nParticipants
 				[samples] = obj.sampler.getSamplesAtIndex(p, {'m','c'});
-				plot2DmcContour(...
+				[bi] = plot2DmcContour(...
 					samples.m,...
 					samples.c,...
 					probMass,...
 					definePlotOptions4Participant(col));
+				% plot numbers
+				text(bi.modex,bi.modey,...
+					sprintf('%d',p),...
+					'HorizontalAlignment','center',...
+					'VerticalAlignment','middle',...
+					'FontSize',9,...
+					'Color',col)
+				drawnow
 			end
 			% group
 			plot2DmcContour(...
@@ -208,6 +217,7 @@ classdef ModelHierarchical < ModelBaseClass
 			axis tight
 			set(gca,'XAxisLocation','origin')
 			set(gca,'YAxisLocation','origin')
+			drawnow
 			
 			function plotOpts = definePlotOptions4Participant(col)
 				plotOpts.FaceAlpha = '0.1';

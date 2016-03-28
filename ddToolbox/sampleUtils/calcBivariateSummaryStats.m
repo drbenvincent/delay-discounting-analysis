@@ -1,4 +1,4 @@
-function [outputStruc] = calcBivariateSummaryStats(x,y, XN, YN, XRANGE, YRANGE)
+function [outputStruc] = calcBivariateSummaryStats(x,y, XN, YN)
 % This function takes in two vectors corresponding to MCMC samples of two
 % parameters. It will then compute the bivariate density and use that that
 % to estimate the bivariate posterior mode.
@@ -7,10 +7,13 @@ function [outputStruc] = calcBivariateSummaryStats(x,y, XN, YN, XRANGE, YRANGE)
 x=x(:);
 y=y(:);
 
+XRANGE = [min(x) max(x)];
+YRANGE = [min(y) max(y)];
+
 %% Compute the bivariate density
 %method = 'bensSlowCode';
 %method = 'hist2d';
-method = 'kde2d';
+method = 'ksdensity';
 
 switch method
 	
@@ -44,6 +47,20 @@ switch method
 		
 % 		imagesc(X(1,:),Y(:,1),density)
 % 		axis xy
+	case{'ksdensity'} % matlab built in function
+		bx = linspace(XRANGE(1), XRANGE(2), XN);
+		by = linspace(YRANGE(1), YRANGE(2), YN);
+		[X,Y] = meshgrid(bx, by);
+		xi = [X(:) Y(:)];
+		
+		[f,xi] = ksdensity([x y], xi); % <----- SLOW
+		density = reshape(f,size(X));
+		
+		% Find the mode
+		[i,j]	= argmax2(density);
+		modex	= bx(j);
+		modey	= by(i);
+		
 end
 
 outputStruc.modex = modex;

@@ -1,12 +1,6 @@
 function [structName] = plot2Dmc(m, c, m_mean, c_mean)
 
-m=m(:);
-c=c(:);
-
-mlim = [min(m) max(m)];
-clim = [min(c) max(c)];
-
-[structName] = calcBivariateSummaryStats(m,c, 500, 500, mlim, clim);
+[structName] = calcBivariateSummaryStats(m(:),c(:), 500, 500);
 
 %% plot
 imagesc(structName.xi, structName.yi, structName.density);
