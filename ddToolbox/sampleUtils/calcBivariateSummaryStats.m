@@ -1,4 +1,4 @@
-function [outputStruc] = calcBivariateSummaryStats(x,y, XN, YN)
+function [outputStruc] = calcBivariateSummaryStats(x,y, XN, YN, method)
 % This function takes in two vectors corresponding to MCMC samples of two
 % parameters. It will then compute the bivariate density and use that that
 % to estimate the bivariate posterior mode.
@@ -11,21 +11,18 @@ XRANGE = [min(x) max(x)];
 YRANGE = [min(y) max(y)];
 
 %% Compute the bivariate density
-%method = 'bensSlowCode';
-%method = 'hist2d';
-method = 'ksdensity';
-
 switch method
 	
 	case{'bensSlowCode'}
 		% a 2D histogram method
 		xvec = linspace(XRANGE(1), XRANGE(2), XN);
 		yvec = linspace(YRANGE(1), YRANGE(2), YN);
-		[density,bx,by, modex, modey] = myHist2D(lr , sigma, xvec, yvec);
+		[density,bx,by, modex, modey] = myHist2D(x, y, xvec, yvec);
 		
 	case{'hist2d'}
 		% a 2D histogram method
 		[density, bx, by] = hist2d([x y], XN, YN, XRANGE, YRANGE);
+		% imagesc(bx, by, density)
 		
 		% Find the mode
 		[i,j]	= argmax2(density);
@@ -51,9 +48,9 @@ switch method
 		bx = linspace(XRANGE(1), XRANGE(2), XN);
 		by = linspace(YRANGE(1), YRANGE(2), YN);
 		[X,Y] = meshgrid(bx, by);
-		xi = [X(:) Y(:)];
+		%xi = [X(:) Y(:)];
 		
-		[f,xi] = ksdensity([x y], xi); % <----- SLOW
+		[f,~] = ksdensity([x y], [X(:) Y(:)]); % <----- SLOW
 		density = reshape(f,size(X));
 		
 		% Find the mode

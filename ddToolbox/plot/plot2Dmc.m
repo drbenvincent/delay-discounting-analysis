@@ -1,6 +1,6 @@
 function [structName] = plot2Dmc(m, c, m_mean, c_mean)
 
-[structName] = calcBivariateSummaryStats(m(:),c(:), 500, 500);
+[structName] = calcBivariateSummaryStats(m(:),c(:), 500, 500, 'kde2d');
 
 %% plot
 imagesc(structName.xi, structName.yi, structName.density);

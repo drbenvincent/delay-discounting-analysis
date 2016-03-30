@@ -2,7 +2,7 @@ function [bi] = plot2DmcContour(m, c, probabilityMass, plotOpts)
 
 
 %% Create a bivariate pmf
-[bi] = calcBivariateSummaryStats(m(:), c(:), 400, 400);
+[bi] = calcBivariateSummaryStats(m, c, 100, 100, 'hist2d');
 %imagesc(bi.xi, bi.yi, bi.density)
 %plot(bi.modex, bi.modey, 'ko')
 %axis xy
