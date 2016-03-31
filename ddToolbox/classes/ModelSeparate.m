@@ -17,8 +17,9 @@ classdef ModelSeparate < ModelBaseClass
 
 			switch sampler
 				case{'JAGS'}
-					obj.sampler = JAGSSampler([toolboxPath '/jagsModels/separateME.txt'])
-					[~,obj.modelType,~] = fileparts(obj.sampler.fileName);
+					modelPath = '/jagsModels/separateME.txt';
+					obj.sampler = JAGSSampler([toolboxPath modelPath]);
+					[~,obj.modelType,~] = fileparts(modelPath);
 				case{'STAN'}
 					error('NOT IMPLEMENTED YET')
 			end

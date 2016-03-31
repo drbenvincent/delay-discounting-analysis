@@ -1,6 +1,5 @@
-classdef STANSampler < SamplerClass
+classdef STANSampler < Sampler
 	%STANSampler
-	%	xxxx
 
 	properties (GetAccess = public, SetAccess = private)
 		samples, stats % structures returned by `matjags`
@@ -10,10 +9,10 @@ classdef STANSampler < SamplerClass
 	methods (Access = public)
 
 		% CONSTRUCTOR =====================================================
-		function obj = STANSampler(fileName)
-			obj = obj@SamplerClass();
+		function obj = STANSampler(modelFilename)
+			obj = obj@Sampler();
 
-			obj.fileName = fileName;
+			obj.modelFilename = modelFilename;
 			obj.sampler = 'STAN';
 			obj.setMCMCparams();
 		end
@@ -24,7 +23,7 @@ classdef STANSampler < SamplerClass
 			% obj.mcmcparams.nchains = 2;
 			% obj.mcmcparams.nburnin = 1000;
 			% obj.mcmcparams.nsamples = 10^5; % 10^5 - 10^6 min for GOOD results
-			% obj.mcmcparams.model = obj.fileName;
+			% obj.mcmcparams.model = obj.modelFilename;
 			% obj.mcmcparams.totalSamples = obj.mcmcparams.nchains * obj.mcmcparams.nsamples;
 		end
 
@@ -102,8 +101,8 @@ classdef STANSampler < SamplerClass
 			% 	obj.mcmcparams.nsamples);
 			% [obj.samples, obj.stats] = matjags( ...
 			% 	obj.observed, ...
-			% 	obj.fileName,... %obj.mcmcparams.model, ...
-			% 	obj.initial_param, ...
+			% 	obj.modelFilename,... %obj.mcmcparams.model, ...
+			% 	obj.initialParameters, ...
 			% 	'doparallel' , obj.mcmcparams.doparallel, ...
 			% 	'nchains', obj.mcmcparams.nchains,...
 			% 	'nburnin', obj.mcmcparams.nburnin,...

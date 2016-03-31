@@ -15,8 +15,9 @@ classdef ModelHierarchical < ModelBaseClass
 
 			switch sampler
 				case{'JAGS'}
-					obj.sampler = JAGSSampler([toolboxPath '/jagsModels/hierarchicalME.txt'])
-					[~,obj.modelType,~] = fileparts(obj.sampler.fileName);
+					modelPath = '/jagsModels/hierarchicalME.txt';
+					obj.sampler = JAGSSampler([toolboxPath modelPath]);
+					[~,obj.modelType,~] = fileparts(modelPath);
 				case{'STAN'}
 					error('NOT IMPLEMENTED YET')
 			end
