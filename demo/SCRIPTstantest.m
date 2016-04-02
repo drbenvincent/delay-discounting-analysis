@@ -41,6 +41,7 @@ clc
 stanModel.conductInference();
 
 stanModel.sampler.stanFit
+clf
 stanModel.sampler.stanFit.print()
 
 temp = stanModel.sampler.stanFit.extract('pars','logk_group').logk_group;

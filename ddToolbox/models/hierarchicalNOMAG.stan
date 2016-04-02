@@ -25,6 +25,9 @@ parameters {
   real groupALPHAmu;
   real <lower=0> groupALPHAsigma;
 
+  real <lower=0,upper=1>groupW;
+  real groupKminus2;
+
   // particiant LEVEL
   real logk[nParticipants];
   vector<lower=0>[nParticipants] alpha;
@@ -37,6 +40,9 @@ transformed parameters {
   vector[totalTrials] VA;
   vector[totalTrials] VB;
   vector[totalTrials] P;
+  real groupK;
+
+  groupK <- groupKminus2+2;
 
   for (t in 1:totalTrials){ // TODO Can this be vectorized?
     // calculate present subjective value for each reward
@@ -56,10 +62,13 @@ model {
   groupALPHAmu      ~ uniform(0,1000);
   groupALPHAsigma   ~ uniform(0,1000);
 
+  groupW          ~ beta(1.1, 10.9);  // mode for lapse rate
+  groupKminus2    ~ gamma(0.01,0.01); // concentration parameter
+
   // participant level - these are vectors
   logk    ~ normal(groupLogKmu, groupLogKsigma^2);
   alpha   ~ normal(groupALPHAmu, groupALPHAsigma^2); // truncate?
-  epsilon ~ beta(1 , 1 ); // truncate?
+  epsilon ~ beta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ); // truncate?
   // for (p in 1:nParticipants){
   //   logk[p] ~ normal(groupLogKmu, groupLogKsigma^2);
   // }
@@ -78,7 +87,7 @@ generated quantities {
   // group level posterior predictive distributions
   logk_group    <- normal_rng(groupLogKmu, groupLogKsigma^2);
   // alpha_group   <- normal_rng(groupALPHAmu, groupALPHAsigma^2) T[0,];
-  // epsilon_group <- beta_rng(1, 1) T[0,0.5];
+  // epsilon_group <- beta_rng(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T[0,0.5];
 
   for (t in 1:totalTrials){
     Rpostpred[t] <- bernoulli_rng(P[t]);
