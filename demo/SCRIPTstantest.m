@@ -24,14 +24,18 @@ myData = DataClass(pathToData);
 myData.loadDataFiles(fnames);
 saveFolder = 'methodspaper-kirby27';
 
-
+%% ModelHierarchical
 stanModel = ModelHierarchical(toolboxPath, 'STAN', myData, saveFolder);
 clc
 stanModel.conductInference();
 stanModel.sampler.stanFit
 
+temp = stanModel.sampler.stanFit.extract('pars','logk_group').logk_group;
+hist(temp,100)
 
 
+
+%% ModelHierarchicalNOMAG
 stanModel = ModelHierarchicalNOMAG(toolboxPath, 'STAN', myData, saveFolder);
 clc
 stanModel.conductInference();
@@ -39,7 +43,7 @@ stanModel.conductInference();
 stanModel.sampler.stanFit
 stanModel.sampler.stanFit.print()
 
-temp = stanModel.sampler.stanFit.extract('pars','logkGroupPredictive').logkGroupPredictive;
+temp = stanModel.sampler.stanFit.extract('pars','logk_group').logk_group;
 hist(temp,100)
 
 %stanModel.sampler.stanFit.traceplot() % use with care

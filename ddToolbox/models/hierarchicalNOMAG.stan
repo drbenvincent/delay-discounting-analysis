@@ -18,9 +18,18 @@ data {
 }
 
 parameters {
-  real logk[nParticipants];
+  // group level
   real groupLogKmu;
   real<lower=0> groupLogKsigma;
+
+  real groupALPHAmu;
+  real <lower=0> groupALPHAsigma;
+
+  // particiant LEVEL
+  real logk[nParticipants];
+  vector<lower=0>[nParticipants] alpha;
+  vector<lower=0,upper=0.5>[nParticipants] epsilon;
+
 }
 
 transformed parameters {
@@ -30,11 +39,12 @@ transformed parameters {
   vector[totalTrials] P;
 
   for (t in 1:totalTrials){ // TODO Can this be vectorized?
-
+    // calculate present subjective value for each reward
     VA[t] <- A[t] / (1+(exp(logk[ID[t]])*DA[t]));
     VB[t] <- B[t] / (1+(exp(logk[ID[t]])*DB[t]));
 
-    P[t] <- 0.01 + (1-2*0.01) * Phi( (VB[t]-VA[t]) / 10 );
+    // Psychometric function
+    P[t] <- epsilon[ID[t]] + (1-(2*epsilon[ID[t]])) * Phi( (VB[t]-VA[t]) / alpha[ID[t]] );
   }
 }
 
@@ -43,15 +53,27 @@ model {
   groupLogKmu       ~ normal(-0.243,1000);
   groupLogKsigma    ~ uniform(0,100);
 
-  // participant level
-  for (p in 1:nParticipants){
-    logk[p] ~ normal(groupLogKmu, groupLogKsigma^2);
-  }
+  groupALPHAmu      ~ uniform(0,1000);
+  groupALPHAsigma   ~ uniform(0,1000);
+
+  // participant level - these are vectors
+  logk    ~ normal(groupLogKmu, groupLogKsigma^2);
+  alpha   ~ normal(groupALPHAmu, groupALPHAsigma^2);
+  epsilon ~ beta(1 , 1 );
+  // for (p in 1:nParticipants){
+  //   logk[p] ~ normal(groupLogKmu, groupLogKsigma^2);
+  // }
 
   R ~ bernoulli(P);
 }
 
 generated quantities {
-  real logkGroupPredictive;
-  logkGroupPredictive <- normal_rng(groupLogKmu, groupLogKsigma^2);
+  real logk_group;
+  real alpha_group;
+  //int <lower=0,upper=1> Rpostpred[totalTrials];
+
+  logk_group    <- normal_rng(groupLogKmu, groupLogKsigma^2);
+  alpha_group   <- normal_rng(groupALPHAmu, groupALPHAsigma^2);
+
+  //Rpostpred <- bernoulli_rng(P);
 }

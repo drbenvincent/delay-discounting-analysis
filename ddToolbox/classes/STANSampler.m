@@ -29,8 +29,12 @@ function conductInference(obj)
 	model = StanModel('file',obj.modelFilename);
 	% Compile the Stan model. This takes a bit of time
 	display('COMPILING STAN MODEL...')
+	tic
 	model.compile();
+	toc
 	display('SAMPLING STAN MODEL...')
+	display('(command not blocked, wait until it says it''s finished)...')
+	tic
 	obj.stanFit = model.sampling(...
 		'data',obj.observed,...
 		'warmup',100,...
@@ -39,7 +43,7 @@ function conductInference(obj)
 		'verbose',false);
 	% Attach the listener
 	addlistener(obj.stanFit,'exit',@stanExitHandler);
-
+	%toc
 
 	% obj.stanFit = stan('file',obj.modelFilename,...
 	% 'data',obj.observed,...
@@ -77,12 +81,12 @@ function convertObservedToLongform(obj)
 		row=row+trialsPerParticipant(p);
 	end
 	% overwrite
-	obj.observed.A = A;
-	obj.observed.B = B;
-	obj.observed.DA = DA;
-	obj.observed.DB = DB;
-	obj.observed.R = R;
-	obj.observed.ID = ID;
+	obj.observed.A = A';
+	obj.observed.B = B';
+	obj.observed.DA = DA';
+	obj.observed.DB = DB';
+	obj.observed.R = R';
+	obj.observed.ID = ID';
 end
 
 function convergenceSummary(obj)
