@@ -17,3 +17,5 @@ demo/output-2.csv
 *.hpp
 
 ddToolbox/models/hierarchicalME
+
+ddToolbox/models/hierarchicalNOMAG

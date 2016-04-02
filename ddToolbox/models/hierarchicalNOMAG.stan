@@ -58,8 +58,8 @@ model {
 
   // participant level - these are vectors
   logk    ~ normal(groupLogKmu, groupLogKsigma^2);
-  alpha   ~ normal(groupALPHAmu, groupALPHAsigma^2);
-  epsilon ~ beta(1 , 1 );
+  alpha   ~ normal(groupALPHAmu, groupALPHAsigma^2); // truncate?
+  epsilon ~ beta(1 , 1 ); // truncate?
   // for (p in 1:nParticipants){
   //   logk[p] ~ normal(groupLogKmu, groupLogKsigma^2);
   // }
@@ -68,12 +68,21 @@ model {
 }
 
 generated quantities {
-  real logk_group;
-  real alpha_group;
-  //int <lower=0,upper=1> Rpostpred[totalTrials];
+  // NO VECTORIZATION IN THIS BLOCK
 
+  real logk_group;
+  // real <lower=0> alpha_group;
+  // real <lower=0,upper=0.5> epsilon_group;
+  int <lower=0,upper=1> Rpostpred[totalTrials];
+
+  // group level posterior predictive distributions
   logk_group    <- normal_rng(groupLogKmu, groupLogKsigma^2);
-  alpha_group   <- normal_rng(groupALPHAmu, groupALPHAsigma^2);
+  // alpha_group   <- normal_rng(groupALPHAmu, groupALPHAsigma^2) T[0,];
+  // epsilon_group <- beta_rng(1, 1) T[0,0.5];
+
+  for (t in 1:totalTrials){
+    Rpostpred[t] <- bernoulli_rng(P[t]);
+  }
 
   //Rpostpred <- bernoulli_rng(P);
 }
