@@ -19,7 +19,9 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 					obj.sampler = JAGSSampler([toolboxPath modelPath]);
 					[~,obj.modelType,~] = fileparts(modelPath);
 				case{'STAN'}
-					error('NOT IMPLEMENTED YET')
+					modelPath = '/models/hierarchicalNOMAG.stan';
+					obj.sampler = STANSampler([toolboxPath modelPath]);
+					[~,obj.modelType,~] = fileparts(modelPath);
 			end
 
 			% give sampler a handle back to the model

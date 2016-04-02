@@ -22,10 +22,20 @@ fnames={'AC-kirby27-DAYS.txt',...
 pathToData='data';
 myData = DataClass(pathToData);
 myData.loadDataFiles(fnames);
-
 saveFolder = 'methodspaper-kirby27';
+
+
 stanModel = ModelHierarchical(toolboxPath, 'STAN', myData, saveFolder);
 clc
+stanModel.conductInference();
+stanModel.sampler.stanFit
 
+
+
+stanModel = ModelHierarchicalNOMAG(toolboxPath, 'STAN', myData, saveFolder);
+clc
 stanModel.conductInference();
 
+stanModel.sampler.stanFit
+stanModel.sampler.stanFit.print()
+stanModel.sampler.stanFit.traceplot()
