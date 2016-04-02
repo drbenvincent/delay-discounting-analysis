@@ -38,4 +38,8 @@ stanModel.conductInference();
 
 stanModel.sampler.stanFit
 stanModel.sampler.stanFit.print()
-stanModel.sampler.stanFit.traceplot()
+
+temp = stanModel.sampler.stanFit.extract('pars','logkGroupPredictive').logkGroupPredictive;
+hist(temp,100)
+
+%stanModel.sampler.stanFit.traceplot() % use with care
