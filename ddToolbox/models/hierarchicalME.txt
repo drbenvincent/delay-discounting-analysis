@@ -6,7 +6,7 @@
 
 model{
 
-    # ------------------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
     # Group-level hyperpriors (see Appendix A1 and A2 for details)
 
     # slope (uninformative, see Appendix A)
@@ -27,7 +27,7 @@ model{
     groupK          <- groupKminus2+2
 
 
-    # ------------------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
     # Sample hyperpriors (Make sure values correspond to the priors given above)
     # We draw these samples, that are independent from the data, so that we can plot our prior beliefs of group-level parameters. These will be determined by the actual values given in the priors.
     # IMPORTANT - Make sure the numerical values you provide below match the priors above.
@@ -56,14 +56,14 @@ model{
     alpha_group_prior    ~ dnorm(groupALPHAmuprior, 1/(groupALPHAsigmaprior^2)) T(0,)
     epsilon_group_prior  ~ dbeta(groupWprior*(groupKprior-2)+1 , (1-groupWprior)*(groupKprior-2)+1 ) T(,0.5)
 
-    # ------------------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
     # Group-level posterior predictive distributions. These samples can be seen as inferences about an as yet unobserved participant who represents what we know about the parameters at the group level.
     m_group             ~ dnorm(groupMmu, 1/(groupMsigma^2))
     c_group             ~ dnorm(groupCmu, 1/(groupCsigma^2))
     alpha_group         ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
     epsilon_group       ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
 
-    # ------------------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
     # Participant-level parameters
     for (p in 1:nParticipants){
         # magnitide effect (m,c) for each person
@@ -74,7 +74,7 @@ model{
     }
 
     for (p in 1:nParticipants){
-        # ------------------------------------------------------------------------------------
+        # ----------------------------------------------------------------------
         # Trial-level
         for (t in 1:T[p]) {
 

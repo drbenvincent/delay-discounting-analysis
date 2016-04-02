@@ -29,17 +29,17 @@ classdef ModelBaseClass < handle
 		end
 
 		function setObservedValues(obj)
-			% the model is changing sampler information
+			% CODE SMELL: the model is changing sampler information. Too intimate
 			obj.sampler.observed = obj.data.observedData;
 			obj.sampler.observed.nParticipants	= obj.data.nParticipants;
 			obj.sampler.observed.totalTrials	= obj.data.totalTrials;
 		end
 
 		function plotMCMCchains(obj)
-			% TODO: refactor this. Maybe all variables just get passed to 
+			% TODO: refactor this. Maybe all variables just get passed to
 			% MCMCdiagnoticsPlot(). In which case this method can be
 			% removed and called directly from whatever calls this method.
-			
+
 			% select just those with analysisFlag == true
 			str			= {obj.variables.str};
 			str			= str([obj.variables.plotMCMCchainFlag]==true);
@@ -57,10 +57,10 @@ classdef ModelBaseClass < handle
 		end
 
 		function exportParameterEstimates(obj)
-			
+
 			%% participant level
 			LEVEL = 1;
-			varNames = obj.extractLevelNVarNames(LEVEL); 
+			varNames = obj.extractLevelNVarNames(LEVEL);
 			colHeaderNames = obj.createColumnHeaders(varNames);
 			paramEstimates = obj.grabParamEstimates(obj.sampler, varNames);
 			paramEstimateTable = array2table(paramEstimates,...
@@ -90,7 +90,7 @@ classdef ModelBaseClass < handle
 			fprintf('The above table of parameter estimates was exported to:\n')
 			fprintf('\t%s\n\n',savename)
 		end
-		
+
 		function colHeaderNames = createColumnHeaders(obj, varNames)
 			colHeaderNames = {};
 			for n=1:numel(varNames)
@@ -99,12 +99,12 @@ classdef ModelBaseClass < handle
 				colHeaderNames{end+1} = sprintf('%s_HDI95', varNames{n});
 			end
 		end
-		
+
 		function varNames = extractLevelNVarNames(obj, N)
 			varNames = {obj.variables.str};
 			varNames = varNames( [obj.variables.analysisFlag]==N );
 		end
-		
+
 		function data = grabParamEstimates(obj, sampler, varNames)
 			data=[];
 			for n=1:numel(varNames)
@@ -213,7 +213,7 @@ classdef ModelBaseClass < handle
 			cMEAN = obj.sampler.getStats('mean', 'c');
 			epsilonMEAN = obj.sampler.getStats('mean', 'epsilon');
 			alphaMEAN = obj.sampler.getStats('mean', 'alpha');
-			
+
 			for n = 1:obj.data.nParticipants
 				fh = figure;
 				fh.Name=['participant: ' obj.data.IDname{n}];
@@ -265,7 +265,7 @@ classdef ModelBaseClass < handle
 			% 			set(gca,'XLim',[10 100])
 		end
 
-		
+
 		function figUnivariateSummary(obj, participantIDlist, variables)
 			% loop over variables provided, plotting univariate summary
 			% statistics.
@@ -281,7 +281,7 @@ classdef ModelBaseClass < handle
 				a=axis; axis([0.5 a(2)+0.5 a(3) a(4)]);
 			end
 		end
-		
+
 	end
 
 end

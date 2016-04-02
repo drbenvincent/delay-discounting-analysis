@@ -15,7 +15,7 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 
 			switch sampler
 				case{'JAGS'}
-					modelPath = '/jagsModels/hierarchicalNOMAG.txt';
+					modelPath = '/models/hierarchicalNOMAG.txt';
 					obj.sampler = JAGSSampler([toolboxPath modelPath]);
 					[~,obj.modelType,~] = fileparts(modelPath);
 				case{'STAN'}
@@ -61,7 +61,7 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 
 			groupLogKsigma	= Variable('groupLogKsigma','groupLogKsigma', [], true);
 			groupLogKsigmaprior = Variable('groupLogKsigmaprior','groupLogKsigmaprior', [], true);
-			
+
 			groupW		= Variable('groupW','\omega', [0 1], true);
 			groupWprior = Variable('groupWprior','\omega prior', [0 1], true);
 
@@ -99,19 +99,19 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 				groupALPHAmu, groupALPHAmuprior,...
 				groupALPHAsigma, groupALPHAsigmaprior,...
 				Rpostpred];
-			
+
 			% Variable list, used for plotting
 			obj.varList.participant_level_variables = ...
 				{'logk','alpha','epsilon'};
-			
+
 			obj.varList.participant_level_prior_variables = ...
 				{'logk_group_prior',...
 				'alpha_group_prior',...
 				'epsilon_group_prior'};
-			
+
 			obj.varList.group_level_variables =...
 				{'logk_group','alpha_group','epsilon_group'};
-			
+
 			obj.varList.group_level_prior_variables = ...
 				{'logk_group_prior',...
 				'alpha_group_prior',...
@@ -165,7 +165,7 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
  			samples = obj.sampler.getAllSamples();
 
 			figure(7), clf
-			P=obj.data.nParticipants; 
+			P=obj.data.nParticipants;
 			%====================================
 			subplot(3,2,1)
 			plotPriorPostHist(samples.alpha_group_prior(:), samples.alpha_group(:));
@@ -216,7 +216,7 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 			xlabel('\epsilon_p')
 			box off
 		end
-		
+
 	end
 
 
@@ -226,18 +226,18 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 
 
 	methods (Access = protected)
-		
+
 		function figUnivariateSummary(obj, participantIDlist, variables)
 			% loop over variables provided, plotting univariate summary
 			% statistics.
-			
+
 			% We are going to add on group level inferences to the end of the
 			% participant list. This is because the group-level inferences an be
 			% seen as inferences we can make about an as yet unobserved
 			% participant, in the light of the participant data available thus
 			% far.
 			participantIDlist{end+1}='GROUP';
-			
+
 			figure
 			for v = 1:numel(variables)
 				subplot(numel(variables),1,v)
@@ -250,7 +250,7 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 				a=axis; axis([0.5 a(2)+0.5 a(3) a(4)]);
 			end
 		end
-		
+
 		% *********************************************************************
 		% *********************************************************************
 		% *********************************************************************
@@ -273,7 +273,7 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 
 			figure(99), clf
 			set(gcf,'Name','GROUP LEVEL')
-			
+
 			logkMEAN = obj.sampler.getStats('mean', 'logk_group');
 			epsilonMEAN = obj.sampler.getStats('mean', 'epsilon_group');
 			alphaMEAN = obj.sampler.getStats('mean', 'alpha_group');
@@ -287,27 +287,27 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 		end
 		% *********************************************************************
 		% *********************************************************************
-		
-		
+
+
 		% OVERRIDDEN FROM BASE CLASS ******************************************
 		% *********************************************************************
 		function figParticipant(obj, pSamples, pData, logkMEAN, epsilonMEAN, alphaMEAN)
 			rows=1; cols=4;
-			
+
 			% BIVARIATE PLOT: lapse rate & comparison accuity
 			subplot(rows, cols, 1)
 			plot2DErrorAccuity(pSamples.epsilon(:), pSamples.alpha(:), epsilonMEAN, alphaMEAN);
-			
+
 			% PSYCHOMETRIC FUNCTION (using my posterior-prediction-plot-matlab GitHub repository)
 			subplot(rows, cols, 2)
 			plotPsychometricFunc(pSamples, [epsilonMEAN, alphaMEAN])
-			
+
 			% logk
 			subplot(rows, cols, 3)
 			plotPriorPostHist([], pSamples.logk(:));
 			%histogram(pSamples.logk(:))
 			axis square
-			
+
 			% TODO:
 			% Plot in 2D data space
 			subplot(rows, cols, 4)
@@ -322,9 +322,9 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 		end
 		% *********************************************************************
 		% *********************************************************************
-		
-		
-		
+
+
+
 		% OVERRIDDEN FROM BASE CLASS ******************************************
 		% *********************************************************************
 
@@ -334,7 +334,7 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 			logkMEAN = obj.sampler.getStats('mean', 'logk');
 			epsilonMEAN = obj.sampler.getStats('mean', 'epsilon');
 			alphaMEAN = obj.sampler.getStats('mean', 'alpha');
-			
+
 			for n = 1:obj.data.nParticipants
 				fh = figure;
 				fh.Name=['participant: ' obj.data.IDname{n}];
@@ -354,9 +354,9 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 		end
 		% *********************************************************************
 		% *********************************************************************
-		
-				
-				
+
+
+
 		function figGroupTriPlot(obj, variables, group_level_prior_variables)
 			warning('Heavy but not exact duplication of figParticiantTriPlot() in ModelBaseClass')
 			% samples from posterior

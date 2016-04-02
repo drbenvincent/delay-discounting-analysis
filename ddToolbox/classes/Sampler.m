@@ -27,10 +27,10 @@ classdef (Abstract) Sampler < handle
 		getStats()
 		getAllStats()
 
-		invokeSampler(obj)
-		setMCMCtotalSamples(obj, totalSamples)
-		setMCMCnumberOfChains(obj, nchains)
-		setBurnIn(obj, nburnin)
+		%invokeSampler(obj)
+		%setMCMCtotalSamples(obj, totalSamples)
+		%setMCMCnumberOfChains(obj, nchains)
+		%setBurnIn(obj, nburnin)
 		convergenceSummary(obj, data)
 	end
 

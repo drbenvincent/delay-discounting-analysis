@@ -13,7 +13,7 @@ classdef ModelHierarchicalUpdated < ModelHierarchical
 
 			switch sampler
 				case{'JAGS'}
-					modelPath = '/jagsModels/hierarchicalMEupdated.txt';
+					modelPath = '/models/hierarchicalMEupdated.txt';
 					obj.sampler = JAGSSampler([toolboxPath modelPath]);
 					[~,obj.modelType,~] = fileparts(modelPath);
 				case{'STAN'}

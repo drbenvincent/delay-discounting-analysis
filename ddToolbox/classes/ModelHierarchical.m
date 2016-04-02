@@ -15,11 +15,13 @@ classdef ModelHierarchical < ModelBaseClass
 
 			switch sampler
 				case{'JAGS'}
-					modelPath = '/jagsModels/hierarchicalME.txt';
+					modelPath = '/models/hierarchicalME.txt';
 					obj.sampler = JAGSSampler([toolboxPath modelPath]);
 					[~,obj.modelType,~] = fileparts(modelPath);
 				case{'STAN'}
-					error('NOT IMPLEMENTED YET')
+					modelPath = '/models/hierarchicalME.stan';
+					obj.sampler = STANSampler([toolboxPath modelPath]);
+					[~,obj.modelType,~] = fileparts(modelPath);
 			end
 
 			% give sampler a handle back to the model
@@ -113,17 +115,17 @@ classdef ModelHierarchical < ModelBaseClass
 				groupALPHAmu, groupALPHAmuprior,...
 				groupALPHAsigma, groupALPHAsigmaprior,...
 				Rpostpred];
-			
+
 			% Variable list, used for plotting
 			obj.varList.participant_level_variables = {'m', 'c','alpha','epsilon'};
-			
+
 			obj.varList.participant_level_prior_variables = {'m_group_prior',...
 				'c_group_prior',...
 				'alpha_group_prior',...
 				'epsilon_group_prior'};
-			
+
 			obj.varList.group_level_variables = {'m_group', 'c_group','alpha_group','epsilon_group'};
-			
+
 			obj.varList.group_level_prior_variables = {'m_group_prior',...
 				'c_group_prior',...
 				'alpha_group_prior',...
@@ -156,7 +158,7 @@ classdef ModelHierarchical < ModelBaseClass
 
 			obj.figParticipantLevelWrapper(obj.varList.participant_level_variables,...
 				obj.varList.participant_level_prior_variables)
-			
+
 			%% mc contour plot of all participants
 			probMass = 0.5; % <---- 50% prob mass chosen to avoid too much clutter on graph
 			obj.plotMCclusters([1 0 0], probMass)
@@ -184,8 +186,8 @@ classdef ModelHierarchical < ModelBaseClass
 			lh.LineWidth = 3;
 			lh.Color= 'k';
 		end
-		
-		
+
+
 		function plotMCclusters(obj, col, probMass)
 			display('** WARNING ** Making this plot takes time...')
 			% plot posteriors over (m,c) for all participants, as contour
@@ -214,18 +216,18 @@ classdef ModelHierarchical < ModelBaseClass
 				obj.sampler.getSamplesAsMatrix({'c_group'}),...
 				probMass,...
 				definePlotOptions4Group(col));
-			
+
 			axis tight
 			set(gca,'XAxisLocation','origin')
 			set(gca,'YAxisLocation','origin')
 			drawnow
-			
+
 			function plotOpts = definePlotOptions4Participant(col)
 				plotOpts.FaceAlpha = '0.1';
 				plotOpts.FaceColor = col;
 				plotOpts.LineStyle = 'none';
 			end
-			
+
 			function plotOpts = definePlotOptions4Group(col)
 				plotOpts.FaceColor = 'none';
 				plotOpts.EdgeColor = col;
@@ -294,7 +296,7 @@ classdef ModelHierarchical < ModelBaseClass
 			xlabel('\epsilon_p')
 			box off
 		end
-		
+
 	end
 
 
@@ -304,18 +306,18 @@ classdef ModelHierarchical < ModelBaseClass
 
 
 	methods (Access = protected)
-		
+
 		function figUnivariateSummary(obj, participantIDlist, variables)
 			% loop over variables provided, plotting univariate summary
 			% statistics.
-			
+
 			% We are going to add on group level inferences to the end of the
 			% participant list. This is because the group-level inferences an be
 			% seen as inferences we can make about an as yet unobserved
 			% participant, in the light of the participant data available thus
 			% far.
 			participantIDlist{end+1}='GROUP';
-			
+
 			figure
 			for v = 1:numel(variables)
 				subplot(numel(variables),1,v)
@@ -328,7 +330,7 @@ classdef ModelHierarchical < ModelBaseClass
 				a=axis; axis([0.5 a(2)+0.5 a(3) a(4)]);
 			end
 		end
-		
+
 
 		function figGroupLevel(obj, variables)
 			% get group level parameters in a form ready to pass off to
@@ -346,7 +348,7 @@ classdef ModelHierarchical < ModelBaseClass
 
 			figure(99), clf
 			set(gcf,'Name','GROUP LEVEL')
-			
+
 			mMEAN = obj.sampler.getStats('mean', 'm_group');
 			cMEAN = obj.sampler.getStats('mean', 'c_group');
 			epsilonMEAN = obj.sampler.getStats('mean', 'epsilon_group');
@@ -359,7 +361,7 @@ classdef ModelHierarchical < ModelBaseClass
 			myExport(obj.saveFolder, obj.modelType, '-GROUP')
 			% -------------------------------
 		end
-		
+
 		function figGroupTriPlot(obj, variables, group_level_prior_variables)
 			warning('Heavy but not exact duplication of figParticiantTriPlot() in ModelBaseClass')
 			% samples from posterior

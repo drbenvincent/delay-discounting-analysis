@@ -17,7 +17,7 @@ classdef ModelSeparate < ModelBaseClass
 
 			switch sampler
 				case{'JAGS'}
-					modelPath = '/jagsModels/separateME.txt';
+					modelPath = '/models/separateME.txt';
 					obj.sampler = JAGSSampler([toolboxPath modelPath]);
 					[~,obj.modelType,~] = fileparts(modelPath);
 				case{'STAN'}
@@ -76,21 +76,21 @@ classdef ModelSeparate < ModelBaseClass
 			obj.variables = [m, c, epsilon, alpha,...
 				m_prior, c_prior, epsilon_prior, alpha_prior,...
 				Rpostpred];
-			
+
 			% Variable list, used for plotting
 			obj.varList.participant_level_variables = {'m', 'c','alpha','epsilon'};
-			
+
 			obj.varList.participant_level_prior_variables={'m_prior',...
 				'c_prior',...
 				'alpha_prior',...
 				'epsilon_prior'};
 		end
 		% ================================================================
-		
-		
+
+
 		function plot(obj)
 			close all
-			
+
 			% plot univariate summary statistics for the parameters we have
 			% made inferences about
 			obj.figUnivariateSummary(obj.data.IDname, obj.varList.participant_level_variables)
@@ -98,10 +98,10 @@ classdef ModelSeparate < ModelBaseClass
 			latex_fig(16, 5, 5)
 			myExport(obj.saveFolder, obj.modelType, '-UnivariateSummary')
 			% -------------------------------
-			
+
 			obj.plotPsychometricParams( obj.sampler.getAllSamples() )
 			myExport(obj.saveFolder, obj.modelType, '-PsychometricParams')
-			
+
 			obj.figParticipantLevelWrapper(obj.varList.participant_level_variables,...
 				obj.varList.participant_level_prior_variables)
 		end

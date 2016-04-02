@@ -51,6 +51,8 @@ myData.loadDataFiles(fnames);
 % instance of the class 'ModelHierarchical'
 saveFolder = 'methodspaper-kirby27';
 hModel = ModelHierarchical(toolboxPath, 'JAGS', myData, saveFolder);
+%hModel = ModelHierarchical(toolboxPath, 'STAN', myData, saveFolder);
+
 
 % Uncomment lines below to change
 % hModel.setMCMCtotalSamples(10^6); % default is 10^5
@@ -63,7 +65,7 @@ hModel = ModelHierarchical(toolboxPath, 'JAGS', myData, saveFolder);
 hModel.conductInference();
 
 % Conduct some posterior predictive analysis
-hModel.posteriorPredictive();
+hModel.posteriorPredictive(); % ******************************* FIX ME
 
 % Export posterior mode (and credible intervals) of all parameter and group
 % level parameters to a text file
