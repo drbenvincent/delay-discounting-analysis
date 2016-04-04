@@ -3,6 +3,7 @@ classdef STANSampler < Sampler
 
 properties (GetAccess = public, SetAccess = private)
 stanFit % object returned by STAN
+samples % struct of mcmc samples
 end
 
 methods (Access = public)
@@ -33,25 +34,23 @@ function conductInference(obj)
 	model.compile();
 	toc
 	display('SAMPLING STAN MODEL...')
-	display('(command not blocked, wait until it says it''s finished)...')
-	%tic
+	tic
 	obj.stanFit = model.sampling(...
 		'data',obj.observed,...
-		'warmup',100,...
-		'iter',10000,...
+		'warmup',1000,...
+		'iter',2000,...
 		'chains',2,...
 		'verbose',false);
+	obj.stanFit.block();
+	toc
+	
 	% Attach the listener
-	addlistener(obj.stanFit,'exit',@stanExitHandler);
+	%addlistener(obj.stanFit,'exit',@stanExitHandler);
 	%toc
 
-	% obj.stanFit = stan('file',obj.modelFilename,...
-	% 'data',obj.observed,...
-	% 'iter',500,...
-	% 'chains',2,...
-	% 'verbose',true);
-
-	%obj.stanFit.print();
+	% grab all samples into a structure
+	obj.samples = obj.stanFit.extract('permuted',true);
+	%obj.samples = obj.stanFit.extract('permuted',false); % chains separate
 
 	% display('***** SAVE THE MODEL OBJECT HERE *****')
 end
@@ -98,63 +97,45 @@ end
 % ==========================================================================
 
 function [samples] = getSamplesAtIndex(obj, index, fieldsToGet)
-	% assert(iscell(fieldsToGet),'fieldsToGet must be a cell array')
-	% % get all the samples for a given value of the 3rd dimension of
-	% % samples. Dimensions are:
-	% % 1. mcmc chain number
-	% % 2. mcmc sample number
-	% % 3. index of variable, meaning depends upon context of the
-	% % model
-	%
-	% [flatSamples] = obj.flattenChains(obj.samples, fieldsToGet);
-	% for i = 1:numel(fieldsToGet)
-	% 	samples.(fieldsToGet{i}) = flatSamples.(fieldsToGet{i})(:,index);
-	% end
+	assert(iscell(fieldsToGet),'fieldsToGet must be a cell array')
+	% get all the samples for a given value of the 3rd dimension of
+	% samples. Dimensions are:
+	% 1. mcmc chain number
+	% 2. mcmc sample number
+	% 3. index of variable, meaning depends upon context of the
+	% model
+	
+	% % [flatSamples] = obj.flattenChains(obj.samples, fieldsToGet);
+	for i = 1:numel(fieldsToGet)
+	 	samples.(fieldsToGet{i}) = obj.samples.(fieldsToGet{i})(:,index);
+	 end
 end
 
 function [samplesMatrix] = getSamplesFromParticipantAsMatrix(obj, participant, fieldsToGet)
-	% assert(iscell(fieldsToGet),'fieldsToGet must be a cell array')
-	% % TODO: This function is doing the same thing as getSamplesAtIndex() ???
-	%
-	% for n=1:numel(fieldsToGet)
-	% 	samples.(fieldsToGet{n}) = vec(obj.samples.(fieldsToGet{n})(:,:,participant));
-	% end
-	%
-	% [samplesMatrix] = struct2Matrix(samples);
+	assert(iscell(fieldsToGet),'fieldsToGet must be a cell array')
+	[samples] = obj.getSamplesAtIndex(participant, fieldsToGet);
+	[samplesMatrix] = struct2Matrix(samples);
 end
 
 function [samples] = getSamples(obj, fieldsToGet)
-	% % This will not flatten across chains
-	% assert(iscell(fieldsToGet),'fieldsToGet must be a cell array')
-	% samples = [];
-	% for n=1:numel(fieldsToGet)
-	% 	if isfield(obj.samples,fieldsToGet{n})
-	% 		samples.(fieldsToGet{n}) = obj.samples.(fieldsToGet{n});
-	% 	end
-	% end
+	assert(iscell(fieldsToGet),'fieldsToGet must be a cell array')
+	samples = [];
+	for n=1:numel(fieldsToGet)
+	 	if isfield(obj.samples,fieldsToGet{n})
+	 		samples.(fieldsToGet{n}) = obj.samples.(fieldsToGet{n});
+	 	end
+	 end
 end
 
 function [samplesMatrix] = getSamplesAsMatrix(obj, fieldsToGet)
-	%
-	% [samples] = obj.getSamples(fieldsToGet);
-	%
-	% % flatten across chains
-	% fields = fieldnames(samples);
-	% for n=1:numel(fields)
-	% 	samples.(fields{n}) = vec(samples.(fields{n}));
-	% end
-	%
-	% [samplesMatrix] = struct2Matrix(samples);
-end
-
-function [samples] = getAllSamples(obj)
-	% warning('Try to remove this method')
-	% samples = obj.samples;
+	[samples] = obj.getSamples(fieldsToGet);
+	[samplesMatrix] = struct2Matrix(samples);
 end
 
 function [output] = getStats(obj, field, variable)
 	% % return column vector
 	% output = obj.stats.(field).(variable)';
+	output = 666; % TODO
 end
 
 function [output] = getAllStats(obj)

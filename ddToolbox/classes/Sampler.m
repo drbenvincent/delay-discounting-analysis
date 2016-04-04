@@ -23,7 +23,7 @@ classdef (Abstract) Sampler < handle
 		getSamplesFromParticipantAsMatrix()
 		getSamples()
 		getSamplesAsMatrix()
-		getAllSamples()
+		%getAllSamples()
 		getStats()
 		getAllStats()
 

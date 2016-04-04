@@ -236,66 +236,68 @@ classdef ModelHierarchical < ModelBaseClass
 		end
 
 
-		function plotPsychometricParams(obj)
-			% Plot priors/posteriors for parameters related to the psychometric
-			% function, ie how response 'errors' are characterised
-			%
-			% plotPsychometricParams(hModel.sampler.samples)
-
- 			samples = obj.sampler.getAllSamples();
-
-			figure(7), clf
-			P=size(samples.m,3); % number of participants
-			%====================================
-			subplot(3,2,1)
-			plotPriorPostHist(samples.alpha_group_prior(:), samples.alpha_group(:));
-			title('Group \alpha')
-
-			subplot(3,4,5)
-			plotPriorPostHist(samples.groupALPHAmuprior(:), samples.groupALPHAmu(:));
-			xlabel('\mu_\alpha')
-
-			subplot(3,4,6)
-			plotPriorPostHist(samples.groupALPHAsigmaprior(:), samples.groupALPHAsigma(:));
-			xlabel('\sigma_\alpha')
-
-			subplot(3,2,5),
-			for p=1:P-1 % plot participant level alpha (alpha(:,:,p))
-				%histogram(vec(samples.alpha(:,:,p)));
-				[F,XI]=ksdensity(vec(samples.alpha(:,:,p)),...
-					'support','positive',...
-					'function','pdf');
-				plot(XI, F)
-				hold on
-			end
-			xlabel('\alpha_p')
-			box off
-
-			%====================================
-			subplot(3,2,2)
-			plotPriorPostHist(samples.epsilon_group_prior(:), samples.epsilon_group(:));
-			title('Group \epsilon')
-
-			subplot(3,4,7),
-			plotPriorPostHist(samples.groupWprior(:), samples.groupW(:));
-			xlabel('\omega (mode)')
-
-			subplot(3,4,8),
-			plotPriorPostHist(samples.groupKprior(:), samples.groupK(:));
-			xlabel('\kappa (concentration)')
-
-			subplot(3,2,6),
-			for p=1:P-1 % plot participant level alpha (alpha(:,:,p))
-				%histogram(vec(samples.epsilon(:,:,p)));
-					[F,XI]=ksdensity(vec(samples.epsilon(:,:,p)),...
-					'support','positive',...
-					'function','pdf');
-				plot(XI, F)
-				hold on
-			end
-			xlabel('\epsilon_p')
-			box off
-		end
+% 		function plotPsychometricParams(obj)
+% 			% Plot priors/posteriors for parameters related to the psychometric
+% 			% function, ie how response 'errors' are characterised
+% 			%
+% 			% plotPsychometricParams(hModel.sampler.samples)
+% 
+%  			%samples = obj.sampler.getAllSamples();
+% 
+% 			figure(7), clf
+% 			P=obj.data.nParticipants; % number of participants
+% 			%====================================
+% 			subplot(3,2,1)
+% 			plotPriorPostHist(...
+% 				obj.sampler.getSamplesAsMatrix({'alpha_group_prior'}),...
+% 				obj.sampler.getSamplesAsMatrix({'alpha_group'}));
+% 			title('Group \alpha')
+% 
+% 			subplot(3,4,5)
+% 			plotPriorPostHist(samples.groupALPHAmuprior(:), samples.groupALPHAmu(:));
+% 			xlabel('\mu_\alpha')
+% 
+% 			subplot(3,4,6)
+% 			plotPriorPostHist(samples.groupALPHAsigmaprior(:), samples.groupALPHAsigma(:));
+% 			xlabel('\sigma_\alpha')
+% 
+% 			subplot(3,2,5),
+% 			for p=1:P-1 % plot participant level alpha (alpha(:,:,p))
+% 				%histogram(vec(samples.alpha(:,:,p)));
+% 				[F,XI]=ksdensity(vec(samples.alpha(:,:,p)),...
+% 					'support','positive',...
+% 					'function','pdf');
+% 				plot(XI, F)
+% 				hold on
+% 			end
+% 			xlabel('\alpha_p')
+% 			box off
+% 
+% 			%====================================
+% 			subplot(3,2,2)
+% 			plotPriorPostHist(samples.epsilon_group_prior(:), samples.epsilon_group(:));
+% 			title('Group \epsilon')
+% 
+% 			subplot(3,4,7),
+% 			plotPriorPostHist(samples.groupWprior(:), samples.groupW(:));
+% 			xlabel('\omega (mode)')
+% 
+% 			subplot(3,4,8),
+% 			plotPriorPostHist(samples.groupKprior(:), samples.groupK(:));
+% 			xlabel('\kappa (concentration)')
+% 
+% 			subplot(3,2,6),
+% 			for p=1:P-1 % plot participant level alpha (alpha(:,:,p))
+% 				%histogram(vec(samples.epsilon(:,:,p)));
+% 					[F,XI]=ksdensity(vec(samples.epsilon(:,:,p)),...
+% 					'support','positive',...
+% 					'function','pdf');
+% 				plot(XI, F)
+% 				hold on
+% 			end
+% 			xlabel('\epsilon_p')
+% 			box off
+% 		end
 
 	end
 

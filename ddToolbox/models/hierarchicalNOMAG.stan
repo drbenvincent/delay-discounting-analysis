@@ -28,70 +28,96 @@ parameters {
   real <lower=0,upper=1>groupW;
   real groupKminus2;
 
-  // particiant LEVEL
-  real logk[nParticipants];
-  vector<lower=0>[nParticipants] alpha;
-  vector<lower=0,upper=0.5>[nParticipants] epsilon;
+  // group level - for sampling from prior
+  real groupLogKmuprior;
+  real<lower=0> groupLogKsigmaprior;
 
+  real groupALPHAmuprior;
+  real <lower=0> groupALPHAsigmaprior;
+
+  real <lower=0,upper=1>groupWprior;
+  real groupKminus2prior;
+
+  // particiant LEVEL
+  vector[nParticipants] logk;
+  vector<lower=0>[nParticipants] alpha;
+  vector<lower=0,upper=1>[nParticipants] epsilon;
 }
 
 transformed parameters {
-
   vector[totalTrials] VA;
   vector[totalTrials] VB;
   vector[totalTrials] P;
   real groupK;
+  real groupKprior;
 
-  groupK <- groupKminus2+2;
+  groupK      <- groupKminus2+2;
+  groupKprior <- groupKminus2prior+2;
 
-  for (t in 1:totalTrials){ // TODO Can this be vectorized?
+  // TODO Can this be vectorized? Phi() can't take vector input
+  for (t in 1:totalTrials){
     // calculate present subjective value for each reward
     VA[t] <- A[t] / (1+(exp(logk[ID[t]])*DA[t]));
     VB[t] <- B[t] / (1+(exp(logk[ID[t]])*DB[t]));
-
     // Psychometric function
-    P[t] <- epsilon[ID[t]] + (1-(2*epsilon[ID[t]])) * Phi( (VB[t]-VA[t]) / alpha[ID[t]] );
+    P[t] <- epsilon[ID[t]] + (1-(2*epsilon[ID[t]])) * Phi_approx( (VB[t]-VA[t]) / alpha[ID[t]] );
   }
 }
 
 model {
   // group level priors
-  groupLogKmu       ~ normal(-0.243,1000);
-  groupLogKsigma    ~ uniform(0,100);
+  groupLogKmu      ~ normal(-0.243,1000);
+  groupLogKsigma   ~ inv_gamma(0.01,0.01);
 
-  groupALPHAmu      ~ uniform(0,1000);
-  groupALPHAsigma   ~ uniform(0,1000);
+  groupALPHAmu     ~ uniform(0,1000);
+  groupALPHAsigma  ~ inv_gamma(0.01,0.01);
 
-  groupW          ~ beta(1.1, 10.9);  // mode for lapse rate
-  groupKminus2    ~ gamma(0.01,0.01); // concentration parameter
+  groupW           ~ beta(1.1, 10.9);  // mode for lapse rate
+  groupKminus2     ~ gamma(0.01,0.01); // concentration parameter
+
+  // SAMPLING FROM PRIOR group level priors
+  groupLogKmuprior      ~ normal(-0.243,1000);
+  groupLogKsigmaprior   ~ inv_gamma(0.01,0.01);
+
+  groupALPHAmuprior     ~ uniform(0,1000);
+  groupALPHAsigmaprior  ~ inv_gamma(0.01,0.01);
+
+  groupWprior           ~ beta(1.1, 10.9);  // mode for lapse rate
+  groupKminus2prior     ~ gamma(0.01,0.01); // concentration parameter
 
   // participant level - these are vectors
-  logk    ~ normal(groupLogKmu, groupLogKsigma^2);
-  alpha   ~ normal(groupALPHAmu, groupALPHAsigma^2); // truncate?
+  logk    ~ normal(groupLogKmu, groupLogKsigma);
+  alpha   ~ normal(groupALPHAmu, groupALPHAsigma); // truncate?
   epsilon ~ beta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ); // truncate?
-  // for (p in 1:nParticipants){
-  //   logk[p] ~ normal(groupLogKmu, groupLogKsigma^2);
-  // }
 
   R ~ bernoulli(P);
 }
 
-generated quantities {
-  // NO VECTORIZATION IN THIS BLOCK
-
+generated quantities {  // NO VECTORIZATION IN THIS BLOCK
   real logk_group;
-  // real <lower=0> alpha_group;
-  // real <lower=0,upper=0.5> epsilon_group;
+  real alpha_group; // TODO: NEEDS TO BE POSTIVE-VALUED ONLY
+  real <lower=0,upper=1> epsilon_group;
+
+  real logk_group_prior;
+  real alpha_group_prior; // TODO: NEEDS TO BE POSTIVE-VALUED ONLY
+  real <lower=0,upper=1> epsilon_group_prior;
+
+
   int <lower=0,upper=1> Rpostpred[totalTrials];
 
   // group level posterior predictive distributions
-  logk_group    <- normal_rng(groupLogKmu, groupLogKsigma^2);
-  // alpha_group   <- normal_rng(groupALPHAmu, groupALPHAsigma^2) T[0,];
-  // epsilon_group <- beta_rng(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T[0,0.5];
+  logk_group       <- normal_rng(groupLogKmu, groupLogKsigma);
+  alpha_group      <- normal_rng(groupALPHAmu, groupALPHAsigma);
+  epsilon_group    <- beta_rng(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 );
 
+  // priors about the group level
+  logk_group_prior     <- normal_rng(groupLogKmuprior, groupLogKsigmaprior);
+  alpha_group_prior    <- normal_rng(groupALPHAmuprior, groupALPHAsigmaprior);
+  epsilon_group_prior  <- beta_rng(groupWprior*(groupKprior-2)+1 , (1-groupWprior)*(groupKprior-2)+1 );
+
+
+  // posterior predictive responses
   for (t in 1:totalTrials){
     Rpostpred[t] <- bernoulli_rng(P[t]);
   }
-
-  //Rpostpred <- bernoulli_rng(P);
 }

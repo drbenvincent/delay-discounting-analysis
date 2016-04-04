@@ -221,10 +221,10 @@ classdef JAGSSampler < Sampler
 			[samplesMatrix] = struct2Matrix(samples);
 		end
 
-		function [samples] = getAllSamples(obj)
-			warning('Try to remove this method')
-			samples = obj.samples;
-		end
+		% function [samples] = getAllSamples(obj)
+		% 	warning('Try to remove this method')
+		% 	samples = obj.samples;
+		% end
 
 		function [output] = getStats(obj, field, variable)
 			% return column vector
