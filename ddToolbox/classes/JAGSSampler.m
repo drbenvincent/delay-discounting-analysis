@@ -23,25 +23,29 @@ classdef JAGSSampler < Sampler
 		end
 		% =================================================================
 
-		function conductInference(obj)
+		function conductInference(obj, model, data)
+			variables = model.variables;
+			nParticipants = data.nParticipants;
+			saveFolder = model.saveFolder;
+			IDnames = data.IDname;
+
 			assert(obj.mcmcparams.nchains>=2,'Use a minimum of 2 MCMC chains')
 			startParallelPool()
-			obj.setInitialParamValues(obj.modelHandle.variables);
-			obj.setMonitoredValues();
-			obj.modelHandle.setObservedValues();
+			obj.setInitialParamValues(variables, nParticipants);
+			obj.setMonitoredValues(variables);
 			obj.invokeSampler();
-			obj.convergenceSummary()
+			obj.convergenceSummary(saveFolder,IDnames)
 			% TODO: ***** SAVE THE MODEL OBJECT HERE *****
 		end
 
-		function setInitialParamValues(obj, variables)
+		function setInitialParamValues(obj, variables, nParticipants)
 			for chain=1:obj.mcmcparams.nchains
 				for v = 1:numel(variables)
 					if isempty(variables(v).seed), continue, end
 					varName = variables(v).str;
 					if variables(v).seed.single==false
 						% participant level
-						for p=1:obj.modelHandle.data.nParticipants
+						for p=1:nParticipants
 							obj.initialParameters(chain).(varName)(p) = variables(v).seed.func();
 						end
 					else
@@ -52,10 +56,10 @@ classdef JAGSSampler < Sampler
 			end
 		end
 
-		function setMonitoredValues(obj)
+		function setMonitoredValues(obj, variables)
 			% TODO: move this method to Sampler base class?
 			% currently just monitors ALL variables
-			obj.monitorparams = {obj.modelHandle.variables.str};
+			obj.monitorparams = {variables.str};
 		end
 
 		function invokeSampler(obj)
@@ -79,17 +83,17 @@ classdef JAGSSampler < Sampler
 				'dic', 0);
 		end
 
-		function convergenceSummary(obj)
+		function convergenceSummary(obj,saveFolder,IDnames)
 
-			[fid, fname] = setupFile();
+			[fid, fname] = setupFile(saveFolder);
 			MCMCParameterReport();
-			RhatInformation();
+			RhatInformation(IDnames);
 			fclose(fid);
 			fprintf('Convergence report saved in:\n\t%s\n\n',fname)
 
-			function [fid, fname] = setupFile()
-				ensureFolderExists(fullfile('figs',obj.modelHandle.saveFolder))
-				fname = fullfile('figs',obj.modelHandle.saveFolder,['ConvergenceReport.txt']);
+			function [fid, fname] = setupFile(saveFolder)
+				ensureFolderExists(fullfile('figs',saveFolder))
+				fname = fullfile('figs',saveFolder,['ConvergenceReport.txt']);
 				fid=fopen(fname,'w');
 			end
 
@@ -101,7 +105,7 @@ classdef JAGSSampler < Sampler
 				logInfo(fid,'\n\n\n');
 			end
 
-			function RhatInformation()
+			function RhatInformation(IDnames)
 				warningFlag = false;
 				names = fieldnames(obj.stats.Rhat);
 				% loop over fields and report for either single values or
@@ -115,7 +119,7 @@ classdef JAGSSampler < Sampler
 					logInfo(fid,'\nRhat for: %s.\n',names{n});
 					for i=1:numel(RhatValues)
 						if numel(RhatValues)>1
-							logInfo(fid,'%s\t', obj.modelHandle.data.IDname{i});
+							logInfo(fid,'%s\t', IDnames{i});
 						end
 						logInfo(fid,'%2.5f\t', RhatValues(i));
 						if RhatValues(i)>1.01

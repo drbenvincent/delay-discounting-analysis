@@ -25,7 +25,7 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 			end
 
 			% give sampler a handle back to the model
-			obj.sampler.modelHandle = obj;
+			%obj.sampler.modelHandle = obj;
 
 			%% Create variables
 			% -------------------------------------------------------------------

@@ -3,7 +3,7 @@ classdef (Abstract) Sampler < handle
 
 	properties (Access = public)
 		sampler % string {'JAGS'|'STAN'}
-		modelHandle % handle to model (eg ModelHierarchical or ModelSeperate)
+		%modelHandle % handle to model (eg ModelHierarchical or ModelSeperate)
 
 		observed % struct
 		modelFilename

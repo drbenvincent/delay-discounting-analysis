@@ -24,8 +24,8 @@ classdef ModelHierarchical < ModelBaseClass
 					[~,obj.modelType,~] = fileparts(modelPath);
 			end
 
-			% give sampler a handle back to the model
-			obj.sampler.modelHandle = obj;
+			% % give sampler a handle back to the model
+			% obj.sampler.modelHandle = obj;
 
 			%% Create variables
 			% -------------------------------------------------------------------
@@ -241,9 +241,9 @@ classdef ModelHierarchical < ModelBaseClass
 % 			% function, ie how response 'errors' are characterised
 % 			%
 % 			% plotPsychometricParams(hModel.sampler.samples)
-% 
+%
 %  			%samples = obj.sampler.getAllSamples();
-% 
+%
 % 			figure(7), clf
 % 			P=obj.data.nParticipants; % number of participants
 % 			%====================================
@@ -252,15 +252,15 @@ classdef ModelHierarchical < ModelBaseClass
 % 				obj.sampler.getSamplesAsMatrix({'alpha_group_prior'}),...
 % 				obj.sampler.getSamplesAsMatrix({'alpha_group'}));
 % 			title('Group \alpha')
-% 
+%
 % 			subplot(3,4,5)
 % 			plotPriorPostHist(samples.groupALPHAmuprior(:), samples.groupALPHAmu(:));
 % 			xlabel('\mu_\alpha')
-% 
+%
 % 			subplot(3,4,6)
 % 			plotPriorPostHist(samples.groupALPHAsigmaprior(:), samples.groupALPHAsigma(:));
 % 			xlabel('\sigma_\alpha')
-% 
+%
 % 			subplot(3,2,5),
 % 			for p=1:P-1 % plot participant level alpha (alpha(:,:,p))
 % 				%histogram(vec(samples.alpha(:,:,p)));
@@ -272,20 +272,20 @@ classdef ModelHierarchical < ModelBaseClass
 % 			end
 % 			xlabel('\alpha_p')
 % 			box off
-% 
+%
 % 			%====================================
 % 			subplot(3,2,2)
 % 			plotPriorPostHist(samples.epsilon_group_prior(:), samples.epsilon_group(:));
 % 			title('Group \epsilon')
-% 
+%
 % 			subplot(3,4,7),
 % 			plotPriorPostHist(samples.groupWprior(:), samples.groupW(:));
 % 			xlabel('\omega (mode)')
-% 
+%
 % 			subplot(3,4,8),
 % 			plotPriorPostHist(samples.groupKprior(:), samples.groupK(:));
 % 			xlabel('\kappa (concentration)')
-% 
+%
 % 			subplot(3,2,6),
 % 			for p=1:P-1 % plot participant level alpha (alpha(:,:,p))
 % 				%histogram(vec(samples.epsilon(:,:,p)));
