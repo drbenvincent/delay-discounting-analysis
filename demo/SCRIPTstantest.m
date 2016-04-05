@@ -23,11 +23,13 @@ pathToData='data';
 myData = DataClass(pathToData);
 myData.loadDataFiles(fnames);
 
+
 %% JAGS
 jagsModel = ModelHierarchicalNOMAG(toolboxPath, 'JAGS', myData, 'hierarchical_logk');
 jagsModel.sampler.setMCMCtotalSamples(10^2);
 jagsModel.conductInference();
-%jagsModel.plot()
+jagsModel.exportParameterEstimates();
+jagsModel.plot()
 
 
 %% ModelHierarchical
@@ -41,7 +43,7 @@ jagsModel.conductInference();
 % 
 
 
-%% Serparate
+%% Separate
 sModel = ModelSeparate(toolboxPath, 'JAGS', myData, 'separatetest');
 sModel.sampler.setMCMCtotalSamples(10^3);
 sModel.conductInference();
@@ -51,29 +53,39 @@ sModel.plot()
 
 
 %% ModelHierarchicalNOMAG
-stanModel = ModelHierarchicalNOMAG(toolboxPath, 'STAN', myData, 'stan-ModelHierarchicalNOMAG');
+sModel = ModelHierarchicalNOMAG(toolboxPath, 'STAN', myData, 'stan-ModelHierarchicalNOMAG');
+sModel.sampler.setStanHome('/Users/benvincent/cmdstan') 
+
 clc
-stanModel.conductInference();
+sModel.conductInference();
 % ~~~~~~~~~~~~~~~~~
-stanModel.plot()
+sModel.plot()
 % ~~~~~~~~~~~~~~~~~
 
+%% HOW TO GET STATS VALUES
+% can get summary by typing this into TERMINAL
+% bin/stansummary /Users/benvincent/git-local/delay-discounting-analysis/demo/output-1.csv
 
-stanModel.sampler.stanFit
+sModel.sampler.stanFit.print()
+
+
+
+
+sModel.sampler.stanFit
 clf
-stanModel.sampler.stanFit.print()
+sModel.sampler.stanFit.print()
 
-temp = stanModel.sampler.stanFit.extract('pars','logk_group').logk_group;
+temp = sModel.sampler.stanFit.extract('pars','logk_group').logk_group;
 hist(temp,100)
 
-temp = stanModel.sampler.stanFit.extract('pars','epsilon_group').epsilon_group;
+temp = sModel.sampler.stanFit.extract('pars','epsilon_group').epsilon_group;
 hist(temp,100)
 
-temp = stanModel.sampler.stanFit.extract('pars','alpha_group').alpha_group;
+temp = sModel.sampler.stanFit.extract('pars','alpha_group').alpha_group;
 hist(temp,100)
 
 % EXTRACT ALL
-all = stanModel.sampler.stanFit.extract('permuted',true);
+all = sModel.sampler.stanFit.extract('permuted',true);
 
 
 %stanModel.sampler.stanFit.traceplot() % use with care

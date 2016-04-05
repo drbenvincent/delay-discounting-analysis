@@ -1,4 +1,4 @@
-classdef mcmc < handle
+classdef mcmcContainer < handle
 	%mcmc
 
 	properties (Access = public)
@@ -11,7 +11,7 @@ classdef mcmc < handle
 
 	methods (Access = public)
 
-		function obj = mcmc()
+		function obj = mcmcContainer()
 		end
 
   end

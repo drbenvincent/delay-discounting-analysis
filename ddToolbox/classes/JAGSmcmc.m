@@ -1,4 +1,4 @@
-classdef JAGSmcmc < mcmc
+classdef JAGSmcmc < mcmcContainer
 	%JAGSmcmc
 
 	properties (Access = public)
@@ -13,7 +13,7 @@ classdef JAGSmcmc < mcmc
 	methods (Access = public)
 
 		function obj = JAGSmcmc(samples, stats, mcmcparams)
-			obj = obj@mcmc(); % create instance of base class
+			obj = obj@mcmcContainer(); % create instance of base class
 
 			obj.samples = samples;
 			obj.stats = stats;
