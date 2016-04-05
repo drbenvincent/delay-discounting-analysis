@@ -17,20 +17,14 @@ classdef (Abstract) Sampler < handle
 
 	methods(Abstract, Access = public)
 		conductInference(obj)
-		%setMCMCparams(obj)
 
 		getSamplesAtIndex(obj,index)
 		getSamplesFromParticipantAsMatrix()
 		getSamples()
 		getSamplesAsMatrix()
-		%getAllSamples()
 		getStats()
 		getAllStats()
 
-		%invokeSampler(obj)
-		%setMCMCtotalSamples(obj, totalSamples)
-		%setMCMCnumberOfChains(obj, nchains)
-		%setBurnIn(obj, nburnin)
 		convergenceSummary(obj, data)
 	end
 

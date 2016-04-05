@@ -23,6 +23,12 @@ classdef JAGSSampler < Sampler
 		end
 		% =================================================================
 
+		function setObservedValues(obj, data)
+			obj.observed = data.observedData;
+			obj.observed.nParticipants	= data.nParticipants;
+			obj.observed.totalTrials	= data.totalTrials;
+		end
+
 		function conductInference(obj, model, data)
 			variables = model.variables;
 			nParticipants = data.nParticipants;
@@ -31,6 +37,7 @@ classdef JAGSSampler < Sampler
 
 			assert(obj.mcmcparams.nchains>=2,'Use a minimum of 2 MCMC chains')
 			startParallelPool()
+			obj.setObservedValues(data);
 			obj.setInitialParamValues(variables, nParticipants);
 			obj.setMonitoredValues(variables);
 			obj.invokeSampler();

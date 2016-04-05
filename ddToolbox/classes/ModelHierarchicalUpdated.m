@@ -20,8 +20,6 @@ classdef ModelHierarchicalUpdated < ModelHierarchical
 					error('NOT IMPLEMENTED YET')
 			end
 
-			% % give sampler a handle back to the model (ie this hierarchicalME model)
-			% obj.sampler.modelHandle = obj;
 		end
 		% =================================================================
 

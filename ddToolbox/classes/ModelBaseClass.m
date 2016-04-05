@@ -24,16 +24,9 @@ classdef ModelBaseClass < handle
 		end
 		% =================================================================
 
+		% middle-man
 		function conductInference(obj)
-			obj.setObservedValues();
 			obj.sampler.conductInference( obj , obj.data )
-		end
-
-		function setObservedValues(obj)
-			% CODE SMELL: the model is changing sampler information. Too intimate
-			obj.sampler.observed = obj.data.observedData;
-			obj.sampler.observed.nParticipants	= obj.data.nParticipants;
-			obj.sampler.observed.totalTrials	= obj.data.totalTrials;
 		end
 
 		function plotMCMCchains(obj)
@@ -90,29 +83,30 @@ classdef ModelBaseClass < handle
 				'WriteRowNames',true)
 			fprintf('The above table of parameter estimates was exported to:\n')
 			fprintf('\t%s\n\n',savename)
-		end
 
-		function colHeaderNames = createColumnHeaders(obj, varNames)
-			colHeaderNames = {};
-			for n=1:numel(varNames)
-				colHeaderNames{end+1} = sprintf('%s_mean', varNames{n});
-				colHeaderNames{end+1} = sprintf('%s_HDI5', varNames{n});
-				colHeaderNames{end+1} = sprintf('%s_HDI95', varNames{n});
+			function colHeaderNames = createColumnHeaders(obj, varNames)
+				colHeaderNames = {};
+				for n=1:numel(varNames)
+					colHeaderNames{end+1} = sprintf('%s_mean', varNames{n});
+					colHeaderNames{end+1} = sprintf('%s_HDI5', varNames{n});
+					colHeaderNames{end+1} = sprintf('%s_HDI95', varNames{n});
+				end
 			end
-		end
 
-		function varNames = extractLevelNVarNames(obj, N)
-			varNames = {obj.variables.str};
-			varNames = varNames( [obj.variables.analysisFlag]==N );
-		end
-
-		function data = grabParamEstimates(obj, sampler, varNames)
-			data=[];
-			for n=1:numel(varNames)
-				data = [data sampler.getStats('mean',varNames{n})];
-				data = [data sampler.getStats('hdi_low',varNames{n})];
-				data = [data sampler.getStats('hdi_high',varNames{n})];
+			function varNames = extractLevelNVarNames(obj, N)
+				varNames = {obj.variables.str};
+				varNames = varNames( [obj.variables.analysisFlag]==N );
 			end
+
+			function data = grabParamEstimates(obj, sampler, varNames)
+				data=[];
+				for n=1:numel(varNames)
+					data = [data sampler.getStats('mean',varNames{n})];
+					data = [data sampler.getStats('hdi_low',varNames{n})];
+					data = [data sampler.getStats('hdi_high',varNames{n})];
+				end
+			end
+
 		end
 
 		function conditionalDiscountRates(obj, reward, plotFlag)
@@ -149,6 +143,7 @@ classdef ModelBaseClass < handle
 		end
 
 
+		% middle-man
 		function setBurnIn(obj, nburnin)
 			obj.sampler.setBurnIn(nburnin)
 		end

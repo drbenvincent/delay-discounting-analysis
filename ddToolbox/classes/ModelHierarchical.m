@@ -24,9 +24,6 @@ classdef ModelHierarchical < ModelBaseClass
 					[~,obj.modelType,~] = fileparts(modelPath);
 			end
 
-			% % give sampler a handle back to the model
-			% obj.sampler.modelHandle = obj;
-
 			%% Create variables
 			% -------------------------------------------------------------------
 			% Participant-level -------------------------------------------------

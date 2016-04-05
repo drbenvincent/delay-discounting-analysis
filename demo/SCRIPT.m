@@ -147,7 +147,7 @@ kModel = ModelHierarchicalNOMAG(toolboxPath, 'JAGS', myData, saveFolder);
 kModel.sampler.setMCMCtotalSamples(10^5);
 kModel.conductInference();
 kModel.plot()
-%kModel.exportParameterEstimates(); %<--- fix this
+kModel.exportParameterEstimates();
 kModel.plotMCMCchains()
 kModel.posteriorPredictive(); %<--- fix this
 
