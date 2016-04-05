@@ -8,12 +8,12 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 
 	methods (Access = public)
 		% =================================================================
-		function obj = ModelHierarchicalNOMAG(toolboxPath, sampler, data, saveFolder)
+		function obj = ModelHierarchicalNOMAG(toolboxPath, samplerType, data, saveFolder)
 			% Because this class is a subclass of "modelME" then we use
 			% this next line to create an instance
-			obj = obj@ModelBaseClass(toolboxPath, sampler, data, saveFolder);
+			obj = obj@ModelBaseClass(toolboxPath, samplerType, data, saveFolder);
 
-			switch sampler
+			switch samplerType
 				case{'JAGS'}
 					modelPath = '/models/hierarchicalNOMAG.txt';
 					obj.sampler = JAGSSampler([toolboxPath modelPath]);
@@ -276,7 +276,7 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 			% figParticipant()
 
 			% Get group-level data
-			[pSamples] = obj.sampler.getSamples(variables);
+			[pSamples] = obj.mcmc.getSamples(variables);
 			% rename fields
 			[pSamples.('logk')] = pSamples.('logk_group'); pSamples = rmfield(pSamples,'logk_group');
 			[pSamples.('epsilon')] = pSamples.('epsilon_group'); pSamples = rmfield(pSamples,'epsilon_group');
@@ -287,9 +287,9 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 			figure(99), clf
 			set(gcf,'Name','GROUP LEVEL')
 
-			logkMEAN = obj.sampler.getStats('mean', 'logk_group');
-			epsilonMEAN = obj.sampler.getStats('mean', 'epsilon_group');
-			alphaMEAN = obj.sampler.getStats('mean', 'alpha_group');
+			logkMEAN = obj.mcmc.getStats('mean', 'logk_group');
+			epsilonMEAN = obj.mcmc.getStats('mean', 'epsilon_group');
+			alphaMEAN = obj.mcmc.getStats('mean', 'alpha_group');
 
 			obj.figParticipant(pSamples, pData, logkMEAN, epsilonMEAN, alphaMEAN)
 
@@ -344,16 +344,16 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 		function figParticipantLevelWrapper(obj, variables, participant_prior_variables)
 			% For each participant, call some plotting functions on the variables provided.
 
-			logkMEAN = obj.sampler.getStats('mean', 'logk');
-			epsilonMEAN = obj.sampler.getStats('mean', 'epsilon');
-			alphaMEAN = obj.sampler.getStats('mean', 'alpha');
+			logkMEAN = obj.mcmc.getStats('mean', 'logk');
+			epsilonMEAN = obj.mcmc.getStats('mean', 'epsilon');
+			alphaMEAN = obj.mcmc.getStats('mean', 'alpha');
 
 			for n = 1:obj.data.nParticipants
 				fh = figure;
 				fh.Name=['participant: ' obj.data.IDname{n}];
 
 				% 1) figParticipant plot
-				[pSamples] = obj.sampler.getSamplesAtIndex(n, variables);
+				[pSamples] = obj.mcmc.getSamplesAtIndex(n, variables);
 				[pData] = obj.data.getParticipantData(n);
 				obj.figParticipant(pSamples, pData, logkMEAN(n), epsilonMEAN(n), alphaMEAN(n))
 				latex_fig(16, 18, 4)
@@ -373,9 +373,9 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 		function figGroupTriPlot(obj, variables, group_level_prior_variables)
 			warning('Heavy but not exact duplication of figParticiantTriPlot() in ModelBaseClass')
 			% samples from posterior
-			[posteriorSamples] = obj.sampler.getSamplesAsMatrix(variables);
+			[posteriorSamples] = obj.mcmc.getSamplesAsMatrix(variables);
 
-			[priorSamples] = obj.sampler.getSamplesAsMatrix(group_level_prior_variables);
+			[priorSamples] = obj.mcmc.getSamplesAsMatrix(group_level_prior_variables);
 
 			figure(87)
 			variable_label_names={'m','c','alpha','epsilon'};

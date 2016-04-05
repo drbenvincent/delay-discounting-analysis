@@ -9,6 +9,7 @@ classdef ModelBaseClass < handle
 		variables % array of variables
 		varList
 		saveFolder
+		mcmc % handle to mcmc fit object
 	end
 
 	methods(Abstract, Access = public)
@@ -26,7 +27,7 @@ classdef ModelBaseClass < handle
 
 		% middle-man
 		function conductInference(obj)
-			obj.sampler.conductInference( obj , obj.data )
+			obj.mcmc = obj.sampler.conductInference( obj , obj.data );
 		end
 
 		function plotMCMCchains(obj)
@@ -42,8 +43,8 @@ classdef ModelBaseClass < handle
 			str_latex	= {obj.variables.str_latex};
 			str_latex	= str_latex([obj.variables.plotMCMCchainFlag]==true);
 
-			MCMCdiagnoticsPlot(obj.sampler.getAllSamples(),...
-				obj.sampler.getAllStats(),...
+			MCMCdiagnoticsPlot(obj.mcmc.getAllSamples(),...
+				obj.mcmc.getAllStats(),...
 				[],...
 				str,...
 				bounds,...
@@ -56,7 +57,7 @@ classdef ModelBaseClass < handle
 			LEVEL = 1;
 			varNames = obj.extractLevelNVarNames(LEVEL);
 			colHeaderNames = obj.createColumnHeaders(varNames);
-			paramEstimates = obj.grabParamEstimates(obj.sampler, varNames);
+			paramEstimates = obj.grabParamEstimates(obj.mcmc, varNames);
 			paramEstimateTable = array2table(paramEstimates,...
 				'VariableNames',colHeaderNames,...
 				'RowNames', obj.data.IDname);
@@ -66,7 +67,7 @@ classdef ModelBaseClass < handle
 				LEVEL = 2;
 				varNames = obj.extractLevelNVarNames(LEVEL);
 				%colHeaderNames = obj.createColumnHeaders(varNames);
-				paramEstimates = obj.grabParamEstimates(obj.sampler, varNames);
+				paramEstimates = obj.grabParamEstimates(obj.mcmc, varNames);
 				group_level = array2table(paramEstimates,...
 					'VariableNames',colHeaderNames,...
 					'RowNames', {'GroupLevelInference'});
@@ -84,31 +85,32 @@ classdef ModelBaseClass < handle
 			fprintf('The above table of parameter estimates was exported to:\n')
 			fprintf('\t%s\n\n',savename)
 
-			function colHeaderNames = createColumnHeaders(obj, varNames)
-				colHeaderNames = {};
-				for n=1:numel(varNames)
-					colHeaderNames{end+1} = sprintf('%s_mean', varNames{n});
-					colHeaderNames{end+1} = sprintf('%s_HDI5', varNames{n});
-					colHeaderNames{end+1} = sprintf('%s_HDI95', varNames{n});
-				end
+		end
+		
+		function colHeaderNames = createColumnHeaders(obj, varNames)
+			colHeaderNames = {};
+			for n=1:numel(varNames)
+				colHeaderNames{end+1} = sprintf('%s_mean', varNames{n});
+				colHeaderNames{end+1} = sprintf('%s_HDI5', varNames{n});
+				colHeaderNames{end+1} = sprintf('%s_HDI95', varNames{n});
 			end
-
-			function varNames = extractLevelNVarNames(obj, N)
-				varNames = {obj.variables.str};
-				varNames = varNames( [obj.variables.analysisFlag]==N );
+		end
+		
+		function varNames = extractLevelNVarNames(obj, N)
+			varNames = {obj.variables.str};
+			varNames = varNames( [obj.variables.analysisFlag]==N );
+		end
+		
+		function data = grabParamEstimates(obj, mcmc, varNames)
+			data=[];
+			for n=1:numel(varNames)
+				data = [data mcmc.getStats('mean',varNames{n})];
+				data = [data mcmc.getStats('hdi_low',varNames{n})];
+				data = [data mcmc.getStats('hdi_high',varNames{n})];
 			end
-
-			function data = grabParamEstimates(obj, sampler, varNames)
-				data=[];
-				for n=1:numel(varNames)
-					data = [data sampler.getStats('mean',varNames{n})];
-					data = [data sampler.getStats('hdi_low',varNames{n})];
-					data = [data sampler.getStats('hdi_high',varNames{n})];
-				end
-			end
-
 		end
 
+			
 		function conditionalDiscountRates(obj, reward, plotFlag)
 			% Extract and plot P( log(k) | reward)
 			warning('THIS METHOD IS A TOTAL MESS - PLAN THIS AGAIN FROM SCRATCH')
@@ -191,8 +193,8 @@ classdef ModelBaseClass < handle
 		end
 
 		function figParticiantTriPlot(obj,n, variables, participant_prior_variables)
-			posteriorSamples = obj.sampler.getSamplesFromParticipantAsMatrix(n, variables);
-			priorSamples = obj.sampler.getSamplesAsMatrix(participant_prior_variables);
+			posteriorSamples = obj.mcmc.getSamplesFromParticipantAsMatrix(n, variables);
+			priorSamples = obj.mcmc.getSamplesAsMatrix(participant_prior_variables);
 			figure(87)
 			triPlotSamples(posteriorSamples, priorSamples, variables, [])
 		end
@@ -201,27 +203,27 @@ classdef ModelBaseClass < handle
 			% Plot priors/posteriors for parameters related to the psychometric
 			% function, ie how response 'errors' are characterised
 			%
-			% plotPsychometricParams(hModel.sampler.samples)
+			% plotPsychometricParams(hModel.mcmc.samples)
 
 			figure(7), clf
 			P=obj.data.nParticipants;
 			%====================================
 			subplot(3,2,1)
 			plotPriorPostHist(...
-				obj.sampler.getSamplesAsMatrix({'alpha_group_prior'}),...
-				obj.sampler.getSamplesAsMatrix({'alpha_group'}));
+				obj.mcmc.getSamplesAsMatrix({'alpha_group_prior'}),...
+				obj.mcmc.getSamplesAsMatrix({'alpha_group'}));
 			title('Group \alpha')
 
 			subplot(3,4,5)
 			plotPriorPostHist(...
-				obj.sampler.getSamplesAsMatrix({'groupALPHAmuprior'}),...
-				obj.sampler.getSamplesAsMatrix({'groupALPHAmu'}));
+				obj.mcmc.getSamplesAsMatrix({'groupALPHAmuprior'}),...
+				obj.mcmc.getSamplesAsMatrix({'groupALPHAmu'}));
 			xlabel('\mu_\alpha')
 
 			subplot(3,4,6)
 			plotPriorPostHist(...
-				obj.sampler.getSamplesAsMatrix({'groupALPHAsigmaprior'}),...
-				obj.sampler.getSamplesAsMatrix({'groupALPHAsigma'}));
+				obj.mcmc.getSamplesAsMatrix({'groupALPHAsigmaprior'}),...
+				obj.mcmc.getSamplesAsMatrix({'groupALPHAsigma'}));
 			xlabel('\sigma_\alpha')
 
 			subplot(3,2,5),
@@ -239,20 +241,20 @@ classdef ModelBaseClass < handle
 			%====================================
 			subplot(3,2,2)
 			plotPriorPostHist(...
-				obj.sampler.getSamplesAsMatrix({'epsilon_group_prior'}),...
-				obj.sampler.getSamplesAsMatrix({'epsilon_group'}));
+				obj.mcmc.getSamplesAsMatrix({'epsilon_group_prior'}),...
+				obj.mcmc.getSamplesAsMatrix({'epsilon_group'}));
 			title('Group \epsilon')
 
 			subplot(3,4,7),
 			plotPriorPostHist(...
-				obj.sampler.getSamplesAsMatrix({'groupWprior'}),...
-				obj.sampler.getSamplesAsMatrix({'groupW'}));
+				obj.mcmc.getSamplesAsMatrix({'groupWprior'}),...
+				obj.mcmc.getSamplesAsMatrix({'groupW'}));
 			xlabel('\omega (mode)')
 
 			subplot(3,4,8),
 			plotPriorPostHist(...
-				obj.sampler.getSamplesAsMatrix({'groupKprior'}),...
-				obj.sampler.getSamplesAsMatrix({'groupK'}));
+				obj.mcmc.getSamplesAsMatrix({'groupKprior'}),...
+				obj.mcmc.getSamplesAsMatrix({'groupK'}));
 			xlabel('\kappa (concentration)')
 
 			subplot(3,2,6),
@@ -276,17 +278,17 @@ classdef ModelBaseClass < handle
 		function figParticipantLevelWrapper(obj, variables, participant_prior_variables)
 			% For each participant, call some plotting functions on the variables provided.
 
-			mMEAN = obj.sampler.getStats('mean', 'm');
-			cMEAN = obj.sampler.getStats('mean', 'c');
-			epsilonMEAN = obj.sampler.getStats('mean', 'epsilon');
-			alphaMEAN = obj.sampler.getStats('mean', 'alpha');
+			mMEAN = obj.mcmc.getStats('mean', 'm');
+			cMEAN = obj.mcmc.getStats('mean', 'c');
+			epsilonMEAN = obj.mcmc.getStats('mean', 'epsilon');
+			alphaMEAN = obj.mcmc.getStats('mean', 'alpha');
 
 			for n = 1:obj.data.nParticipants
 				fh = figure;
 				fh.Name=['participant: ' obj.data.IDname{n}];
 
 				% 1) figParticipant plot
-				[pSamples] = obj.sampler.getSamplesAtIndex(n, variables);
+				[pSamples] = obj.mcmc.getSamplesAtIndex(n, variables);
 				[pData] = obj.data.getParticipantData(n);
 				obj.figParticipant(pSamples, pData, mMEAN(n), cMEAN(n), epsilonMEAN(n), alphaMEAN(n))
 				latex_fig(16, 18, 4)
@@ -339,10 +341,10 @@ classdef ModelBaseClass < handle
 			figure
 			for v = 1:numel(variables)
 				subplot(numel(variables),1,v)
-				hdi = [obj.sampler.getStats('hdi_low',variables{v})';...
-					obj.sampler.getStats('hdi_high',variables{v})'];
+				hdi = [obj.mcmc.getStats('hdi_low',variables{v})';...
+					obj.mcmc.getStats('hdi_high',variables{v})'];
 				plotErrorBars({participantIDlist{:}},...
-					obj.sampler.getStats('mean',variables{v}),...
+					obj.mcmc.getStats('mean',variables{v}),...
 					hdi,...
 					variables{v});
 				a=axis; axis([0.5 a(2)+0.5 a(3) a(4)]);

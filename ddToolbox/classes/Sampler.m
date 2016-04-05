@@ -18,14 +18,14 @@ classdef (Abstract) Sampler < handle
 	methods(Abstract, Access = public)
 		conductInference(obj)
 
-		getSamplesAtIndex(obj,index)
-		getSamplesFromParticipantAsMatrix()
-		getSamples()
-		getSamplesAsMatrix()
-		getStats()
-		getAllStats()
-
-		convergenceSummary(obj, data)
+		% getSamplesAtIndex(obj,index)
+		% getSamplesFromParticipantAsMatrix()
+		% getSamples()
+		% getSamplesAsMatrix()
+		% getStats()
+		% getAllStats()
+		%
+		% convergenceSummary(obj, data)
 	end
 
 

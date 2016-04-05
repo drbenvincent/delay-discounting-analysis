@@ -8,12 +8,12 @@ classdef ModelHierarchical < ModelBaseClass
 
 	methods (Access = public)
 		% =================================================================
-		function obj = ModelHierarchical(toolboxPath, sampler, data, saveFolder)
+		function obj = ModelHierarchical(toolboxPath, samplerType, data, saveFolder)
 			% Because this class is a subclass of "modelME" then we use
 			% this next line to create an instance
-			obj = obj@ModelBaseClass(toolboxPath, sampler, data, saveFolder);
+			obj = obj@ModelBaseClass(toolboxPath, samplerType, data, saveFolder);
 
-			switch sampler
+			switch samplerType
 				case{'JAGS'}
 					modelPath = '/models/hierarchicalME.txt';
 					obj.sampler = JAGSSampler([toolboxPath modelPath]);
@@ -178,7 +178,7 @@ classdef ModelHierarchical < ModelBaseClass
 
 		function conditionalDiscountRates_GroupLevel(obj, reward, plotFlag)
 			GROUP = obj.data.nParticipants; % last participant is our unobserved
-			params = obj.sampler.getSamplesFromParticipantAsMatrix(GROUP, {'m','c'});
+			params = obj.mcmc.getSamplesFromParticipantAsMatrix(GROUP, {'m','c'});
 			[posteriorMean, lh] = calculateLogK_ConditionOnReward(reward, params, plotFlag);
 			lh.LineWidth = 3;
 			lh.Color= 'k';
@@ -192,7 +192,7 @@ classdef ModelHierarchical < ModelBaseClass
 			figure(12)
 			% participants
 			for p = 1:obj.data.nParticipants
-				[samples] = obj.sampler.getSamplesAtIndex(p, {'m','c'});
+				[samples] = obj.mcmc.getSamplesAtIndex(p, {'m','c'});
 				[bi] = plot2DmcContour(...
 					samples.m,...
 					samples.c,...
@@ -209,8 +209,8 @@ classdef ModelHierarchical < ModelBaseClass
 			end
 			% group
 			plot2DmcContour(...
-				obj.sampler.getSamplesAsMatrix({'m_group'}),...
-				obj.sampler.getSamplesAsMatrix({'c_group'}),...
+				obj.mcmc.getSamplesAsMatrix({'m_group'}),...
+				obj.mcmc.getSamplesAsMatrix({'c_group'}),...
 				probMass,...
 				definePlotOptions4Group(col));
 
@@ -237,17 +237,17 @@ classdef ModelHierarchical < ModelBaseClass
 % 			% Plot priors/posteriors for parameters related to the psychometric
 % 			% function, ie how response 'errors' are characterised
 % 			%
-% 			% plotPsychometricParams(hModel.sampler.samples)
+% 			% plotPsychometricParams(hModel.mcmc.samples)
 %
-%  			%samples = obj.sampler.getAllSamples();
+%  			%samples = obj.mcmc.getAllSamples();
 %
 % 			figure(7), clf
 % 			P=obj.data.nParticipants; % number of participants
 % 			%====================================
 % 			subplot(3,2,1)
 % 			plotPriorPostHist(...
-% 				obj.sampler.getSamplesAsMatrix({'alpha_group_prior'}),...
-% 				obj.sampler.getSamplesAsMatrix({'alpha_group'}));
+% 				obj.mcmc.getSamplesAsMatrix({'alpha_group_prior'}),...
+% 				obj.mcmc.getSamplesAsMatrix({'alpha_group'}));
 % 			title('Group \alpha')
 %
 % 			subplot(3,4,5)
@@ -320,10 +320,10 @@ classdef ModelHierarchical < ModelBaseClass
 			figure
 			for v = 1:numel(variables)
 				subplot(numel(variables),1,v)
-				hdi = [obj.sampler.getStats('hdi_low',variables{v})' obj.sampler.getStats('hdi_low',[variables{v} '_group']) ;...
-					obj.sampler.getStats('hdi_high',variables{v})' obj.sampler.getStats('hdi_high',[variables{v} '_group'])];
+				hdi = [obj.mcmc.getStats('hdi_low',variables{v})' obj.mcmc.getStats('hdi_low',[variables{v} '_group']) ;...
+					obj.mcmc.getStats('hdi_high',variables{v})' obj.mcmc.getStats('hdi_high',[variables{v} '_group'])];
 				plotErrorBars({participantIDlist{:}},...
-					[obj.sampler.getStats('mean',variables{v})' obj.sampler.getStats('mean',[variables{v} '_group'])],...
+					[obj.mcmc.getStats('mean',variables{v})' obj.mcmc.getStats('mean',[variables{v} '_group'])],...
 					hdi,...
 					variables{v});
 				a=axis; axis([0.5 a(2)+0.5 a(3) a(4)]);
@@ -336,7 +336,7 @@ classdef ModelHierarchical < ModelBaseClass
 			% figParticipant()
 
 			% Get group-level data
-			[pSamples] = obj.sampler.getSamples(variables);
+			[pSamples] = obj.mcmc.getSamples(variables);
 			% rename fields
 			[pSamples.('m')] = pSamples.('m_group'); pSamples = rmfield(pSamples,'m_group');
 			[pSamples.('c')] = pSamples.('c_group'); pSamples = rmfield(pSamples,'c_group');
@@ -348,10 +348,10 @@ classdef ModelHierarchical < ModelBaseClass
 			figure(99), clf
 			set(gcf,'Name','GROUP LEVEL')
 
-			mMEAN = obj.sampler.getStats('mean', 'm_group');
-			cMEAN = obj.sampler.getStats('mean', 'c_group');
-			epsilonMEAN = obj.sampler.getStats('mean', 'epsilon_group');
-			alphaMEAN = obj.sampler.getStats('mean', 'alpha_group');
+			mMEAN = obj.mcmc.getStats('mean', 'm_group');
+			cMEAN = obj.mcmc.getStats('mean', 'c_group');
+			epsilonMEAN = obj.mcmc.getStats('mean', 'epsilon_group');
+			alphaMEAN = obj.mcmc.getStats('mean', 'alpha_group');
 
 			obj.figParticipant(pSamples, pData, mMEAN, cMEAN, epsilonMEAN, alphaMEAN)
 
@@ -364,9 +364,9 @@ classdef ModelHierarchical < ModelBaseClass
 		function figGroupTriPlot(obj, variables, group_level_prior_variables)
 			warning('Heavy but not exact duplication of figParticiantTriPlot() in ModelBaseClass')
 			% samples from posterior
-			[posteriorSamples] = obj.sampler.getSamplesAsMatrix(variables);
+			[posteriorSamples] = obj.mcmc.getSamplesAsMatrix(variables);
 
-			[priorSamples] = obj.sampler.getSamplesAsMatrix(group_level_prior_variables);
+			[priorSamples] = obj.mcmc.getSamplesAsMatrix(group_level_prior_variables);
 
 			figure(87)
 			variable_label_names={'m','c','alpha','epsilon'};
@@ -392,8 +392,8 @@ classdef ModelHierarchical < ModelBaseClass
 			HT_BayesFactor(obj)
 
 			% METHOD 2
-			priorSamples = obj.sampler.getSamplesAsMatrix({'m_group_prior'});
-			posteriorSamples = obj.sampler.getSamplesAsMatrix({'m_group'});
+			priorSamples = obj.mcmc.getSamplesAsMatrix({'m_group_prior'});
+			posteriorSamples = obj.mcmc.getSamplesAsMatrix({'m_group'});
 			subplot(1,2,2)
 			plotPosteriorHDI(priorSamples, posteriorSamples)
 
