@@ -53,9 +53,8 @@ sModel.plot()
 
 
 %% ModelHierarchicalNOMAG
-sModel = ModelHierarchicalNOMAG(toolboxPath, 'STAN', myData, 'stan-ModelHierarchicalNOMAG');
-sModel.sampler.setStanHome('/Users/benvincent/cmdstan') 
-
+sModel = ModelHierarchicalNOMAG(toolboxPath, 'STAN', myData, 'stanModelHierarchicalNOMAG');
+sModel.sampler.setStanHome('/Users/btvincent/cmdstan-2.9.0') 
 clc
 sModel.conductInference();
 % ~~~~~~~~~~~~~~~~~

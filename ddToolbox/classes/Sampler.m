@@ -1,5 +1,6 @@
 classdef (Abstract) Sampler < handle
 	%Sampler Abstract base class sampler class.
+  % Responsibility is to invoke an MCMC sampler and return MCMC chains.
 
 	properties (Access = public)
 		sampler % string {'JAGS'|'STAN'}

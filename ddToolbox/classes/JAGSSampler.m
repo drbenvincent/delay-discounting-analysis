@@ -1,5 +1,6 @@
 classdef JAGSSampler < Sampler
 	%JAGSSampler
+	% Responsibility is to invoke an MCMC sampler and return MCMC chains.
 
 	properties (GetAccess = public, SetAccess = private)
 
