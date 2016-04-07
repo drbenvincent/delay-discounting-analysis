@@ -141,13 +141,20 @@ classdef ModelHierarchical < ModelBaseClass
 			myExport(obj.saveFolder, obj.modelType, '-PsychometricParams')
 
 			%% GROUP LEVEL
-			% Tri plot
-			group_level_prior_variables = cellfun(@getPriorOfVariable, obj.varList.group_level_variables,...
+
+			group_level_prior_variables = cellfun(...
+				@getPriorOfVariable,...
+				obj.varList.group_level_variables,...
 				'UniformOutput',false );
 
-			obj.figGroupTriPlot(...
-				obj.varList.group_level_variables,...
-				group_level_prior_variables)
+			% Tri plot
+			posteriorSamples = obj.mcmc.getSamplesAsMatrix(obj.varList.group_level_variables);
+			priorSamples = obj.mcmc.getSamplesAsMatrix(group_level_prior_variables);
+
+			obj.figTriPlot(obj.varList.group_level_variables,...
+			 	priorSamples,...
+			  posteriorSamples)
+
 			myExport(obj.saveFolder, obj.modelType, ['-GROUP-triplot'])
 
 			obj.figGroupLevel(obj.varList.group_level_variables)
@@ -159,7 +166,9 @@ classdef ModelHierarchical < ModelBaseClass
 			myExport(obj.saveFolder, obj.modelType, '-UnivariateSummary')
 			% -------------------------------------------------------------------
 
-			participant_level_prior_variables = cellfun(@getPriorOfVariable, obj.varList.group_level_variables,...
+			participant_level_prior_variables = cellfun(...
+				@getPriorOfVariable,...
+				obj.varList.group_level_variables,...
 				'UniformOutput',false );
 
 			obj.figParticipantLevelWrapper(obj.varList.participant_level_variables,...
@@ -171,27 +180,11 @@ classdef ModelHierarchical < ModelBaseClass
 		end
 
 
-		function conditionalDiscountRates(obj, reward, plotFlag)
-			% For group level and all participants, extract and plot P( log(k) | reward)
-			warning('THIS METHOD IS A TOTAL MESS - PLAN THIS AGAIN FROM SCRATCH')
-			obj.conditionalDiscountRates_ParticipantLevel(reward, plotFlag)
-			obj.conditionalDiscountRates_GroupLevel(reward, plotFlag)
-			if plotFlag % FORMATTING OF FIGURE
-				removeYaxis
-				title(sprintf('$P(\\log(k)|$reward=$\\pounds$%d$)$', reward),'Interpreter','latex')
-				xlabel('$\log(k)$','Interpreter','latex')
-				axis square
-				%legend(lh.DisplayName)
-			end
-		end
 
-		function conditionalDiscountRates_GroupLevel(obj, reward, plotFlag)
-			GROUP = obj.data.nParticipants; % last participant is our unobserved
-			params = obj.mcmc.getSamplesFromParticipantAsMatrix(GROUP, {'m','c'});
-			[posteriorMean, lh] = calculateLogK_ConditionOnReward(reward, params, plotFlag);
-			lh.LineWidth = 3;
-			lh.Color= 'k';
-		end
+
+
+
+
 
 
 		function plotMCclusters(obj, col, probMass)
@@ -305,6 +298,37 @@ classdef ModelHierarchical < ModelBaseClass
 % 			box off
 % 		end
 
+
+
+
+
+
+		%% ******** SORT OUT WHERE THESE AND OTHER FUNCTIONS SHOULD BE *************
+		function conditionalDiscountRates(obj, reward, plotFlag)
+			% For group level and all participants, extract and plot P( log(k) | reward)
+			warning('THIS METHOD IS A TOTAL MESS - PLAN THIS AGAIN FROM SCRATCH')
+			obj.conditionalDiscountRates_ParticipantLevel(reward, plotFlag)
+			obj.conditionalDiscountRates_GroupLevel(reward, plotFlag)
+			if plotFlag % FORMATTING OF FIGURE
+				removeYaxis
+				title(sprintf('$P(\\log(k)|$reward=$\\pounds$%d$)$', reward),'Interpreter','latex')
+				xlabel('$\log(k)$','Interpreter','latex')
+				axis square
+				%legend(lh.DisplayName)
+			end
+		end
+
+		function conditionalDiscountRates_GroupLevel(obj, reward, plotFlag)
+			GROUP = obj.data.nParticipants; % last participant is our unobserved
+			params = obj.mcmc.getSamplesFromParticipantAsMatrix(GROUP, {'m','c'});
+			[posteriorMean, lh] = calculateLogK_ConditionOnReward(reward, params, plotFlag);
+			lh.LineWidth = 3;
+			lh.Color= 'k';
+		end
+
+
+
+
 	end
 
 
@@ -314,6 +338,9 @@ classdef ModelHierarchical < ModelBaseClass
 
 
 	methods (Access = protected)
+
+
+		% ***** MOVE THIS TO THE NEW 'MCMC' CLASS ??
 
 		function figUnivariateSummary(obj, participantIDlist, variables)
 			% loop over variables provided, plotting univariate summary
@@ -370,47 +397,6 @@ classdef ModelHierarchical < ModelBaseClass
 			% -------------------------------
 		end
 
-		function figGroupTriPlot(obj, variables, group_level_prior_variables)
-			warning('Heavy but not exact duplication of figParticiantTriPlot() in ModelBaseClass')
-			% samples from posterior
-			[posteriorSamples] = obj.mcmc.getSamplesAsMatrix(variables);
-
-			[priorSamples] = obj.mcmc.getSamplesAsMatrix(group_level_prior_variables);
-
-			figure(87)
-			variable_label_names={'m','c','alpha','epsilon'};
-			triPlotSamples(posteriorSamples, priorSamples, variable_label_names, [])
-		end
-
 	end
-
-
-
-
-
-
-
-
-	% % HYPOTHESIS TEST FUNCTIONS
-	% methods (Access = public)
-	% 	function HTgroupSlopeLessThanZero(obj)
-	% 		% Test the hypothesis that the group level slope (G^m) is less
-	% 		% than one
-	%
-	% 		% METHOD 1
-	% 		HT_BayesFactor(obj)
-	%
-	% 		% METHOD 2
-	% 		priorSamples = obj.mcmc.getSamplesAsMatrix({'m_group_prior'});
-	% 		posteriorSamples = obj.mcmc.getSamplesAsMatrix({'m_group'});
-	% 		subplot(1,2,2)
-	% 		plotPosteriorHDI(priorSamples, posteriorSamples)
-	%
-	% 		%%
-	% 		myExport(obj.saveFolder, [], '-BayesFactorMLT1')
-	% 	end
-	% end
-
-
 
 end

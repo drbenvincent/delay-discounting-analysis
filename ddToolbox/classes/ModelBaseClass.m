@@ -86,7 +86,7 @@ classdef ModelBaseClass < handle
 			fprintf('\t%s\n\n',savename)
 
 		end
-		
+
 		function colHeaderNames = createColumnHeaders(obj, varNames)
 			colHeaderNames = {};
 			for n=1:numel(varNames)
@@ -95,12 +95,12 @@ classdef ModelBaseClass < handle
 				colHeaderNames{end+1} = sprintf('%s_HDI95', varNames{n});
 			end
 		end
-		
+
 		function varNames = extractLevelNVarNames(obj, N)
 			varNames = {obj.variables.str};
 			varNames = varNames( [obj.variables.analysisFlag]==N );
 		end
-		
+
 		function data = grabParamEstimates(obj, mcmc, varNames)
 			data=[];
 			for n=1:numel(varNames)
@@ -110,7 +110,6 @@ classdef ModelBaseClass < handle
 			end
 		end
 
-			
 		function conditionalDiscountRates(obj, reward, plotFlag)
 			% Extract and plot P( log(k) | reward)
 			warning('THIS METHOD IS A TOTAL MESS - PLAN THIS AGAIN FROM SCRATCH')
@@ -192,11 +191,14 @@ classdef ModelBaseClass < handle
 			xlabel('trials')
 		end
 
-		function figParticiantTriPlot(obj,n, variables, participant_prior_variables)
-			posteriorSamples = obj.mcmc.getSamplesFromParticipantAsMatrix(n, variables);
-			priorSamples = obj.mcmc.getSamplesAsMatrix(participant_prior_variables);
+		function figTriPlot(obj, variables, priorSamples, posteriorSamples)
+			%posteriorSamples = obj.mcmc.getSamplesFromParticipantAsMatrix(n, variables);
+			%priorSamples = obj.mcmc.getSamplesAsMatrix(participant_prior_variables);
 			figure(87)
-			triPlotSamples(posteriorSamples, priorSamples, variables, [])
+			triPlotSamples(...
+				priorSamples,...
+				posteriorSamples,...
+				variables, [])
 		end
 
 		function plotPsychometricParams(obj)
@@ -296,7 +298,11 @@ classdef ModelBaseClass < handle
 				close(fh)
 
 				% 2) Triplot
-				obj.figParticiantTriPlot(n, variables, participant_prior_variables)
+				posteriorSamples = obj.mcmc.getSamplesFromParticipantAsMatrix(n, variables);
+				priorSamples = obj.mcmc.getSamplesAsMatrix(participant_prior_variables);
+
+				obj.figTriPlot(variables, priorSamples, posteriorSamples)
+
 				myExport(obj.saveFolder, obj.modelType, ['-' obj.data.IDname{n} '-triplot'])
 			end
 		end

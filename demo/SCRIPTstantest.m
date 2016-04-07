@@ -25,22 +25,33 @@ myData.loadDataFiles(fnames);
 
 
 %% JAGS
-jagsModel = ModelHierarchical(toolboxPath, 'JAGS', myData, 'hierarchicalME');
-jagsModel.sampler.setMCMCtotalSamples(10^2);
-jagsModel.sampler.setMCMCnumberOfChains(2);
-jagsModel.conductInference();
-jagsModel.exportParameterEstimates();
-jagsModel.plot()
+h_me = ModelHierarchical(toolboxPath, 'JAGS', myData, 'hierarchical_ME');
+h_me.sampler.setMCMCtotalSamples(10^4);
+h_me.sampler.setMCMCnumberOfChains(2);
+h_me.conductInference();
+h_me.exportParameterEstimates();
+h_me.plot()
 
 HTgroupSlopeLessThanZero(jagsModel)
 
 %% JAGS
-jagsModel = ModelHierarchicalNOMAG(toolboxPath, 'JAGS', myData, 'hierarchical_logk');
-jagsModel.sampler.setMCMCtotalSamples(10^2);
-jagsModel.sampler.setMCMCnumberOfChains(2);
-jagsModel.conductInference();
-jagsModel.exportParameterEstimates();
-jagsModel.plot()
+s_me = ModelSeparate(toolboxPath, 'JAGS', myData, 'separate_ME');
+s_me.sampler.setMCMCtotalSamples(10^3);
+s_me.sampler.setMCMCnumberOfChains(2);
+s_me.conductInference();
+s_me.exportParameterEstimates();
+s_me.plot()
+
+%% JAGS
+h_logk = ModelHierarchicalNOMAG(toolboxPath, 'JAGS', myData, 'hierarchical_logk');
+h_logk.sampler.setMCMCtotalSamples(10^3);
+h_logk.sampler.setMCMCnumberOfChains(2);
+h_logk.conductInference();
+h_logk.plot()
+h_logk.exportParameterEstimates();
+h_logk.plotMCMCchains()
+h_logk.posteriorPredictive(); %<--- fix this
+
 
 
 %% ModelHierarchical

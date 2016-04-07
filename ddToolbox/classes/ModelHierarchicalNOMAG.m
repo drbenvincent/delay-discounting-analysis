@@ -129,8 +129,19 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 			myExport(obj.saveFolder, obj.modelType, '-PsychometricParams')
 
 			%% GROUP LEVEL
+
+			group_level_prior_variables = cellfun(...
+				@getPriorOfVariable,...
+				obj.varList.group_level_variables,...
+				'UniformOutput',false );
+
 			% Tri plot
-			obj.figGroupTriPlot(obj.varList.group_level_variables, obj.varList.group_level_prior_variables)
+			posteriorSamples = obj.mcmc.getSamplesAsMatrix(obj.varList.group_level_variables);
+			priorSamples = obj.mcmc.getSamplesAsMatrix(group_level_prior_variables);
+
+			obj.figTriPlot(obj.varList.group_level_variables,...
+			 	priorSamples,...
+			  posteriorSamples)
 			myExport(obj.saveFolder, obj.modelType, ['-GROUP-triplot'])
 
 			obj.figGroupLevel(obj.varList.group_level_variables)
@@ -143,9 +154,14 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 % 			myExport(obj.saveFolder, obj.modelType, '-UnivariateSummary')
 % 			% -------------------------------------------------------------------
 
+			participant_level_prior_variables = cellfun(...
+				@getPriorOfVariable,...
+				obj.varList.group_level_variables,...
+				'UniformOutput',false );
+
 			obj.figParticipantLevelWrapper(...
 				obj.varList.participant_level_variables,...
-				obj.varList.participant_level_prior_variables)
+				participant_level_prior_variables)
 		end
 
 
@@ -360,8 +376,13 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 				close(fh)
 
 				% 2) Triplot
-				obj.figParticiantTriPlot(n, variables, participant_prior_variables)
-				myExport(obj.saveFolder, obj.modelType, ['-' obj.data.IDname{n} '-triplot'])
+				posteriorSamples = obj.mcmc.getSamplesFromParticipantAsMatrix(n, variables);
+				priorSamples = obj.mcmc.getSamplesAsMatrix(participant_prior_variables);
+
+				obj.figTriPlot(variables, priorSamples, posteriorSamples)
+% 				% 2) Triplot
+% 				obj.figTriPlot(n, variables, participant_prior_variables)
+% 				myExport(obj.saveFolder, obj.modelType, ['-' obj.data.IDname{n} '-triplot'])
 			end
 		end
 		% *********************************************************************
@@ -369,17 +390,17 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 
 
 
-		function figGroupTriPlot(obj, variables, group_level_prior_variables)
-			warning('Heavy but not exact duplication of figParticiantTriPlot() in ModelBaseClass')
-			% samples from posterior
-			[posteriorSamples] = obj.mcmc.getSamplesAsMatrix(variables);
-
-			[priorSamples] = obj.mcmc.getSamplesAsMatrix(group_level_prior_variables);
-
-			figure(87)
-			variable_label_names={'m','c','alpha','epsilon'};
-			triPlotSamples(posteriorSamples, priorSamples, variable_label_names, [])
-		end
+		% function figGroupTriPlot(obj, variables, group_level_prior_variables)
+		% 	warning('Heavy but not exact duplication of figParticiantTriPlot() in ModelBaseClass')
+		% 	% samples from posterior
+		% 	[posteriorSamples] = obj.mcmc.getSamplesAsMatrix(variables);
+		%
+		% 	[priorSamples] = obj.mcmc.getSamplesAsMatrix(group_level_prior_variables);
+		%
+		% 	figure(87)
+		% 	variable_label_names={'m','c','alpha','epsilon'};
+		% 	triPlotSamples(posteriorSamples, priorSamples, variable_label_names, [])
+		% end
 
 	end
 

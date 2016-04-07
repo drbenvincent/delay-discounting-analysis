@@ -95,11 +95,16 @@ classdef ModelSeparate < ModelBaseClass
 			myExport(obj.saveFolder, obj.modelType, '-UnivariateSummary')
 			% -------------------------------
 
-% 			obj.plotPsychometricParams()
-% 			myExport(obj.saveFolder, obj.modelType, '-PsychometricParams')
+			% 			obj.plotPsychometricParams()
+			% 			myExport(obj.saveFolder, obj.modelType, '-PsychometricParams')
+
+			participant_level_prior_variables = cellfun(...
+				@getPriorOfVariable,...
+				obj.varList.participant_level_variables,...
+				'UniformOutput',false );
 
 			obj.figParticipantLevelWrapper(obj.varList.participant_level_variables,...
-				obj.varList.participant_level_prior_variables)
+				participant_level_prior_variables)
 		end
 
 
