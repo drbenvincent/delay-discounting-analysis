@@ -32,7 +32,7 @@ h_me.conductInference();
 h_me.exportParameterEstimates();
 h_me.plot()
 
-HTgroupSlopeLessThanZero(jagsModel)
+HTgroupSlopeLessThanZero(h_me)
 
 %% JAGS
 s_me = ModelSeparate(toolboxPath, 'JAGS', myData, 'separate_ME');
@@ -49,8 +49,8 @@ h_logk.sampler.setMCMCnumberOfChains(2);
 h_logk.conductInference();
 h_logk.plot()
 h_logk.exportParameterEstimates();
-h_logk.plotMCMCchains()
-h_logk.posteriorPredictive(); %<--- fix this
+% h_logk.plotMCMCchains()
+% h_logk.posteriorPredictive(); %<--- fix this
 
 
 

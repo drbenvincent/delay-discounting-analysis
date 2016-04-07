@@ -342,23 +342,6 @@ classdef ModelBaseClass < handle
 			% 			set(gca,'XLim',[10 100])
 		end
 
-
-		function figUnivariateSummary(obj, participantIDlist, variables)
-			% loop over variables provided, plotting univariate summary
-			% statistics.
-			figure
-			for v = 1:numel(variables)
-				subplot(numel(variables),1,v)
-				hdi = [obj.mcmc.getStats('hdi_low',variables{v})';...
-					obj.mcmc.getStats('hdi_high',variables{v})'];
-				plotErrorBars({participantIDlist{:}},...
-					obj.mcmc.getStats('mean',variables{v}),...
-					hdi,...
-					variables{v});
-				a=axis; axis([0.5 a(2)+0.5 a(3) a(4)]);
-			end
-		end
-
 	end
 
 end

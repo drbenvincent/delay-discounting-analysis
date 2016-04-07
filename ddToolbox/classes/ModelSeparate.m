@@ -183,11 +183,4 @@ classdef ModelSeparate < ModelBaseClass
 	end
 
 
-	methods(Static)
-
-
-
-	end
-
-
 end

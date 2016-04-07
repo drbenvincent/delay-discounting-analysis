@@ -125,6 +125,13 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 		function plot(obj)
 			close all
 
+			% plot univariate summary statistics --------------------------------
+			obj.mcmc.figUnivariateSummary(obj.data.IDname, obj.varList.participant_level_variables)
+			latex_fig(16, 5, 5)
+			myExport(obj.saveFolder, obj.modelType, '-UnivariateSummary')
+			% -------------------------------------------------------------------
+
+
 			obj.plotPsychometricParams()
 			myExport(obj.saveFolder, obj.modelType, '-PsychometricParams')
 
@@ -148,12 +155,6 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 
 			%% PARTICIPANT LEVEL
 
-% 			% plot univariate summary statistics --------------------------------
-% 			obj.figUnivariateSummary(obj.data.IDname, obj.varList.participant_level_variables)
-% 			latex_fig(16, 5, 5)
-% 			myExport(obj.saveFolder, obj.modelType, '-UnivariateSummary')
-% 			% -------------------------------------------------------------------
-
 			participant_level_prior_variables = cellfun(...
 				@getPriorOfVariable,...
 				obj.varList.group_level_variables,...
@@ -172,78 +173,6 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 		function conditionalDiscountRates_GroupLevel(obj, reward, plotFlag)
 			error('Not applicable to this model that calculates log(k)')
 		end
-
-
-% 		function plotPsychometricParams(obj)
-% 			% Plot priors/posteriors for parameters related to the psychometric
-% 			% function, ie how response 'errors' are characterised
-% 			%
-% 			% plotPsychometricParams(hModel.sampler.samples)
-%
-% 			figure(7), clf
-% 			P=obj.data.nParticipants;
-% 			%====================================
-% 			subplot(3,2,1)
-% 			plotPriorPostHist(...
-% 				obj.sampler.getSamplesAsMatrix({'alpha_group_prior'}),...
-% 				obj.sampler.getSamplesAsMatrix({'alpha_group'}));
-% 			title('Group \alpha')
-%
-% 			subplot(3,4,5)
-% 			plotPriorPostHist(...
-% 				obj.sampler.getSamplesAsMatrix({'groupALPHAmuprior'}),...
-% 				obj.sampler.getSamplesAsMatrix({'groupALPHAmu'}));
-% 			xlabel('\mu_\alpha')
-%
-% 			subplot(3,4,6)
-% 			plotPriorPostHist(...
-% 				obj.sampler.getSamplesAsMatrix({'groupALPHAsigmaprior'}),...
-% 				obj.sampler.getSamplesAsMatrix({'groupALPHAsigma'}));
-% 			xlabel('\sigma_\alpha')
-%
-% 			subplot(3,2,5),
-% % 			for p=1:P-1 % plot participant level alpha (alpha(:,:,p))
-% % 				%histogram(vec(samples.alpha(:,:,p)));
-% % 				[F,XI]=ksdensity(vec(samples.alpha(:,:,p)),...
-% % 					'support','positive',...
-% % 					'function','pdf');
-% % 				plot(XI, F)
-% % 				hold on
-% % 			end
-% 			xlabel('\alpha_p')
-% 			box off
-%
-% 			%====================================
-% 			subplot(3,2,2)
-% 			plotPriorPostHist(...
-% 				obj.sampler.getSamplesAsMatrix({'epsilon_group_prior'}),...
-% 				obj.sampler.getSamplesAsMatrix({'epsilon_group'}));
-% 			title('Group \epsilon')
-%
-% 			subplot(3,4,7),
-% 			plotPriorPostHist(...
-% 				obj.sampler.getSamplesAsMatrix({'groupWprior'}),...
-% 				obj.sampler.getSamplesAsMatrix({'groupW'}));
-% 			xlabel('\omega (mode)')
-%
-% 			subplot(3,4,8),
-% 			plotPriorPostHist(...
-% 				obj.sampler.getSamplesAsMatrix({'groupKprior'}),...
-% 				obj.sampler.getSamplesAsMatrix({'groupK'}));
-% 			xlabel('\kappa (concentration)')
-%
-% 			subplot(3,2,6),
-% % 			for p=1:P-1 % plot participant level alpha (alpha(:,:,p))
-% % 				%histogram(vec(samples.epsilon(:,:,p)));
-% % 					[F,XI]=ksdensity(vec(samples.epsilon(:,:,p)),...
-% % 					'support','positive',...
-% % 					'function','pdf');
-% % 				plot(XI, F)
-% % 				hold on
-% % 			end
-% 			xlabel('\epsilon_p')
-% 			box off
-% 		end
 
 	end
 
@@ -387,20 +316,6 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 		end
 		% *********************************************************************
 		% *********************************************************************
-
-
-
-		% function figGroupTriPlot(obj, variables, group_level_prior_variables)
-		% 	warning('Heavy but not exact duplication of figParticiantTriPlot() in ModelBaseClass')
-		% 	% samples from posterior
-		% 	[posteriorSamples] = obj.mcmc.getSamplesAsMatrix(variables);
-		%
-		% 	[priorSamples] = obj.mcmc.getSamplesAsMatrix(group_level_prior_variables);
-		%
-		% 	figure(87)
-		% 	variable_label_names={'m','c','alpha','epsilon'};
-		% 	triPlotSamples(posteriorSamples, priorSamples, variable_label_names, [])
-		% end
 
 	end
 
