@@ -6,7 +6,13 @@ classdef mcmcContainer < handle
 	end
 
 	methods(Abstract, Access = public)
-
+		convergenceSummary()
+		figUnivariateSummary()
+		getStats()
+		getSamplesAsMatrix()
+		getSamples()
+		getSamplesFromParticipantAsMatrix()
+		getSamplesAtIndex()
 	end
 
 	methods (Access = public)

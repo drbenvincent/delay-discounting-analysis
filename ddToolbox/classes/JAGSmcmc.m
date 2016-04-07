@@ -166,10 +166,10 @@ classdef JAGSmcmc < mcmcContainer
 			output = obj.stats.(field).(variable)';
 		end
 
-		function [output] = getAllStats(obj)
-			warning('Try to remove this method')
-			output = obj.stats;
-		end
+		% function [output] = getAllStats(obj)
+		% 	warning('Try to remove this method')
+		% 	output = obj.stats;
+		% end
 
 		function [predicted] = getParticipantPredictedResponses(obj, participant)
 			% calculate the probability of choosing the delayed reward, for
@@ -184,7 +184,6 @@ classdef JAGSmcmc < mcmcContainer
 			% predicted probability of choosing delayed (response = 1)
 			predicted = sum(participantRpostpredSamples,1)./nSamples;
 		end
-
 
 	end
 
