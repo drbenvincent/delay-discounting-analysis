@@ -110,11 +110,6 @@ classdef ModelHierarchical < ModelBaseClass
 			epsilon_group.analysisFlag = 2;
 			alpha_group.analysisFlag = 2;
 
-% 			m_group_prior.analysisFlag = 2; % don't want to analyse these
-% 			c_group_prior.analysisFlag = 2;
-% 			epsilon_group_prior.analysisFlag = 2;
-% 			alpha_group_prior.analysisFlag = 2;
-
 			% Create a Variable array -------------------------------------------
 			obj.variables = [m, c, epsilon, alpha,... % mprior, cprior, epsilonprior, alphaprior,...
 				groupMmu, groupMsigma,...
@@ -126,22 +121,14 @@ classdef ModelHierarchical < ModelBaseClass
 				groupALPHAmu, groupALPHAmuprior,...
 				groupALPHAsigma, groupALPHAsigmaprior,...
 				Rpostpred];
-
+			
 			% Variable list, used for plotting
 			obj.varList.participant_level_variables = {'m', 'c','alpha','epsilon'};
-
-% 			obj.varList.participant_level_prior_variables = {'m_group_prior',...
-% 				'c_group_prior',...
-% 				'alpha_group_prior',...
-% 				'epsilon_group_prior'};
-
-			obj.varList.group_level_variables = {'m_group', 'c_group','alpha_group','epsilon_group'};
-
-% 			obj.varList.group_level_prior_variables = {'m_group_prior',...
-% 				'c_group_prior',...
-% 				'alpha_group_prior',...
-% 				'epsilon_group_prior'};
-
+			
+			obj.varList.group_level_variables =...
+				cellfun(@getGroupVariable, obj.varList.participant_level_variables,...
+				'UniformOutput',false );
+			
 		end
 		% =================================================================
 

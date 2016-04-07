@@ -80,10 +80,6 @@ classdef ModelSeparate < ModelBaseClass
 			% Variable list, used for plotting
 			obj.varList.participant_level_variables = {'m', 'c','alpha','epsilon'};
 
-% 			obj.varList.participant_level_prior_variables={'m_prior',...
-% 				'c_prior',...
-% 				'alpha_prior',...
-% 				'epsilon_prior'};
 		end
 		% ================================================================
 
