@@ -27,7 +27,7 @@ classdef JAGSSampler < Sampler
 		function setObservedValues(obj, data)
 			obj.observed = data.observedData;
 			obj.observed.nParticipants	= data.nParticipants;
-			obj.observed.totalTrials	= data.totalTrials;
+			%obj.observed.totalTrials	= data.totalTrials;
 		end
 
 		function mcmc = conductInference(obj, model, data)

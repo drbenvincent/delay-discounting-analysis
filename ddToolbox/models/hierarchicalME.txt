@@ -4,14 +4,22 @@
 # - separate parameters (for each participant) for lapse rate and alpha
 # - Heirachical estimation (group-level) estimates of magnitude effect parameters (m, c).
 
+
 model{
 
-    # --------------------------------------------------------------------------
+    # priors over group M mean
+    groupMmu_MEAN <- -0.243
+    groupMmu_PRECISION <- 1/( (0.027*10)^2)
+    # priors over group M sigma
+    groupMsigma_MEAN <- 0.072
+    groupMsigma_PRECISION <- 1/( (0.025*10)^2)
+
+    # ----------------------------------------------------------------
     # Group-level hyperpriors (see Appendix A1 and A2 for details)
 
     # slope (uninformative, see Appendix A)
-    groupMmu        ~ dnorm(-0.243, 1/( (0.027*10)^2))
-    groupMsigma     ~ dnorm( 0.072, 1/( (0.025*10)^2)) T(0,)
+    groupMmu        ~ dnorm(groupMmu_MEAN, groupMmu_PRECISION)
+    groupMsigma     ~ dnorm(groupMsigma_MEAN, groupMsigma_PRECISION) T(0,)
 
     # intercept
     groupCmu        ~ dnorm(0, 1/(10000^2))
@@ -27,14 +35,44 @@ model{
     groupK          <- groupKminus2+2
 
 
-    # --------------------------------------------------------------------------
+    # ---------------------------------------------------------------
+    # Participant-level parameters
+    for (p in 1:nParticipants){
+      m[p]        ~ dnorm(groupMmu, 1/(groupMsigma^2))
+      c[p]        ~ dnorm(groupCmu, 1/(groupCsigma^2))
+
+      epsilon[p]  ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
+      alpha[p]    ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
+
+      for (t in 1:T[p]) {
+        # Calculate log discount rate for each reward
+        lkA[p,t] <- m[p]*log(abs(A[p,t]))+c[p]
+        lkB[p,t] <- m[p]*log(abs(B[p,t]))+c[p]
+
+        # calculate present subjective value for each reward
+        VA[p,t] <- A[p,t] / (1+(exp(lkA[p,t])*DA[p,t]))
+        VB[p,t] <- B[p,t] / (1+(exp(lkB[p,t])*DB[p,t]))
+
+        # Psychometric function
+        P[p,t] <- epsilon[p] + (1-2*epsilon[p]) * phi( (VB[p,t]-VA[p,t]) / alpha[p] )
+
+        # response
+        R[p,t] ~ dbern(P[p,t])
+      }
+    }
+
+
+
+    # #############################################
+    # GENERATED QUANTITIES ########################
+
     # Sample hyperpriors (Make sure values correspond to the priors given above)
     # We draw these samples, that are independent from the data, so that we can plot our prior beliefs of group-level parameters. These will be determined by the actual values given in the priors.
     # IMPORTANT - Make sure the numerical values you provide below match the priors above.
 
     # slope
-    groupMmuprior       ~ dnorm(-0.243, 1/( (0.027*10)^2))
-    groupMsigmaprior    ~ dnorm( 0.072, 1/( (0.025*10)^2)) T(0,)
+    groupMmuprior       ~ dnorm(groupMmu_MEAN, groupMmu_PRECISION)
+    groupMsigmaprior    ~ dnorm(groupMsigma_MEAN, groupMsigma_PRECISION) T(0,)
 
     # intercept (sample from the prior, independent from the data)
     groupCmuprior        ~ dnorm(0, 1/(10000^2))
@@ -50,50 +88,25 @@ model{
     groupKprior          <- groupKminus2prior+2
 
 
-    # Prior beliefs about the group level (equivalently, an as yet unobserved participant). As determined by priors on parameters specified above
-    m_group_prior        ~ dnorm(groupMmuprior, 1/(groupMsigmaprior^2))
-    c_group_prior        ~ dnorm(groupCmuprior, 1/(groupCsigmaprior^2))
-    alpha_group_prior    ~ dnorm(groupALPHAmuprior, 1/(groupALPHAsigmaprior^2)) T(0,)
-    epsilon_group_prior  ~ dbeta(groupWprior*(groupKprior-2)+1 , (1-groupWprior)*(groupKprior-2)+1 ) T(,0.5)
 
-    # --------------------------------------------------------------------------
     # Group-level posterior predictive distributions. These samples can be seen as inferences about an as yet unobserved participant who represents what we know about the parameters at the group level.
     m_group             ~ dnorm(groupMmu, 1/(groupMsigma^2))
     c_group             ~ dnorm(groupCmu, 1/(groupCsigma^2))
     alpha_group         ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
     epsilon_group       ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
 
-    # --------------------------------------------------------------------------
-    # Participant-level parameters
-    for (p in 1:nParticipants){
-        # magnitide effect (m,c) for each person
-        m[p]        ~ dnorm(groupMmu, 1/(groupMsigma^2))
-        c[p]        ~ dnorm(groupCmu, 1/(groupCsigma^2))
-        epsilon[p]  ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
-        alpha[p]    ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
-    }
+    # Prior beliefs about the group level (equivalently, an as yet unobserved participant). As determined by priors on parameters specified above
+    m_group_prior        ~ dnorm(groupMmuprior, 1/(groupMsigmaprior^2))
+    c_group_prior        ~ dnorm(groupCmuprior, 1/(groupCsigmaprior^2))
+    alpha_group_prior    ~ dnorm(groupALPHAmuprior, 1/(groupALPHAsigmaprior^2)) T(0,)
+    epsilon_group_prior  ~ dbeta(groupWprior*(groupKprior-2)+1 , (1-groupWprior)*(groupKprior-2)+1 ) T(,0.5)
+
 
     for (p in 1:nParticipants){
-        # ----------------------------------------------------------------------
-        # Trial-level
-        for (t in 1:T[p]) {
-
-            # Calculate log discount rate for each reward
-            lkA[p,t] <- m[p]*log(abs(A[p,t]))+c[p]
-            lkB[p,t] <- m[p]*log(abs(B[p,t]))+c[p]
-
-            # calculate present subjective value for each reward
-            VA[p,t] <- A[p,t] / (1+(exp(lkA[p,t])*DA[p,t]))
-            VB[p,t] <- B[p,t] / (1+(exp(lkB[p,t])*DB[p,t]))
-
-            # Psychometric function
-            P[p,t] <- epsilon[p] + (1-2*epsilon[p]) * phi( (VB[p,t]-VA[p,t]) / alpha[p] )
-
-            # response
-            R[p,t] ~ dbern(P[p,t])
-
-            # posterior predictive
-            Rpostpred[p,t] ~ dbern(P[p,t])
-        }
+      for (t in 1:T[p]) {
+        # posterior predictive distribution of responses
+        Rpostpred[p,t] ~ dbern(P[p,t])
+      }
     }
+
 }
