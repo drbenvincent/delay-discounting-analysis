@@ -121,7 +121,7 @@ classdef ModelHierarchical < ModelBaseClass
 				groupALPHAmu, groupALPHAmuprior,...
 				groupALPHAsigma, groupALPHAsigmaprior,...
 				Rpostpred];
-			
+
 			% Variable list, used for plotting
 			obj.varList.participant_level_variables = {'m', 'c','alpha','epsilon'};
 			% Add group variables
@@ -129,7 +129,7 @@ classdef ModelHierarchical < ModelBaseClass
 				cellfun( @(var) [var '_group'],...
 				obj.varList.participant_level_variables,...
 				'UniformOutput',false );
-			
+
 		end
 		% =================================================================
 
@@ -144,7 +144,7 @@ classdef ModelHierarchical < ModelBaseClass
 			% Tri plot
 			group_level_prior_variables = cellfun(@getPriorOfVariable, obj.varList.group_level_variables,...
 				'UniformOutput',false );
-			
+
 			obj.figGroupTriPlot(...
 				obj.varList.group_level_variables,...
 				group_level_prior_variables)
@@ -161,7 +161,7 @@ classdef ModelHierarchical < ModelBaseClass
 
 			participant_level_prior_variables = cellfun(@getPriorOfVariable, obj.varList.group_level_variables,...
 				'UniformOutput',false );
-			
+
 			obj.figParticipantLevelWrapper(obj.varList.participant_level_variables,...
 				participant_level_prior_variables)
 
@@ -391,25 +391,25 @@ classdef ModelHierarchical < ModelBaseClass
 
 
 
-	% HYPOTHESIS TEST FUNCTIONS
-	methods (Access = public)
-		function HTgroupSlopeLessThanZero(obj)
-			% Test the hypothesis that the group level slope (G^m) is less
-			% than one
-
-			% METHOD 1
-			HT_BayesFactor(obj)
-
-			% METHOD 2
-			priorSamples = obj.mcmc.getSamplesAsMatrix({'m_group_prior'});
-			posteriorSamples = obj.mcmc.getSamplesAsMatrix({'m_group'});
-			subplot(1,2,2)
-			plotPosteriorHDI(priorSamples, posteriorSamples)
-
-			%%
-			myExport(obj.saveFolder, [], '-BayesFactorMLT1')
-		end
-	end
+	% % HYPOTHESIS TEST FUNCTIONS
+	% methods (Access = public)
+	% 	function HTgroupSlopeLessThanZero(obj)
+	% 		% Test the hypothesis that the group level slope (G^m) is less
+	% 		% than one
+	%
+	% 		% METHOD 1
+	% 		HT_BayesFactor(obj)
+	%
+	% 		% METHOD 2
+	% 		priorSamples = obj.mcmc.getSamplesAsMatrix({'m_group_prior'});
+	% 		posteriorSamples = obj.mcmc.getSamplesAsMatrix({'m_group'});
+	% 		subplot(1,2,2)
+	% 		plotPosteriorHDI(priorSamples, posteriorSamples)
+	%
+	% 		%%
+	% 		myExport(obj.saveFolder, [], '-BayesFactorMLT1')
+	% 	end
+	% end
 
 
 

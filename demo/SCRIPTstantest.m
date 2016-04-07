@@ -25,8 +25,19 @@ myData.loadDataFiles(fnames);
 
 
 %% JAGS
+jagsModel = ModelHierarchical(toolboxPath, 'JAGS', myData, 'hierarchicalME');
+jagsModel.sampler.setMCMCtotalSamples(10^2);
+jagsModel.sampler.setMCMCnumberOfChains(2);
+jagsModel.conductInference();
+jagsModel.exportParameterEstimates();
+jagsModel.plot()
+
+HTgroupSlopeLessThanZero(jagsModel)
+
+%% JAGS
 jagsModel = ModelHierarchicalNOMAG(toolboxPath, 'JAGS', myData, 'hierarchical_logk');
 jagsModel.sampler.setMCMCtotalSamples(10^2);
+jagsModel.sampler.setMCMCnumberOfChains(2);
 jagsModel.conductInference();
 jagsModel.exportParameterEstimates();
 jagsModel.plot()
