@@ -51,6 +51,20 @@ classdef ModelBaseClass < handle
 				str_latex);
 		end
 
+		% middle-man
+		function setBurnIn(obj, nburnin)
+			obj.sampler.setBurnIn(nburnin)
+		end
+		function setMCMCtotalSamples(obj, totalSamples)
+			obj.sampler.setMCMCtotalSamples(totalSamples)
+		end
+		function setMCMCnumberOfChains(obj, nchains)
+			obj.sampler.setMCMCnumberOfChains(nchains)
+		end
+
+
+		% ===============================================================
+		% IS THIS OBJECT WANTING TO BE IN THE NEW MCMC-CONTAINER CLASS ??
 		function exportParameterEstimates(obj)
 
 			%% participant level
@@ -110,6 +124,12 @@ classdef ModelBaseClass < handle
 			end
 		end
 
+
+
+
+		% ===============================================================
+		% WHERE SHOULD THESE FUNCTIONS LIVE?
+
 		function conditionalDiscountRates(obj, reward, plotFlag)
 			% Extract and plot P( log(k) | reward)
 			warning('THIS METHOD IS A TOTAL MESS - PLAN THIS AGAIN FROM SCRATCH')
@@ -144,16 +164,26 @@ classdef ModelBaseClass < handle
 		end
 
 
-		% middle-man
-		function setBurnIn(obj, nburnin)
-			obj.sampler.setBurnIn(nburnin)
-		end
-		function setMCMCtotalSamples(obj, totalSamples)
-			obj.sampler.setMCMCtotalSamples(totalSamples)
-		end
-		function setMCMCnumberOfChains(obj, nchains)
-			obj.sampler.setMCMCnumberOfChains(nchains)
-		end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		% **********************************************************************
+		% PLOTTING *************************************************************
+		% **********************************************************************
+
+
 
 		function posteriorPredictive(obj)
 			%% Calculation
@@ -191,6 +221,7 @@ classdef ModelBaseClass < handle
 			xlabel('trials')
 		end
 
+		% just a middle-man method. Should we remove?
 		function figTriPlot(obj, variables, priorSamples, posteriorSamples)
 			%posteriorSamples = obj.mcmc.getSamplesFromParticipantAsMatrix(n, variables);
 			%priorSamples = obj.mcmc.getSamplesAsMatrix(participant_prior_variables);

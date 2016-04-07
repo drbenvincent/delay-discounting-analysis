@@ -65,18 +65,12 @@ h_logk.exportParameterEstimates();
 % 
 
 
-%% Separate
-sModel = ModelSeparate(toolboxPath, 'JAGS', myData, 'separatetest');
-sModel.sampler.setMCMCtotalSamples(10^3);
-sModel.conductInference();
-sModel.plot()
-
 
 
 
 %% ModelHierarchicalNOMAG
 sModel = ModelHierarchicalNOMAG(toolboxPath, 'STAN', myData, 'stanModelHierarchicalNOMAG');
-sModel.sampler.setStanHome('/Users/btvincent/cmdstan-2.9.0') 
+sModel.sampler.setStanHome('/Users/btvincent/cmdstan') 
 clc
 sModel.conductInference();
 % ~~~~~~~~~~~~~~~~~
