@@ -80,33 +80,48 @@ classdef ModelSeparate < ModelBaseClass
 			% Variable list, used for plotting
 			obj.varList.participant_level_variables = {'m', 'c','alpha','epsilon'};
 
-			obj.varList.participant_level_prior_variables={'m_prior',...
-				'c_prior',...
-				'alpha_prior',...
-				'epsilon_prior'};
 		end
 		% ================================================================
+
+
+
+
+
+
+
+
+
+		% **************************************************************************
+		% PLOTTING METHODS
+		% **************************************************************************
+
+
 
 
 		function plot(obj)
 			close all
 
-			% plot univariate summary statistics for the parameters we have
-			% made inferences about
-			obj.figUnivariateSummary(obj.data.IDname, obj.varList.participant_level_variables)
-			% EXPORTING ---------------------
-			latex_fig(16, 5, 5)
-			myExport(obj.saveFolder, obj.modelType, '-UnivariateSummary')
+			% TODO &&&&& ENABLE THIS METHOD TO WORK WHEN NO GROUP-LEVEL VARIABLES &&&&
+			% plot univariate summary statistics
+% 			obj.mcmc.figUnivariateSummary(obj.data.IDname, obj.varList.participant_level_variables)
+% 			latex_fig(16, 5, 5)
+% 			myExport(obj.saveFolder, obj.modelType, '-UnivariateSummary')
 			% -------------------------------
 
+			% TODO: FIX THIS !!!
 % 			obj.plotPsychometricParams()
 % 			myExport(obj.saveFolder, obj.modelType, '-PsychometricParams')
 
+			participant_level_prior_variables = cellfun(...
+				@getPriorOfVariable,...
+				obj.varList.participant_level_variables,...
+				'UniformOutput',false );
+
 			obj.figParticipantLevelWrapper(obj.varList.participant_level_variables,...
-				obj.varList.participant_level_prior_variables)
+				participant_level_prior_variables)
 		end
 
-
+		% TODO: FIX THIS
 		function plotPsychometricParams(obj)
 			% Plot priors/posteriors for parameters related to the psychometric
 			% function, ie how response 'errors' are characterised
@@ -177,13 +192,6 @@ classdef ModelSeparate < ModelBaseClass
 			xlabel('\epsilon_p')
 			box off
 		end
-
-
-	end
-
-
-	methods(Static)
-
 
 
 	end

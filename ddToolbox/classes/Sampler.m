@@ -1,5 +1,6 @@
 classdef (Abstract) Sampler < handle
 	%Sampler Abstract base class sampler class.
+  % Responsibility is to invoke an MCMC sampler and return MCMC chains.
 
 	properties (Access = public)
 		sampler % string {'JAGS'|'STAN'}
@@ -18,14 +19,14 @@ classdef (Abstract) Sampler < handle
 	methods(Abstract, Access = public)
 		conductInference(obj)
 
-		getSamplesAtIndex(obj,index)
-		getSamplesFromParticipantAsMatrix()
-		getSamples()
-		getSamplesAsMatrix()
-		getStats()
-		getAllStats()
-
-		convergenceSummary(obj, data)
+		% getSamplesAtIndex(obj,index)
+		% getSamplesFromParticipantAsMatrix()
+		% getSamples()
+		% getSamplesAsMatrix()
+		% getStats()
+		% getAllStats()
+		%
+		% convergenceSummary(obj, data)
 	end
 
 

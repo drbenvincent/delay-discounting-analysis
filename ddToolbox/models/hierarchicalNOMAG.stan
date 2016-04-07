@@ -67,20 +67,20 @@ transformed parameters {
 model {
   // group level priors
   groupLogKmu      ~ normal(-0.243,1000);
-  groupLogKsigma   ~ inv_gamma(0.01,0.01);
+  groupLogKsigma   ~ inv_gamma(0.001,0.001);
 
   groupALPHAmu     ~ uniform(0,1000);
-  groupALPHAsigma  ~ inv_gamma(0.01,0.01);
+  groupALPHAsigma  ~ inv_gamma(0.001,0.001);
 
   groupW           ~ beta(1.1, 10.9);  // mode for lapse rate
   groupKminus2     ~ gamma(0.01,0.01); // concentration parameter
 
   // SAMPLING FROM PRIOR group level priors
   groupLogKmuprior      ~ normal(-0.243,1000);
-  groupLogKsigmaprior   ~ inv_gamma(0.01,0.01);
+  groupLogKsigmaprior   ~ inv_gamma(0.001,0.001);
 
   groupALPHAmuprior     ~ uniform(0,1000);
-  groupALPHAsigmaprior  ~ inv_gamma(0.01,0.01);
+  groupALPHAsigmaprior  ~ inv_gamma(0.001,0.001);
 
   groupWprior           ~ beta(1.1, 10.9);  // mode for lapse rate
   groupKminus2prior     ~ gamma(0.01,0.01); // concentration parameter
