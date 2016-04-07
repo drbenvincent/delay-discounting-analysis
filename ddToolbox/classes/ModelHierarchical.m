@@ -178,6 +178,12 @@ classdef ModelHierarchical < ModelBaseClass
 		function plot(obj)
 			close all
 
+			% plot univariate summary statistics --------------------------------
+			obj.mcmc.figUnivariateSummary(obj.data.IDname, obj.varList.participant_level_variables)
+			latex_fig(16, 5, 5)
+			myExport(obj.saveFolder, obj.modelType, '-UnivariateSummary')
+			% -------------------------------------------------------------------
+
 			obj.plotPsychometricParams()
 			myExport(obj.saveFolder, obj.modelType, '-PsychometricParams')
 
@@ -200,12 +206,8 @@ classdef ModelHierarchical < ModelBaseClass
 
 			obj.figGroupLevel(obj.varList.group_level_variables)
 
+
 			%% PARTICIPANT LEVEL
-			% plot univariate summary statistics --------------------------------
-			obj.figUnivariateSummary(obj.data.IDname, obj.varList.participant_level_variables)
-			latex_fig(16, 5, 5)
-			myExport(obj.saveFolder, obj.modelType, '-UnivariateSummary')
-			% -------------------------------------------------------------------
 
 			participant_level_prior_variables = cellfun(...
 				@getPriorOfVariable,...
@@ -219,13 +221,6 @@ classdef ModelHierarchical < ModelBaseClass
 			probMass = 0.5; % <---- 50% prob mass chosen to avoid too much clutter on graph
 			obj.plotMCclusters([1 0 0], probMass)
 		end
-
-
-
-
-
-
-
 
 
 		function plotMCclusters(obj, col, probMass)
@@ -272,33 +267,6 @@ classdef ModelHierarchical < ModelBaseClass
 				plotOpts.FaceColor = 'none';
 				plotOpts.EdgeColor = col;
 				plotOpts.LineWidth = 2;
-			end
-		end
-
-
-		% ***** MOVE THIS TO THE NEW 'MCMC' CLASS ??
-
-		function figUnivariateSummary(obj, participantIDlist, variables)
-			% loop over variables provided, plotting univariate summary
-			% statistics.
-
-			% We are going to add on group level inferences to the end of the
-			% participant list. This is because the group-level inferences an be
-			% seen as inferences we can make about an as yet unobserved
-			% participant, in the light of the participant data available thus
-			% far.
-			participantIDlist{end+1}='GROUP';
-
-			figure
-			for v = 1:numel(variables)
-				subplot(numel(variables),1,v)
-				hdi = [obj.mcmc.getStats('hdi_low',variables{v})' obj.mcmc.getStats('hdi_low',[variables{v} '_group']) ;...
-					obj.mcmc.getStats('hdi_high',variables{v})' obj.mcmc.getStats('hdi_high',[variables{v} '_group'])];
-				plotErrorBars({participantIDlist{:}},...
-					[obj.mcmc.getStats('mean',variables{v})' obj.mcmc.getStats('mean',[variables{v} '_group'])],...
-					hdi,...
-					variables{v});
-				a=axis; axis([0.5 a(2)+0.5 a(3) a(4)]);
 			end
 		end
 

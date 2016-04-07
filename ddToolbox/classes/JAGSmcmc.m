@@ -76,6 +76,33 @@ classdef JAGSmcmc < mcmcContainer
 			end
 		end
 
+		function figUnivariateSummary(obj, participantIDlist, variables)
+			% loop over variables provided, plotting univariate summary
+			% statistics.
+
+			% We are going to add on group level inferences to the end of the
+			% participant list. This is because the group-level inferences an be
+			% seen as inferences we can make about an as yet unobserved
+			% participant, in the light of the participant data available thus
+			% far.
+			participantIDlist{end+1}='GROUP';
+
+			% &&&&&&&&&&&&&&&&&&&
+			% TODO: DEAL WITH WHEN THERE IS AND IS NOT GROPU (hierarhical)
+			% VARIABLES
+			% &&&&&&&&&&&&&&&&&&&
+			figure
+			for v = 1:numel(variables)
+				subplot(numel(variables),1,v)
+				hdi = [obj.getStats('hdi_low',variables{v})' obj.getStats('hdi_low',[variables{v} '_group']) ;...
+					obj.getStats('hdi_high',variables{v})' obj.getStats('hdi_high',[variables{v} '_group'])];
+				plotErrorBars({participantIDlist{:}},...
+					[obj.getStats('mean',variables{v})' obj.getStats('mean',[variables{v} '_group'])],...
+					hdi,...
+					variables{v});
+				a=axis; axis([0.5 a(2)+0.5 a(3) a(4)]);
+			end
+		end
 
 
 		%% GET METHODS ----------------------------------------------------
