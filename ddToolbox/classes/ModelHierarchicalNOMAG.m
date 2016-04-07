@@ -39,7 +39,7 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 			epsilon.seed.single = false;
 
 			alpha = Variable('alpha','\alpha', 'positive', true);
-			alpha.seed.func = @() abs(normrnd(0.01,0.001));
+			alpha.seed.func = @() abs(normrnd(0.01,10));
 			alpha.seed.single = false;
 
 			% -------------------------------------------------------------------
@@ -48,12 +48,20 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 			% with no observed data? This would remove the need for all these gl*
 			% variables here and in the JAGS model and make things much simpler.
 			logk_group				= Variable('logk_group','logk group', [], true);
+			logk_group.seed.func = @() normrnd(-0.243,10);
+			logk_group.seed.single = true;
+
 			logk_group_prior	= Variable('logk_group_prior','logk group prior', [], true);
 
 			epsilon_group		= Variable('epsilon_group','\epsilon group', [0 0.5], true);
+			epsilon_group.seed.func = @() 0.1 + rand/10;
+			epsilon_group.seed.single = true;
+
 			epsilon_group_prior = Variable('epsilon_group_prior','\epsilon group prior', [0 0.5], true);
 
 			alpha_group			= Variable('alpha_group','\alpha group', 'positive', true);
+			alpha_group.seed.func = @() abs(normrnd(0.01,10));
+			alpha_group.seed.single = true;
 			alpha_group_prior	= Variable('alpha_group_prior','\alpha group prior', 'positive', true);
 
 			% -------------------------------------------------------------------
@@ -164,7 +172,7 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 % 			% function, ie how response 'errors' are characterised
 % 			%
 % 			% plotPsychometricParams(hModel.sampler.samples)
-% 
+%
 % 			figure(7), clf
 % 			P=obj.data.nParticipants;
 % 			%====================================
@@ -173,19 +181,19 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 % 				obj.sampler.getSamplesAsMatrix({'alpha_group_prior'}),...
 % 				obj.sampler.getSamplesAsMatrix({'alpha_group'}));
 % 			title('Group \alpha')
-% 
+%
 % 			subplot(3,4,5)
 % 			plotPriorPostHist(...
 % 				obj.sampler.getSamplesAsMatrix({'groupALPHAmuprior'}),...
 % 				obj.sampler.getSamplesAsMatrix({'groupALPHAmu'}));
 % 			xlabel('\mu_\alpha')
-% 
+%
 % 			subplot(3,4,6)
 % 			plotPriorPostHist(...
 % 				obj.sampler.getSamplesAsMatrix({'groupALPHAsigmaprior'}),...
 % 				obj.sampler.getSamplesAsMatrix({'groupALPHAsigma'}));
 % 			xlabel('\sigma_\alpha')
-% 
+%
 % 			subplot(3,2,5),
 % % 			for p=1:P-1 % plot participant level alpha (alpha(:,:,p))
 % % 				%histogram(vec(samples.alpha(:,:,p)));
@@ -197,26 +205,26 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 % % 			end
 % 			xlabel('\alpha_p')
 % 			box off
-% 
+%
 % 			%====================================
 % 			subplot(3,2,2)
 % 			plotPriorPostHist(...
 % 				obj.sampler.getSamplesAsMatrix({'epsilon_group_prior'}),...
 % 				obj.sampler.getSamplesAsMatrix({'epsilon_group'}));
 % 			title('Group \epsilon')
-% 
+%
 % 			subplot(3,4,7),
 % 			plotPriorPostHist(...
 % 				obj.sampler.getSamplesAsMatrix({'groupWprior'}),...
 % 				obj.sampler.getSamplesAsMatrix({'groupW'}));
 % 			xlabel('\omega (mode)')
-% 
+%
 % 			subplot(3,4,8),
 % 			plotPriorPostHist(...
 % 				obj.sampler.getSamplesAsMatrix({'groupKprior'}),...
 % 				obj.sampler.getSamplesAsMatrix({'groupK'}));
 % 			xlabel('\kappa (concentration)')
-% 
+%
 % 			subplot(3,2,6),
 % % 			for p=1:P-1 % plot participant level alpha (alpha(:,:,p))
 % % 				%histogram(vec(samples.epsilon(:,:,p)));

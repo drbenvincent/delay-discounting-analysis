@@ -25,7 +25,10 @@ classdef ModelHierarchical < ModelBaseClass
 			end
 
 			%% Create variables
-			% -------------------------------------------------------------------
+			% The intent of this code below is to set up the key variables of the model. This is so that we can:
+			% 1. Generate good initial parameters for the MCMC chains
+			% 2. Have labels for Participant-level and group-level parameters, which will help when we want to do plotting of variables.
+
 			% Participant-level -------------------------------------------------
 			m = Variable('m','m', [], true);
 			m.seed.func = @() normrnd(-0.243,2);
@@ -40,7 +43,7 @@ classdef ModelHierarchical < ModelBaseClass
 			epsilon.seed.single = false;
 
 			alpha = Variable('alpha','\alpha', 'positive', true);
-			alpha.seed.func = @() abs(normrnd(0.01,0.001));
+			alpha.seed.func = @() abs(normrnd(0.01,10));
 			alpha.seed.single = false;
 
 			% -------------------------------------------------------------------
@@ -49,15 +52,26 @@ classdef ModelHierarchical < ModelBaseClass
 			% with no observed data? This would remove the need for all these gl*
 			% variables here and in the JAGS model and make things much simpler.
 			m_group				= Variable('m_group','m group', [], true);
+			m_group.seed.func = @() normrnd(-0.243,2);
+			m_group.seed.single = true;
+
 			m_group_prior		= Variable('m_group_prior','m group prior', [], true);
 
 			c_group				= Variable('c_group','c group', [], true);
+			c_group.seed.func = @() normrnd(0,4);
+			c_group.seed.single = true;
+
 			c_group_prior		= Variable('c_group_prior','c group prior', [], true);
 
 			epsilon_group		= Variable('epsilon_group','\epsilon group', [0 0.5], true);
+			epsilon_group.seed.func = @() 0.1 + rand/10;
+			epsilon_group.seed.single = true;
+
 			epsilon_group_prior = Variable('epsilon_group_prior','\epsilon group prior', [0 0.5], true);
 
 			alpha_group			= Variable('alpha_group','\alpha group', 'positive', true);
+			alpha_group.seed.func = @() abs(normrnd(0.01,10));
+			alpha_group.seed.single = true;
 			alpha_group_prior	= Variable('alpha_group_prior','\alpha group prior', 'positive', true);
 
 			% -------------------------------------------------------------------
