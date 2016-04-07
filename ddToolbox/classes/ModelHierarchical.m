@@ -134,6 +134,47 @@ classdef ModelHierarchical < ModelBaseClass
 		% =================================================================
 
 
+
+		%% ******** SORT OUT WHERE THESE AND OTHER FUNCTIONS SHOULD BE *************
+		function conditionalDiscountRates(obj, reward, plotFlag)
+			% For group level and all participants, extract and plot P( log(k) | reward)
+			warning('THIS METHOD IS A TOTAL MESS - PLAN THIS AGAIN FROM SCRATCH')
+			obj.conditionalDiscountRates_ParticipantLevel(reward, plotFlag)
+			obj.conditionalDiscountRates_GroupLevel(reward, plotFlag)
+			if plotFlag % FORMATTING OF FIGURE
+				removeYaxis
+				title(sprintf('$P(\\log(k)|$reward=$\\pounds$%d$)$', reward),'Interpreter','latex')
+				xlabel('$\log(k)$','Interpreter','latex')
+				axis square
+				%legend(lh.DisplayName)
+			end
+		end
+
+		function conditionalDiscountRates_GroupLevel(obj, reward, plotFlag)
+			GROUP = obj.data.nParticipants; % last participant is our unobserved
+			params = obj.mcmc.getSamplesFromParticipantAsMatrix(GROUP, {'m','c'});
+			[posteriorMean, lh] = calculateLogK_ConditionOnReward(reward, params, plotFlag);
+			lh.LineWidth = 3;
+			lh.Color= 'k';
+		end
+
+
+
+
+
+
+
+
+
+
+
+
+
+		% **************************************************************************
+		% PLOTTING METHODS
+		% **************************************************************************
+
+
 		function plot(obj)
 			close all
 
@@ -233,111 +274,6 @@ classdef ModelHierarchical < ModelBaseClass
 				plotOpts.LineWidth = 2;
 			end
 		end
-
-
-% 		function plotPsychometricParams(obj)
-% 			% Plot priors/posteriors for parameters related to the psychometric
-% 			% function, ie how response 'errors' are characterised
-% 			%
-% 			% plotPsychometricParams(hModel.mcmc.samples)
-%
-%  			%samples = obj.mcmc.getAllSamples();
-%
-% 			figure(7), clf
-% 			P=obj.data.nParticipants; % number of participants
-% 			%====================================
-% 			subplot(3,2,1)
-% 			plotPriorPostHist(...
-% 				obj.mcmc.getSamplesAsMatrix({'alpha_group_prior'}),...
-% 				obj.mcmc.getSamplesAsMatrix({'alpha_group'}));
-% 			title('Group \alpha')
-%
-% 			subplot(3,4,5)
-% 			plotPriorPostHist(samples.groupALPHAmuprior(:), samples.groupALPHAmu(:));
-% 			xlabel('\mu_\alpha')
-%
-% 			subplot(3,4,6)
-% 			plotPriorPostHist(samples.groupALPHAsigmaprior(:), samples.groupALPHAsigma(:));
-% 			xlabel('\sigma_\alpha')
-%
-% 			subplot(3,2,5),
-% 			for p=1:P-1 % plot participant level alpha (alpha(:,:,p))
-% 				%histogram(vec(samples.alpha(:,:,p)));
-% 				[F,XI]=ksdensity(vec(samples.alpha(:,:,p)),...
-% 					'support','positive',...
-% 					'function','pdf');
-% 				plot(XI, F)
-% 				hold on
-% 			end
-% 			xlabel('\alpha_p')
-% 			box off
-%
-% 			%====================================
-% 			subplot(3,2,2)
-% 			plotPriorPostHist(samples.epsilon_group_prior(:), samples.epsilon_group(:));
-% 			title('Group \epsilon')
-%
-% 			subplot(3,4,7),
-% 			plotPriorPostHist(samples.groupWprior(:), samples.groupW(:));
-% 			xlabel('\omega (mode)')
-%
-% 			subplot(3,4,8),
-% 			plotPriorPostHist(samples.groupKprior(:), samples.groupK(:));
-% 			xlabel('\kappa (concentration)')
-%
-% 			subplot(3,2,6),
-% 			for p=1:P-1 % plot participant level alpha (alpha(:,:,p))
-% 				%histogram(vec(samples.epsilon(:,:,p)));
-% 					[F,XI]=ksdensity(vec(samples.epsilon(:,:,p)),...
-% 					'support','positive',...
-% 					'function','pdf');
-% 				plot(XI, F)
-% 				hold on
-% 			end
-% 			xlabel('\epsilon_p')
-% 			box off
-% 		end
-
-
-
-
-
-
-		%% ******** SORT OUT WHERE THESE AND OTHER FUNCTIONS SHOULD BE *************
-		function conditionalDiscountRates(obj, reward, plotFlag)
-			% For group level and all participants, extract and plot P( log(k) | reward)
-			warning('THIS METHOD IS A TOTAL MESS - PLAN THIS AGAIN FROM SCRATCH')
-			obj.conditionalDiscountRates_ParticipantLevel(reward, plotFlag)
-			obj.conditionalDiscountRates_GroupLevel(reward, plotFlag)
-			if plotFlag % FORMATTING OF FIGURE
-				removeYaxis
-				title(sprintf('$P(\\log(k)|$reward=$\\pounds$%d$)$', reward),'Interpreter','latex')
-				xlabel('$\log(k)$','Interpreter','latex')
-				axis square
-				%legend(lh.DisplayName)
-			end
-		end
-
-		function conditionalDiscountRates_GroupLevel(obj, reward, plotFlag)
-			GROUP = obj.data.nParticipants; % last participant is our unobserved
-			params = obj.mcmc.getSamplesFromParticipantAsMatrix(GROUP, {'m','c'});
-			[posteriorMean, lh] = calculateLogK_ConditionOnReward(reward, params, plotFlag);
-			lh.LineWidth = 3;
-			lh.Color= 'k';
-		end
-
-
-
-
-	end
-
-
-
-
-
-
-
-	methods (Access = protected)
 
 
 		% ***** MOVE THIS TO THE NEW 'MCMC' CLASS ??

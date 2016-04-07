@@ -229,14 +229,15 @@ classdef ModelBaseClass < handle
 			xlabel('\sigma_\alpha')
 
 			subplot(3,2,5),
-			% 			for p=1:P-1 % plot participant level alpha (alpha(:,:,p))
-			% 				%histogram(vec(samples.alpha(:,:,p)));
-			% 				[F,XI]=ksdensity(vec(samples.alpha(:,:,p)),...
-			% 					'support','positive',...
-			% 					'function','pdf');
-			% 				plot(XI, F)
-			% 				hold on
-			% 			end
+			for p=1:P-1 % plot participant level alpha (alpha(:,:,p))
+				%histogram(vec(samples.alpha(:,:,p)));
+				[F,XI]=ksdensity(...
+					obj.mcmc.getSamplesFromParticipantAsMatrix(p,{'alpha'}),... %vec(samples.alpha(:,:,p)),...
+					'support','positive',...
+					'function','pdf');
+				plot(XI, F)
+				hold on
+			end
 			xlabel('\alpha_p')
 			box off
 
@@ -260,14 +261,15 @@ classdef ModelBaseClass < handle
 			xlabel('\kappa (concentration)')
 
 			subplot(3,2,6),
-			% 			for p=1:P-1 % plot participant level alpha (alpha(:,:,p))
-			% 				%histogram(vec(samples.epsilon(:,:,p)));
-			% 					[F,XI]=ksdensity(vec(samples.epsilon(:,:,p)),...
-			% 					'support','positive',...
-			% 					'function','pdf');
-			% 				plot(XI, F)
-			% 				hold on
-			% 			end
+			for p=1:P-1 % plot participant level alpha (alpha(:,:,p))
+				%histogram(vec(samples.epsilon(:,:,p)));
+				[F,XI]=ksdensity(...
+					obj.mcmc.getSamplesFromParticipantAsMatrix(p,{'epsilon'}),... % vec(samples.epsilon(:,:,p)),...
+					'support','positive',...
+					'function','pdf');
+				plot(XI, F)
+				hold on
+			end
 			xlabel('\epsilon_p')
 			box off
 		end
