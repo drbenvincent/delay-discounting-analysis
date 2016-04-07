@@ -9,8 +9,6 @@ classdef ModelHierarchical < ModelBaseClass
 	methods (Access = public)
 		% =================================================================
 		function obj = ModelHierarchical(toolboxPath, samplerType, data, saveFolder)
-			% Because this class is a subclass of "modelME" then we use
-			% this next line to create an instance
 			obj = obj@ModelBaseClass(toolboxPath, samplerType, data, saveFolder);
 
 			switch samplerType
@@ -25,9 +23,13 @@ classdef ModelHierarchical < ModelBaseClass
 			end
 
 			%% Create variables
-			% The intent of this code below is to set up the key variables of the model. This is so that we can:
-			% 1. Generate good initial parameters for the MCMC chains
-			% 2. Have labels for Participant-level and group-level parameters, which will help when we want to do plotting of variables.
+			% The intent of this code below is to set up the key variables of the
+			% model. This is so that we can:
+			%  1. Generate good initial parameters for the MCMC chains
+			%  2. Have meaningful variable names (and latex strings), which helps
+			%  for plotting.
+			%  3. Have labels for Participant-level and group-level parameters,
+			%  also helps plotting.
 
 			% Participant-level -------------------------------------------------
 			m = Variable('m','m', [], true);
@@ -48,9 +50,6 @@ classdef ModelHierarchical < ModelBaseClass
 
 			% -------------------------------------------------------------------
 			% group level (ie what we expect from an as yet unobserved person ---
-			% TODO: This could be implemented just by having another participant
-			% with no observed data? This would remove the need for all these gl*
-			% variables here and in the JAGS model and make things much simpler.
 			m_group				= Variable('m_group','m group', [], true);
 			m_group.seed.func = @() normrnd(-0.243,2);
 			m_group.seed.single = true;
@@ -111,6 +110,7 @@ classdef ModelHierarchical < ModelBaseClass
 			alpha_group.analysisFlag = 2;
 
 			% Create a Variable array -------------------------------------------
+			% Used to tell JAGS what variables to monitor
 			obj.variables = [m, c, epsilon, alpha,... % mprior, cprior, epsilonprior, alphaprior,...
 				groupMmu, groupMsigma,...
 				groupCmu, groupCsigma,...
@@ -124,9 +124,10 @@ classdef ModelHierarchical < ModelBaseClass
 			
 			% Variable list, used for plotting
 			obj.varList.participant_level_variables = {'m', 'c','alpha','epsilon'};
-			
+			% Add group variables
 			obj.varList.group_level_variables =...
-				cellfun(@getGroupVariable, obj.varList.participant_level_variables,...
+				cellfun( @(var) [var '_group'],...
+				obj.varList.participant_level_variables,...
 				'UniformOutput',false );
 			
 		end
@@ -152,7 +153,6 @@ classdef ModelHierarchical < ModelBaseClass
 			obj.figGroupLevel(obj.varList.group_level_variables)
 
 			%% PARTICIPANT LEVEL
-
 			% plot univariate summary statistics --------------------------------
 			obj.figUnivariateSummary(obj.data.IDname, obj.varList.participant_level_variables)
 			latex_fig(16, 5, 5)

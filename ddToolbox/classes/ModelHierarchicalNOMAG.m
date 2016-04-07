@@ -9,8 +9,6 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 	methods (Access = public)
 		% =================================================================
 		function obj = ModelHierarchicalNOMAG(toolboxPath, samplerType, data, saveFolder)
-			% Because this class is a subclass of "modelME" then we use
-			% this next line to create an instance
 			obj = obj@ModelBaseClass(toolboxPath, samplerType, data, saveFolder);
 
 			switch samplerType
@@ -24,11 +22,14 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 					[~,obj.modelType,~] = fileparts(modelPath);
 			end
 
-			% give sampler a handle back to the model
-			%obj.sampler.modelHandle = obj;
-
 			%% Create variables
-			% -------------------------------------------------------------------
+			% The intent of this code below is to set up the key variables of the
+			% model. This is so that we can:
+			%  1. Generate good initial parameters for the MCMC chains
+			%  2. Have meaningful variable names (and latex strings), which helps
+			%  for plotting.
+			%  3. Have labels for Participant-level and group-level parameters,
+			%  also helps plotting.
 			% Participant-level -------------------------------------------------
 			logk = Variable('logk','\log(k)', [], true);
 			logk.seed.func = @() normrnd(-0.243,10);
@@ -44,9 +45,6 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 
 			% -------------------------------------------------------------------
 			% group level (ie what we expect from an as yet unobserved person ---
-			% TODO: This could be implemented just by having another participant
-			% with no observed data? This would remove the need for all these gl*
-			% variables here and in the JAGS model and make things much simpler.
 			logk_group				= Variable('logk_group','logk group', [], true);
 			logk_group.seed.func = @() normrnd(-0.243,10);
 			logk_group.seed.single = true;
@@ -100,6 +98,7 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 
 
 			% Create a Variable array -------------------------------------------
+			% Used to tell JAGS what variables to monitor
 			obj.variables = [logk, epsilon, alpha,... % mprior, cprior, epsilonprior, alphaprior,...
 				groupLogKmu, groupLogKsigma,...
 				groupW, groupWprior,...
@@ -113,8 +112,10 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 			% Variable list, used for plotting
 			obj.varList.participant_level_variables = ...
 				{'logk','alpha','epsilon'};
-
-				cellfun(@getGroupVariable, obj.varList.participant_level_variables,...
+			% Add group variables
+			obj.varList.group_level_variables =...
+				cellfun( @(var) [var '_group'],...
+				obj.varList.participant_level_variables,...
 				'UniformOutput',false );
 
 		end
