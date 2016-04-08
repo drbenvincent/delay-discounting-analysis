@@ -1,0 +1,29 @@
+function figParticipantLOGK(pSamples, pData, logkMEAN, epsilonMEAN, alphaMEAN)
+rows=1; cols=4;
+
+% BIVARIATE PLOT: lapse rate & comparison accuity
+subplot(rows, cols, 1)
+plot2DErrorAccuity(pSamples.epsilon(:), pSamples.alpha(:), epsilonMEAN, alphaMEAN);
+
+% PSYCHOMETRIC FUNCTION (using my posterior-prediction-plot-matlab GitHub repository)
+subplot(rows, cols, 2)
+plotPsychometricFunc(pSamples, [epsilonMEAN, alphaMEAN])
+
+% logk
+subplot(rows, cols, 3)
+plotPriorPostHist([], pSamples.logk(:));
+%histogram(pSamples.logk(:))
+axis square
+
+% TODO:
+% Plot in 2D data space
+subplot(rows, cols, 4)
+if ~isempty(pData)
+	% participant level
+	plot2DdataSpace(pData, logkMEAN)
+else
+	% for group level where there is no data
+	plotDiscountFunction(logkMEAN);
+end
+
+end

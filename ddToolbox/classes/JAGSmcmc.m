@@ -88,7 +88,7 @@ classdef JAGSmcmc < mcmcContainer
 			participantIDlist{end+1}='GROUP';
 
 			% &&&&&&&&&&&&&&&&&&&
-			% TODO: DEAL WITH WHEN THERE IS AND IS NOT GROPU (hierarhical)
+			% TODO: DEAL WITH WHEN THERE IS AND IS NOT GROUP (hierarhical)
 			% VARIABLES
 			% &&&&&&&&&&&&&&&&&&&
 			figure
@@ -208,7 +208,7 @@ classdef JAGSmcmc < mcmcContainer
 				data = [data obj.getStats('hdi_high',varNames{n})];
 			end
 		end
-			
+
 
 
 		%% GET METHODS ----------------------------------------------------

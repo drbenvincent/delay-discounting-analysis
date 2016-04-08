@@ -256,7 +256,7 @@ classdef ModelHierarchicalLogK < ModelBaseClass
 			epsilonMEAN = obj.mcmc.getStats('mean', 'epsilon_group');
 			alphaMEAN = obj.mcmc.getStats('mean', 'alpha_group');
 
-			obj.figParticipant(pSamples, pData, logkMEAN, epsilonMEAN, alphaMEAN)
+			figParticipantLOGK(pSamples, pData, logkMEAN, epsilonMEAN, alphaMEAN)
 
 			% EXPORTING ---------------------
 			latex_fig(16, 18, 4)
@@ -267,39 +267,6 @@ classdef ModelHierarchicalLogK < ModelBaseClass
 		% *********************************************************************
 
 
-		% OVERRIDDEN FROM BASE CLASS ******************************************
-		% *********************************************************************
-		function figParticipant(obj, pSamples, pData, logkMEAN, epsilonMEAN, alphaMEAN)
-			rows=1; cols=4;
-
-			% BIVARIATE PLOT: lapse rate & comparison accuity
-			subplot(rows, cols, 1)
-			plot2DErrorAccuity(pSamples.epsilon(:), pSamples.alpha(:), epsilonMEAN, alphaMEAN);
-
-			% PSYCHOMETRIC FUNCTION (using my posterior-prediction-plot-matlab GitHub repository)
-			subplot(rows, cols, 2)
-			plotPsychometricFunc(pSamples, [epsilonMEAN, alphaMEAN])
-
-			% logk
-			subplot(rows, cols, 3)
-			plotPriorPostHist([], pSamples.logk(:));
-			%histogram(pSamples.logk(:))
-			axis square
-
-			% TODO:
-			% Plot in 2D data space
-			subplot(rows, cols, 4)
-			if ~isempty(pData)
-				% participant level
-				plot2DdataSpace(pData, logkMEAN)
-			else
-				% for group level where there is no data
-				plotDiscountFunction(logkMEAN);
-			end
-
-		end
-		% *********************************************************************
-		% *********************************************************************
 
 
 
@@ -320,7 +287,7 @@ classdef ModelHierarchicalLogK < ModelBaseClass
 				% 1) figParticipant plot
 				[pSamples] = obj.mcmc.getSamplesAtIndex(n, variables);
 				[pData] = obj.data.getParticipantData(n);
-				obj.figParticipant(pSamples, pData, logkMEAN(n), epsilonMEAN(n), alphaMEAN(n))
+				figParticipantLOGK(pSamples, pData, logkMEAN(n), epsilonMEAN(n), alphaMEAN(n))
 				latex_fig(16, 18, 4)
 				myExport(obj.saveFolder, obj.modelType, ['-' obj.data.IDname{n}])
 				close(fh)

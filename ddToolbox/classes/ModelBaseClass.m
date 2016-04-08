@@ -18,31 +18,38 @@ classdef ModelBaseClass < handle
 
 	methods (Access = public)
 
-		% CONSTRUCTOR =====================================================
 		function obj = ModelBaseClass(toolboxPath, sampler, data, saveFolder)
 			obj.data = data;
 			obj.saveFolder = saveFolder;
 		end
-		% =================================================================
 
-		% middle-man
+		function varNames = extractLevelNVarNames(obj, N)
+			varNames = {obj.variables.str};
+			varNames = varNames( [obj.variables.analysisFlag]==N );
+		end
+
+		% MIDDLE-MAN METHODS ================================================
+
 		function conductInference(obj)
 			obj.mcmc = obj.sampler.conductInference( obj , obj.data );
 		end
 
-		% middle-man
 		function setBurnIn(obj, nburnin)
 			obj.sampler.setBurnIn(nburnin)
 		end
+
 		function setMCMCtotalSamples(obj, totalSamples)
 			obj.sampler.setMCMCtotalSamples(totalSamples)
 		end
+
 		function setMCMCnumberOfChains(obj, nchains)
 			obj.sampler.setMCMCnumberOfChains(nchains)
 		end
+
 		function plotMCMCchains(obj,vars)
 			obj.mcmc.plotMCMCchains(vars);
 		end
+
 		function exportParameterEstimates(obj)
 			obj.mcmc.exportParameterEstimates(...
 				obj.extractLevelNVarNames(1),... % Participant-level
@@ -51,10 +58,7 @@ classdef ModelBaseClass < handle
 				obj.saveFolder)
 		end
 
-			function varNames = extractLevelNVarNames(obj, N)
-				varNames = {obj.variables.str};
-				varNames = varNames( [obj.variables.analysisFlag]==N );
-			end
+
 
 
 		% ===============================================================
@@ -97,7 +101,7 @@ classdef ModelBaseClass < handle
 
 
 
- 
+
 
 
 
@@ -116,6 +120,8 @@ classdef ModelBaseClass < handle
 
 
 		function posteriorPredictive(obj)
+			% TODO: SEPARATE CALCULATION AND PLOTTING INTO DIFFERENT FUNCTIONS?
+
 			%% Calculation
 			% Calculate log posterior odds of data under the model and a
 			% control model where prob of responding is 0.5.
@@ -255,7 +261,12 @@ classdef ModelBaseClass < handle
 				% 1) figParticipant plot
 				[pSamples] = obj.mcmc.getSamplesAtIndex(n, variables);
 				[pData] = obj.data.getParticipantData(n);
-				obj.figParticipant(pSamples, pData, mMEAN(n), cMEAN(n), epsilonMEAN(n), alphaMEAN(n))
+
+				figParticipantME(...
+					obj.mcmc.getSamplesAtIndex(n, variables),...
+				 	obj.data.getParticipantData(n),...
+				 	mMEAN(n), cMEAN(n), epsilonMEAN(n), alphaMEAN(n))
+
 				latex_fig(16, 18, 4)
 				myExport(obj.saveFolder, obj.modelType, ['-' obj.data.IDname{n}])
 				close(fh)
@@ -268,39 +279,6 @@ classdef ModelBaseClass < handle
 
 				myExport(obj.saveFolder, obj.modelType, ['-' obj.data.IDname{n} '-triplot'])
 			end
-		end
-
-		function figParticipant(obj, pSamples, pData, mMEAN, cMEAN, epsilonMEAN, alphaMEAN)
-			rows=1; cols=5;
-
-			% BIVARIATE PLOT: lapse rate & comparison accuity
-			subplot(rows, cols, 1)
-			plot2DErrorAccuity(pSamples.epsilon(:), pSamples.alpha(:), epsilonMEAN, alphaMEAN);
-
-			% PSYCHOMETRIC FUNCTION (using my posterior-prediction-plot-matlab GitHub repository)
-			subplot(rows, cols, 2)
-			plotPsychometricFunc(pSamples, [epsilonMEAN, alphaMEAN])
-
-			% M/C bivariate plot
-			subplot(rows, cols, 3)
-			plot2Dmc(pSamples.m(:), pSamples.c(:), mMEAN, cMEAN);
-
-			% PLOT magnitude effect
-			subplot(rows, cols, 4)
-			plotMagnitudeEffect(pSamples, [mMEAN, cMEAN])
-
-			% Plot in 3D data space
-			subplot(rows, cols, 5)
-			if ~isempty(pData)
-				plot3DdataSpace(pData, [mMEAN, cMEAN])
-			else
-				opts.maxlogB	= max(abs(obj.data.observedData.B(:)));
-				opts.maxD		= max(obj.data.observedData.DB(:));
-				plotDiscountSurface(mMEAN, cMEAN, opts);
-			end
-			% 			set(gca,'XTick',[10 100])
-			% 			set(gca,'XTickLabel',[10 100])
-			% 			set(gca,'XLim',[10 100])
 		end
 
 	end

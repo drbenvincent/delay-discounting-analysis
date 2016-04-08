@@ -301,7 +301,10 @@ classdef ModelHierarchical < ModelBaseClass
 			epsilonMEAN = obj.mcmc.getStats('mean', 'epsilon_group');
 			alphaMEAN = obj.mcmc.getStats('mean', 'alpha_group');
 
-			obj.figParticipant(pSamples, pData, mMEAN, cMEAN, epsilonMEAN, alphaMEAN)
+			opts.maxlogB	= max(abs(obj.data.observedData.B(:)));
+			opts.maxD		= max(obj.data.observedData.DB(:));
+		
+			figParticipantME(pSamples, pData, mMEAN, cMEAN, epsilonMEAN, alphaMEAN, opts)
 
 			% EXPORTING ---------------------
 			latex_fig(16, 18, 4)
