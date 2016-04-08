@@ -73,15 +73,34 @@ classdef ModelSeparate < ModelBaseClass
 			alpha.analysisFlag = 1;
 
 			% Create a Variable array -------------------------------------------
-			obj.variables = [m, c, epsilon, alpha,...
-				m_prior, c_prior, epsilon_prior, alpha_prior,...
-				Rpostpred];
+			obj.variables = gatherClassesIntoArray('Variable');
+
+			function [array] = gatherClassesIntoArray(classType)
+				% Gather all objects of a given class type and puts them into an array
+				% NOTE: This function must be here (a local function) because of
+				% variable scoping issues
+				%
+				% inspired by % http://uk.mathworks.com/matlabcentral/newsreader/view_thread/256782
+				w=whos;
+				wn={w.name}.';
+				wc={w.class}.';
+				ix=strcmp(wc,classType);
+				r=wn(ix);
+				% build array
+				array=[];
+				for n=1:numel(r)
+					array = [array eval(r{n})];
+				end
+			end
 
 			% Variable list, used for plotting
 			obj.varList.participant_level_variables = {'m', 'c','alpha','epsilon'};
 
 		end
 		% ================================================================
+
+
+
 
 
 

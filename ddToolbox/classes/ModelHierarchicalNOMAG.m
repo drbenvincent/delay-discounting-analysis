@@ -99,15 +99,25 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 
 			% Create a Variable array -------------------------------------------
 			% Used to tell JAGS what variables to monitor
-			obj.variables = [logk, epsilon, alpha,... % mprior, cprior, epsilonprior, alphaprior,...
-				groupLogKmu, groupLogKsigma,...
-				groupW, groupWprior,...
-				groupK, groupKprior,...
-				logk_group, alpha_group, epsilon_group,...
-				logk_group_prior, alpha_group_prior, epsilon_group_prior,...
-				groupALPHAmu, groupALPHAmuprior,...
-				groupALPHAsigma, groupALPHAsigmaprior,...
-				Rpostpred];
+			obj.variables = gatherClassesIntoArray('Variable');
+
+			function [array] = gatherClassesIntoArray(classType)
+				% Gather all objects of a given class type and puts them into an array
+				% NOTE: This function must be here (a local function) because of
+				% variable scoping issues
+				%
+				% inspired by % http://uk.mathworks.com/matlabcentral/newsreader/view_thread/256782
+				w=whos;
+				wn={w.name}.';
+				wc={w.class}.';
+				ix=strcmp(wc,classType);
+				r=wn(ix);
+				% build array
+				array=[];
+				for n=1:numel(r)
+					array = [array eval(r{n})];
+				end
+			end
 
 			% Variable list, used for plotting
 			obj.varList.participant_level_variables = ...
@@ -120,6 +130,30 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 
 		end
 		% =================================================================
+
+		function conditionalDiscountRates(obj, reward, plotFlag)
+			error('Not applicable to this model that calculates log(k)')
+		end
+
+		function conditionalDiscountRates_GroupLevel(obj, reward, plotFlag)
+			error('Not applicable to this model that calculates log(k)')
+		end
+
+
+
+
+
+
+
+
+
+
+
+
+		% **************************************************************************
+		% PLOTTING METHODS
+		% **************************************************************************
+
 
 
 		function plot(obj)
@@ -165,20 +199,7 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 				participant_level_prior_variables)
 		end
 
-
-		function conditionalDiscountRates(obj, reward, plotFlag)
-			error('Not applicable to this model that calculates log(k)')
-		end
-
-		function conditionalDiscountRates_GroupLevel(obj, reward, plotFlag)
-			error('Not applicable to this model that calculates log(k)')
-		end
-
 	end
-
-
-
-
 
 
 

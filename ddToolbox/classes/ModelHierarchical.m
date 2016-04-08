@@ -110,17 +110,25 @@ classdef ModelHierarchical < ModelBaseClass
 			alpha_group.analysisFlag = 2;
 
 			% Create a Variable array -------------------------------------------
-			% Used to tell JAGS what variables to monitor
-			obj.variables = [m, c, epsilon, alpha,... % mprior, cprior, epsilonprior, alphaprior,...
-				groupMmu, groupMsigma,...
-				groupCmu, groupCsigma,...
-				groupW, groupWprior,...
-				groupK, groupKprior,...
-				m_group, c_group, alpha_group, epsilon_group,...
-				m_group_prior, c_group_prior, alpha_group_prior, epsilon_group_prior,...
-				groupALPHAmu, groupALPHAmuprior,...
-				groupALPHAsigma, groupALPHAsigmaprior,...
-				Rpostpred];
+			obj.variables = gatherClassesIntoArray('Variable');
+			
+			function [array] = gatherClassesIntoArray(classType)
+				% Gather all objects of a given class type and puts them into an array
+				% NOTE: This function must be here (a local function) because of
+				% variable scoping issues
+				%
+				% inspired by % http://uk.mathworks.com/matlabcentral/newsreader/view_thread/256782
+				w=whos;
+				wn={w.name}.';
+				wc={w.class}.';
+				ix=strcmp(wc,classType);
+				r=wn(ix);
+				% build array
+				array=[];
+				for n=1:numel(r)
+					array = [array eval(r{n})];
+				end
+			end
 
 			% Variable list, used for plotting
 			obj.varList.participant_level_variables = {'m', 'c','alpha','epsilon'};
