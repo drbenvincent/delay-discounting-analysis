@@ -77,10 +77,9 @@ hModel.plot()
 % If you want to see the MCMC chains, call this function
 hModel.plotMCMCchains()
 
-%% Example research conclusions...
+%% Example of a script written to conduct Hypothesis tests
+hypothesisTestScript(hModel)
 
-% Calculate Bayes Factor, and plot 95% CI on the posterior
-HTgroupSlopeLessThanZero(hModel)  % TODO: CLEAN UP THESE FUNTIONS
 
 % Summary information of the group and participant level infererences are
 % stored in a structure in the model object, eg:

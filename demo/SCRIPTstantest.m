@@ -32,7 +32,7 @@ h_me.conductInference();
 h_me.exportParameterEstimates();
 h_me.plot()
 
-HTgroupSlopeLessThanZero(h_me)
+hypothesisTestScript(h_me)
 
 %% JAGS
 s_me = ModelSeparate(toolboxPath, 'JAGS', myData, 'separate_ME');

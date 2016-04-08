@@ -1,73 +1,60 @@
 function  HT_BayesFactor(priorSamples, posteriorSamples)
-	warning('IS THERE A MATLAB BAYES FACTOR PACKAGE FOR MCMC SAMPLES?')
-	binsize = 0.05;
-	% extract samples
-% 	priorSamples = obj.sampler.samples.glMprior(:);
-% 	posteriorSamples = obj.sampler.samples.glM(:);
-% 	priorSamples = obj.sampler.getSamplesAsMatrix({'m_group_prior'});
-% 	posteriorSamples = obj.sampler.getSamplesAsMatrix({'m_group'});
+warning('This code only implements the hypothesis x<0')
 
-	% in order to evaluate the order-restricted hypothesis m<0, then we need to
-	% remove samples where either prior or posterior contain samples
-	priorSamples = priorSamples(priorSamples<0);
-	posteriorSamples = posteriorSamples(posteriorSamples<0);
+%% Discard samples >0
+% in order to evaluate the order-restricted hypothesis x<0, then we need to
+% remove samples where either prior or posterior contain samples
+priorSamples = priorSamples(priorSamples<0);
+posteriorSamples = posteriorSamples(posteriorSamples<0);
 
-	% 			% calculate the density at m=0, using kernel density estimation
-	% 			MMIN = min([priorSamples; posteriorSamples])*1.1;
-	% 			[bandwidth,priordensity,xmesh,cdf]=kde(priorSamples,500,MMIN,0);
-	% 			trapz(xmesh,priordensity) % check the area is 1
-	% 			[bandwidth,postdensity,xmesh,cdf]=kde(posteriorSamples,500,MMIN,0);
-	% 			trapz(xmesh,postdensity) % check the area is 1
-	%
-	% 			%priordensity = priordensity./sum(priordensity);
-	% 			%postdensity = postdensity./sum(postdensity);
-	% 			% calculate log bayes factor
-	% 			BF_01 =  priordensity(xmesh==0) / postdensity(xmesh==0) ;
-	% 			BF_10 =  postdensity(xmesh==0) / priordensity(xmesh==0) ;
+%% Obtain the probability density at x=0
+% TODO: choose edges automatically
+binsize = 0.05;
+edges = [-5:binsize:0];
+density.prior			= densityAtZero(priorSamples,edges);
+density.posterior = densityAtZero(posteriorSamples,edges);
 
+%% Calculate Bayes Factor
+% TODO: more verbose reporting of results
+BF_10 = density.posterior.atZero / density.prior.atZero
+BF_01 = density.prior.atZero / density.posterior.atZero
 
-	edges = [-5:binsize:0];
-	% 			% First plot
-	% 			histogram(priorSamples, edges, 'Normalization','pdf', 'DisplayStyle','stairs')
-	% 			hold on
-	% 			histogram(posteriorSamples, edges, 'Normalization','pdf', 'DisplayStyle','stairs')
-	% Grab the actual density
-	[Nprior,~] = histcounts(priorSamples, edges, 'Normalization','pdf');
-	[Npost,~] = histcounts(posteriorSamples, edges, 'Normalization','pdf');
-	% grab density at zero
-	postDensityAtZero	= Npost(end);
-	priorDensityAtZero	= Nprior(end);
-	% Calculate Bayes Factor
+%% Plot
+bayesFactorPlot(density, priorSamples, posteriorSamples, edges)
 
-	BF_10 = postDensityAtZero / priorDensityAtZero
-	BF_01 = priorDensityAtZero / postDensityAtZero
+end
 
+function density = densityAtZero(samples,edges)
+[density.N,~] = histcounts(samples, edges, 'Normalization','pdf');
+density.atZero = density.N(end);
+end
 
-	% plot
-	figure
-	subplot(1,2,1)
-	%plot(xmesh,priordensity,'k--')
-	h = histogram(priorSamples, edges, 'Normalization','pdf');
-	h.EdgeColor = 'none';
-	h.FaceColor = [0.7 0.7 0.7];
-	hold on
-	%plot(xmesh,postdensity,'k-')
-	h = histogram(posteriorSamples, edges, 'Normalization','pdf');
-	h.EdgeColor = 'none';
-	h.FaceColor = [0.2 0.2 0.2];
-	% plot density at x=0
-	plot(0, priorDensityAtZero,'ko','MarkerFaceColor','w')
-	plot(0, postDensityAtZero,'ko','MarkerFaceColor','k')
-	%legend('prior','post', 'Location','NorthWest')
-	%legend boxoff
-	axis square
-	box off
-	axis tight, xlim([-2 0])
-	removeYaxis()
-	%addTextToFigure('TR',...
-	%	sprintf('log BF_{10} = %2.2f',log(BF_10)),...
-	%	15,	'latex')
-	%ylabel('density')
-	xlabel('G^m')
-	title('Bayesian hypothesis testing')
+function bayesFactorPlot(density, priorSamples, posteriorSamples, edges)
+
+hold on
+niceHistogramPlot(priorSamples,edges, [0.7 0.7 0.7])
+niceHistogramPlot(posteriorSamples,edges, [0.2 0.2 0.2])
+
+% plot density at x=0
+plot(0, density.prior.atZero,'ko','MarkerFaceColor','w')
+plot(0, density.posterior.atZero,'ko','MarkerFaceColor','k')
+%legend('prior','post', 'Location','NorthWest')
+%legend boxoff
+axis square
+box off
+axis tight, xlim([-2 0])
+removeYaxis()
+%addTextToFigure('TR',...
+%	sprintf('log BF_{10} = %2.2f',log(BF_10)),...
+%	15,	'latex')
+%ylabel('density')
+xlabel('G^m')
+title('Bayesian hypothesis testing')
+
+	function niceHistogramPlot(samples,edges, col)
+		h = histogram(samples, edges, 'Normalization','pdf');
+		h.EdgeColor = 'none';
+		h.FaceColor = col;
+	end
+
 end
