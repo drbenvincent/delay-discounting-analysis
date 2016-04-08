@@ -113,7 +113,7 @@ participant_level_m = array2table([hModel.analyses.univariate.m.mode' hModel.ana
 % magnitude.
 
 % Below we calculate and plot the discount rates for reward magnitudes of
-% £100 and £1,000
+% ï¿½100 and ï¿½1,000
 
 figure(1), clf
 plotFlag=true;
@@ -143,7 +143,7 @@ linkaxes(ax,'xy')
 %%  HIERARCHICAL MODEL Log(k) MODEL (no magnitude effect)
 
 saveFolder = 'hierarchical_logk';
-kModel = ModelHierarchicalNOMAG(toolboxPath, 'JAGS', myData, saveFolder);
+kModel = ModelHierarchicalLogK(toolboxPath, 'JAGS', myData, saveFolder);
 kModel.sampler.setMCMCtotalSamples(10^5);
 kModel.conductInference();
 kModel.plot()

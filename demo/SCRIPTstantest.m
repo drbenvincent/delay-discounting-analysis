@@ -47,7 +47,7 @@ s_me.exportParameterEstimates();
 s_me.plot()
 
 %% JAGS
-h_logk = ModelHierarchicalNOMAG(toolboxPath, 'JAGS', myData, 'hierarchical_logk');
+h_logk = ModelHierarchicalLogK(toolboxPath, 'JAGS', myData, 'hierarchical_logk');
 h_logk.sampler.setMCMCtotalSamples(10^3);
 h_logk.sampler.setMCMCnumberOfChains(2);
 h_logk.conductInference();
@@ -72,8 +72,8 @@ h_logk.exportParameterEstimates();
 
 
 
-%% ModelHierarchicalNOMAG
-sModel = ModelHierarchicalNOMAG(toolboxPath, 'STAN', myData, 'stanModelHierarchicalNOMAG');
+%% ModelHierarchicalLogK
+sModel = ModelHierarchicalLogK(toolboxPath, 'STAN', myData, 'stanModelHierarchicalLogK');
 sModel.sampler.setStanHome('/Users/btvincent/cmdstan') 
 clc
 sModel.conductInference();

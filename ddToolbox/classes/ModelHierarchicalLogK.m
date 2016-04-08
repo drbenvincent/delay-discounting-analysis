@@ -1,4 +1,4 @@
-classdef ModelHierarchicalNOMAG < ModelBaseClass
+classdef ModelHierarchicalLogK < ModelBaseClass
 	%ModelHierarchical A model to estimate the magnitide effect
 	%   Detailed explanation goes here
 
@@ -8,7 +8,7 @@ classdef ModelHierarchicalNOMAG < ModelBaseClass
 
 	methods (Access = public)
 		% =================================================================
-		function obj = ModelHierarchicalNOMAG(toolboxPath, samplerType, data, saveFolder)
+		function obj = ModelHierarchicalLogK(toolboxPath, samplerType, data, saveFolder)
 			obj = obj@ModelBaseClass(toolboxPath, samplerType, data, saveFolder);
 
 			switch samplerType
