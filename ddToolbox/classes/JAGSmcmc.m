@@ -162,6 +162,54 @@ classdef JAGSmcmc < mcmcContainer
 		end
 
 
+		function exportParameterEstimates(obj, level1varNames, level2varNames, IDname, saveFolder)
+			%% participant level
+			colHeaderNames = createColumnHeaders(level1varNames);
+			paramEstimates = obj.grabParamEstimates(level1varNames);
+			paramEstimateTable = array2table(paramEstimates,...
+				'VariableNames',colHeaderNames,...
+				'RowNames', IDname);
+
+			%% group level
+			if ~isempty(level2varNames)
+				paramEstimates = obj.grabParamEstimates(level2varNames);
+				group_level = array2table(paramEstimates,...
+					'VariableNames',colHeaderNames,...
+					'RowNames', {'GroupLevelInference'});
+				% append tables
+				paramEstimateTable = [paramEstimateTable ; group_level];
+			end
+
+			%% display to command window
+			paramEstimateTable
+
+			%% Export
+			savename = fullfile('figs', saveFolder, 'parameterEstimates.txt');
+			writetable(paramEstimateTable, savename,...
+				'Delimiter','\t',...
+				'WriteRowNames',true)
+			fprintf('The above table of parameter estimates was exported to:\n')
+			fprintf('\t%s\n\n',savename)
+
+			function colHeaderNames = createColumnHeaders(varNames)
+				colHeaderNames = {};
+				for n=1:numel(varNames)
+					colHeaderNames{end+1} = sprintf('%s_mean', varNames{n});
+					colHeaderNames{end+1} = sprintf('%s_HDI5', varNames{n});
+					colHeaderNames{end+1} = sprintf('%s_HDI95', varNames{n});
+				end
+			end
+		end
+		function data = grabParamEstimates(obj, varNames)
+			data=[];
+			for n=1:numel(varNames)
+				data = [data obj.getStats('mean',varNames{n})];
+				data = [data obj.getStats('hdi_low',varNames{n})];
+				data = [data obj.getStats('hdi_high',varNames{n})];
+			end
+		end
+			
+
 
 		%% GET METHODS ----------------------------------------------------
 		function [samples] = getSamplesAtIndex(obj, index, fieldsToGet)

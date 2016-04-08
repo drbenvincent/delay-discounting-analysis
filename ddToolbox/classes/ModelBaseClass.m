@@ -30,27 +30,6 @@ classdef ModelBaseClass < handle
 			obj.mcmc = obj.sampler.conductInference( obj , obj.data );
 		end
 
-% 		function plotMCMCchains(obj)
-% 			% TODO: refactor this. Maybe all variables just get passed to
-% 			% MCMCdiagnoticsPlot(). In which case this method can be
-% 			% removed and called directly from whatever calls this method.
-%
-% 			% select just those with analysisFlag == true
-% 			str			= {obj.variables.str};
-% 			str			= str([obj.variables.plotMCMCchainFlag]==true);
-% 			bounds		= {obj.variables.bounds};
-% 			bounds		= bounds([obj.variables.plotMCMCchainFlag]==true);
-% 			str_latex	= {obj.variables.str_latex};
-% 			str_latex	= str_latex([obj.variables.plotMCMCchainFlag]==true);
-%
-% 			MCMCdiagnoticsPlot(obj.mcmc.getAllSamples(),...
-% 				obj.mcmc.getAllStats(),...
-% 				[],...
-% 				str,...
-% 				bounds,...
-% 				str_latex);
-% 		end
-
 		% middle-man
 		function setBurnIn(obj, nburnin)
 			obj.sampler.setBurnIn(nburnin)
@@ -64,70 +43,18 @@ classdef ModelBaseClass < handle
 		function plotMCMCchains(obj,vars)
 			obj.mcmc.plotMCMCchains(vars);
 		end
-
-
-		% ===============================================================
-		% IS THIS OBJECT WANTING TO BE IN THE NEW MCMC-CONTAINER CLASS ??
 		function exportParameterEstimates(obj)
+			obj.mcmc.exportParameterEstimates(...
+				obj.extractLevelNVarNames(1),... % Participant-level
+				obj.extractLevelNVarNames(2),...  % group-level)
+				obj.data.IDname,...
+				obj.saveFolder)
+		end
 
-			%% participant level
-			LEVEL = 1;
-			varNames = obj.extractLevelNVarNames(LEVEL);
-			colHeaderNames = obj.createColumnHeaders(varNames);
-			paramEstimates = obj.grabParamEstimates(obj.mcmc, varNames);
-			paramEstimateTable = array2table(paramEstimates,...
-				'VariableNames',colHeaderNames,...
-				'RowNames', obj.data.IDname);
-
-			%% group level
-			if sum([obj.variables.analysisFlag]==2)>0
-				LEVEL = 2;
-				varNames = obj.extractLevelNVarNames(LEVEL);
-				%colHeaderNames = obj.createColumnHeaders(varNames);
-				paramEstimates = obj.grabParamEstimates(obj.mcmc, varNames);
-				group_level = array2table(paramEstimates,...
-					'VariableNames',colHeaderNames,...
-					'RowNames', {'GroupLevelInference'});
-				paramEstimateTable = [paramEstimateTable ; group_level];
+			function varNames = extractLevelNVarNames(obj, N)
+				varNames = {obj.variables.str};
+				varNames = varNames( [obj.variables.analysisFlag]==N );
 			end
-
-			%% display to command window
-			paramEstimateTable
-
-			%% Export
-			savename = fullfile('figs', obj.saveFolder, 'parameterEstimates.txt');
-			writetable(paramEstimateTable, savename,...
-				'Delimiter','\t',...
-				'WriteRowNames',true)
-			fprintf('The above table of parameter estimates was exported to:\n')
-			fprintf('\t%s\n\n',savename)
-
-		end
-
-		function colHeaderNames = createColumnHeaders(obj, varNames)
-			colHeaderNames = {};
-			for n=1:numel(varNames)
-				colHeaderNames{end+1} = sprintf('%s_mean', varNames{n});
-				colHeaderNames{end+1} = sprintf('%s_HDI5', varNames{n});
-				colHeaderNames{end+1} = sprintf('%s_HDI95', varNames{n});
-			end
-		end
-
-		function varNames = extractLevelNVarNames(obj, N)
-			varNames = {obj.variables.str};
-			varNames = varNames( [obj.variables.analysisFlag]==N );
-		end
-
-		function data = grabParamEstimates(obj, mcmc, varNames)
-			data=[];
-			for n=1:numel(varNames)
-				data = [data mcmc.getStats('mean',varNames{n})];
-				data = [data mcmc.getStats('hdi_low',varNames{n})];
-				data = [data mcmc.getStats('hdi_high',varNames{n})];
-			end
-		end
-
-
 
 
 		% ===============================================================
@@ -170,7 +97,7 @@ classdef ModelBaseClass < handle
 
 
 
-
+ 
 
 
 
