@@ -74,8 +74,9 @@ hModel.exportParameterEstimates();
 % Plot all the results
 hModel.plot()
 
-% If you want to see the MCMC chains, call this function
-hModel.plotMCMCchains()
+% Inspect mcmc chains
+hModel.plotMCMCchains({'m','c'})
+hModel.plotMCMCchains({'m_group','c_group', 'alpha_group', 'epsilon_group'})
 
 %% Example of a script written to conduct Hypothesis tests
 hypothesisTestScript(hModel)

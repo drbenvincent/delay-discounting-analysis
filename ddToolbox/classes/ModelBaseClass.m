@@ -30,26 +30,26 @@ classdef ModelBaseClass < handle
 			obj.mcmc = obj.sampler.conductInference( obj , obj.data );
 		end
 
-		function plotMCMCchains(obj)
-			% TODO: refactor this. Maybe all variables just get passed to
-			% MCMCdiagnoticsPlot(). In which case this method can be
-			% removed and called directly from whatever calls this method.
-
-			% select just those with analysisFlag == true
-			str			= {obj.variables.str};
-			str			= str([obj.variables.plotMCMCchainFlag]==true);
-			bounds		= {obj.variables.bounds};
-			bounds		= bounds([obj.variables.plotMCMCchainFlag]==true);
-			str_latex	= {obj.variables.str_latex};
-			str_latex	= str_latex([obj.variables.plotMCMCchainFlag]==true);
-
-			MCMCdiagnoticsPlot(obj.mcmc.getAllSamples(),...
-				obj.mcmc.getAllStats(),...
-				[],...
-				str,...
-				bounds,...
-				str_latex);
-		end
+% 		function plotMCMCchains(obj)
+% 			% TODO: refactor this. Maybe all variables just get passed to
+% 			% MCMCdiagnoticsPlot(). In which case this method can be
+% 			% removed and called directly from whatever calls this method.
+%
+% 			% select just those with analysisFlag == true
+% 			str			= {obj.variables.str};
+% 			str			= str([obj.variables.plotMCMCchainFlag]==true);
+% 			bounds		= {obj.variables.bounds};
+% 			bounds		= bounds([obj.variables.plotMCMCchainFlag]==true);
+% 			str_latex	= {obj.variables.str_latex};
+% 			str_latex	= str_latex([obj.variables.plotMCMCchainFlag]==true);
+%
+% 			MCMCdiagnoticsPlot(obj.mcmc.getAllSamples(),...
+% 				obj.mcmc.getAllStats(),...
+% 				[],...
+% 				str,...
+% 				bounds,...
+% 				str_latex);
+% 		end
 
 		% middle-man
 		function setBurnIn(obj, nburnin)
@@ -60,6 +60,9 @@ classdef ModelBaseClass < handle
 		end
 		function setMCMCnumberOfChains(obj, nchains)
 			obj.sampler.setMCMCnumberOfChains(nchains)
+		end
+		function plotMCMCchains(obj,vars)
+			obj.mcmc.plotMCMCchains(vars);
 		end
 
 

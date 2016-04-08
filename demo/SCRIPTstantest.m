@@ -34,6 +34,10 @@ h_me.plot()
 
 hypothesisTestScript(h_me)
 
+% Inspect mcmc chains
+h_me.plotMCMCchains({'m','c'})
+h_me.plotMCMCchains({'m_group','c_group', 'alpha_group', 'epsilon_group'})
+
 %% JAGS
 s_me = ModelSeparate(toolboxPath, 'JAGS', myData, 'separate_ME');
 s_me.sampler.setMCMCtotalSamples(10^3);

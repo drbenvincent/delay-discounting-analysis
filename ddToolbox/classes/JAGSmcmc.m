@@ -105,6 +105,64 @@ classdef JAGSmcmc < mcmcContainer
 		end
 
 
+		function plotMCMCchains(obj, variablesToPlot)
+
+			for v = 1:numel(variablesToPlot)
+				varName = variablesToPlot{v};
+
+				figure
+				latex_fig(16, 12,10)
+
+				mcmcsamples = obj.getSamples({varName});
+				mcmcsamples = mcmcsamples.(varName);
+				[chains,Nsamples,rows] = size(mcmcsamples);
+				hChain=[];
+				rhat_all = obj.getStats('Rhat', varName);
+				for row=1:rows
+					% plot MCMC chains --------------
+					hChain(row) = intPlotChain(mcmcsamples(:,:,row), row, rows, varName, rhat_all(row));
+					% plot distributions ------------
+					intPlotDistribution(mcmcsamples(:,:,row), row, rows)
+				end
+
+				linkaxes(hChain,'x')
+			end
+
+			function hChain = intPlotChain(samples, row, rows, paramString, rhat)
+				assert(size(samples,3)==1)
+				% select the right subplot
+				start = (6*row)-(6-1);
+				hChain = subplot(rows,6,[start:(start-1)+(6-1)]);
+				% plot
+				h = plot(samples', 'LineWidth',0.5);
+				% format
+				ylabel(sprintf('$$ %s $$', paramString), 'Interpreter','latex')
+				str = sprintf('$$ \\hat{R} = %1.5f$$', rhat);
+				hText = addTextToFigure('T',str, 10, 'latex');
+				if rhat<1.01
+					hText.BackgroundColor=[1 1 1 0.7];
+				else
+					hText.BackgroundColor=[1 0 0 0.7];
+				end
+				box off
+				if row~=rows
+					set(gca,'XTick',[])
+				end
+				if row==rows
+					xlabel('MCMC sample')
+				end
+			end
+
+			function intPlotDistribution(samples, row, rows)
+				% select the right subplot
+				hHist = subplot(rows,6,row*6);
+				plotMCMCdist(samples,[]);
+			end
+
+		end
+
+
+
 		%% GET METHODS ----------------------------------------------------
 		function [samples] = getSamplesAtIndex(obj, index, fieldsToGet)
 			assert(iscell(fieldsToGet),'fieldsToGet must be a cell array')
@@ -156,20 +214,10 @@ classdef JAGSmcmc < mcmcContainer
 			[samplesMatrix] = struct2Matrix(samples);
 		end
 
-		% function [samples] = getAllSamples(obj)
-		% 	warning('Try to remove this method')
-		% 	samples = obj.samples;
-		% end
-
 		function [output] = getStats(obj, field, variable)
 			% return column vector
 			output = obj.stats.(field).(variable)';
 		end
-
-		% function [output] = getAllStats(obj)
-		% 	warning('Try to remove this method')
-		% 	output = obj.stats;
-		% end
 
 		function [predicted] = getParticipantPredictedResponses(obj, participant)
 			% calculate the probability of choosing the delayed reward, for
