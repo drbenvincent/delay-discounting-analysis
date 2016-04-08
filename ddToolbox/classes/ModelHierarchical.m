@@ -111,7 +111,7 @@ classdef ModelHierarchical < ModelBaseClass
 
 			% Create a Variable array -------------------------------------------
 			obj.variables = gatherClassesIntoArray('Variable');
-			
+
 			function [array] = gatherClassesIntoArray(classType)
 				% Gather all objects of a given class type and puts them into an array
 				% NOTE: This function must be here (a local function) because of
@@ -192,7 +192,7 @@ classdef ModelHierarchical < ModelBaseClass
 			myExport(obj.saveFolder, obj.modelType, '-UnivariateSummary')
 			% -------------------------------------------------------------------
 
-			obj.plotPsychometricParams()
+			figPsychometricParamsHierarchical(obj.mcmc, obj.data)
 			myExport(obj.saveFolder, obj.modelType, '-PsychometricParams')
 
 			%% GROUP LEVEL
@@ -206,13 +206,12 @@ classdef ModelHierarchical < ModelBaseClass
 			posteriorSamples = obj.mcmc.getSamplesAsMatrix(obj.varList.group_level_variables);
 			priorSamples = obj.mcmc.getSamplesAsMatrix(group_level_prior_variables);
 
-			obj.figTriPlot(obj.varList.group_level_variables,...
-			 	priorSamples,...
-			  posteriorSamples)
+			figure(87)
+			triPlotSamples(priorSamples, posteriorSamples, obj.varList.group_level_variables, [])
 
 			myExport(obj.saveFolder, obj.modelType, ['-GROUP-triplot'])
 
-			obj.figGroupLevel(obj.varList.group_level_variables)
+			figGroupLevelWrapperME(obj.mcmc, obj.data, obj.varList.group_level_variables, obj.saveFolder, obj.modelType)
 
 
 			%% PARTICIPANT LEVEL
@@ -222,94 +221,13 @@ classdef ModelHierarchical < ModelBaseClass
 				obj.varList.group_level_variables,...
 				'UniformOutput',false );
 
-			obj.figParticipantLevelWrapper(obj.varList.participant_level_variables,...
-				participant_level_prior_variables)
+			figParticipantLevelWrapperME(obj.mcmc, obj.data, obj.varList.participant_level_variables,...
+				participant_level_prior_variables,...
+				obj.saveFolder, obj.modelType)
 
 			%% mc contour plot of all participants
 			probMass = 0.5; % <---- 50% prob mass chosen to avoid too much clutter on graph
-			obj.plotMCclusters([1 0 0], probMass)
-		end
-
-
-		function plotMCclusters(obj, col, probMass)
-			display('** WARNING ** Making this plot takes time...')
-			% plot posteriors over (m,c) for all participants, as contour
-			% plots
-			figure(12)
-			% participants
-			for p = 1:obj.data.nParticipants
-				[samples] = obj.mcmc.getSamplesAtIndex(p, {'m','c'});
-				[bi] = plot2DmcContour(...
-					samples.m,...
-					samples.c,...
-					probMass,...
-					definePlotOptions4Participant(col));
-				% plot numbers
-				text(bi.modex,bi.modey,...
-					sprintf('%d',p),...
-					'HorizontalAlignment','center',...
-					'VerticalAlignment','middle',...
-					'FontSize',9,...
-					'Color',col)
-				drawnow
-			end
-			% group
-			plot2DmcContour(...
-				obj.mcmc.getSamplesAsMatrix({'m_group'}),...
-				obj.mcmc.getSamplesAsMatrix({'c_group'}),...
-				probMass,...
-				definePlotOptions4Group(col));
-
-			axis tight
-			set(gca,'XAxisLocation','origin')
-			set(gca,'YAxisLocation','origin')
-			drawnow
-
-			function plotOpts = definePlotOptions4Participant(col)
-				plotOpts.FaceAlpha = '0.1';
-				plotOpts.FaceColor = col;
-				plotOpts.LineStyle = 'none';
-			end
-
-			function plotOpts = definePlotOptions4Group(col)
-				plotOpts.FaceColor = 'none';
-				plotOpts.EdgeColor = col;
-				plotOpts.LineWidth = 2;
-			end
-		end
-
-
-		function figGroupLevel(obj, variables)
-			% get group level parameters in a form ready to pass off to
-			% figParticipant()
-
-			% Get group-level data
-			[pSamples] = obj.mcmc.getSamples(variables);
-			% rename fields
-			[pSamples.('m')] = pSamples.('m_group'); pSamples = rmfield(pSamples,'m_group');
-			[pSamples.('c')] = pSamples.('c_group'); pSamples = rmfield(pSamples,'c_group');
-			[pSamples.('epsilon')] = pSamples.('epsilon_group'); pSamples = rmfield(pSamples,'epsilon_group');
-			[pSamples.('alpha')] = pSamples.('alpha_group'); pSamples = rmfield(pSamples,'alpha_group');
-
-			pData = []; % no data for group level
-
-			figure(99), clf
-			set(gcf,'Name','GROUP LEVEL')
-
-			mMEAN = obj.mcmc.getStats('mean', 'm_group');
-			cMEAN = obj.mcmc.getStats('mean', 'c_group');
-			epsilonMEAN = obj.mcmc.getStats('mean', 'epsilon_group');
-			alphaMEAN = obj.mcmc.getStats('mean', 'alpha_group');
-
-			opts.maxlogB	= max(abs(obj.data.observedData.B(:)));
-			opts.maxD		= max(obj.data.observedData.DB(:));
-		
-			figParticipantME(pSamples, pData, mMEAN, cMEAN, epsilonMEAN, alphaMEAN, opts)
-
-			% EXPORTING ---------------------
-			latex_fig(16, 18, 4)
-			myExport(obj.saveFolder, obj.modelType, '-GROUP')
-			% -------------------------------
+			plotMCclusters(obj.mcmc, obj.data, [1 0 0], probMass)
 		end
 
 	end

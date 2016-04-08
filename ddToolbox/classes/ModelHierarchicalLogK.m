@@ -150,6 +150,11 @@ classdef ModelHierarchicalLogK < ModelBaseClass
 
 
 
+
+
+
+
+
 		% **************************************************************************
 		% PLOTTING METHODS
 		% **************************************************************************
@@ -166,7 +171,7 @@ classdef ModelHierarchicalLogK < ModelBaseClass
 			% -------------------------------------------------------------------
 
 
-			obj.plotPsychometricParams()
+			figPsychometricParamsHierarchical(obj.mcmc, obj.data)
 			myExport(obj.saveFolder, obj.modelType, '-PsychometricParams')
 
 			%% GROUP LEVEL
@@ -180,12 +185,15 @@ classdef ModelHierarchicalLogK < ModelBaseClass
 			posteriorSamples = obj.mcmc.getSamplesAsMatrix(obj.varList.group_level_variables);
 			priorSamples = obj.mcmc.getSamplesAsMatrix(group_level_prior_variables);
 
-			obj.figTriPlot(obj.varList.group_level_variables,...
-			 	priorSamples,...
-			  posteriorSamples)
+			figure(87)
+			triPlotSamples(priorSamples, posteriorSamples, obj.varList.group_level_variables, [])
+
+% 			figTriPlot(obj.varList.group_level_variables,...
+% 			 	priorSamples,...
+% 			  posteriorSamples)
 			myExport(obj.saveFolder, obj.modelType, ['-GROUP-triplot'])
 
-			obj.figGroupLevel(obj.varList.group_level_variables)
+			figGroupLevelWrapperLOGK(obj.mcmc, obj.data, obj.varList.group_level_variables, obj.saveFolder, obj.modelType)
 
 			%% PARTICIPANT LEVEL
 
@@ -194,116 +202,14 @@ classdef ModelHierarchicalLogK < ModelBaseClass
 				obj.varList.group_level_variables,...
 				'UniformOutput',false );
 
-			obj.figParticipantLevelWrapper(...
+			figParticipantLevelWrapperLOGK(...
+				obj.mcmc,...
+				obj.data,...
 				obj.varList.participant_level_variables,...
-				participant_level_prior_variables)
+				participant_level_prior_variables,...
+				obj.saveFolder,...
+				obj.modelType)
 		end
-
-	end
-
-
-
-	methods (Access = protected)
-
-		% function figUnivariateSummary(obj, participantIDlist, variables)
-		% 	% loop over variables provided, plotting univariate summary
-		% 	% statistics.
-		%
-		% 	% We are going to add on group level inferences to the end of the
-		% 	% participant list. This is because the group-level inferences an be
-		% 	% seen as inferences we can make about an as yet unobserved
-		% 	% participant, in the light of the participant data available thus
-		% 	% far.
-		% 	participantIDlist{end+1}='GROUP';
-		%
-		% 	figure
-		% 	for v = 1:numel(variables)
-		% 		subplot(numel(variables),1,v)
-		% 		hdi = [obj.sampler.getStats('hdi_low',variables{v})' obj.sampler.getStats('hdi_low',[variables{v} '_group']) ;...
-		% 			obj.sampler.getStats('hdi_high',variables{v})' obj.sampler.getStats('hdi_high',[variables{v} '_group'])];
-		% 		plotErrorBars({participantIDlist{:}},...
-		% 			[obj.sampler.getStats('mean',variables{v})' obj.sampler.getStats('mean',[variables{v} '_group'])],...
-		% 			hdi,...
-		% 			variables{v});
-		% 		a=axis; axis([0.5 a(2)+0.5 a(3) a(4)]);
-		% 	end
-		% end
-
-		% *********************************************************************
-		% *********************************************************************
-		% *********************************************************************
-		% *********************************************************************
-		% THIS IS WHAT CHANGES WITH LOGK
-		% *********************************************************************
-		% *********************************************************************
-		function figGroupLevel(obj, variables)
-			% get group level parameters in a form ready to pass off to
-			% figParticipant()
-
-			% Get group-level data
-			[pSamples] = obj.mcmc.getSamples(variables);
-			% rename fields
-			[pSamples.('logk')] = pSamples.('logk_group'); pSamples = rmfield(pSamples,'logk_group');
-			[pSamples.('epsilon')] = pSamples.('epsilon_group'); pSamples = rmfield(pSamples,'epsilon_group');
-			[pSamples.('alpha')] = pSamples.('alpha_group'); pSamples = rmfield(pSamples,'alpha_group');
-
-			pData = []; % no data for group level
-
-			figure(99), clf
-			set(gcf,'Name','GROUP LEVEL')
-
-			logkMEAN = obj.mcmc.getStats('mean', 'logk_group');
-			epsilonMEAN = obj.mcmc.getStats('mean', 'epsilon_group');
-			alphaMEAN = obj.mcmc.getStats('mean', 'alpha_group');
-
-			figParticipantLOGK(pSamples, pData, logkMEAN, epsilonMEAN, alphaMEAN)
-
-			% EXPORTING ---------------------
-			latex_fig(16, 18, 4)
-			myExport(obj.saveFolder, obj.modelType, '-GROUP')
-			% -------------------------------
-		end
-		% *********************************************************************
-		% *********************************************************************
-
-
-
-
-
-		% OVERRIDDEN FROM BASE CLASS ******************************************
-		% *********************************************************************
-
-		function figParticipantLevelWrapper(obj, variables, participant_prior_variables)
-			% For each participant, call some plotting functions on the variables provided.
-
-			logkMEAN = obj.mcmc.getStats('mean', 'logk');
-			epsilonMEAN = obj.mcmc.getStats('mean', 'epsilon');
-			alphaMEAN = obj.mcmc.getStats('mean', 'alpha');
-
-			for n = 1:obj.data.nParticipants
-				fh = figure;
-				fh.Name=['participant: ' obj.data.IDname{n}];
-
-				% 1) figParticipant plot
-				[pSamples] = obj.mcmc.getSamplesAtIndex(n, variables);
-				[pData] = obj.data.getParticipantData(n);
-				figParticipantLOGK(pSamples, pData, logkMEAN(n), epsilonMEAN(n), alphaMEAN(n))
-				latex_fig(16, 18, 4)
-				myExport(obj.saveFolder, obj.modelType, ['-' obj.data.IDname{n}])
-				close(fh)
-
-				% 2) Triplot
-				posteriorSamples = obj.mcmc.getSamplesFromParticipantAsMatrix(n, variables);
-				priorSamples = obj.mcmc.getSamplesAsMatrix(participant_prior_variables);
-
-				obj.figTriPlot(variables, priorSamples, posteriorSamples)
-% 				% 2) Triplot
-% 				obj.figTriPlot(n, variables, participant_prior_variables)
-% 				myExport(obj.saveFolder, obj.modelType, ['-' obj.data.IDname{n} '-triplot'])
-			end
-		end
-		% *********************************************************************
-		% *********************************************************************
 
 	end
 
