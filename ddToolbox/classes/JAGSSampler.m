@@ -47,27 +47,32 @@ classdef JAGSSampler < Sampler
 		end
 
 		function setInitialParamValues(obj, variables, nParticipants)
+			varNames = fieldnames(variables);
 			for chain=1:obj.mcmcparams.nchains
-				for v = 1:numel(variables)
-					if isempty(variables(v).seed), continue, end
-					varName = variables(v).str;
-					if variables(v).seed.single==false
+				for v = 1:numel(varNames)
+					varName = varNames{v};
+					if isempty(variables.(varName).seed), continue, end
+					
+					if variables.(varName).single==false
+						% TODO: fix this. Why can't I call the seed func handle
+						% directly?
+						seedFunc = variables.(varName).seed();
 						% participant level
 						for p=1:nParticipants
-							obj.initialParameters(chain).(varName)(p) = variables(v).seed.func();
+							obj.initialParameters(chain).(varName)(p) = seedFunc();
 						end
 					else
 						% non-participant level
-						obj.initialParameters(chain).(varName) = variables(v).seed.func();
+						obj.initialParameters(chain).(varName) = seedFunc();
 					end
 				end
 			end
 		end
 
 		function setMonitoredValues(obj, variables)
-			% TODO: move this method to Sampler base class?
-			% currently just monitors ALL variables
-			obj.monitorparams = {variables.str};
+			% cell array of strings defining the variables we want to monitor
+			obj.monitorparams = fieldnames(variables);
+			%obj.monitorparams = {variables.str};
 		end
 
 		function JAGSFitObject = invokeSampler(obj)

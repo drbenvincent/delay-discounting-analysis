@@ -71,21 +71,21 @@ model{
     # IMPORTANT - Make sure the numerical values you provide below match the priors above.
 
     # slope
-    groupMmuprior       ~ dnorm(groupMmu_MEAN, groupMmu_PRECISION)
-    groupMsigmaprior    ~ dnorm(groupMsigma_MEAN, groupMsigma_PRECISION) T(0,)
+    groupMmu_prior       ~ dnorm(groupMmu_MEAN, groupMmu_PRECISION)
+    groupMsigma_prior    ~ dnorm(groupMsigma_MEAN, groupMsigma_PRECISION) T(0,)
 
     # intercept (sample from the prior, independent from the data)
-    groupCmuprior        ~ dnorm(0, 1/(10000^2))
-    groupCsigmaprior     ~ dunif(0, 10000)
+    groupCmu_prior        ~ dnorm(0, 1/(10000^2))
+    groupCsigma_prior     ~ dunif(0, 10000)
 
     # comparison acuity
-    groupALPHAmuprior    ~ dunif(0,1000)
-    groupALPHAsigmaprior ~ dunif(0,1000)
+    groupALPHAmu_prior    ~ dunif(0,1000)
+    groupALPHAsigma_prior ~ dunif(0,1000)
 
     # error rates
-    groupWprior          ~ dbeta(1.1, 10.9)  # mode for lapse rate
-    groupKminus2prior    ~ dgamma(0.01,0.01) # concentration parameter
-    groupKprior          <- groupKminus2prior+2
+    groupW_prior          ~ dbeta(1.1, 10.9)  # mode for lapse rate
+    groupKminus2_prior    ~ dgamma(0.01,0.01) # concentration parameter
+    groupK_prior          <- groupKminus2_prior+2
 
 
 
@@ -96,10 +96,10 @@ model{
     epsilon_group       ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
 
     # Prior beliefs about the group level (equivalently, an as yet unobserved participant). As determined by priors on parameters specified above
-    m_group_prior        ~ dnorm(groupMmuprior, 1/(groupMsigmaprior^2))
-    c_group_prior        ~ dnorm(groupCmuprior, 1/(groupCsigmaprior^2))
-    alpha_group_prior    ~ dnorm(groupALPHAmuprior, 1/(groupALPHAsigmaprior^2)) T(0,)
-    epsilon_group_prior  ~ dbeta(groupWprior*(groupKprior-2)+1 , (1-groupWprior)*(groupKprior-2)+1 ) T(,0.5)
+    m_group_prior        ~ dnorm(groupMmu_prior, 1/(groupMsigma_prior^2))
+    c_group_prior        ~ dnorm(groupCmu_prior, 1/(groupCsigma_prior^2))
+    alpha_group_prior    ~ dnorm(groupALPHAmu_prior, 1/(groupALPHAsigma_prior^2)) T(0,)
+    epsilon_group_prior  ~ dbeta(groupW_prior*(groupK_prior-2)+1 , (1-groupW_prior)*(groupK_prior-2)+1 ) T(,0.5)
 
 
     for (p in 1:nParticipants){

@@ -10,10 +10,11 @@ classdef ModelBaseClass < handle
 		varList
 		saveFolder
 		mcmc % handle to mcmc fit object
+		plotFuncs % structure of function handles
 	end
 
 	methods(Abstract, Access = public)
-		plot(obj, data)
+		%plot(obj, data)
 	end
 
 	methods (Access = public)
@@ -24,8 +25,15 @@ classdef ModelBaseClass < handle
 		end
 
 		function varNames = extractLevelNVarNames(obj, N)
-			varNames = {obj.variables.str};
-			varNames = varNames( [obj.variables.analysisFlag]==N );
+			%varNames = {obj.variables.str};
+			vars = fieldnames(obj.variables);
+			%varNames = varNames( [obj.variables.analysisFlag]==N );
+			varNames={};
+			for n=1:numel(vars)
+				if obj.variables.(vars{n}).analysisFlag == N
+					varNames{end+1} = vars{n};
+				end
+			end
 		end
 
 		% MIDDLE-MAN METHODS ================================================
@@ -116,6 +124,73 @@ classdef ModelBaseClass < handle
 		% **********************************************************************
 		% PLOTTING *************************************************************
 		% **********************************************************************
+
+
+
+
+		function plot(obj)
+			close all
+
+			% obj.plotFuncs.unseenParticipantPlot = @figGroupLevelWrapperME;
+			% obj.plotFuncs.figParticipantWrapperFunc = @figParticipantLevelWrapperME;
+
+			% plot univariate summary statistics
+			obj.mcmc.figUnivariateSummary(obj.data.IDname, obj.varList.participantLevel)
+			latex_fig(16, 5, 5)
+			myExport(obj.saveFolder, obj.modelType, '-UnivariateSummary')
+
+
+
+			%% PARTICIPANT LEVEL =================================
+
+			participant_level_prior_variables = cellfun(...
+				@getPriorOfVariable,...
+				obj.varList.groupLevel,...
+				'UniformOutput',false );
+
+			obj.plotFuncs.figParticipantWrapperFunc(...
+				obj.mcmc,...
+				obj.data,...
+				obj.varList.participantLevel,...
+				participant_level_prior_variables,...
+				obj.saveFolder,...
+				obj.modelType)
+
+
+
+			%% GROUP LEVEL ======================================
+			group_level_prior_variables = cellfun(...
+				@getPriorOfVariable,...
+				obj.varList.groupLevel,...
+				'UniformOutput',false );
+
+			% PSYCHOMETRIC PARAMS
+			figPsychometricParamsHierarchical(obj.mcmc, obj.data)
+			myExport(obj.saveFolder, obj.modelType, '-PsychometricParams')
+
+
+			% TRIPLOT
+			posteriorSamples = obj.mcmc.getSamplesAsMatrix(obj.varList.groupLevel);
+			priorSamples = obj.mcmc.getSamplesAsMatrix(group_level_prior_variables);
+			figure(87)
+			triPlotSamples(priorSamples, posteriorSamples, obj.varList.groupLevel, [])
+			myExport(obj.saveFolder, obj.modelType, ['-GROUP-triplot'])
+
+
+			% GROUP (UNSEEN PARTICIPANT) PLOT
+			obj.plotFuncs.unseenParticipantPlot(...
+				obj.mcmc,...
+				obj.data,...
+				obj.varList.groupLevel,...
+				obj.saveFolder,...
+				obj.modelType)
+
+
+% 			%% MC CONTOUR PLOTS
+% 			probMass = 0.5; % <---- 50% prob mass chosen to avoid too much clutter on graph
+% 			plotMCclusters(obj.mcmc, obj.data, [1 0 0], probMass)
+		end
+
 
 
 

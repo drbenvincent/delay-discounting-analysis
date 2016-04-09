@@ -27,75 +27,45 @@ classdef ModelSeparate < ModelBaseClass
 			% % give sampler a handle back to the model (ie this hierarchicalME model)
 			% obj.sampler.modelHandle = obj;
 
+			obj.plotFuncs.figParticipantWrapperFunc = @figParticipantLevelWrapperME;
+
 			%% Create variables
-			% -------------------------------------------------------------------
-			% Participant-level -------------------------------------------------
-			m = Variable('m','m', [], true);
-			m.seed.func = @() normrnd(-0.243,10);
-			m.seed.single = false;
-
-			m_prior = Variable('m_prior','m prior', [], true);
-			m_prior.seed.func = @() normrnd(-0.243,10);
-			m_prior.seed.single = true;
-
-			c = Variable('c','c', [], true);
-			c.seed.func = @() normrnd(0,10);
-			c.seed.single = false;
-
-			c_prior = Variable('c_prior','c prior', [], true);
-			c_prior.seed.func = @() normrnd(0,10);
-			c_prior.seed.single = true;
-
-			epsilon = Variable('epsilon','\epsilon', [0 0.5], true);
-			epsilon.seed.func = @() rand/2;
-			epsilon.seed.single = false;
-
-			epsilon_prior = Variable('epsilon_prior','\epsilon prior', [0 0.5], true);
-			epsilon_prior.seed.func = @() rand/2;
-			epsilon_prior.seed.single = true;
-
-			alpha = Variable('alpha','\alpha', 'positive', true);
-			alpha.seed.func = @() abs(normrnd(0,10));
-			alpha.seed.single = false;
-
-			alpha_prior = Variable('alpha_prior','\alpha prior', 'positive', true);
-			alpha_prior.seed.func = @() abs(normrnd(0,10));
-			alpha_prior.seed.single = true;
-
-			% posterior predictive ----------------------------------------------
-			Rpostpred = Variable('Rpostpred','Rpostpred', [0 1], true);
-			Rpostpred.plotMCMCchainFlag = false;
-
-			% define which to analyse (univariate analysis)
-			m.analysisFlag = 1;
-			c.analysisFlag = 1;
-			epsilon.analysisFlag = 1;
-			alpha.analysisFlag = 1;
-
-			% Create a Variable array -------------------------------------------
-			obj.variables = gatherClassesIntoArray('Variable');
-
-			function [array] = gatherClassesIntoArray(classType)
-				% Gather all objects of a given class type and puts them into an array
-				% NOTE: This function must be here (a local function) because of
-				% variable scoping issues
-				%
-				% inspired by % http://uk.mathworks.com/matlabcentral/newsreader/view_thread/256782
-				w=whos;
-				wn={w.name}.';
-				wc={w.class}.';
-				ix=strcmp(wc,classType);
-				r=wn(ix);
-				% build array
-				array=[];
-				for n=1:numel(r)
-					array = [array eval(r{n})];
-				end
-			end
 
 			% Variable list, used for plotting
-			obj.varList.participant_level_variables = {'m', 'c','alpha','epsilon'};
+			obj.varList.participantLevel = {'m', 'c','alpha','epsilon'};
 
+			% -------------------------------------------------------------------
+			% Participant-level -------------------------------------------------
+			obj.variables.m = Variable('m',...
+				'bounds', [-inf inf],...
+				'seed', @() normrnd(-0.243,2),...
+				'analysisFlag',1);
+
+			obj.variables.c = Variable('c',...
+				'bounds', [-inf inf],...
+				'seed', @() @() normrnd(0,10),...
+				'analysisFlag',1);
+
+			obj.variables.epsilon = Variable('epsilon',...
+				'str_latex', '\epsilon',...
+				'bounds', [0 0.5],...
+				'seed', @() 0.1 + rand/10,...
+				'analysisFlag',1);
+
+			obj.variables.alpha = Variable('alpha',...
+				'str_latex', '\alpha',...
+				'bounds', [0 inf],...
+				'seed', @() abs(normrnd(0.01,10)),...
+				'analysisFlag',1 );
+
+			obj.variables.m_prior	= Variable('m_prior');
+			obj.variables.c_prior	= Variable('c_prior');
+			obj.variables.epsilon_prior	= Variable('epsilon_prior');
+			obj.variables.alpha_prior	= Variable('alpha_prior');
+
+			% observed response
+			obj.variables.Rpostpred = Variable('R', 'bounds', [0 1]);
+			
 		end
 		% ================================================================
 
@@ -122,23 +92,24 @@ classdef ModelSeparate < ModelBaseClass
 
 			% TODO &&&&& ENABLE THIS METHOD TO WORK WHEN NO GROUP-LEVEL VARIABLES &&&&
 			% plot univariate summary statistics
-% 			obj.mcmc.figUnivariateSummary(obj.data.IDname, obj.varList.participant_level_variables)
-% 			latex_fig(16, 5, 5)
-% 			myExport(obj.saveFolder, obj.modelType, '-UnivariateSummary')
+			% 			obj.mcmc.figUnivariateSummary(obj.data.IDname, obj.varList.participantLevel)
+			% 			latex_fig(16, 5, 5)
+			% 			myExport(obj.saveFolder, obj.modelType, '-UnivariateSummary')
 			% -------------------------------
 
 			% TODO: FIX THIS !!!
-%			figPsychometricParamsSeparate(mcmc, data)
-% 			myExport(obj.saveFolder, obj.modelType, '-PsychometricParams')
+			%			figPsychometricParamsSeparate(mcmc, data)
+			% 			myExport(obj.saveFolder, obj.modelType, '-PsychometricParams')
 
 			participant_level_prior_variables = cellfun(...
 				@getPriorOfVariable,...
-				obj.varList.participant_level_variables,...
+				obj.varList.participantLevel,...
 				'UniformOutput',false );
 
-			figParticipantLevelWrapperME(obj.mcmc,...
+			obj.plotFuncs.figParticipantWrapperFunc(...
+				obj.mcmc,...
 				obj.data,...
-				obj.varList.participant_level_variables,...
+				obj.varList.participantLevel,...
 				participant_level_prior_variables,...
 				obj.saveFolder,...
 				obj.modelType)

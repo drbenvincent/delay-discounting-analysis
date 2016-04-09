@@ -22,121 +22,113 @@ classdef ModelHierarchical < ModelBaseClass
 					[~,obj.modelType,~] = fileparts(modelPath);
 			end
 
+
+			obj.plotFuncs.unseenParticipantPlot = @figGroupLevelWrapperME;
+			obj.plotFuncs.figParticipantWrapperFunc = @figParticipantLevelWrapperME;
+
 			%% Create variables
 			% The intent of this code below is to set up the key variables of the
 			% model. This is so that we can:
-			%  1. Generate good initial parameters for the MCMC chains
-			%  2. Have meaningful variable names (and latex strings), which helps
+			%  1. Tell JAGS what variables to monitor.
+			%  2. Generate initial parameters for the MCMC chains.
+			%  3. Have meaningful variable names (and latex strings), which helps
 			%  for plotting.
-			%  3. Have labels for Participant-level and group-level parameters,
+			%  4. Have labels for participant-level and group-level parameters,
 			%  also helps plotting.
 
+			% Variable lists, used for plotting
+			obj.varList.participantLevel = {'m', 'c','alpha','epsilon'};
+			obj.varList.groupLevel = {'m_group', 'c_group','alpha_group','epsilon_group'};
+
 			% Participant-level -------------------------------------------------
-			m = Variable('m','m', [], true);
-			m.seed.func = @() normrnd(-0.243,2);
-			m.seed.single = false;
+			obj.variables.m = Variable('m',...
+				'bounds', [-inf inf],...
+				'seed', @() normrnd(-0.243,2),...
+				'analysisFlag',1);
 
-			c = Variable('c','c', [], true);
-			c.seed.func = @() normrnd(0,4);
-			c.seed.single = false;
+			obj.variables.c = Variable('c',...
+				'bounds', [-inf inf],...
+				'seed', @() @() normrnd(0,10),...
+				'analysisFlag',1);
 
-			epsilon = Variable('epsilon','\epsilon', [0 0.5], true);
-			epsilon.seed.func = @() 0.1 + rand/10;
-			epsilon.seed.single = false;
+			obj.variables.epsilon = Variable('epsilon',...
+				'str_latex', '\epsilon',...
+				'bounds', [0 0.5],...
+				'seed', @() 0.1 + rand/10,...
+				'analysisFlag',1);
 
-			alpha = Variable('alpha','\alpha', 'positive', true);
-			alpha.seed.func = @() abs(normrnd(0.01,10));
-			alpha.seed.single = false;
+			obj.variables.alpha = Variable('alpha',...
+				'str_latex', '\alpha',...
+				'bounds', [0 inf],...
+				'seed', @() abs(normrnd(0.01,10)),...
+				'analysisFlag',1 );
 
-			% -------------------------------------------------------------------
-			% group level (ie what we expect from an as yet unobserved person ---
-			m_group				= Variable('m_group','m group', [], true);
-			m_group.seed.func = @() normrnd(-0.243,2);
-			m_group.seed.single = true;
 
-			m_group_prior		= Variable('m_group_prior','m group prior', [], true);
+			obj.variables.m_group	= Variable('m_group',...
+				'seed', @() normrnd(-0.243,2),...
+				'str_latex', 'm_{group}',...
+				'analysisFlag', 2,...
+				'single',true);
 
-			c_group				= Variable('c_group','c group', [], true);
-			c_group.seed.func = @() normrnd(0,4);
-			c_group.seed.single = true;
+			obj.variables.c_group	= Variable('c_group',...
+				'seed', @() normrnd(0,10),...
+				'str_latex', 'm_{group}',...
+				'analysisFlag', 2,...
+				'single',true);
 
-			c_group_prior		= Variable('c_group_prior','c group prior', [], true);
+			obj.variables.epsilon_group	= Variable('epsilon_group',...
+				'seed', @() 0.1 + rand/10,...
+				'str_latex', '\epsilon_{group}',...
+				'analysisFlag', 2,...
+				'single',true);
 
-			epsilon_group		= Variable('epsilon_group','\epsilon group', [0 0.5], true);
-			epsilon_group.seed.func = @() 0.1 + rand/10;
-			epsilon_group.seed.single = true;
+			obj.variables.alpha_group	= Variable('m_group',...
+				'seed', @() @() abs(normrnd(0.01,10)),...
+				'str_latex', '\alpha_{group}',...
+				'analysisFlag', 2,...
+				'single',true);
 
-			epsilon_group_prior = Variable('epsilon_group_prior','\epsilon group prior', [0 0.5], true);
+			obj.variables.m_group_prior	= Variable('m_group_prior');
+			obj.variables.c_group_prior	= Variable('c_group_prior');
+			obj.variables.epsilon_group_prior	= Variable('epsilon_group_prior');
+			obj.variables.alpha_group_prior	= Variable('alpha_group_prior');
 
-			alpha_group			= Variable('alpha_group','\alpha group', 'positive', true);
-			alpha_group.seed.func = @() abs(normrnd(0.01,10));
-			alpha_group.seed.single = true;
-			alpha_group_prior	= Variable('alpha_group_prior','\alpha group prior', 'positive', true);
-
-			% -------------------------------------------------------------------
 			% group level priors ------------------------------------------------
-			groupMmu	= Variable('groupMmu','\mu^m', [], true);
-			groupMsigma = Variable('groupMsigma','\sigma^m', [], true);
+			% TODO: ADD SEED FUNCTIONS TO THESE
+			obj.variables.groupMmu = Variable('groupMmu',...
+				'str_latex','\mu^m group');
+			obj.variables.groupMsigma = Variable('groupMsigma',...
+				'str_latex', '\sigma^m group');
 
-			groupCmu	= Variable('groupCmu','\mu^c', [], true);
-			groupCsigma = Variable('groupCsigma','\sigma^c', [], true);
 
-			groupW		= Variable('groupW','\omega', [0 1], true);
-			groupWprior = Variable('groupWprior','\omega prior', [0 1], true);
+			obj.variables.groupCmu = Variable('groupCmu',...
+				'str_latex','\mu^c group');
+			obj.variables.groupCsigma = Variable('groupCsigma',...
+				'str_latex', '\sigma^c group');
 
-			groupK		= Variable('groupK','\kappa', 'positive', true);
-			groupKprior = Variable('groupKprior','\kappa prior', 'positive', true);
+			obj.variables.groupW = Variable('groupW',...
+				'bounds', [0 1]);
+			obj.variables.groupK = Variable('groupK',...
+				'bounds', [0 inf]);
 
-			groupALPHAmu = Variable('groupALPHAmu','\mu^\alpha', 'positive', true);
-			groupALPHAsigma = Variable('groupALPHAsigma','\sigma^\alpha', 'positive', true);
-			groupALPHAmuprior = Variable('groupALPHAmuprior','\mu^\alpha prior', 'positive', true);
-			groupALPHAsigmaprior = Variable('groupALPHAsigmaprior','\sigma^\alpha prior', 'positive', true);
+			obj.variables.groupW_prior = Variable('groupW_prior',...
+				'bounds', [0 1]);
+			obj.variables.groupK_prior = Variable('groupK_prior',...
+				'bounds', [0 inf]);
 
-			% posterior predictive ----------------------------------------------
-			Rpostpred = Variable('Rpostpred','Rpostpred', [0 1], true);
-			Rpostpred.plotMCMCchainFlag = false;
 
-			% define which to analyse (univariate analysis) ---------------------
-			% 1 = participant level
-			m.analysisFlag = 1;
-			c.analysisFlag = 1;
-			epsilon.analysisFlag = 1;
-			alpha.analysisFlag = 1;
+			obj.variables.groupALPHAmu = Variable('groupALPHAmu',...
+				'str_latex','\mu^m group');
+			obj.variables.groupALPHAsigma = Variable('groupALPHAsigma',...
+				'str_latex', '\sigma^m group');
 
-			% 2 = group level
-			m_group.analysisFlag = 2;
-			c_group.analysisFlag = 2;
-			epsilon_group.analysisFlag = 2;
-			alpha_group.analysisFlag = 2;
+			obj.variables.groupALPHAmu_prior = Variable('groupALPHAmu_prior',...
+				'str_latex','\mu^m group prior');
+			obj.variables.groupALPHAsigma_prior = Variable('groupALPHAsigma_prior',...
+				'str_latex', '\sigma^m group prior');
 
-			% Create a Variable array -------------------------------------------
-			obj.variables = gatherClassesIntoArray('Variable');
-
-			function [array] = gatherClassesIntoArray(classType)
-				% Gather all objects of a given class type and puts them into an array
-				% NOTE: This function must be here (a local function) because of
-				% variable scoping issues
-				%
-				% inspired by % http://uk.mathworks.com/matlabcentral/newsreader/view_thread/256782
-				w=whos;
-				wn={w.name}.';
-				wc={w.class}.';
-				ix=strcmp(wc,classType);
-				r=wn(ix);
-				% build array
-				array=[];
-				for n=1:numel(r)
-					array = [array eval(r{n})];
-				end
-			end
-
-			% Variable list, used for plotting
-			obj.varList.participant_level_variables = {'m', 'c','alpha','epsilon'};
-			% Add group variables
-			obj.varList.group_level_variables =...
-				cellfun( @(var) [var '_group'],...
-				obj.varList.participant_level_variables,...
-				'UniformOutput',false );
+			% observed response
+			obj.variables.Rpostpred = Variable('R', 'bounds', [0 1]);
 
 		end
 		% =================================================================
@@ -164,70 +156,6 @@ classdef ModelHierarchical < ModelBaseClass
 			[posteriorMean, lh] = calculateLogK_ConditionOnReward(reward, params, plotFlag);
 			lh.LineWidth = 3;
 			lh.Color= 'k';
-		end
-
-
-
-
-
-
-
-
-
-
-
-
-
-		% **************************************************************************
-		% PLOTTING METHODS
-		% **************************************************************************
-
-
-		function plot(obj)
-			close all
-
-			% plot univariate summary statistics --------------------------------
-			obj.mcmc.figUnivariateSummary(obj.data.IDname, obj.varList.participant_level_variables)
-			latex_fig(16, 5, 5)
-			myExport(obj.saveFolder, obj.modelType, '-UnivariateSummary')
-			% -------------------------------------------------------------------
-
-			figPsychometricParamsHierarchical(obj.mcmc, obj.data)
-			myExport(obj.saveFolder, obj.modelType, '-PsychometricParams')
-
-			%% GROUP LEVEL
-
-			group_level_prior_variables = cellfun(...
-				@getPriorOfVariable,...
-				obj.varList.group_level_variables,...
-				'UniformOutput',false );
-
-			% Tri plot
-			posteriorSamples = obj.mcmc.getSamplesAsMatrix(obj.varList.group_level_variables);
-			priorSamples = obj.mcmc.getSamplesAsMatrix(group_level_prior_variables);
-
-			figure(87)
-			triPlotSamples(priorSamples, posteriorSamples, obj.varList.group_level_variables, [])
-
-			myExport(obj.saveFolder, obj.modelType, ['-GROUP-triplot'])
-
-			figGroupLevelWrapperME(obj.mcmc, obj.data, obj.varList.group_level_variables, obj.saveFolder, obj.modelType)
-
-
-			%% PARTICIPANT LEVEL
-
-			participant_level_prior_variables = cellfun(...
-				@getPriorOfVariable,...
-				obj.varList.group_level_variables,...
-				'UniformOutput',false );
-
-			figParticipantLevelWrapperME(obj.mcmc, obj.data, obj.varList.participant_level_variables,...
-				participant_level_prior_variables,...
-				obj.saveFolder, obj.modelType)
-
-			%% mc contour plot of all participants
-			probMass = 0.5; % <---- 50% prob mass chosen to avoid too much clutter on graph
-			plotMCclusters(obj.mcmc, obj.data, [1 0 0], probMass)
 		end
 
 	end

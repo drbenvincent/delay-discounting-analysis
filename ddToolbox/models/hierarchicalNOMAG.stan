@@ -29,14 +29,14 @@ parameters {
   real groupKminus2;
 
   // group level - for sampling from prior
-  real groupLogKmuprior;
-  real<lower=0> groupLogKsigmaprior;
+  real groupLogKmu_prior;
+  real<lower=0> groupLogKsigma_prior;
 
-  real groupALPHAmuprior;
-  real <lower=0> groupALPHAsigmaprior;
+  real groupALPHAmu_prior;
+  real <lower=0> groupALPHAsigma_prior;
 
-  real <lower=0,upper=1>groupWprior;
-  real groupKminus2prior;
+  real <lower=0,upper=1>groupW_prior;
+  real groupKminus2_prior;
 
   // particiant LEVEL
   vector[nParticipants] logk;
@@ -49,10 +49,10 @@ transformed parameters {
   vector[totalTrials] VB;
   vector[totalTrials] P;
   real groupK;
-  real groupKprior;
+  real groupK_prior;
 
   groupK      <- groupKminus2+2;
-  groupKprior <- groupKminus2prior+2;
+  groupK_prior <- groupKminus2_prior+2;
 
   // TODO Can this be vectorized? Phi() can't take vector input
   for (t in 1:totalTrials){
@@ -76,14 +76,14 @@ model {
   groupKminus2     ~ gamma(0.01,0.01); // concentration parameter
 
   // SAMPLING FROM PRIOR group level priors
-  groupLogKmuprior      ~ normal(-0.243,1000);
-  groupLogKsigmaprior   ~ inv_gamma(0.001,0.001);
+  groupLogKmu_prior      ~ normal(-0.243,1000);
+  groupLogKsigma_prior   ~ inv_gamma(0.001,0.001);
 
-  groupALPHAmuprior     ~ uniform(0,1000);
-  groupALPHAsigmaprior  ~ inv_gamma(0.001,0.001);
+  groupALPHAmu_prior     ~ uniform(0,1000);
+  groupALPHAsigma_prior  ~ inv_gamma(0.001,0.001);
 
-  groupWprior           ~ beta(1.1, 10.9);  // mode for lapse rate
-  groupKminus2prior     ~ gamma(0.01,0.01); // concentration parameter
+  groupW_prior           ~ beta(1.1, 10.9);  // mode for lapse rate
+  groupKminus2_prior     ~ gamma(0.01,0.01); // concentration parameter
 
   // participant level - these are vectors
   logk    ~ normal(groupLogKmu, groupLogKsigma);
@@ -111,9 +111,9 @@ generated quantities {  // NO VECTORIZATION IN THIS BLOCK
   epsilon_group    <- beta_rng(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 );
 
   // priors about the group level
-  logk_group_prior     <- normal_rng(groupLogKmuprior, groupLogKsigmaprior);
-  alpha_group_prior    <- normal_rng(groupALPHAmuprior, groupALPHAsigmaprior);
-  epsilon_group_prior  <- beta_rng(groupWprior*(groupKprior-2)+1 , (1-groupWprior)*(groupKprior-2)+1 );
+  logk_group_prior     <- normal_rng(groupLogKmu_prior, groupLogKsigma_prior);
+  alpha_group_prior    <- normal_rng(groupALPHAmu_prior, groupALPHAsigma_prior);
+  epsilon_group_prior  <- beta_rng(groupW_prior*(groupK_prior-2)+1 , (1-groupW_prior)*(groupK_prior-2)+1 );
 
 
   // posterior predictive responses

@@ -54,22 +54,22 @@ model{
   # We draw these samples, that are independent from the data, so that we can plot our prior beliefs of group-level parameters. These will be determined by the actual values given in the priors.
   # IMPORTANT - Make sure the numerical values you provide below match the priors above.
 
-  groupLogKmuprior       ~ dnorm(-0.243,1/1000)
-  groupLogKsigmaprior    ~ dunif(0,100)
+  groupLogKmu_prior       ~ dnorm(-0.243,1/1000)
+  groupLogKsigma_prior    ~ dunif(0,100)
 
   # comparison acuity
-  groupALPHAmuprior    ~ dnorm(0,1/(100^2)) T(0,) ## UPDATED SINCE PAPER
-  groupALPHAsigmaprior ~ dunif(0,500) ## UPDATED SINCE PAPER
+  groupALPHAmu_prior    ~ dnorm(0,1/(100^2)) T(0,) ## UPDATED SINCE PAPER
+  groupALPHAsigma_prior ~ dunif(0,500) ## UPDATED SINCE PAPER
 
   # error rates
-  groupWprior          ~ dbeta(1.1, 10.9)  # mode for lapse rate
-  groupKminus2prior    ~ dgamma(0.5,0.5) # concentration parameter
-  groupKprior          <- groupKminus2prior+2
+  groupW_prior          ~ dbeta(1.1, 10.9)  # mode for lapse rate
+  groupKminus2_prior    ~ dgamma(0.5,0.5) # concentration parameter
+  groupK_prior          <- groupKminus2_prior+2
 
   # Prior beliefs about the group level (equivalently, an as yet unobserved participant). As determined by priors on parameters specified above
-  logk_group_prior     ~ dnorm(groupLogKmuprior, 1/(groupLogKsigmaprior^2))
-  alpha_group_prior    ~ dnorm(groupALPHAmuprior, 1/(groupALPHAsigmaprior^2)) T(0,)
-  epsilon_group_prior  ~ dbeta(groupWprior*(groupKprior-2)+1 , (1-groupWprior)*(groupKprior-2)+1 ) T(,0.5)
+  logk_group_prior     ~ dnorm(groupLogKmu_prior, 1/(groupLogKsigma_prior^2))
+  alpha_group_prior    ~ dnorm(groupALPHAmu_prior, 1/(groupALPHAsigma_prior^2)) T(0,)
+  epsilon_group_prior  ~ dbeta(groupW_prior*(groupK_prior-2)+1 , (1-groupW_prior)*(groupK_prior-2)+1 ) T(,0.5)
 
 
 

@@ -27,14 +27,6 @@ h_me.plotMCMCchains({'m','c'})
 h_me.plotMCMCchains({'m_group','c_group', 'alpha_group', 'epsilon_group'})
 
 %% JAGS
-s_me = ModelSeparate(toolboxPath, 'JAGS', myData, 'separate_ME');
-s_me.sampler.setMCMCtotalSamples(10^3);
-s_me.sampler.setMCMCnumberOfChains(2);
-s_me.conductInference();
-s_me.exportParameterEstimates();
-s_me.plot()
-
-%% JAGS
 h_logk = ModelHierarchicalLogK(toolboxPath, 'JAGS', myData, 'hierarchical_logk');
 h_logk.sampler.setMCMCtotalSamples(10^3);
 h_logk.sampler.setMCMCnumberOfChains(2);
@@ -43,6 +35,16 @@ h_logk.plot()
 h_logk.exportParameterEstimates();
 % h_logk.plotMCMCchains()
 % h_logk.posteriorPredictive(); %<--- fix this
+
+%% JAGS
+s_me = ModelSeparate(toolboxPath, 'JAGS', myData, 'separate_ME');
+s_me.sampler.setMCMCtotalSamples(10^3);
+s_me.sampler.setMCMCnumberOfChains(2);
+s_me.conductInference();
+s_me.exportParameterEstimates();
+s_me.plot()
+
+
 
 
 
