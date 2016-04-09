@@ -51,7 +51,7 @@ h_me.plot()
 
 %% JAGS
 h_logk = ModelHierarchicalLogK(toolboxPath, 'JAGS', myData, 'hierarchical_logk');
-h_logk.sampler.setMCMCtotalSamples(10^4);
+h_logk.sampler.setMCMCtotalSamples(10^5);
 h_logk.sampler.setMCMCnumberOfChains(2);
 h_logk.conductInference();
 h_logk.plot()
@@ -61,7 +61,7 @@ h_logk.exportParameterEstimates();
 
 %% JAGS - ME
 s_me = ModelSeparateME(toolboxPath, 'JAGS', myData, 'separate_ME');
-s_me.sampler.setMCMCtotalSamples(10^4);
+s_me.sampler.setMCMCtotalSamples(10^5);
 s_me.sampler.setMCMCnumberOfChains(2);
 s_me.conductInference();
 s_me.exportParameterEstimates();
@@ -78,17 +78,15 @@ s_logk.plot()
 
 
 
-%% ModelHierarchical
-% stanModel = ModelHierarchical(toolboxPath, 'STAN', myData, saveFolder);
-% clc
-% stanModel.conductInference();
-% stanModel.sampler.stanFit
-%
-% temp = stanModel.sampler.stanFit.extract('pars','logk_group').logk_group;
-% hist(temp,100)
-%
 
 
+
+
+
+
+
+%% EXPERIMENTAL FEATURE FOR THE FUTURE -------------------
+% --------------------------------------------------------
 
 
 
