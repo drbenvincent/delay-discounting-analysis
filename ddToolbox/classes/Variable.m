@@ -37,16 +37,8 @@ classdef Variable < handle
 				obj.(fields{n}) = p.Results.(fields{n});
 			end
 			
-% 			obj.str = str;
-% 			obj.str_latex = str_latex;
-% 			obj.bounds = bounds;
-% 			obj.monitoredFlag = monitoredFlag;
-% 			obj.analysisFlag = false; % default
-% 			obj.plotMCMCchainFlag = true; % default
-% 			obj.seed = []; % empty by default
 		end
-
-
+		
   end
 
 end

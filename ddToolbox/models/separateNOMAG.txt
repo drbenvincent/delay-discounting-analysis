@@ -7,11 +7,14 @@
 
 model{
 
+  logk_MEAN <- log(1/365)
+  logk_PRECISION <- 1/(10^2)
+
   # Participant-level parameters
   for (p in 1:nParticipants){
     # magnitude effect (m,c) for each person
-    logk[p]     ~ dnorm(log(1/365), 1/(10^2))
-    epsilon[p]  ~ dbeta(1 , 1) T(,0.5)
+    logk[p]     ~ dnorm(logk_MEAN, logk_PRECISION)
+    epsilon[p]  ~ dbeta(1.1 , 10.9) T(,0.5)
     alpha[p]    ~ dexp(0.01)
   }
 
@@ -34,8 +37,8 @@ model{
   # GENERATED QUANTITIES ########################
 
   # priors (scalar)
-  logk_prior     ~ dnorm(log(1/365), 1/(100^2))
-  epsilon_prior  ~ dbeta(1 , 1) T(,0.5)
+  logk_prior     ~ dnorm(logk_MEAN, logk_PRECISION)
+  epsilon_prior  ~ dbeta(1.1 , 10.9) T(,0.5)
   alpha_prior    ~ dexp(0.01)
 
   for (p in 1:nParticipants){

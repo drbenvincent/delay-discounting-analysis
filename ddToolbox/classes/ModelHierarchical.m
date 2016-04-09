@@ -117,15 +117,11 @@ classdef ModelHierarchical < ModelBaseClass
 				'bounds', [0 inf]);
 
 
-			obj.variables.groupALPHAmu = Variable('groupALPHAmu',...
-				'str_latex','\mu^m group');
-			obj.variables.groupALPHAsigma = Variable('groupALPHAsigma',...
-				'str_latex', '\sigma^m group');
+			obj.variables.groupALPHAmu = Variable('groupALPHAmu');
+			obj.variables.groupALPHAsigma = Variable('groupALPHAsigma');
 
-			obj.variables.groupALPHAmu_prior = Variable('groupALPHAmu_prior',...
-				'str_latex','\mu^m group prior');
-			obj.variables.groupALPHAsigma_prior = Variable('groupALPHAsigma_prior',...
-				'str_latex', '\sigma^m group prior');
+			obj.variables.groupALPHAmu_prior = Variable('groupALPHAmu_prior');
+			obj.variables.groupALPHAsigma_prior = Variable('groupALPHAsigma_prior');
 
 			% observed response
 			obj.variables.Rpostpred = Variable('R', 'bounds', [0 1]);

@@ -65,7 +65,7 @@ classdef ModelSeparate < ModelBaseClass
 
 			% observed response
 			obj.variables.Rpostpred = Variable('R', 'bounds', [0 1]);
-			
+
 		end
 		% ================================================================
 

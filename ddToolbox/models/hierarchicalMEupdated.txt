@@ -25,8 +25,8 @@ model{
   groupCsigma     ~ dunif(0, 10) ## UPDATED SINCE PAPER
 
   # comparison acuity (alpha)
-  groupALPHAmu        ~ dnorm(0,1/(100^2)) T(0,) ## UPDATED SINCE PAPER
-  groupALPHAsigma     ~ dunif(0,500) ## UPDATED SINCE PAPER
+  groupALPHAmu        ~ dexp(0.01) ## UPDATED SINCE PAPER
+  groupALPHAsigma     ~ dgamma(10,10) ## UPDATED SINCE PAPER
 
   # error rates (epsilon)
   groupW          ~ dbeta(1.1, 10.9)  # mode for lapse rate

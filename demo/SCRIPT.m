@@ -3,11 +3,9 @@ function SCRIPT
 
 %% Preamble
 % Update the path below to point toward the '/ddToolbox' folder
-toolboxPath = setToolboxPath('/Users/benvincent/git-local/delay-discounting-analysis/ddToolbox')
-% Ensure the current directory is the 'project folder', in this case '\demo'
+toolboxPath = setToolboxPath('/Users/benvincent/git-local/delay-discounting-analysis/ddToolbox');
+% Ensure the current directory is the 'project folder'
 cd('/Users/benvincent/git-local/delay-discounting-analysis/demo')
-
-% set some graphics preferences
 setPlotTheme
 
 %% Create data object
@@ -29,17 +27,12 @@ fnames={'AC-kirby27-DAYS.txt',...
 'SK-kirby27.txt',...
 'VD-kirby27.txt'};
 
-% You can use this function below if you would like to exlude participants.
-% Just pass in a cell array of strings of the participant filenames to
-% exclude
+% You can use this function if you would like to exlude participants.
 %fnames = excludeTheseParticipants(fnames, {'SK-kirby27.txt', 'VD-kirby27.txt'})
 
-% Participant-level data will be aggregated into a larger group-level text
-% file and saved in \data\groupLevelData for inspection. Choose a
-% meaningful filename for this group-level data. This data is not used, it
-% is just provided so you can confirm everything is working properly.
+% Participant-level data will be aggregated into a larger group-level data
+% file. This is also saved for inspection, but is not used in later code.
 
-% create the group-level data object
 pathToData='data';
 myData = DataClass(pathToData);
 myData.loadDataFiles(fnames);
@@ -51,21 +44,14 @@ myData.loadDataFiles(fnames);
 % instance of the class 'ModelHierarchical'
 saveFolder = 'methodspaper-kirby27';
 hModel = ModelHierarchical(toolboxPath, 'JAGS', myData, saveFolder);
-%hModel = ModelHierarchical(toolboxPath, 'STAN', myData, saveFolder);
+% hModel.setMCMCtotalSamples(10^6);
+% hModel.setMCMCnumberOfChains(4);
 
-
-% Uncomment lines below to change
-% hModel.setMCMCtotalSamples(10^6); % default is 10^5
-% hModel.setMCMCnumberOfChains(8);
-
-% This will initiate MCMC sampling. This can take some time to run,
-% depending on number of samples, chains, computer speed and cores etc.
-% It's probably best to start with a low number of MCMC samples to get a
-% feel for how long the sampling takes.
+% This will initiate MCMC sampling. This can take some time to run.
 hModel.conductInference();
 
 % Conduct some posterior predictive analysis
-hModel.posteriorPredictive(); % ******************************* FIX ME
+% hModel.posteriorPredictive(); % **** ADDITIONAL FEATURE: NOT YET FINISHED
 
 % Export posterior mode (and credible intervals) of all parameter and group
 % level parameters to a text file
@@ -75,33 +61,21 @@ hModel.exportParameterEstimates();
 hModel.plot()
 
 % Inspect mcmc chains
+% Include whatever model variable names you want to inspect
 hModel.plotMCMCchains({'m','c'})
 hModel.plotMCMCchains({'m_group','c_group', 'alpha_group', 'epsilon_group'})
+
 
 %% Example of a script written to conduct Hypothesis tests
 hypothesisTestScript(hModel)
 
 
-% Summary information of the group and participant level infererences are
-% stored in a structure in the model object, eg:
-%  hModel.analyses.univariate
-% So if you wanted to find the group level posterior mode for the slope of
-% the magnitude effect, you can type:
-%	hModel.analyses.univariate.glM
-%	hModel.analyses.univariate.glM.CI95
-% and if you wanted estimates for each participant, for example the slope
-% of the magnitude effect, then you can type:
-%	hModel.analyses.univariate.m.mode'
-
-% Modal values of m_p for all participants
-% Export these point estimates into a text file and analyse with JASP
-%	hModel.analyses.univariate.m.mode'
-%	hModel.analyses.univariate.m.CI95'
-
-% This information can be more neatly arranged by putting into a Matlab
-% table, for example
-participant_level_m = array2table([hModel.analyses.univariate.m.mode' hModel.analyses.univariate.m.CI95'],...
-	'VariableNames',{'posteriorMode' 'CI5' 'CI95'})
+%% Getting access to samples
+% If you want to get access to the full posterior distributions, then you
+% can ask for the samples.
+% The precise way how this works might change as I am updating the
+% internals of the code. But currently, the method is:
+someSamples = hModel.mcmc.getSamples({'m','c'});
 
 
 %% Discount rate for a particular reward magnitude
@@ -111,9 +85,9 @@ participant_level_m = array2table([hModel.analyses.univariate.m.mode' hModel.ana
 % conditional posterior (predictive) distributions. That is...
 % The posterior distribution of discount rate (log(k)) for a given reward
 % magnitude.
-
-% Below we calculate and plot the discount rates for reward magnitudes of
-% ï¿½100 and ï¿½1,000
+%
+% Below we calculate and plot the discount rates for reward magnitudes of 
+% £100 and £1,000
 
 figure(1), clf
 plotFlag=true;
@@ -124,58 +98,60 @@ hModel.conditionalDiscountRates(1000, plotFlag);
 linkaxes(ax,'xy')
 
 
-%% UPDATED HIERARCHICAL MODEL
+
+% =========================================================================
+% DEMONSTRATION OF USING ALTERNATIVE MODELS
+% =========================================================================
+%
+% Note:
+% - we are using the same data object that we loaded above
+% - but we are analysing that data with different probabilistic models
+% - outputs are saved to subfolders
+% - if you use these models for research to be published you may want to
+% make sure the priors specified in the models are reasonable for your
+% research context
+%
+% Warning: While these models often work fine, there have been convergence
+% issues with some datasets that I have tried. So I may well be
+% investigating alternative parameterisations and priors etc.
+
+
+%% Updated prior model
 % Since publication, I have tested the analysis code on a wider range of
 % datasets and have found it necessary to update some of the the priors in 
 % order to have more reliable MCMC chain convergence.
-% This new model is called ModelHierarchicalUpdated
-
-% saveFolder = 'hierarchical_updated_priors';
-% uModel = ModelHierarchicalUpdated(toolboxPath, 'JAGS', myData, saveFolder);
-% uModel.sampler.setMCMCtotalSamples(10^5);
-% uModel.conductInference();
-% uModel.posteriorPredictive();
-% uModel.exportParameterEstimates();
-% uModel.plot()
-% uModel.plotMCMCchains()
+saveFolder = 'hierarchical_updated_priors';
+h_me_updated = ModelHierarchicalUpdated(toolboxPath, 'JAGS', myData, saveFolder);
+h_me_updated.sampler.setMCMCtotalSamples(10^5);
+h_me_updated.conductInference();
+h_me_updated.exportParameterEstimates();
+h_me_updated.plot()
 
 
-%%  HIERARCHICAL MODEL Log(k) MODEL (no magnitude effect)
-
-saveFolder = 'hierarchical_logk';
-kModel = ModelHierarchicalLogK(toolboxPath, 'JAGS', myData, saveFolder);
-kModel.sampler.setMCMCtotalSamples(10^5);
-kModel.conductInference();
-kModel.plot()
-kModel.exportParameterEstimates();
-kModel.plotMCMCchains()
-kModel.posteriorPredictive(); %<--- fix this
+%% Hierarchical model, estimate discount rate = log(k), no magnitude effect
+h_logk = ModelHierarchicalLogK(toolboxPath, 'JAGS', myData, 'hierarchical_logk');
+h_logk.sampler.setMCMCtotalSamples(10^5);
+h_logk.conductInference();
+h_logk.plot()
 
 
-%% CODE FOR PARTICIPANT-LEVEL ONLY
-% THIS IS CURRENTLY EXPERIMENTAL. IT WORKS FINE WITH THE DEMO DATASET, BUT
-% I HAVE BEEN HAVING MCMC CHAIN CONVERGENCE ISSUES WITH OTHER DATASETS.
+% =========================================================================
+% MODELS BELOW TREAT PARTICIPANTS INDEPDENTLY, NO HIERARCHICAL ESTIMATION
+% These could be useful in some situations, but we loose the advantages of
+% hierarchical estimation.
 
-% % If you want to avoid group-level hierarchical inference, then you can use
-% % a different model class. Code below shows an example
-% 
-% saveFolder = 'nonHierarchical';
-% sModel = ModelSeparate(toolboxPath, 'JAGS', myData, saveFolder);
-% sModel.sampler.setMCMCtotalSamples(10^5);
-% sModel.conductInference();
-% sModel.posteriorPredictive();
-% sModel.exportParameterEstimates();
-% sModel.plot()
-% sModel.plotMCMCchains()
-% 
-% % you can also see the discount rates for particular reward magnitudes for
-% % the non-hierarchical model
-% figure(1), clf
-% plotFlag=true;
-% ax(1) = subplot(1,2,1);
-% sModel.conditionalDiscountRates(100, plotFlag);
-% ax(2) = subplot(1,2,2);
-% sModel.conditionalDiscountRates(1000, plotFlag);
-% linkaxes(ax,'xy')
+%% Independent participants (non-hierarchical) estimation of the magnitude effect
+s_me = ModelSeparate(toolboxPath, 'JAGS', myData, 'separate_ME');
+s_me.sampler.setMCMCtotalSamples(10^5);
+s_me.conductInference();
+s_me.exportParameterEstimates();
+s_me.plot()
+
+%% Independent participants (non-hierarchical) estimation of log(k)
+s_logk = ModelSeparateLogK(toolboxPath, 'JAGS', myData, 'separate_logk');
+s_logk.sampler.setMCMCtotalSamples(10^5);
+s_logk.conductInference();
+s_logk.exportParameterEstimates();
+s_logk.plot()
 
 return

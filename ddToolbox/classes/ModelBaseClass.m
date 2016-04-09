@@ -89,8 +89,8 @@ classdef ModelBaseClass < handle
 			nParticipants = obj.data.nParticipants;
 			count=1;
 			for p = 1:nParticipants
-				params(:,1) = obj.sampler.getSamplesFromParticipantAsMatrix(p, {'m'});
-				params(:,2) = obj.sampler.getSamplesFromParticipantAsMatrix(p, {'c'});
+				params(:,1) = obj.mcmc.getSamplesFromParticipantAsMatrix(p, {'m'});
+				params(:,2) = obj.mcmc.getSamplesFromParticipantAsMatrix(p, {'c'});
 				% ==============================================
 				[posteriorMean(count), lh(count)] =...
 					calculateLogK_ConditionOnReward(reward, params, plotFlag);
@@ -140,9 +140,7 @@ classdef ModelBaseClass < handle
 			myExport(obj.saveFolder, obj.modelType, '-UnivariateSummary')
 
 
-
 			%% PARTICIPANT LEVEL =================================
-
 			participant_level_prior_variables = cellfun(...
 				@getPriorOfVariable,...
 				obj.varList.groupLevel,...
@@ -156,8 +154,6 @@ classdef ModelBaseClass < handle
 				obj.saveFolder,...
 				obj.modelType)
 
-
-
 			%% GROUP LEVEL ======================================
 			group_level_prior_variables = cellfun(...
 				@getPriorOfVariable,...
@@ -168,14 +164,12 @@ classdef ModelBaseClass < handle
 			figPsychometricParamsHierarchical(obj.mcmc, obj.data)
 			myExport(obj.saveFolder, obj.modelType, '-PsychometricParams')
 
-
 			% TRIPLOT
 			posteriorSamples = obj.mcmc.getSamplesAsMatrix(obj.varList.groupLevel);
 			priorSamples = obj.mcmc.getSamplesAsMatrix(group_level_prior_variables);
 			figure(87)
 			triPlotSamples(priorSamples, posteriorSamples, obj.varList.groupLevel, [])
 			myExport(obj.saveFolder, obj.modelType, ['-GROUP-triplot'])
-
 
 			% GROUP (UNSEEN PARTICIPANT) PLOT
 			obj.plotFuncs.unseenParticipantPlot(...
