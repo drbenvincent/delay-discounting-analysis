@@ -42,6 +42,7 @@ classdef JAGSSampler < Sampler
 			obj.setInitialParamValues(variables, nParticipants);
 			obj.setMonitoredValues(variables);
 			mcmc = obj.invokeSampler();
+			speak('sampling complete')
 
 			mcmc.convergenceSummary(saveFolder,IDnames)
 		end
@@ -52,7 +53,7 @@ classdef JAGSSampler < Sampler
 				for v = 1:numel(varNames)
 					varName = varNames{v};
 					if isempty(variables.(varName).seed), continue, end
-					
+
 					if variables.(varName).single==false
 						% TODO: fix this. Why can't I call the seed func handle
 						% directly?

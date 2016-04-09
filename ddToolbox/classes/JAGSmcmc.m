@@ -69,7 +69,7 @@ classdef JAGSmcmc < mcmcContainer
 				end
 				if warningFlag
 					logInfo(fid,'\n\n\n**** WARNING: convergence issues :( ****\n\n\n')
-					beep
+					speak('there were some convergence issues')
 				else
 					logInfo(fid,'\n\n\n**** No convergence issues :) ****\n\n\n')
 				end
