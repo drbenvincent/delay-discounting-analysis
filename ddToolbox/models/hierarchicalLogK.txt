@@ -1,10 +1,3 @@
-# JAGS model for delay discounting.
-# - model of multiple participants
-# - DOES NOT model the magnitude effect
-# - separate parameters (for each participant) for lapse rate and alpha
-# - Hierarchical estimation of discount rates
-
-
 model{
 
   # --------------------------------------------------------------------------

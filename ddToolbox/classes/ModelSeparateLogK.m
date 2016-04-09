@@ -13,11 +13,11 @@ classdef ModelSeparateLogK < ModelBaseClass
 
 			switch samplerType
 				case{'JAGS'}
-					modelPath = '/models/separateNOMAG.txt';
+					modelPath = '/models/separateLogK.txt';
 					obj.sampler = JAGSSampler([toolboxPath modelPath]);
 					[~,obj.modelType,~] = fileparts(modelPath);
 				case{'STAN'}
-					modelPath = '/models/separateNOMAG.stan';
+					modelPath = '/models/separateLogK.stan';
 					obj.sampler = STANSampler([toolboxPath modelPath]);
 					[~,obj.modelType,~] = fileparts(modelPath);
 			end

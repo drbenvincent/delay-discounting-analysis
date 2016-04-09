@@ -13,11 +13,11 @@ classdef ModelHierarchicalLogK < ModelBaseClass
 
 			switch samplerType
 				case{'JAGS'}
-					modelPath = '/models/hierarchicalNOMAG.txt';
+					modelPath = '/models/hierarchicalLogK.txt';
 					obj.sampler = JAGSSampler([toolboxPath modelPath]);
 					[~,obj.modelType,~] = fileparts(modelPath);
 				case{'STAN'}
-					modelPath = '/models/hierarchicalNOMAG.stan';
+					modelPath = '/models/hierarchicalLogK.stan';
 					obj.sampler = STANSampler([toolboxPath modelPath]);
 					[~,obj.modelType,~] = fileparts(modelPath);
 			end

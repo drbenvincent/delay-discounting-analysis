@@ -43,7 +43,7 @@ myData.loadDataFiles(fnames);
 % First we create a model object, which we will call hModel. This is an
 % instance of the class 'ModelHierarchical'
 saveFolder = 'methodspaper-kirby27';
-hModel = ModelHierarchical(toolboxPath, 'JAGS', myData, saveFolder);
+hModel = ModelHierarchicalME(toolboxPath, 'JAGS', myData, saveFolder);
 % hModel.setMCMCtotalSamples(10^6);
 % hModel.setMCMCnumberOfChains(4);
 
@@ -121,7 +121,7 @@ linkaxes(ax,'xy')
 % datasets and have found it necessary to update some of the the priors in 
 % order to have more reliable MCMC chain convergence.
 saveFolder = 'hierarchical_updated_priors';
-h_me_updated = ModelHierarchicalUpdated(toolboxPath, 'JAGS', myData, saveFolder);
+h_me_updated = ModelHierarchicalMEUpdated(toolboxPath, 'JAGS', myData, saveFolder);
 h_me_updated.sampler.setMCMCtotalSamples(10^5);
 h_me_updated.conductInference();
 h_me_updated.exportParameterEstimates();
@@ -141,7 +141,7 @@ h_logk.plot()
 % hierarchical estimation.
 
 %% Independent participants (non-hierarchical) estimation of the magnitude effect
-s_me = ModelSeparate(toolboxPath, 'JAGS', myData, 'separate_ME');
+s_me = ModelSeparateME(toolboxPath, 'JAGS', myData, 'separate_ME');
 s_me.sampler.setMCMCtotalSamples(10^5);
 s_me.conductInference();
 s_me.exportParameterEstimates();

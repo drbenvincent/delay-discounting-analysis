@@ -1,10 +1,3 @@
-# JAGS model for delay discounting.
-# - model of multiple participants
-# - models the magnitude effect
-# - separate parameters (for each participant) for lapse rate and alpha
-# - Heirachical estimation (group-level) estimates of magnitude effect parameters (m, c).
-
-
 model{
 
     # priors over group M mean

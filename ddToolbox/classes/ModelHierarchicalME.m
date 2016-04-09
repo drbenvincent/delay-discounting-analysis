@@ -1,5 +1,5 @@
-classdef ModelHierarchical < ModelBaseClass
-	%ModelHierarchical A model to estimate the magnitide effect
+classdef ModelHierarchicalME < ModelBaseClass
+	%ModelHierarchicalME A model to estimate the magnitide effect
 	%   Detailed explanation goes here
 
 	properties
@@ -8,7 +8,7 @@ classdef ModelHierarchical < ModelBaseClass
 
 	methods (Access = public)
 		% =================================================================
-		function obj = ModelHierarchical(toolboxPath, samplerType, data, saveFolder)
+		function obj = ModelHierarchicalME(toolboxPath, samplerType, data, saveFolder)
 			obj = obj@ModelBaseClass(toolboxPath, samplerType, data, saveFolder);
 
 			switch samplerType

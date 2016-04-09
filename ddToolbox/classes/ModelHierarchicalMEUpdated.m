@@ -1,5 +1,5 @@
-classdef ModelHierarchicalUpdated < ModelHierarchical
-	%ModelHierarchicalUpdated A model to estimate the magnitide effect
+classdef ModelHierarchicalMEUpdated < ModelHierarchical
+	%ModelHierarchicalMEUpdated A model to estimate the magnitide effect
 	%   Extends ModelHierarchical but uses new JAGS model with new priors.
 
 	properties
@@ -7,7 +7,7 @@ classdef ModelHierarchicalUpdated < ModelHierarchical
 
 	methods (Access = public)
 		% =================================================================
-		function obj = ModelHierarchicalUpdated(toolboxPath, sampler, data, saveFolder)
+		function obj = ModelHierarchicalMEUpdated(toolboxPath, sampler, data, saveFolder)
 			% Inherit from ModelHierarchical and override selected methods
 			obj = obj@ModelHierarchical(toolboxPath, sampler, data, saveFolder);
 

@@ -76,7 +76,7 @@ classdef JAGSSampler < Sampler
 			%obj.monitorparams = {variables.str};
 		end
 
-		function JAGSFitObject = invokeSampler(obj)
+		function mcmcContainer = invokeSampler(obj)
 			fprintf('\nRunning JAGS (%d chains, %d samples each)\n',...
 				obj.mcmcparams.nchains,...
 				obj.mcmcparams.nsamples);
@@ -96,7 +96,7 @@ classdef JAGSSampler < Sampler
 				'rndseed', 1,...
 				'dic', 0);
 
-				JAGSFitObject = JAGSmcmc(samples, stats, obj.mcmcparams);
+				mcmcContainer = JAGSmcmc(samples, stats, obj.mcmcparams);
 		end
 
 		%% SET METHODS ----------------------------------------------------
