@@ -1,5 +1,5 @@
-classdef ModelBaseClass < handle
-	%ModelBaseClass Base class to provide basic functionality
+classdef Model < handle
+	%Model Base class to provide basic functionality
 	%	xxxx
 
 	properties (Access = public)
@@ -19,7 +19,7 @@ classdef ModelBaseClass < handle
 
 	methods (Access = public)
 
-		function obj = ModelBaseClass(toolboxPath, sampler, data, saveFolder)
+		function obj = Model(toolboxPath, sampler, data, saveFolder)
 			obj.data = data;
 			obj.saveFolder = saveFolder;
 		end

@@ -1,4 +1,4 @@
-classdef ModelSeparateME < ModelBaseClass
+classdef ModelSeparateME < Model
 	%ModelSeperate A model to estimate the magnitide effect.
 	%	Models a number of participants, but they are all treated as independent.
 	%	There is no group-level estimation.
@@ -11,9 +11,9 @@ classdef ModelSeparateME < ModelBaseClass
 
 		% CONSTRUCTOR =====================================================
 		function obj = ModelSeparateME(toolboxPath, sampler, data, saveFolder)
-			% Because this class is a subclass of "ModelBaseClass" then we use
+			% Because this class is a subclass of "Model" then we use
 			% this next line to create an instance
-			obj = obj@ModelBaseClass(toolboxPath, sampler, data, saveFolder);
+			obj = obj@Model(toolboxPath, sampler, data, saveFolder);
 
 			switch sampler
 				case{'JAGS'}

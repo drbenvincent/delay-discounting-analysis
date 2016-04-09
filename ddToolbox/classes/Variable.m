@@ -18,7 +18,6 @@ classdef Variable < handle
 
   methods (Access = public)
 
-		% CONSTRUCTOR =====================================================
 		function obj = Variable(str, varargin)
 			p = inputParser;
 			p.FunctionName = mfilename;
@@ -28,17 +27,16 @@ classdef Variable < handle
 			p.addParameter('seed',[], @(x) isa(x,'function_handle'))
 			p.addParameter('single',false, @islogical)
 			p.addParameter('analysisFlag',[], @isnumeric)
-			
+
 			p.parse(str, varargin{:});
-			
+
 			% add p.Results fields into obj
 			fields = fieldnames(p.Results);
 			for n=1:numel(fields)
 				obj.(fields{n}) = p.Results.(fields{n});
 			end
-			
 		end
-		
+
   end
 
 end

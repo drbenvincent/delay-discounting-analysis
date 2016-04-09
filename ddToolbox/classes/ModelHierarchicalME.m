@@ -1,4 +1,4 @@
-classdef ModelHierarchicalME < ModelBaseClass
+classdef ModelHierarchicalME < Model
 	%ModelHierarchicalME A model to estimate the magnitide effect
 	%   Detailed explanation goes here
 
@@ -9,7 +9,7 @@ classdef ModelHierarchicalME < ModelBaseClass
 	methods (Access = public)
 		% =================================================================
 		function obj = ModelHierarchicalME(toolboxPath, samplerType, data, saveFolder)
-			obj = obj@ModelBaseClass(toolboxPath, samplerType, data, saveFolder);
+			obj = obj@Model(toolboxPath, samplerType, data, saveFolder);
 
 			switch samplerType
 				case{'JAGS'}

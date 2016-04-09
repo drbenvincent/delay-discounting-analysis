@@ -1,4 +1,4 @@
-classdef ModelHierarchicalLogK < ModelBaseClass
+classdef ModelHierarchicalLogK < Model
 	%ModelHierarchical A model to estimate the magnitide effect
 	%   Detailed explanation goes here
 
@@ -9,7 +9,7 @@ classdef ModelHierarchicalLogK < ModelBaseClass
 	methods (Access = public)
 		% =================================================================
 		function obj = ModelHierarchicalLogK(toolboxPath, samplerType, data, saveFolder)
-			obj = obj@ModelBaseClass(toolboxPath, samplerType, data, saveFolder);
+			obj = obj@Model(toolboxPath, samplerType, data, saveFolder);
 
 			switch samplerType
 				case{'JAGS'}

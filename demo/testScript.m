@@ -26,7 +26,7 @@ myData.loadDataFiles(fnames);
 
 
 %% JAGS
-h_me = ModelHierarchical(toolboxPath, 'JAGS', myData, 'hierarchical_ME');
+h_me = ModelHierarchicalME(toolboxPath, 'JAGS', myData, 'hierarchical_ME');
 h_me.sampler.setMCMCtotalSamples(10^4);
 h_me.sampler.setMCMCnumberOfChains(2);
 h_me.conductInference(); % TODO: Could return an MCMCFit object here ******
@@ -41,7 +41,7 @@ h_me.plotMCMCchains({'m_group','c_group', 'alpha_group', 'epsilon_group'})
 
 
 %% JAGS - updated
-h_me = ModelHierarchicalUpdated(toolboxPath, 'JAGS', myData, 'hierarchical_ME_updated');
+h_me = ModelHierarchicalMEUpdated(toolboxPath, 'JAGS', myData, 'hierarchical_ME_updated');
 h_me.sampler.setMCMCtotalSamples(10^4);
 h_me.sampler.setMCMCnumberOfChains(2);
 h_me.conductInference(); % TODO: Could return an MCMCFit object here ******
@@ -60,7 +60,7 @@ h_logk.exportParameterEstimates();
 % h_logk.posteriorPredictive(); %<--- fix this
 
 %% JAGS - ME
-s_me = ModelSeparate(toolboxPath, 'JAGS', myData, 'separate_ME');
+s_me = ModelSeparateME(toolboxPath, 'JAGS', myData, 'separate_ME');
 s_me.sampler.setMCMCtotalSamples(10^4);
 s_me.sampler.setMCMCnumberOfChains(2);
 s_me.conductInference();

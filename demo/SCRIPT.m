@@ -122,7 +122,7 @@ linkaxes(ax,'xy')
 % order to have more reliable MCMC chain convergence.
 saveFolder = 'hierarchical_updated_priors';
 h_me_updated = ModelHierarchicalMEUpdated(toolboxPath, 'JAGS', myData, saveFolder);
-h_me_updated.sampler.setMCMCtotalSamples(10^5);
+h_me_updated.sampler.setMCMCtotalSamples(10^3);
 h_me_updated.conductInference();
 h_me_updated.exportParameterEstimates();
 h_me_updated.plot()
