@@ -2,8 +2,8 @@ model{
 
   # Separate and independent priors for each participant.
   for (p in 1:nParticipants){
-      m[p]       ~ dnorm(-0.243, 1/(10^2))
-      c[p]       ~ dnorm(0, 1/(100^2))
+      m[p]       ~ dnorm(-0.243, 1/(0.072^2))
+      c[p]       ~ dnorm(0, 1/(1000^2))
       alpha[p]   ~ dexp(0.01)
       epsilon[p] ~ dbeta(1.1, 10.9) T(,0.5)
   }
@@ -35,8 +35,8 @@ model{
   # These priors are separated from the data and are only included here
 	# so that we can plot the prior distributions. They are duplicated from
 	# the priors above.
-  m_prior       ~  dnorm(-0.243, 1/(10^2))
-  c_prior       ~  dnorm(0, 1/(100^2))
+  m_prior       ~  dnorm(-0.243, 1/(100^2))
+  c_prior       ~  dnorm(0, 1/(1000^2))
   alpha_prior   ~  dexp(0.01)
   epsilon_prior ~  dbeta(1.1, 10.9) T(,0.5)
 

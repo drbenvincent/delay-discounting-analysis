@@ -20,7 +20,7 @@ model{
 
   # comparison acuity (alpha)
   groupALPHAmu        ~ dexp(0.01) ## UPDATED SINCE PAPER
-  groupALPHAsigma     ~ dgamma(10,10) ## UPDATED SINCE PAPER
+  groupALPHAsigma     ~ dgamma(0.5,0.5) ## UPDATED SINCE PAPER
 
   # error rates (epsilon)
   groupW          ~ dbeta(1.1, 10.9)  # mode for lapse rate
