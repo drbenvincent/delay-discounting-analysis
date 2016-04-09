@@ -13,17 +13,19 @@ plotPsychometricFunc(pSamples, [epsilonMEAN, alphaMEAN])
 subplot(rows, cols, 3)
 plotPriorPostHist([], pSamples.logk(:));
 %histogram(pSamples.logk(:))
+removeYaxis()
 axis square
+xlabel('$\log(k)$', 'interpreter', 'latex')
 
 % TODO:
 % Plot in 2D data space
 subplot(rows, cols, 4)
 if ~isempty(pData)
 	% participant level
-	plot2DdataSpace(pData, logkMEAN)
+	plot2DdataSpace(pData, logkMEAN, pSamples.logk(:))
 else
 	% for group level where there is no data
-	plotDiscountFunction(logkMEAN);
+	plotDiscountFunction(logkMEAN, pSamples.logk(:));
 end
 
 end

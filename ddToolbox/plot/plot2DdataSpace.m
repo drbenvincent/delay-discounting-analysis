@@ -1,10 +1,10 @@
-function plot2DdataSpace(data, logkMEAN)
+function plot2DdataSpace(data, logkMEAN, logKsamples)
 
 opts.maxlogB	= max( abs(data.B) ); 
 opts.maxD		= max( data.DB );
 %% PLOT DISCOUNT SURFACE ---------------------
 %if ~isempty(modeVals)
-	plotDiscountFunction(logkMEAN)
+	plotDiscountFunction(logkMEAN, logKsamples)
 	hold on
 %end
 % -------------------------------------------

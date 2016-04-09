@@ -1,4 +1,4 @@
-function plotDiscountFunction(logk)
+function plotDiscountFunction(logkMEAN, logKsamples)
 %
 % plotDiscountSurface(-1, 10^-1);
 
@@ -6,16 +6,21 @@ function plotDiscountFunction(logk)
 xScale = 'linear';
 % ~~~~~~~~~~~~~~~~~
 
-k = exp(logk);
+k = exp(logkMEAN);
 halfLife = 1/k;
 
-discountFraction = @(k,D) 1 ./ (1 + k.*D);
+% discountFraction = @(k,D) 1 ./ (1 + k.*D);
+discountFraction = @(k,D) bsxfun(@rdivide, 1,...
+	1 + (bsxfun(@times, k, D) ) );
 
 switch xScale
 	case{'linear'}
-		D = linspace(0, halfLife*100, 10000);
-		AB		= discountFraction(k,D);
-		plot(D, AB);
+		D = linspace(0, halfLife*100, 1000);
+		% 		AB		= discountFraction(k,D);
+		% 		plot(D, AB);
+		myplot = PosteriorPredictionPlot(discountFraction, D, exp(logKsamples) );
+		myplot.plotExamples(100);
+		myplot.plotPointEstimate( exp(logkMEAN) );
 	case{'log'}
 		D = logspace(-2,4,10000);
 		AB		= discountFraction(k,D);
