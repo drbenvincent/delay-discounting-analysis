@@ -1,0 +1,46 @@
+# JAGS model for delay discounting.
+# - model of multiple participants
+# - DOES NOT model the magnitude effect
+# - separate parameters (for each participant) for lapse rate and alpha
+# - Hierarchical estimation of discount rates
+
+
+model{
+
+  # Participant-level parameters
+  for (p in 1:nParticipants){
+    # magnitude effect (m,c) for each person
+    logk[p]     ~ dnorm(log(1/365), 1/(10^2))
+    epsilon[p]  ~ dbeta(1 , 1) T(,0.5)
+    alpha[p]    ~ dexp(0.01)
+  }
+
+  for (p in 1:nParticipants){
+    for (t in 1:T[p]) {
+      # calculate present subjective value for each reward
+      VA[p,t] <- A[p,t] / (1+(exp(logk[p])*DA[p,t]))
+      VB[p,t] <- B[p,t] / (1+(exp(logk[p])*DB[p,t]))
+
+      # Psychometric function
+      P[p,t] <- epsilon[p] + (1-2*epsilon[p]) * phi( (VB[p,t]-VA[p,t]) / alpha[p] )
+
+      # response
+      R[p,t] ~ dbern(P[p,t])
+    }
+  }
+
+
+  # #############################################
+  # GENERATED QUANTITIES ########################
+
+  # priors (scalar)
+  logk_prior     ~ dnorm(log(1/365), 1/(100^2))
+  epsilon_prior  ~ dbeta(1 , 1) T(,0.5)
+  alpha_prior    ~ dexp(0.01)
+
+  for (p in 1:nParticipants){
+    for (t in 1:T[p]) {
+      Rpostpred[p,t] ~ dbern(P[p,t])
+    }
+  }
+}
