@@ -35,6 +35,12 @@ classdef Model < handle
 				end
 			end
 		end
+		
+		function bool = isGroupLevelModel(obj)
+			% we determine if the model has group level parameters by checking if
+			% we have a 'groupLevel' subfield in the varList.
+			bool = isfield(obj.varList,'groupLevel');
+		end
 
 		% MIDDLE-MAN METHODS ================================================
 
@@ -133,19 +139,41 @@ classdef Model < handle
 
 			% obj.plotFuncs.unseenParticipantPlot = @figGroupLevelWrapperME;
 			% obj.plotFuncs.figParticipantWrapperFunc = @figParticipantLevelWrapperME;
-
+			
+			if obj.isGroupLevelModel()
+				IDnames = obj.data.IDname;
+				% We are going to add on group level inferences to the end of the
+				% list. This is because the group-level inferences an be
+				% seen as inferences we can make about an as yet unobserved
+				% participant, in the light of the participant data available thus
+				% far.
+				IDnames{end+1}='GROUP';
+			else
+				IDnames = obj.data.IDname;
+			end
+			
+			participantLevelVariables = obj.varList.participantLevel;
+			
 			% plot univariate summary statistics
-			obj.mcmc.figUnivariateSummary(obj.data.IDname, obj.varList.participantLevel)
+			obj.mcmc.figUnivariateSummary(IDnames, participantLevelVariables)
 			latex_fig(16, 5, 5)
 			myExport(obj.saveFolder, obj.modelType, '-UnivariateSummary')
 
 
 			%% PARTICIPANT LEVEL =================================
-			participant_level_prior_variables = cellfun(...
-				@getPriorOfVariable,...
-				obj.varList.groupLevel,...
-				'UniformOutput',false );
-
+			
+			if obj.isGroupLevelModel()
+				participant_level_prior_variables = cellfun(...
+					@getPriorOfVariable,...
+					obj.varList.groupLevel,...
+					'UniformOutput',false );
+			else
+				participant_level_prior_variables = cellfun(...
+					@getPriorOfVariable,...
+					obj.varList.participantLevel,...
+					'UniformOutput',false );
+			end
+			
 			obj.plotFuncs.figParticipantWrapperFunc(...
 				obj.mcmc,...
 				obj.data,...
@@ -155,29 +183,33 @@ classdef Model < handle
 				obj.modelType)
 
 			%% GROUP LEVEL ======================================
-			group_level_prior_variables = cellfun(...
-				@getPriorOfVariable,...
-				obj.varList.groupLevel,...
-				'UniformOutput',false );
+			if obj.isGroupLevelModel()
+				group_level_prior_variables = cellfun(...
+					@getPriorOfVariable,...
+					obj.varList.groupLevel,...
+					'UniformOutput',false );
 
-			% PSYCHOMETRIC PARAMS
-			figPsychometricParamsHierarchical(obj.mcmc, obj.data)
-			myExport(obj.saveFolder, obj.modelType, '-PsychometricParams')
+				% PSYCHOMETRIC PARAMS
+				figPsychometricParamsHierarchical(obj.mcmc, obj.data)
+				myExport(obj.saveFolder, obj.modelType, '-PsychometricParams')
 
-			% TRIPLOT
-			posteriorSamples = obj.mcmc.getSamplesAsMatrix(obj.varList.groupLevel);
-			priorSamples = obj.mcmc.getSamplesAsMatrix(group_level_prior_variables);
-			figure(87)
-			triPlotSamples(priorSamples, posteriorSamples, obj.varList.groupLevel, [])
-			myExport(obj.saveFolder, obj.modelType, ['-GROUP-triplot'])
+				% TRIPLOT
+				posteriorSamples = obj.mcmc.getSamplesAsMatrix(obj.varList.groupLevel);
+				priorSamples = obj.mcmc.getSamplesAsMatrix(group_level_prior_variables);
+				figure(87)
+				triPlotSamples(priorSamples, posteriorSamples, obj.varList.groupLevel, [])
+				myExport(obj.saveFolder, obj.modelType, ['-GROUP-triplot'])
 
-			% GROUP (UNSEEN PARTICIPANT) PLOT
-			obj.plotFuncs.unseenParticipantPlot(...
-				obj.mcmc,...
-				obj.data,...
-				obj.varList.groupLevel,...
-				obj.saveFolder,...
-				obj.modelType)
+				% GROUP (UNSEEN PARTICIPANT) PLOT
+				obj.plotFuncs.unseenParticipantPlot(...
+					obj.mcmc,...
+					obj.data,...
+					obj.varList.groupLevel,...
+					obj.saveFolder,...
+					obj.modelType)
+			else
+				% this model does not have group level params... don't do anything
+			end
 
 
 % 			%% MC CONTOUR PLOTS

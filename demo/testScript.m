@@ -24,11 +24,15 @@ pathToData='data';
 myData = DataClass(pathToData);
 myData.loadDataFiles(fnames);
 
+%%
+nSamples = 10^3;
+nChains = 2;
+
 
 %% JAGS
 h_me = ModelHierarchicalME(toolboxPath, 'JAGS', myData, 'hierarchical_ME');
-h_me.sampler.setMCMCtotalSamples(10^4);
-h_me.sampler.setMCMCnumberOfChains(2);
+h_me.sampler.setMCMCtotalSamples(nSamples);
+h_me.sampler.setMCMCnumberOfChains(nChains);
 h_me.conductInference(); % TODO: Could return an MCMCFit object here ******
 h_me.exportParameterEstimates();
 h_me.plot()
@@ -42,7 +46,7 @@ h_me.plotMCMCchains({'m_group','c_group', 'alpha_group', 'epsilon_group'})
 
 %% JAGS - updated
 h_me = ModelHierarchicalMEUpdated(toolboxPath, 'JAGS', myData, 'hierarchical_ME_updated');
-h_me.sampler.setMCMCtotalSamples(10^4);
+h_me.sampler.setMCMCtotalSamples(nSamples);
 h_me.sampler.setMCMCnumberOfChains(2);
 h_me.conductInference(); % TODO: Could return an MCMCFit object here ******
 h_me.exportParameterEstimates();
@@ -51,8 +55,8 @@ h_me.plot()
 
 %% JAGS
 h_logk = ModelHierarchicalLogK(toolboxPath, 'JAGS', myData, 'hierarchical_logk');
-h_logk.sampler.setMCMCtotalSamples(10^5);
-h_logk.sampler.setMCMCnumberOfChains(2);
+h_logk.sampler.setMCMCtotalSamples(nSamples);
+h_logk.sampler.setMCMCnumberOfChains(nChains);
 h_logk.conductInference();
 h_logk.plot()
 h_logk.exportParameterEstimates();
@@ -61,16 +65,16 @@ h_logk.exportParameterEstimates();
 
 %% JAGS - ME
 s_me = ModelSeparateME(toolboxPath, 'JAGS', myData, 'separate_ME');
-s_me.sampler.setMCMCtotalSamples(10^5);
-s_me.sampler.setMCMCnumberOfChains(2);
+s_me.sampler.setMCMCtotalSamples(nSamples);
+s_me.sampler.setMCMCnumberOfChains(nChains);
 s_me.conductInference();
 s_me.exportParameterEstimates();
 s_me.plot()
 
 %% JAGS - separate logk
 s_logk = ModelSeparateLogK(toolboxPath, 'JAGS', myData, 'separate_logk');
-s_logk.sampler.setMCMCtotalSamples(10^5);
-s_logk.sampler.setMCMCnumberOfChains(2);
+s_logk.sampler.setMCMCtotalSamples(nSamples);
+s_logk.sampler.setMCMCnumberOfChains(nChains);
 s_logk.conductInference();
 s_logk.exportParameterEstimates();
 s_logk.plot()

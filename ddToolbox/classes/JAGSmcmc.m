@@ -76,31 +76,28 @@ classdef JAGSmcmc < mcmcContainer
 			end
 		end
 
-		function figUnivariateSummary(obj, participantIDlist, variables)
-			% loop over variables provided, plotting univariate summary
-			% statistics.
+		function figUnivariateSummary(obj, participantNames, variables)
+			% create a multi-panel figure (one subplot per variable), each 
+			% comprisnig of univariate summary stats for all participants.
 
-			% We are going to add on group level inferences to the end of the
-			% participant list. This is because the group-level inferences an be
-			% seen as inferences we can make about an as yet unobserved
-			% participant, in the light of the participant data available thus
-			% far.
-			participantIDlist{end+1}='GROUP';
-
-			% &&&&&&&&&&&&&&&&&&&
-			% TODO: DEAL WITH WHEN THERE IS AND IS NOT GROUP (hierarhical)
-			% VARIABLES
-			% &&&&&&&&&&&&&&&&&&&
 			figure
 			for v = 1:numel(variables)
 				subplot(numel(variables),1,v)
-				hdi = [obj.getStats('hdi_low',variables{v})' obj.getStats('hdi_low',[variables{v} '_group']) ;...
-					obj.getStats('hdi_high',variables{v})' obj.getStats('hdi_high',[variables{v} '_group'])];
-				plotErrorBars({participantIDlist{:}},...
-					[obj.getStats('mean',variables{v})' obj.getStats('mean',[variables{v} '_group'])],...
-					hdi,...
+				hdiMatrix = [...
+					obj.getStats('hdi_low',variables{v})'...
+					obj.getStats('hdi_low',[variables{v} '_group']);...
+					obj.getStats('hdi_high',variables{v})'...
+					obj.getStats('hdi_high',[variables{v} '_group'])];
+				plotErrorBars(...
+					{participantNames{:}},...
+					[...
+					obj.getStats('mean',variables{v})'...
+					obj.getStats('mean',[variables{v} '_group'])...
+					],...
+					hdiMatrix,...
 					variables{v});
-				a=axis; axis([0.5 a(2)+0.5 a(3) a(4)]);
+				a=axis;
+				axis([0.5 a(2)+0.5 a(3) a(4)]);
 			end
 		end
 
@@ -264,7 +261,11 @@ classdef JAGSmcmc < mcmcContainer
 
 		function [output] = getStats(obj, field, variable)
 			% return column vector
-			output = obj.stats.(field).(variable)';
+			try
+				output = obj.stats.(field).(variable)';
+			catch
+				output =[];
+			end
 		end
 
 		function [predicted] = getParticipantPredictedResponses(obj, participant)

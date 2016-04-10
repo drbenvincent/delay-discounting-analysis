@@ -69,52 +69,6 @@ classdef ModelSeparateME < Model
 		end
 		% ================================================================
 
-
-
-
-
-
-
-
-
-
-
-
-		% **************************************************************************
-		% PLOTTING METHODS
-		% **************************************************************************
-
-
-
-
-		function plot(obj)
-			close all
-
-			% TODO &&&&& ENABLE THIS METHOD TO WORK WHEN NO GROUP-LEVEL VARIABLES &&&&
-			% plot univariate summary statistics
-			% 			obj.mcmc.figUnivariateSummary(obj.data.IDname, obj.varList.participantLevel)
-			% 			latex_fig(16, 5, 5)
-			% 			myExport(obj.saveFolder, obj.modelType, '-UnivariateSummary')
-			% -------------------------------
-
-			% TODO: FIX THIS !!!
-			%			figPsychometricParamsSeparate(mcmc, data)
-			% 			myExport(obj.saveFolder, obj.modelType, '-PsychometricParams')
-
-			participant_level_prior_variables = cellfun(...
-				@getPriorOfVariable,...
-				obj.varList.participantLevel,...
-				'UniformOutput',false );
-
-			obj.plotFuncs.figParticipantWrapperFunc(...
-				obj.mcmc,...
-				obj.data,...
-				obj.varList.participantLevel,...
-				participant_level_prior_variables,...
-				obj.saveFolder,...
-				obj.modelType)
-		end
-
 	end
 
 end
