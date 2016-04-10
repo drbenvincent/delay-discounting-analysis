@@ -87,6 +87,8 @@ classdef triPlotSamples < handle
 			
 			axis square
 			
+			showHDI(obj.POSTERIOR(:,col))
+			
 			obj.plotUnivariateTrueValue()
 		end
 		
