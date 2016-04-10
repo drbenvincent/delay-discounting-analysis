@@ -29,7 +29,8 @@ function figParticipantLevelWrapperME(mcmc, data, variables,...
     priorSamples = mcmc.getSamplesAsMatrix(participant_prior_variables);
 
 		figure(87)
-		triPlotSamples(priorSamples, posteriorSamples, variables, [])
+		triPlotSamples(posteriorSamples, variables, ...
+			'PRIOR',priorSamples)
 
     myExport(saveFolder, modelType, ['-' data.IDname{n} '-triplot'])
   end

@@ -22,7 +22,7 @@ function figParticipantLevelWrapperLOGK(mcmc, data, variables, participant_prior
     priorSamples = mcmc.getSamplesAsMatrix(participant_prior_variables);
 
 		figure(87)
-		triPlotSamples(priorSamples, posteriorSamples, variables, [])
+		triPlotSamples(posteriorSamples, variables, 'PRIOR', priorSamples)
 
 		myExport(saveFolder, modelType, ['-' data.IDname{n} '-triplot'])
   end

@@ -35,7 +35,7 @@ classdef Model < handle
 				end
 			end
 		end
-		
+
 		function bool = isGroupLevelModel(obj)
 			% we determine if the model has group level parameters by checking if
 			% we have a 'groupLevel' subfield in the varList.
@@ -139,7 +139,7 @@ classdef Model < handle
 
 			% obj.plotFuncs.unseenParticipantPlot = @figGroupLevelWrapperME;
 			% obj.plotFuncs.figParticipantWrapperFunc = @figParticipantLevelWrapperME;
-			
+
 			if obj.isGroupLevelModel()
 				IDnames = obj.data.IDname;
 				% We are going to add on group level inferences to the end of the
@@ -151,9 +151,9 @@ classdef Model < handle
 			else
 				IDnames = obj.data.IDname;
 			end
-			
+
 			participantLevelVariables = obj.varList.participantLevel;
-			
+
 			% plot univariate summary statistics
 			obj.mcmc.figUnivariateSummary(IDnames, participantLevelVariables)
 			latex_fig(16, 5, 5)
@@ -161,7 +161,7 @@ classdef Model < handle
 
 
 			%% PARTICIPANT LEVEL =================================
-			
+
 			if obj.isGroupLevelModel()
 				participant_level_prior_variables = cellfun(...
 					@getPriorOfVariable,...
@@ -173,7 +173,7 @@ classdef Model < handle
 					obj.varList.participantLevel,...
 					'UniformOutput',false );
 			end
-			
+
 			obj.plotFuncs.figParticipantWrapperFunc(...
 				obj.mcmc,...
 				obj.data,...
@@ -197,7 +197,7 @@ classdef Model < handle
 				posteriorSamples = obj.mcmc.getSamplesAsMatrix(obj.varList.groupLevel);
 				priorSamples = obj.mcmc.getSamplesAsMatrix(group_level_prior_variables);
 				figure(87)
-				triPlotSamples(priorSamples, posteriorSamples, obj.varList.groupLevel, [])
+				triPlotSamples(posteriorSamples, obj.varList.groupLevel, 'PRIOR', priorSamples)
 				myExport(obj.saveFolder, obj.modelType, ['-GROUP-triplot'])
 
 				% GROUP (UNSEEN PARTICIPANT) PLOT
