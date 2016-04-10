@@ -37,7 +37,7 @@ for i=1:max(ic)
 	hold on
 end
 	
-xlabel('$D^B$', 'interpreter','Latex')
+xlabel('delay, $D^B$', 'interpreter','Latex')
 %ylabel('$|A|/|B|$', 'interpreter','Latex')
 
 xlim([0 opts.maxD*1.1])
