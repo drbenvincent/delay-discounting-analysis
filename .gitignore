@@ -7,3 +7,15 @@ demo/parameterEstimates_methodspaper-kirby27.txt
 demo/parameterEstimates_methodspaper-kirby27.txt
 
 demo/parameterEstimates_nonHierarchical.txt
+
+demo/temp.data.R
+
+demo/output-1.csv
+
+demo/output-2.csv
+
+*.hpp
+
+ddToolbox/models/hierarchicalME
+
+ddToolbox/models/hierarchicalLogK

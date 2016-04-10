@@ -18,10 +18,12 @@ Go to the [wiki](https://github.com/drbenvincent/delay-discounting-analysis/wiki
 # Key features:
 
 * Know how confident you are in delay discounting parameters from the posterior distributions calculated.
+* Easily interpretable results due to using the 1-parameter hyperbolic discount function.
 * Improved accuracy of delay discounting parameter estimates using hierarchical Bayesian estimation. Trial-level responses, and participant- and group-level parameters are all modelled.
-* Easily interpretable results due to using the 1-parameter hyperbolic discount function
-* Richer results as we model the magnitude effect (how discount rate varies as a function of reward magnitude).
-* More robust discounting parameter estimates due to explicitly modelling participant errors.
+* A variety of models are provided to:
+  * Estimate discount rates, log(k).
+  * Estimate the magnitude effect; how discount rate varies as a function of reward magnitude.
+* Explicit modelling of participant errors provides more robust parameter estimates of discounting parameters.
 
 # Easy to use!
 The commands use to get your analysis up and running are quite quick and easy. Here is a minimum working example of the demo provided:
@@ -32,10 +34,10 @@ cd('/Users/benvincent/git-local/delay-discounting-analysis/demo')
 myData = DataClass('data');
 myData.loadDataFiles({'AC-kirby27-DAYS.txt','CS-kirby27-DAYS.txt','NA-kirby27-DAYS.txt','SB-kirby27-DAYS.txt','bv-kirby27.txt','rm-kirby27.txt','vs-kirby27.txt','BL-kirby27.txt','EP-kirby27.txt','JR-kirby27.txt','KA-kirby27.txt','LJ-kirby27.txt','LY-kirby27.txt','SK-kirby27.txt','VD-kirby27.txt'});
 saveFolder = 'methodspaper-kirby27';
-hModel = ModelHierarchical(toolboxPath, 'JAGS', myData, saveFolder);
-hModel.conductInference();
-hModel.exportParameterEstimates();
-hModel.plot();
+model = ModelHierarchicalME(toolboxPath, 'JAGS', myData, saveFolder);
+model.conductInference();
+model.exportParameterEstimates();
+model.plot();
 ```
 # Get in touch
 Please use the [GitHub Issues](https://github.com/drbenvincent/delay-discounting-analysis/issues) feature to ask question, report a bug, or request a feature. You'll need a GitHub account to do this, which isn't very hard to set up. But you could always email me instead.

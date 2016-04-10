@@ -1,4 +1,4 @@
-function [posteriorMode,lh] = calculateLogK_ConditionOnReward(reward, params, plotFlag)
+function [posteriorMean,lh] = calculateLogK_ConditionOnReward(reward, params, plotFlag)
 	lh=[];
 	% -----------------------------------------------------------
 	% log(k) = m * log(B) + c
@@ -20,8 +20,8 @@ function [posteriorMode,lh] = calculateLogK_ConditionOnReward(reward, params, pl
 	% Calculate kernel density estimate
 	[f,xi] = ksdensity(logKsamples, 'function', 'pdf');
 
-	% Calculate posterior mode
-	posteriorMode = xi( argmax(f) );
+	%posteriorMode = xi( argmax(f) );
+	posteriorMean = mean(logKsamples);
 
 	if plotFlag
 		figure(1)

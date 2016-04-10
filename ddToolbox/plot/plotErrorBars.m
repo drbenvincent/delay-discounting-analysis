@@ -1,4 +1,4 @@
-function plotErrorBar(xLabels, modeVal, ci, ylabelText)
+function plotErrorBars(xLabels, modeVal, ci, ylabelText)
 % plots a single forest plot
 N = numel(xLabels);
 hold on

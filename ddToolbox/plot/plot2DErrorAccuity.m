@@ -3,10 +3,7 @@ function [structName] = plot2DErrorAccuity(epsilon, alpha, epsilon_mean, alpha_m
 epsilon=epsilon(:);
 alpha=alpha(:);
 
-xrange = [min(epsilon) max(epsilon)];
-yrange = [min(alpha) max(alpha)];
-
-[structName] = calcBivariateSummaryStats(epsilon,alpha, 500, 500, xrange, yrange);
+[structName] = calcBivariateSummaryStats(epsilon,alpha, 500, 500, 'kde2d');
 
 % plot
 imagesc(structName.xi*100, structName.yi, structName.density);
