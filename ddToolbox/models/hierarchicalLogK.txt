@@ -3,7 +3,7 @@ model{
   # --------------------------------------------------------------------------
   # Group-level hyperpriors
 
-  groupLogKmu       ~ dnorm(-0.243,1/1000)
+  groupLogKmu       ~ dnorm(-0.243,1/100)
   groupLogKsigma    ~ dunif(0,100)
 
   # comparison acuity (alpha)
