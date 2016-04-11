@@ -17,6 +17,6 @@ HT_BayesFactor(priorSamples, posteriorSamples)
 
 %% METHOD 2 - examine credible interval
 subplot(1,2,2)
-plotPosteriorHDI(priorSamples, posteriorSamples)
+UnivariateDistribution(posteriorSamples, 'priorSamples', priorSamples );
 
 end

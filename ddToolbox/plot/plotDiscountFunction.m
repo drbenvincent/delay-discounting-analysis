@@ -1,5 +1,7 @@
 function plotDiscountFunction(logK, logKsamples, varargin)
 
+% TODO clean up this function
+
 p = inputParser;
 p.FunctionName = mfilename;
 p.addRequired('logK',@isscalar);

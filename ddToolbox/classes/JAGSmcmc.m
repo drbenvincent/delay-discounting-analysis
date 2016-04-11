@@ -153,7 +153,7 @@ classdef JAGSmcmc < mcmcContainer
 			function intPlotDistribution(samples, row, rows)
 				% select the right subplot
 				hHist = subplot(rows,6,row*6);
-				plotMCMCdist(samples,[]);
+				UnivariateDistribution(samples(:));
 			end
 
 		end

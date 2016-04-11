@@ -1,4 +1,4 @@
-function figParticipantLevelWrapperLOGK(mcmc, data, variables, participant_prior_variables, saveFolder, modelType)
+function figParticipantLevelWrapperLOGK(mcmc, data, variables, participant_prior_variables, saveFolder, modelType, opts)
   % For each participant, call some plotting functions on the variables provided.
 
   logkMEAN = mcmc.getStats('mean', 'logk');
