@@ -3,7 +3,9 @@ rows=1; cols=4;
 
 % BIVARIATE PLOT: lapse rate & comparison accuity
 subplot(rows, cols, 1)
-plot2DErrorAccuity(pSamples.epsilon(:), pSamples.alpha(:), epsilonMEAN, alphaMEAN);
+plotBivariateDensity(pSamples.epsilon(:), pSamples.alpha(:),...
+	'xLabel','error rate, $\epsilon$',...
+	'ylabel','comparison accuity, $\alpha$')
 
 % PSYCHOMETRIC FUNCTION (using my posterior-prediction-plot-matlab GitHub repository)
 subplot(rows, cols, 2)

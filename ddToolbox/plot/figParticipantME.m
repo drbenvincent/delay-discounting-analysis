@@ -3,7 +3,9 @@ function figParticipantME(pSamples, pData, mMEAN, cMEAN, epsilonMEAN, alphaMEAN,
 
   % BIVARIATE PLOT: lapse rate & comparison accuity
   subplot(rows, cols, 1)
-  plot2DErrorAccuity(pSamples.epsilon(:), pSamples.alpha(:), epsilonMEAN, alphaMEAN);
+  plotBivariateDensity(pSamples.epsilon(:), pSamples.alpha(:),...
+  	'xLabel','error rate, $\epsilon$',...
+  	'ylabel','comparison accuity, $\alpha$')
 
   % PSYCHOMETRIC FUNCTION (using my posterior-prediction-plot-matlab GitHub repository)
   subplot(rows, cols, 2)
@@ -11,7 +13,9 @@ function figParticipantME(pSamples, pData, mMEAN, cMEAN, epsilonMEAN, alphaMEAN,
 
   % M/C bivariate plot
   subplot(rows, cols, 3)
-  plot2Dmc(pSamples.m(:), pSamples.c(:), mMEAN, cMEAN);
+  plotBivariateDensity(pSamples.m(:), pSamples.c(:),...
+  	'xLabel','slope, $m$',...
+  	'ylabel','intercept, $c$')
 
   % PLOT magnitude effect
   subplot(rows, cols, 4)
