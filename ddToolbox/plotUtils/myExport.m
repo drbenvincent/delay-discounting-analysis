@@ -6,21 +6,12 @@ p.addParameter('prefix',[],@isstr);
 p.addParameter('suffix',[],@isstr);
 p.addParameter('saveFolder','',@isstr);
 p.addParameter('formats',{'png'},@iscellstr);
-
-
 p.parse(saveName, varargin{:});
 			
 %% saveAs
 saveFileName = [p.Results.prefix '-' p.Results.saveName p.Results.suffix];
-
 saveAs = fullfile('figs', p.Results.saveFolder, saveFileName);
-
-%saveAs = fullfile(saveLocation, saveFileName);
-
-ensureFolderExists(p.Results.saveFolder)
-
-
-
+ensureFolderExists(fullfile('figs', p.Results.saveFolder))
 
 %% do the exporting
 % set background as white
