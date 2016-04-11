@@ -7,27 +7,18 @@ BivariateDistribution(pSamples.epsilon(:), pSamples.alpha(:),...
 	'ylabel','comparison accuity, $\alpha$');
 
 subplot(rows, cols, 2)
-plotPsychometricFunc(pSamples, [epsilonMEAN, alphaMEAN])
+plotPsychometricFunc(pSamples, [epsilonMEAN, alphaMEAN]);
 
 subplot(rows, cols, 3)
 UnivariateDistribution(pSamples.logk(:),...
  'killYAxis', true,...
- 'xLabel', '$\log(k)$')
+ 'xLabel', '$\log(k)$');
 
-
-
-
-
-
-
-
-
-% TODO: COMBINE THESE FUNCTIONS INTO A CLASS?
 % Plot in 2D data space
 subplot(rows, cols, 4)
 if ~isempty(pData)
-	% participant level
-	plot2DdataSpace(pData, logkMEAN, pSamples.logk(:))
+	% participant level, we have data
+	plotDiscountFunction(logkMEAN, pSamples.logk(:),'data',pData);
 else
 	% for group level where there is no data
 	plotDiscountFunction(logkMEAN, pSamples.logk(:));

@@ -7,7 +7,7 @@ function figParticipantME(pSamples, pData, mMEAN, cMEAN, epsilonMEAN, alphaMEAN,
   	'ylabel','comparison accuity, $\alpha$');
 
   subplot(rows, cols, 2)
-  plotPsychometricFunc(pSamples, [epsilonMEAN, alphaMEAN])
+  plotPsychometricFunc(pSamples, [epsilonMEAN, alphaMEAN]);
 
   subplot(rows, cols, 3)
   BivariateDistribution(pSamples.m(:), pSamples.c(:),...
@@ -15,7 +15,7 @@ function figParticipantME(pSamples, pData, mMEAN, cMEAN, epsilonMEAN, alphaMEAN,
   	'ylabel','intercept, $c$');
 
   subplot(rows, cols, 4)
-  plotMagnitudeEffect(pSamples, [mMEAN, cMEAN])
+  plotMagnitudeEffect(pSamples, [mMEAN, cMEAN]);
 
 
 
@@ -23,7 +23,7 @@ function figParticipantME(pSamples, pData, mMEAN, cMEAN, epsilonMEAN, alphaMEAN,
   % Plot in 3D data space
   subplot(rows, cols, 5)
   if ~isempty(pData)
-    plot3DdataSpace(pData, [mMEAN, cMEAN])
+    plot3DdataSpace(pData, [mMEAN, cMEAN]);
   else
 %     opts.maxlogB	= max(abs(obj.data.observedData.B(:)));
 %     opts.maxD		= max(obj.data.observedData.DB(:));
