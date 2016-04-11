@@ -14,7 +14,9 @@ function figParticipantLevelWrapperLOGK(mcmc, data, variables, participant_prior
     [pData] = data.getParticipantData(n);
     figParticipantLOGK(pSamples, pData, logkMEAN(n), epsilonMEAN(n), alphaMEAN(n))
     latex_fig(16, 18, 4)
-    myExport(saveFolder, modelType, ['-' data.IDname{n}])
+		myExport(data.IDname{n},...
+			'saveFolder', saveFolder,...
+			'prefix', modelType)
     close(fh)
 
     % 2) Triplot
@@ -24,6 +26,8 @@ function figParticipantLevelWrapperLOGK(mcmc, data, variables, participant_prior
 		figure(87)
 		triPlotSamples(posteriorSamples, variables, 'PRIOR', priorSamples)
 
-		myExport(saveFolder, modelType, ['-' data.IDname{n} '-triplot'])
+		myExport([data.IDname{n} '-triplot'],...
+			'saveFolder', saveFolder,...
+			'prefix', modelType)
   end
 end

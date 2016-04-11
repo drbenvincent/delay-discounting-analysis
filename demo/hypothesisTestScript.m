@@ -19,6 +19,4 @@ HT_BayesFactor(priorSamples, posteriorSamples)
 subplot(1,2,2)
 plotPosteriorHDI(priorSamples, posteriorSamples)
 
-%%
-myExport(modelObject.saveFolder, [], '-BayesFactorMLT1')
 end

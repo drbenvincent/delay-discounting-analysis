@@ -21,7 +21,10 @@ function figParticipantLevelWrapperME(mcmc, data, variables,...
       mMEAN(n), cMEAN(n), epsilonMEAN(n), alphaMEAN(n))
 
     latex_fig(16, 18, 4)
-    myExport(saveFolder, modelType, ['-' data.IDname{n}])
+		myExport(data.IDname{n},...
+				'saveFolder',saveFolder,...
+				'prefix', modelType)
+			
     close(fh)
 
     % 2) Triplot
@@ -31,7 +34,9 @@ function figParticipantLevelWrapperME(mcmc, data, variables,...
 		figure(87)
 		triPlotSamples(posteriorSamples, variables, ...
 			'PRIOR',priorSamples)
-
-    myExport(saveFolder, modelType, ['-' data.IDname{n} '-triplot'])
-  end
+		
+		myExport([data.IDname{n} '-triplot'],...
+			'saveFolder', saveFolder,...
+			'prefix', modelType)
+	end
 end

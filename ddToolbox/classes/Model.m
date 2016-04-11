@@ -157,7 +157,9 @@ classdef Model < handle
 			% plot univariate summary statistics
 			obj.mcmc.figUnivariateSummary(IDnames, participantLevelVariables)
 			latex_fig(16, 5, 5)
-			myExport(obj.saveFolder, obj.modelType, '-UnivariateSummary')
+			myExport('UnivariateSummary',...
+				'saveFolder',obj.saveFolder,...
+				'prefix', obj.modelType)
 
 
 			%% PARTICIPANT LEVEL =================================
@@ -191,14 +193,18 @@ classdef Model < handle
 
 				% PSYCHOMETRIC PARAMS
 				figPsychometricParamsHierarchical(obj.mcmc, obj.data)
-				myExport(obj.saveFolder, obj.modelType, '-PsychometricParams')
-
+				myExport('PsychometricParams',...
+					'saveFolder', obj.saveFolder,...
+					'prefix', obj.modelType)
+		
 				% TRIPLOT
 				posteriorSamples = obj.mcmc.getSamplesAsMatrix(obj.varList.groupLevel);
 				priorSamples = obj.mcmc.getSamplesAsMatrix(group_level_prior_variables);
 				figure(87)
 				triPlotSamples(posteriorSamples, obj.varList.groupLevel, 'PRIOR', priorSamples)
-				myExport(obj.saveFolder, obj.modelType, ['-GROUP-triplot'])
+				myExport('GROUP-triplot',...
+					'saveFolder', obj.saveFolder,...
+					'prefix', obj.modelType)
 
 				% GROUP (UNSEEN PARTICIPANT) PLOT
 				obj.plotFuncs.unseenParticipantPlot(...
@@ -207,6 +213,11 @@ classdef Model < handle
 					obj.varList.groupLevel,...
 					obj.saveFolder,...
 					obj.modelType)
+				
+				myExport('GROUP',...
+					'saveFolder', obj.saveFolder,...
+					'prefix', obj.modelType)
+				
 			else
 				% this model does not have group level params... don't do anything
 			end

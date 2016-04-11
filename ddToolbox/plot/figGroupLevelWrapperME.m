@@ -26,7 +26,10 @@ function figGroupLevelWrapperME(mcmc, data, variables, saveFolder, modelType)
   figParticipantME(pSamples, pData, mMEAN, cMEAN, epsilonMEAN, alphaMEAN, opts)
 
   % EXPORTING ---------------------
-  latex_fig(16, 18, 4)
-  myExport(saveFolder, modelType, '-GROUP')
+%   latex_fig(16, 18, 4)
+%   myExport('GROUP',...
+% 					'saveFolder', obj.saveFolder,...
+% 					'prefix', obj.modelType)
+	
   % -------------------------------
 end

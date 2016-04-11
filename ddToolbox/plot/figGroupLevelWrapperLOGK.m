@@ -22,6 +22,8 @@ function figGroupLevelWrapperLOGK(mcmc, data, variables, saveFolder, modelType)
 
   % EXPORTING ---------------------
   latex_fig(16, 18, 4)
-  myExport(saveFolder, modelType, '-GROUP')
+	myExport('GROUP',...
+		'saveFolder', saveFolder,...
+		'prefix', modelType)
   % -------------------------------
 end

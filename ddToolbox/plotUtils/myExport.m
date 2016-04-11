@@ -1,16 +1,33 @@
-function myExport(saveName, prefix, suffix)
+function myExport(saveName, varargin)
+p = inputParser;
+p.FunctionName = mfilename;
+p.addRequired('saveName',@isstr);
+p.addParameter('prefix',[],@isstr);
+p.addParameter('suffix',[],@isstr);
+p.addParameter('saveFolder','',@isstr);
+p.addParameter('formats',{'png'},@iscellstr);
 
+
+p.parse(saveName, varargin{:});
+			
+%% saveAs
+saveFileName = [p.Results.prefix '-' p.Results.saveName p.Results.suffix];
+
+saveAs = fullfile('figs', p.Results.saveFolder, saveFileName);
+
+%saveAs = fullfile(saveLocation, saveFileName);
+
+ensureFolderExists(p.Results.saveFolder)
+
+
+
+
+%% do the exporting
 % set background as white
 set(gcf,'Color','w');
 
-% As it stands, we are going to save the current figure in relative
-% location:
-% /figs/{saveName}
-saveLocation = fullfile('figs',saveName);
-if ~exist(saveLocation, 'dir'), mkdir(saveLocation); end
+% TODO: export in all formats defined in 'formats'
 
-saveFileName = [prefix '-' saveName suffix];
-saveAs = fullfile(saveLocation, saveFileName);
 % % .pdf
 % print('-opengl','-dpdf','-r2400', [saveAs '.pdf'])
 % .png
@@ -18,7 +35,7 @@ export_fig(saveAs,'-png','-m4')
 % .fig
 %hgsave(saveAs)
 
-% finish up
+%% finish up
 fprintf('Figure saved: %s\n\n', saveAs);
 
 return
