@@ -70,7 +70,12 @@ classdef triPlotSamples < handle
 					elseif col == row
 						obj.drawHist(row, col)
 					else
-						obj.drawBivariateDensity(row, col)
+						%obj.drawBivariateDensity(row, col)
+
+						obj.ax(row,col) = subplot(obj.ROWS, obj.COLS, sub2ind([obj.COLS obj.ROWS], col, row) );
+						BivariateDistribution(...
+							obj.POSTERIOR(:,col),...
+							obj.POSTERIOR(:,row))
 					end
 				end
 			end
@@ -103,26 +108,7 @@ classdef triPlotSamples < handle
 
 			obj.plotUnivariateTrueValue()
 		end
-
-
-		function drawBivariateDensity(obj, row, col)
-			% draw bivariate density of:
-			% col, on x-axis
-			% row, on y-axis
-			obj.ax(row,col) = subplot(obj.ROWS, obj.COLS, sub2ind([obj.COLS obj.ROWS], col, row) );
-
-			h = histogram2(obj.POSTERIOR(:,col), obj.POSTERIOR(:,row),...
-				'DisplayStyle','tile',...
-				'ShowEmptyBins','on',...
-				'EdgeColor','none');
-
-			axis xy
-			axis square
-			axis tight
-			colormap(flipud(gray))
-
-			obj.plotBivariateTrueValues()
-		end
+		
 
 		function addLabels(obj)
 			for row = 1:obj.ND

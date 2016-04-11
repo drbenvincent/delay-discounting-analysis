@@ -22,8 +22,8 @@ classdef BivariateDistribution < handle
 			p.FunctionName = mfilename;
 			p.addRequired('xSamples',@isvector);
 			p.addRequired('ySamples',@isvector);
-			p.addParameter('xLabel','x label here',@isstr);
-			p.addParameter('yLabel','y label here',@isstr);
+			p.addParameter('xLabel','',@isstr);
+			p.addParameter('yLabel','',@isstr);
 			p.addParameter('shouldPlot',true,@islogical);
 			p.addParameter('pointEstimateType','mean',@isstr); % TODO improve validation here
 			p.parse(xSamples, ySamples, varargin{:});
@@ -116,6 +116,16 @@ classdef BivariateDistribution < handle
 			axis square
 			hold on
 			box off
+
+			% alternative plot style...
+			% h = histogram2(obj.POSTERIOR(:,col), obj.POSTERIOR(:,row),...
+			% 		'DisplayStyle','tile',...
+			% 		'ShowEmptyBins','on',...
+			% 		'EdgeColor','none');
+			% 	axis xy
+			% 	axis square
+			% 	axis tight
+			% 	colormap(flipud(gray))
 
 
 % 			% TODO see if this works, rather than the code below
