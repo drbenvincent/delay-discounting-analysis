@@ -9,18 +9,18 @@ function figPsychometricParamsHierarchical(mcmc, data)
   %====================================
   subplot(3,2,1)
   UnivariateDistribution(mcmc.getSamplesAsMatrix({'alpha_group'}),...
-    'priorSamples', mcmc.getSamplesAsMatrix({'alpha_group_prior'}))
+    'priorSamples', mcmc.getSamplesAsMatrix({'alpha_group_prior'}));
   title('Group \alpha')
 
   subplot(3,4,5)
   UnivariateDistribution(mcmc.getSamplesAsMatrix({'groupALPHAmu'}),...
     'priorSamples', mcmc.getSamplesAsMatrix({'groupALPHAmu_prior'}),...
-    'xLabel','\mu_\alpha')
+    'xLabel','\mu_\alpha');
 
   subplot(3,4,6)
   UnivariateDistribution(mcmc.getSamplesAsMatrix({'groupALPHAsigma'}),...
     'priorSamples', mcmc.getSamplesAsMatrix({'groupALPHAsigma_prior'}),...
-    'xLabel','\sigma_\alpha')
+    'xLabel','\sigma_\alpha');
 
   subplot(3,2,5),
   for p=1:P-1 % plot participant level alpha (alpha(:,:,p))
@@ -37,18 +37,18 @@ function figPsychometricParamsHierarchical(mcmc, data)
   %====================================
   subplot(3,2,2)
   UnivariateDistribution(mcmc.getSamplesAsMatrix({'epsilon_group'}),...
-    'priorSamples', mcmc.getSamplesAsMatrix({'epsilon_group_prior'}))
+    'priorSamples', mcmc.getSamplesAsMatrix({'epsilon_group_prior'}));
   title('Group \epsilon')
 
   subplot(3,4,7),
   UnivariateDistribution(mcmc.getSamplesAsMatrix({'groupW'}),...
     'priorSamples', mcmc.getSamplesAsMatrix({'groupW_prior'}),...
-    'xLabel','\omega (mode)')
+    'xLabel','\omega (mode)');
 
   subplot(3,4,8)
   UnivariateDistribution(mcmc.getSamplesAsMatrix({'groupK'}),...
     'priorSamples', mcmc.getSamplesAsMatrix({'groupK_prior'}),...
-    'xLabel','\kappa (concentration)')
+    'xLabel','\kappa (concentration)');
 
   subplot(3,2,6),
   for p=1:P-1 % plot participant level alpha (alpha(:,:,p))

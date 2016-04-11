@@ -150,6 +150,8 @@ classdef UnivariateDistribution < handle
 				showHDI(obj.posteriorSamples)
 			end
 
+			set(gca,'Layer','top');
+			
 			% switch obj.pointEstimateType
 			% 	case{'mean'}
 			% 		plot(obj.mean(1), obj.mean(2), 'ro')

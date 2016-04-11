@@ -180,7 +180,7 @@ classdef Model < handle
 			opts.maxlogB	= max(abs(obj.data.observedData.B(:)));
 			opts.maxD		= max(obj.data.observedData.DB(:));
 			% ??????????????????
-	
+
 			obj.plotFuncs.figParticipantWrapperFunc(...
 				obj.mcmc,...
 				obj.data,...
@@ -202,12 +202,12 @@ classdef Model < handle
 				myExport('PsychometricParams',...
 					'saveFolder', obj.saveFolder,...
 					'prefix', obj.modelType)
-		
+
 				% TRIPLOT
 				posteriorSamples = obj.mcmc.getSamplesAsMatrix(obj.varList.groupLevel);
 				priorSamples = obj.mcmc.getSamplesAsMatrix(group_level_prior_variables);
 				figure(87)
-				TriPlotSamples(posteriorSamples, obj.varList.groupLevel, 'PRIOR', priorSamples)
+				TriPlotSamples(posteriorSamples, obj.varList.groupLevel, 'PRIOR', priorSamples);
 				myExport('GROUP-triplot',...
 					'saveFolder', obj.saveFolder,...
 					'prefix', obj.modelType)
@@ -219,11 +219,11 @@ classdef Model < handle
 					obj.varList.groupLevel,...
 					obj.saveFolder,...
 					obj.modelType)
-				
+
 				myExport('GROUP',...
 					'saveFolder', obj.saveFolder,...
 					'prefix', obj.modelType)
-				
+
 			else
 				% this model does not have group level params... don't do anything
 			end

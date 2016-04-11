@@ -72,8 +72,8 @@ classdef TriPlotSamples < handle
 						obj.ax(row,col) = subplot(obj.ROWS, obj.COLS, sub2ind([obj.COLS obj.ROWS], col, row) );
 
 						UnivariateDistribution(obj.POSTERIOR(:,col),...
-					    'priorSamples', obj.PRIOR(:,col))
-							
+					    'priorSamples', obj.PRIOR(:,col));
+
 					else
 						obj.ax(row,col) = subplot(obj.ROWS, obj.COLS, sub2ind([obj.COLS obj.ROWS], col, row) );
 

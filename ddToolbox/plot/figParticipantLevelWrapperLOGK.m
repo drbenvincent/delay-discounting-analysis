@@ -12,11 +12,11 @@ function figParticipantLevelWrapperLOGK(mcmc, data, variables, participant_prior
     % 1) figParticipant plot
     [pSamples] = mcmc.getSamplesAtIndex(n, variables);
     [pData] = data.getParticipantData(n);
-    figParticipantLOGK(pSamples, pData, logkMEAN(n), epsilonMEAN(n), alphaMEAN(n))
+    figParticipantLOGK(pSamples, pData, logkMEAN(n), epsilonMEAN(n), alphaMEAN(n));
     latex_fig(16, 18, 4)
 		myExport(data.IDname{n},...
 			'saveFolder', saveFolder,...
-			'prefix', modelType)
+			'prefix', modelType);
     close(fh)
 
     % 2) Triplot
@@ -24,10 +24,10 @@ function figParticipantLevelWrapperLOGK(mcmc, data, variables, participant_prior
     priorSamples = mcmc.getSamplesAsMatrix(participant_prior_variables);
 
 		figure(87)
-		TriPlotSamples(posteriorSamples, variables, 'PRIOR', priorSamples)
+		TriPlotSamples(posteriorSamples, variables, 'PRIOR', priorSamples);
 
 		myExport([data.IDname{n} '-triplot'],...
 			'saveFolder', saveFolder,...
-			'prefix', modelType)
+			'prefix', modelType);
   end
 end

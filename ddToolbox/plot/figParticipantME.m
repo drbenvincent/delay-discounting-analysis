@@ -21,10 +21,10 @@ function figParticipantME(pSamples, pData, mMEAN, cMEAN, epsilonMEAN, alphaMEAN,
   subplot(rows, cols, 5)
   if ~isempty(pData)
 		% participant, we have data
-		plotDiscountSurface([mMEAN cMEAN], opts, 'data', pData)
+		plotDiscountSurface([mMEAN cMEAN], opts, 'data', pData);
 	else
 		% no data for group level
-		plotDiscountSurface([mMEAN, cMEAN], opts)
+		plotDiscountSurface([mMEAN, cMEAN], opts);
   end
   % 			set(gca,'XTick',[10 100])
   % 			set(gca,'XTickLabel',[10 100])

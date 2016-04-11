@@ -18,7 +18,7 @@ function figGroupLevelWrapperLOGK(mcmc, data, variables, saveFolder, modelType)
   epsilonMEAN = mcmc.getStats('mean', 'epsilon_group');
   alphaMEAN = mcmc.getStats('mean', 'alpha_group');
 
-  figParticipantLOGK(pSamples, pData, logkMEAN, epsilonMEAN, alphaMEAN)
+  figParticipantLOGK(pSamples, pData, logkMEAN, epsilonMEAN, alphaMEAN);
 
   % EXPORTING ---------------------
   latex_fig(16, 18, 4)

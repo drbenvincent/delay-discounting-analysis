@@ -23,7 +23,7 @@ function figGroupLevelWrapperME(mcmc, data, variables, saveFolder, modelType)
   opts.maxlogB	= max(abs(data.observedData.B(:)));
   opts.maxD		= max(data.observedData.DB(:));
 
-  figParticipantME(pSamples, pData, mMEAN, cMEAN, epsilonMEAN, alphaMEAN, opts)
+  figParticipantME(pSamples, pData, mMEAN, cMEAN, epsilonMEAN, alphaMEAN, opts);
 
   % EXPORTING ---------------------
 %   latex_fig(16, 18, 4)
