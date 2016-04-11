@@ -201,7 +201,7 @@ classdef Model < handle
 				posteriorSamples = obj.mcmc.getSamplesAsMatrix(obj.varList.groupLevel);
 				priorSamples = obj.mcmc.getSamplesAsMatrix(group_level_prior_variables);
 				figure(87)
-				triPlotSamples(posteriorSamples, obj.varList.groupLevel, 'PRIOR', priorSamples)
+				TriPlotSamples(posteriorSamples, obj.varList.groupLevel, 'PRIOR', priorSamples)
 				myExport('GROUP-triplot',...
 					'saveFolder', obj.saveFolder,...
 					'prefix', obj.modelType)

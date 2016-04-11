@@ -4,16 +4,17 @@ rows=1; cols=4;
 subplot(rows, cols, 1)
 BivariateDistribution(pSamples.epsilon(:), pSamples.alpha(:),...
 	'xLabel','error rate, $\epsilon$',...
-	'ylabel','comparison accuity, $\alpha$')
+	'ylabel','comparison accuity, $\alpha$');
 
 subplot(rows, cols, 2)
 plotPsychometricFunc(pSamples, [epsilonMEAN, alphaMEAN])
 
 subplot(rows, cols, 3)
-plotPriorPostHist([], pSamples.logk(:));
-removeYaxis()
-axis square
-xlabel('$\log(k)$', 'interpreter', 'latex')
+UnivariateDistribution(pSamples.logk(:),...
+ 'killYAxis', true,...
+ 'xLabel', '$\log(k)$')
+
+
 
 
 

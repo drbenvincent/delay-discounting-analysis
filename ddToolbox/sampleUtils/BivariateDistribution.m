@@ -134,12 +134,14 @@ classdef BivariateDistribution < handle
 
 			switch obj.pointEstimateType
 				case{'mean'}
-					plot(obj.mean(1), obj.mean(2), 'ro')
+					h=plot(obj.mean(1), obj.mean(2), 'ro')
 				case{'median'}
-					plot(obj.median(1), obj.median(2), 'ro')
+					h=plot(obj.median(1), obj.median(2), 'ro')
 				case{'mode'}
-					plot(obj.mode(1), obj.mode(2), 'ro')
+					h=plot(obj.mode(1), obj.mode(2), 'ro')
 			end
+			h.MarkerFaceColor = [1 1 1];
+			h.MarkerEdgeColor = [0 0 0];
 
 		end
 

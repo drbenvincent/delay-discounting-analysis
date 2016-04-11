@@ -1,4 +1,4 @@
-classdef triPlotSamples < handle
+classdef TriPlotSamples < handle
 
 	properties
 		COLS
@@ -23,7 +23,7 @@ classdef triPlotSamples < handle
 
 	methods
 
-		function obj = triPlotSamples(POSTERIOR, labels, varargin)
+		function obj = TriPlotSamples(POSTERIOR, labels, varargin)
 			p = inputParser;
 			p.FunctionName = mfilename;
 			p.addRequired('POSTERIOR',@ismatrix);
@@ -68,20 +68,26 @@ classdef triPlotSamples < handle
 						% upper triangle is empty
 						break
 					elseif col == row
-						obj.drawHist(row, col)
-					else
-						%obj.drawBivariateDensity(row, col)
-
+						%obj.drawHist(row, col)
 						obj.ax(row,col) = subplot(obj.ROWS, obj.COLS, sub2ind([obj.COLS obj.ROWS], col, row) );
+
+						UnivariateDistribution(obj.POSTERIOR(:,col),...
+					    'priorSamples', obj.PRIOR(:,col))
+							
+					else
+						obj.ax(row,col) = subplot(obj.ROWS, obj.COLS, sub2ind([obj.COLS obj.ROWS], col, row) );
+
 						BivariateDistribution(...
 							obj.POSTERIOR(:,col),...
-							obj.POSTERIOR(:,row))
+							obj.POSTERIOR(:,row));
 					end
 				end
 			end
 		end
 
 		function drawHist(obj, row, col)
+			% TODO...
+			warning('Use existing prior/posterior plotting code here')
 			% draw histogram of dimension 'col'
 			obj.ax(row,col) = subplot(obj.ROWS, obj.COLS, sub2ind([obj.COLS obj.ROWS], col, row) );
 
@@ -108,7 +114,7 @@ classdef triPlotSamples < handle
 
 			obj.plotUnivariateTrueValue()
 		end
-		
+
 
 		function addLabels(obj)
 			for row = 1:obj.ND

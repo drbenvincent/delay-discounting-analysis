@@ -5,6 +5,8 @@ function [h,BayesFactor]=plotMCMCdist(posteriorSamples, kwargs)
 % Inpsired by diagrams in Kruschke (2015) Doing Bayesian Data Analysis
 % Written by: Bejamin Vincent, www.inferenceLab.com
 
+error('WHO IS CALLING ME?')
+
 hold off
 
 % Default options
@@ -62,16 +64,16 @@ end
 tempAllSamples = [posteriorSamples(:);opts.priorSamples(:)];
 
 if numel(opts.xi)==0 % xi not provided, so automatically compute it
-	
+
 	switch opts.xscale
 		case{'linear'}
 			opts.xi = linspace( min(tempAllSamples), max(tempAllSamples), opts.nbins);
 		case{'log'}
 			[~,opts.xi] = hist(log(tempAllSamples), opts.nbins);
 	end
-	
+
 elseif numel(opts.xi)==1 % number of bins provided, but compute xi vector
-	
+
 	switch opts.xscale
 		case{'linear'}
 			%opts.nbins = opts.xi;
@@ -79,7 +81,7 @@ elseif numel(opts.xi)==1 % number of bins provided, but compute xi vector
 		case{'log'}
 			[~,opts.xi] = hist(log(tempAllSamples), opts.nbins);
 	end
-	
+
 elseif numel(opts.xi)>1
 	% xi provided
 	opts.nbins = numel(opts.xi);
@@ -89,36 +91,36 @@ clear tempAllSamples
 
 %% PRIOR
 % plot the prior if samples of the prior are provided
-			
+
 % for plotting the prior, temporarily turn off the plot HDI flag
 			tempHDIflag = opts.plotPosteriorHDI;
 			opts.plotPosteriorHDI=false;
-			
+
 if opts.doPrior
 	switch opts.plotStyle
 		case{'histogram'}
 			% plot prior
 			hold off
 			hPrior=histogram(opts.priorSamples(:), opts.xi);
-			
+
 			% format prior
 			hPrior.FaceColor =opts.priorColor;
 			hPrior.FaceAlpha = opts.priorAlpha;
 			internalFormatHist(hPrior)
-			
-		case{'line'}		
+
+		case{'line'}
 			% do kernel density estimate
 			[hPrior, BFpriorDensity] = internalPlotDensity(opts.priorSamples(:), opts);
 			set(hPrior,'Color',opts.priorColor)
 			hPrior.LineStyle ='--';
-		
+
 		case{'lineFilled'}
 
 			[hPrior, BFpriorDensity] = internalPlotDensity(opts.priorSamples(:), opts);
 			%set(hPrior,'Color',opts.priorColor)
 			hPrior.LineStyle ='--';
 			hPrior.Color = opts.priorColor;
-			
+
 	end
 	hold on
 end
@@ -132,17 +134,17 @@ opts.plotPosteriorHDI=tempHDIflag;
 switch opts.plotStyle
 	case{'histogram'}
 		hPost=histogram(posteriorSamples(:), opts.xi);
-		
+
 		% format posterior
 		hPost.FaceColor=opts.postColor;
 		hPost.FaceAlpha = opts.postAlpha;
 		internalFormatHist(hPost)
-		
+
 	case{'line'}
 		% plot line and HDI as a line
 		[hPost, BFpostDensity] = internalPlotDensity(posteriorSamples(:), opts);
 		set(hPost,'Color',opts.postColor)
-		
+
 	case{'lineFilled'}
 		% plot line and HDI as a filled region
 		[hPost, BFpostDensity] = internalPlotDensity(posteriorSamples(:), opts);
@@ -206,25 +208,25 @@ end
 if numel(opts.bayesFactorXvalue) > 0 ...
 		&& exist('BFpriorDensity')...
 		&& exist('BFpostDensity')
-	
+
 	BayesFactor = BFpostDensity / BFpriorDensity;
-	
+
 	%txt=sprintf('Bayes Factor = %3.2f', BayesFactor);
 	%addTextToFigure('TL',txt,16)
-	
+
 	% plot arrow
 	x = [opts.bayesFactorXvalue opts.bayesFactorXvalue];
 	y = [BFpriorDensity BFpostDensity];
 	myarrow(x,y)
-	
+
 	% add "x BF"
 	bf=sprintf('%3.2f', BayesFactor);
 	t=text(opts.bayesFactorXvalue,mean(y),'temp',...
 		'Interpreter','latex',...
 		'BackgroundColor','w');
-	
+
 	t.String=[' $$ \times $$' bf];
-	
+
 end
 
 return
@@ -306,10 +308,10 @@ return
 % % Y = prctile(samples(:),[5 95]);
 % a = axis; top = a(4); k=0.03;
 % %plot(HDI,[top*k top*k],'k-', 'LineWidth',2);
-% 
+%
 % where = x>0 & x<pi/2;
 % h = fill_between(x,y1,y2, where, opts);
-% 
+%
 % % Add numbers to the CI
 % lower = sprintf('%.4f',HDI(1));
 % upper = sprintf('%.4f',HDI(2));
@@ -358,7 +360,7 @@ function [h, density] = internalPlotDensity(samples, opts)
 %% KERNEL DENSITY ESTIMATION
 density=[];
 if numel(opts.bayesFactorXvalue)>0
-	% ensure the exact x-axis value we want for the Bayes factor is 
+	% ensure the exact x-axis value we want for the Bayes factor is
 	% included in xi
 	if sum(opts.xi==opts.bayesFactorXvalue)==0
 		opts.xi=[opts.xi opts.bayesFactorXvalue];
@@ -395,7 +397,7 @@ switch opts.plotStyle
 	case{'line'}
 		% plot just a line for the distribution, but also HDI interval as a
 		% line
-		
+
 		switch opts.xscale
 			case{'log'}
 				h = semilogx(exp(opts.xi),f);
@@ -403,12 +405,12 @@ switch opts.plotStyle
 				h = plot(opts.xi,f);
 		end
 
-	
+
 	case{'lineFilled'}
 		if opts.plotPosteriorHDI
 			% plot distribution as a line, but fill the HDI interval with color
 			[HDI] = HDIofSamples(samples(:), 0.95);
-			
+
 			% Use my fill_between function
 			where = opts.xi>HDI(1) & opts.xi<HDI(2);
 			y1 = f;
@@ -425,7 +427,7 @@ switch opts.plotStyle
 				end
 				%[y1handle, y2handle, h] = fill_between(opts.xi, y1, y2, where);
 			end
-			
+
 			h.EdgeColor='none';
 			h.FaceColor=[0.8 0.8 0.8];
 		else
@@ -449,7 +451,7 @@ set(gcf,'Units','normalized')
 set(gca,'Units','normalized')
 ax = axis;
 ap = get(gca,'Position');
-%% annotation 
+%% annotation
 % xo = [opts.bayesFactorXvalue opts.bayesFactorXvalue];
 % yo = [BFpriorDensity BFpostDensity];
 xp = (xo-ax(1))/(ax(2)-ax(1))*ap(3)+ap(1);

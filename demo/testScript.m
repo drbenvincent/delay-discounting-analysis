@@ -52,12 +52,12 @@ h_me.plotMCMCchains({'m_group','c_group', 'alpha_group', 'epsilon_group'})
 
 
 %% JAGS - updated
-h_me = ModelHierarchicalMEUpdated(toolboxPath, 'JAGS', myData, 'hierarchical_ME_updated');
-h_me.sampler.setMCMCtotalSamples(nSamples);
-h_me.sampler.setMCMCnumberOfChains(2);
-h_me.conductInference(); % TODO: Could return an MCMCFit object here ******
-h_me.exportParameterEstimates();
-h_me.plot()
+h_me_updated = ModelHierarchicalMEUpdated(toolboxPath, 'JAGS', myData, 'hierarchical_ME_updated');
+h_me_updated.sampler.setMCMCtotalSamples(nSamples);
+h_me_updated.sampler.setMCMCnumberOfChains(2);
+h_me_updated.conductInference(); % TODO: Could return an MCMCFit object here ******
+h_me_updated.exportParameterEstimates();
+h_me_updated.plot()
 
 
 %% JAGS
@@ -85,6 +85,18 @@ s_logk.sampler.setMCMCnumberOfChains(nChains);
 s_logk.conductInference();
 s_logk.exportParameterEstimates();
 s_logk.plot()
+
+
+
+%% test all plot functions, without re-running fit
+h_me.plot()
+h_me_updated.plot()
+h_logk.plot()
+s_me.plot()
+s_logk.plot()
+
+
+
 
 
 
