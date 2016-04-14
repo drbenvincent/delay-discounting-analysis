@@ -1,27 +1,38 @@
-function figParticipantLOGK(pSamples, pData, logkMEAN, epsilonMEAN, alphaMEAN)
+function figParticipantLOGK(logkSamples, epsilonSamples, alphaSamples, pointEstimate, varargin)
+
+p = inputParser;
+p.FunctionName = mfilename;
+p.addRequired('epsilonSamples',@isvector);
+p.addRequired('alphaSamples',@isvector);
+p.addRequired('logkSamples',@isvector);
+p.addRequired('pointEstimate',@isstruct);
+p.addParameter('pData',[], @isstruct);
+p.parse(epsilonSamples, alphaSamples, logkSamples, pointEstimate, varargin{:});
+
 rows=1; cols=4;
 
 subplot(rows, cols, 1)
-BivariateDistribution(pSamples.epsilon(:), pSamples.alpha(:),...
+BivariateDistribution(epsilonSamples(:), alphaSamples(:),...
 	'xLabel','error rate, $\epsilon$',...
 	'ylabel','comparison accuity, $\alpha$');
 
 subplot(rows, cols, 2)
-plotPsychometricFunc(pSamples, [epsilonMEAN, alphaMEAN]);
+plotPsychometricFunc(epsilonSamples, alphaSamples,...
+	[pointEstimate.epsilon, pointEstimate.alpha]);
 
 subplot(rows, cols, 3)
-UnivariateDistribution(pSamples.logk(:),...
+UnivariateDistribution(logkSamples(:),...
  'killYAxis', true,...
  'xLabel', '$\log(k)$');
 
 % Plot in 2D data space
 subplot(rows, cols, 4)
-if ~isempty(pData)
+if ~isempty(p.Results.pData)
 	% participant level, we have data
-	plotDiscountFunction(logkMEAN, pSamples.logk(:),'data',pData);
+	plotDiscountFunction(pointEstimate.logk, logkSamples(:), 'data',p.Results.pData);
 else
 	% for group level where there is no data
-	plotDiscountFunction(logkMEAN, pSamples.logk(:));
+	plotDiscountFunction(pointEstimate.logk, logkSamples(:));
 end
 
 end

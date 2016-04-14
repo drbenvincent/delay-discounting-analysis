@@ -1,4 +1,4 @@
-function plotPsychometricFunc(samples, modeVals)
+function plotPsychometricFunc(epsilonSamples, alphaSamples, modeVals)
 % This is the Psychometric function ---------------------------------------
 %fh = @(x,params) params(:,1) + (1-2*params(:,1)) * normcdf( (x ./ params(:,2)) , 0, 1);
 %fh = @FAST_PSYCHOMETRIC;
@@ -14,8 +14,8 @@ fh = @(x,params) bsxfun(@plus,...
 % Determine the x range to plot over
 x=linspace(-200,200,200);
 
-params(:,1) = samples.epsilon(:);
-params(:,2) = samples.alpha(:);
+params(:,1) = epsilonSamples(:);
+params(:,2) = alphaSamples(:);
 
 % Create myplot object (class = PosteriorPredictionPlot)
 myplot = PosteriorPredictionPlot(fh, x, params);

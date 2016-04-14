@@ -1,9 +1,9 @@
 function figParticipantLevelWrapperLOGK(mcmc, data, variables, participant_prior_variables, saveFolder, modelType, opts)
   % For each participant, call some plotting functions on the variables provided.
 
-  logkMEAN = mcmc.getStats('mean', 'logk');
-  epsilonMEAN = mcmc.getStats('mean', 'epsilon');
-  alphaMEAN = mcmc.getStats('mean', 'alpha');
+  logkPointEstimates = mcmc.getStats('mean', 'logk');
+  epsilonPointEstimates = mcmc.getStats('mean', 'epsilon');
+  alphaPointEstimates = mcmc.getStats('mean', 'alpha');
 
   for n = 1:data.nParticipants
     fh = figure;
@@ -11,8 +11,15 @@ function figParticipantLevelWrapperLOGK(mcmc, data, variables, participant_prior
 
     % 1) figParticipant plot
     [pSamples] = mcmc.getSamplesAtIndex(n, variables);
-    [pData] = data.getParticipantData(n);
-    figParticipantLOGK(pSamples, pData, logkMEAN(n), epsilonMEAN(n), alphaMEAN(n));
+		[pData] = data.getParticipantData(n);
+
+		pointEstimate.logk = logkPointEstimates(n);
+		pointEstimate.epsilon = epsilonPointEstimates(n);
+		pointEstimate.alpha = alphaPointEstimates(n);
+
+		figParticipantLOGK(pSamples.('logk'), pSamples.('epsilon'), pSamples.('alpha'),...
+			pointEstimate, 'pData', pData);
+
     latex_fig(16, 18, 4)
 		myExport(data.IDname{n},...
 			'saveFolder', saveFolder,...
