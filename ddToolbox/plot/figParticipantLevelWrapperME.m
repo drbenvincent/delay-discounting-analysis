@@ -2,10 +2,10 @@ function figParticipantLevelWrapperME(mcmc, data, variables,...
 	participant_prior_variables, saveFolder, modelType, opts)
   % For each participant, call some plotting functions on the variables provided.
 
-  mMEAN = mcmc.getStats('mean', 'm');
-  cMEAN = mcmc.getStats('mean', 'c');
-  epsilonMEAN = mcmc.getStats('mean', 'epsilon');
-  alphaMEAN = mcmc.getStats('mean', 'alpha');
+  mPointEstimates = mcmc.getStats('mean', 'm');
+  cPointEstimates = mcmc.getStats('mean', 'c');
+  epsilonPointEstimates = mcmc.getStats('mean', 'epsilon');
+  alphaPointEstimates = mcmc.getStats('mean', 'alpha');
 
   for n = 1:data.nParticipants
     fh = figure;
@@ -15,11 +15,14 @@ function figParticipantLevelWrapperME(mcmc, data, variables,...
     [pSamples] = mcmc.getSamplesAtIndex(n, variables);
     [pData] = data.getParticipantData(n);
 
-    figParticipantME(...
-      mcmc.getSamplesAtIndex(n, variables),...
-      data.getParticipantData(n),...
-      mMEAN(n), cMEAN(n), epsilonMEAN(n), alphaMEAN(n),...
-			opts);
+		pointEstimate.m = mPointEstimates(n);
+		pointEstimate.c = cPointEstimates(n);
+		pointEstimate.epsilon = epsilonPointEstimates(n);
+		pointEstimate.alpha = alphaPointEstimates(n);
+		
+    figParticipantME(pSamples, pointEstimate,...
+			'pData', pData,...
+			'opts',opts);
 
     latex_fig(16, 18, 4)
 		myExport(data.IDname{n},...

@@ -13,12 +13,12 @@ function figParticipantLevelWrapperLOGK(mcmc, data, variables, participant_prior
     [pSamples] = mcmc.getSamplesAtIndex(n, variables);
 		[pData] = data.getParticipantData(n);
 
+    % TODO: make into a get method of mcmc?
 		pointEstimate.logk = logkPointEstimates(n);
 		pointEstimate.epsilon = epsilonPointEstimates(n);
 		pointEstimate.alpha = alphaPointEstimates(n);
 
-		figParticipantLOGK(pSamples.('logk'), pSamples.('epsilon'), pSamples.('alpha'),...
-			pointEstimate, 'pData', pData);
+		figParticipantLOGK(pSamples, pointEstimate, 'pData', pData);
 
     latex_fig(16, 18, 4)
 		myExport(data.IDname{n},...

@@ -1,35 +1,22 @@
-function figGroupLevelWrapperME(mcmc, data, variables, saveFolder, modelType)
-  % get group level parameters in a form ready to pass off to
-  % figParticipant()
+function figGroupLevelWrapperME(pSamples, pointEstimate, saveFolder, modelType)
 
-  % Get group-level data
-  [pSamples] = mcmc.getSamples(variables);
-  % rename fields
-  [pSamples.('m')] = pSamples.('m_group'); pSamples = rmfield(pSamples,'m_group');
-  [pSamples.('c')] = pSamples.('c_group'); pSamples = rmfield(pSamples,'c_group');
-  [pSamples.('epsilon')] = pSamples.('epsilon_group'); pSamples = rmfield(pSamples,'epsilon_group');
-  [pSamples.('alpha')] = pSamples.('alpha_group'); pSamples = rmfield(pSamples,'alpha_group');
+figure(99), clf
+set(gcf,'Name','GROUP LEVEL')
 
-  pData = []; % no data for group level
+% TODO: Fix
+%   opts.maxlogB	= max(abs(data.observedData.B(:)));
+%   opts.maxD		= max(data.observedData.DB(:));
+opts.maxlogB	= 1000;
+opts.maxD		= 365*5;
 
-  figure(99), clf
-  set(gcf,'Name','GROUP LEVEL')
+figParticipantME(pSamples, pointEstimate,...
+	'opts', opts);
 
-  mMEAN = mcmc.getStats('mean', 'm_group');
-  cMEAN = mcmc.getStats('mean', 'c_group');
-  epsilonMEAN = mcmc.getStats('mean', 'epsilon_group');
-  alphaMEAN = mcmc.getStats('mean', 'alpha_group');
+% EXPORTING ---------------------
+latex_fig(16, 18, 4)
+myExport('GROUP',...
+	'saveFolder', saveFolder,...
+	'prefix', modelType)
 
-  opts.maxlogB	= max(abs(data.observedData.B(:)));
-  opts.maxD		= max(data.observedData.DB(:));
-
-  figParticipantME(pSamples, pData, mMEAN, cMEAN, epsilonMEAN, alphaMEAN, opts);
-
-  % EXPORTING ---------------------
-  latex_fig(16, 18, 4)
-  myExport('GROUP',...
-					'saveFolder', obj.saveFolder,...
-					'prefix', obj.modelType)
-
-  % -------------------------------
+% -------------------------------
 end
