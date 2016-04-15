@@ -48,13 +48,13 @@ classdef JAGSmcmc < mcmcContainer
 				names = fieldnames(obj.stats.Rhat);
 				% loop over fields and report for either single values or
 				% multiple values (eg when we have multiple participants)
-				for n=1:numel(names)
+				for name = each(names)
 					% skip posterior predictive variables
-					if strcmp(names(n),'Rpostpred')
+					if strcmp(name,'Rpostpred')
 						continue
 					end
-					RhatValues = obj.stats.Rhat.(names{n});
-					logInfo(fid,'\nRhat for: %s.\n',names{n});
+					RhatValues = obj.stats.Rhat.(name);
+					logInfo(fid,'\nRhat for: %s.\n',name);
 					for i=1:numel(RhatValues)
 						if numel(RhatValues)>1
 							logInfo(fid,'%s\t', IDnames{i});
@@ -77,7 +77,7 @@ classdef JAGSmcmc < mcmcContainer
 		end
 
 		function figUnivariateSummary(obj, participantNames, variables)
-			% create a multi-panel figure (one subplot per variable), each 
+			% create a multi-panel figure (one subplot per variable), each
 			% comprisnig of univariate summary stats for all participants.
 
 			figure
@@ -104,13 +104,12 @@ classdef JAGSmcmc < mcmcContainer
 
 		function plotMCMCchains(obj, variablesToPlot)
 
-			for v = 1:numel(variablesToPlot)
-				varName = variablesToPlot{v};
-
+			for varName = each(variablesToPlot)
+		
 				figure
 				latex_fig(16, 12,10)
 
-				mcmcsamples = obj.getSamples({varName});
+				mcmcsamples = obj.getSamples(varName);
 				mcmcsamples = mcmcsamples.(varName);
 				[chains,Nsamples,rows] = size(mcmcsamples);
 				hChain=[];
@@ -159,7 +158,22 @@ classdef JAGSmcmc < mcmcContainer
 		end
 
 
-		function exportParameterEstimates(obj, level1varNames, level2varNames, IDname, saveFolder)
+		function exportParameterEstimates(obj, level1varNames, level2varNames, IDname, saveFolder, varargin)
+
+% 			p = inputParser;
+% 			p.FunctionName = mfilename;
+% 			p.addRequired('level1varNames',@iscellstr);
+% 			p.addRequired('level2varNames',@iscellstr);
+% 			p.addRequired('IDname',@iscellstr);
+% 			p.addRequired('saveFolder',@ischar);
+% 			%p.addParameter('format','txt', @iscell);
+% 			p.addParameter('includeCI',true, @islogical);
+%
+% 			p.parse(level1varNames, level2varNames, IDname, saveFolder,  varargin{:});
+
+			% TODO: act on includeCI preference. Ie get, or do not get CI's.
+
+
 			%% participant level
 			colHeaderNames = createColumnHeaders(level1varNames);
 			paramEstimates = obj.grabParamEstimates(level1varNames);
@@ -181,7 +195,8 @@ classdef JAGSmcmc < mcmcContainer
 			paramEstimateTable
 
 			%% Export
-			savename = fullfile('figs', saveFolder, 'parameterEstimates.txt');
+
+			savename = fullfile('figs', saveFolder, 'parameterEstimates.csv');
 			writetable(paramEstimateTable, savename,...
 				'Delimiter','\t',...
 				'WriteRowNames',true)
@@ -190,10 +205,10 @@ classdef JAGSmcmc < mcmcContainer
 
 			function colHeaderNames = createColumnHeaders(varNames)
 				colHeaderNames = {};
-				for n=1:numel(varNames)
-					colHeaderNames{end+1} = sprintf('%s_mean', varNames{n});
-					colHeaderNames{end+1} = sprintf('%s_HDI5', varNames{n});
-					colHeaderNames{end+1} = sprintf('%s_HDI95', varNames{n});
+				for var = each(varNames)
+					colHeaderNames{end+1} = sprintf('%s_mean', var);
+					%colHeaderNames{end+1} = sprintf('%s_HDI5', varNames{n});
+					%colHeaderNames{end+1} = sprintf('%s_HDI95', varNames{n});
 				end
 			end
 		end
@@ -201,8 +216,8 @@ classdef JAGSmcmc < mcmcContainer
 			data=[];
 			for n=1:numel(varNames)
 				data = [data obj.getStats('mean',varNames{n})];
-				data = [data obj.getStats('hdi_low',varNames{n})];
-				data = [data obj.getStats('hdi_high',varNames{n})];
+				%data = [data obj.getStats('hdi_low',varNames{n})];
+				%data = [data obj.getStats('hdi_high',varNames{n})];
 			end
 		end
 
@@ -219,29 +234,26 @@ classdef JAGSmcmc < mcmcContainer
 			% model
 
 			[flatSamples] = obj.flattenChains(obj.samples, fieldsToGet);
-			for i = 1:numel(fieldsToGet)
-				samples.(fieldsToGet{i}) = flatSamples.(fieldsToGet{i})(:,index);
+			for field = each(fieldsToGet)
+				samples.(field) = flatSamples.(field)(:,index);
 			end
 		end
 
 		function [samplesMatrix] = getSamplesFromParticipantAsMatrix(obj, participant, fieldsToGet)
 			assert(iscell(fieldsToGet),'fieldsToGet must be a cell array')
 			% TODO: This function is doing the same thing as getSamplesAtIndex() ???
-
-			for n=1:numel(fieldsToGet)
-				samples.(fieldsToGet{n}) = vec(obj.samples.(fieldsToGet{n})(:,:,participant));
+			for field = each(fieldsToGet)
+				samples.(field) = vec(obj.samples.(field)(:,:,participant));
 			end
-
 			[samplesMatrix] = struct2Matrix(samples);
 		end
 
 		function [samples] = getSamples(obj, fieldsToGet)
 			% This will not flatten across chains
 			assert(iscell(fieldsToGet),'fieldsToGet must be a cell array')
-			samples = [];
-			for n=1:numel(fieldsToGet)
-				if isfield(obj.samples,fieldsToGet{n})
-					samples.(fieldsToGet{n}) = obj.samples.(fieldsToGet{n});
+			for field = each(fieldsToGet)
+				if isfield(obj.samples,field)
+					samples.(field) = obj.samples.(field);
 				end
 			end
 		end
@@ -251,9 +263,8 @@ classdef JAGSmcmc < mcmcContainer
 			[samples] = obj.getSamples(fieldsToGet);
 
 			% flatten across chains
-			fields = fieldnames(samples);
-			for n=1:numel(fields)
-				samples.(fields{n}) = vec(samples.(fields{n}));
+			for field = each(fieldsToGet)
+				samples.(field) = vec(samples.(field));
 			end
 
 			[samplesMatrix] = struct2Matrix(samples);
@@ -267,6 +278,33 @@ classdef JAGSmcmc < mcmcContainer
 				output =[];
 			end
 		end
+
+		function pointEstimates = getParticipantPointEstimates(obj, type, n)
+			% TODO: enable cell array input and clean it up, no need for switch statement then
+			switch type
+				case{'me'}
+					mPointEstimates = obj.getStats('mean', 'm');
+					cPointEstimates = obj.getStats('mean', 'c');
+					epsilonPointEstimates = obj.getStats('mean', 'epsilon');
+					alphaPointEstimates = obj.getStats('mean', 'alpha');
+
+					pointEstimates.m = mPointEstimates(n);
+					pointEstimates.c = cPointEstimates(n);
+					pointEstimates.epsilon = epsilonPointEstimates(n);
+					pointEstimates.alpha = alphaPointEstimates(n);
+
+				case{'logk'}
+					logkPointEstimates = obj.getStats('mean', 'logk');
+					epsilonPointEstimates = obj.getStats('mean', 'epsilon');
+					alphaPointEstimates = obj.getStats('mean', 'alpha');
+
+					pointEstimates.logk = logkPointEstimates(n);
+					pointEstimates.epsilon = epsilonPointEstimates(n);
+					pointEstimates.alpha = alphaPointEstimates(n);
+			end
+
+		end
+
 
 		function [predicted] = getParticipantPredictedResponses(obj, participant)
 			% calculate the probability of choosing the delayed reward, for
@@ -289,11 +327,11 @@ classdef JAGSmcmc < mcmcContainer
 		function [samples] = flattenChains(samples, fieldsToGet)
 			% collapse the first 2 dimensions of samples (number of MCMC
 			% chains, number of MCMC samples)
-			for n=1:numel(fieldsToGet)
-				temp = samples.(fieldsToGet{n});
+			for field = each(fieldsToGet)
+				temp = samples.(field);
 				oldDims = size(temp);
 				newDims = [oldDims(1)*oldDims(2) oldDims([3:end])];
-				samples.(fieldsToGet{n}) = reshape(temp, newDims);
+				samples.(field) = reshape(temp, newDims);
 			end
 		end
 

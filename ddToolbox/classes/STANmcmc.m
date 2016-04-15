@@ -92,8 +92,8 @@ classdef STANmcmc < mcmcContainer
 			% model
 
 			% % [flatSamples] = obj.flattenChains(obj.samples, fieldsToGet);
-			for i = 1:numel(fieldsToGet)
-			 	samples.(fieldsToGet{i}) = obj.samples.(fieldsToGet{i})(:,index);
+			for field = each(fieldsToGet)
+			 	samples.(field) = obj.samples.(field)(:,index);
 			 end
 		end
 
@@ -106,9 +106,9 @@ classdef STANmcmc < mcmcContainer
 		function [samples] = getSamples(obj, fieldsToGet)
 			assert(iscell(fieldsToGet),'fieldsToGet must be a cell array')
 			samples = [];
-			for n=1:numel(fieldsToGet)
-			 	if isfield(obj.samples,fieldsToGet{n})
-			 		samples.(fieldsToGet{n}) = obj.samples.(fieldsToGet{n});
+			for field = each(fieldsToGet)
+			 	if isfield(obj.samples,field)
+			 		samples.(field) = obj.samples.(field);
 			 	end
 			 end
 		end

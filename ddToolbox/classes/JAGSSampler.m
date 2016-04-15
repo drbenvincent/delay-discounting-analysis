@@ -19,7 +19,7 @@ classdef JAGSSampler < Sampler
 			obj = obj@Sampler();
 
 			obj.modelFilename = modelFilename;
-			obj.sampler = 'JAGS';
+			%obj.samplerName = 'JAGS';
 			obj.setMCMCparams();
 		end
 		% =================================================================
@@ -48,15 +48,12 @@ classdef JAGSSampler < Sampler
 		end
 
 		function setInitialParamValues(obj, variables, nParticipants)
-			varNames = fieldnames(variables);
 			for chain=1:obj.mcmcparams.nchains
-				for v = 1:numel(varNames)
-					varName = varNames{v};
+				for varName = each(variables)
 					if isempty(variables.(varName).seed), continue, end
 
 					if variables.(varName).single==false
-						% TODO: fix this. Why can't I call the seed func handle
-						% directly?
+						% TODO: fix this. Why can't I call the seed func handle directly?
 						seedFunc = variables.(varName).seed();
 						% participant level
 						for p=1:nParticipants
@@ -117,7 +114,6 @@ classdef JAGSSampler < Sampler
 		end
 
 		function setMCMCtotalSamples(obj, totalSamples)
-			%samplesPerChain				= totalSamples / obj.mcmcparams.nchains;
 			obj.mcmcparams.nsamples     = totalSamples / obj.mcmcparams.nchains;
 			obj.mcmcparams.totalSamples = totalSamples;
 			obj.displayMCMCparamInfo();
