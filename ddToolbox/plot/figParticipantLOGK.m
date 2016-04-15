@@ -5,6 +5,7 @@ p.FunctionName = mfilename;
 p.addRequired('pSamples',@isstruct);
 p.addRequired('pointEstimate',@isstruct);
 p.addParameter('pData',[], @isstruct);
+p.addParameter('opts',[], @isstruct);
 p.parse(pSamples, pointEstimate, varargin{:});
 
 rows=1; cols=4;

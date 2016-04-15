@@ -21,10 +21,9 @@ classdef ModelHierarchicalME < Model
 					obj.sampler = STANSampler([toolboxPath modelPath]);
 					[~,obj.modelType,~] = fileparts(modelPath);
 			end
-
-
+			obj.discountFuncType = 'me';
+			obj.plotFuncs.participantFigFunc = @figParticipantME;
 			obj.plotFuncs.unseenParticipantPlot = @figGroupLevelWrapperME;
-			obj.plotFuncs.figParticipantWrapperFunc = @figParticipantLevelWrapperME;
 
 			%% Create variables
 			% The intent of this code below is to set up the key variables of the

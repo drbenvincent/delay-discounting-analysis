@@ -21,10 +21,9 @@ classdef ModelHierarchicalLogK < Model
 					obj.sampler = STANSampler([toolboxPath modelPath]);
 					[~,obj.modelType,~] = fileparts(modelPath);
 			end
-
-
+			obj.discountFuncType = 'logk';
+			obj.plotFuncs.participantFigFunc = @figParticipantLOGK;
 			obj.plotFuncs.unseenParticipantPlot = @figGroupLevelWrapperLOGK;
-			obj.plotFuncs.figParticipantWrapperFunc = @figParticipantLevelWrapperLOGK;
 
 			%% Create variables
 			% The intent of this code below is to set up the key variables of the

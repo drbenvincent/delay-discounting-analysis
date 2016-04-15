@@ -20,13 +20,14 @@ classdef ModelSeparateME < Model
 					modelPath = '/models/separateME.txt';
 					obj.sampler = JAGSSampler([toolboxPath modelPath]);
 					[~,obj.modelType,~] = fileparts(modelPath);
+					obj.discountFuncType = 'me';
 				case{'STAN'}
 					error('NOT IMPLEMENTED YET')
 			end
 
 			% % give sampler a handle back to the model (ie this hierarchicalME model)
 			% obj.sampler.modelHandle = obj;
-
+			obj.plotFuncs.participantFigFunc = @figParticipantME;
 			obj.plotFuncs.figParticipantWrapperFunc = @figParticipantLevelWrapperME;
 
 			%% Create variables

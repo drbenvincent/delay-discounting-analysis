@@ -11,10 +11,10 @@ classdef Model < handle
 		saveFolder
 		mcmc % handle to mcmc fit object
 		plotFuncs % structure of function handles
+		discountFuncType
 	end
 
 	methods(Abstract, Access = public)
-		%plot(obj, data)
 	end
 
 	methods (Access = public)
@@ -25,9 +25,7 @@ classdef Model < handle
 		end
 
 		function varNames = extractLevelNVarNames(obj, N)
-			%varNames = {obj.variables.str};
 			vars = fieldnames(obj.variables);
-			%varNames = varNames( [obj.variables.analysisFlag]==N );
 			varNames={};
 			for n=1:numel(vars)
 				if obj.variables.(vars{n}).analysisFlag == N
@@ -64,12 +62,13 @@ classdef Model < handle
 			obj.mcmc.plotMCMCchains(vars);
 		end
 
-		function exportParameterEstimates(obj)
+		function exportParameterEstimates(obj, varargin)
 			obj.mcmc.exportParameterEstimates(...
 				obj.extractLevelNVarNames(1),... % Participant-level
 				obj.extractLevelNVarNames(2),...  % group-level)
 				obj.data.IDname,...
-				obj.saveFolder)
+				obj.saveFolder,...
+				varargin)
 		end
 
 
@@ -93,17 +92,17 @@ classdef Model < handle
 
 		function conditionalDiscountRates_ParticipantLevel(obj, reward, plotFlag)
 			nParticipants = obj.data.nParticipants;
-			count=1;
+			%count=1;
 			for p = 1:nParticipants
 				params(:,1) = obj.mcmc.getSamplesFromParticipantAsMatrix(p, {'m'});
 				params(:,2) = obj.mcmc.getSamplesFromParticipantAsMatrix(p, {'c'});
 				% ==============================================
-				[posteriorMean(count), lh(count)] =...
+				[posteriorMean(p), lh(p)] =...
 					calculateLogK_ConditionOnReward(reward, params, plotFlag);
 				%lh(count).DisplayName=sprintf('participant %d', p);
 				%row(count) = {sprintf('participant %d', p)};
 				% ==============================================
-				count=count+1;
+				%count=count+1;
 			end
 			warning('GET THESE NUMBERS PRINTED TO SCREEN')
 			% 			logkCondition = array2table([posteriorMode'],...
@@ -137,8 +136,12 @@ classdef Model < handle
 		function plot(obj)
 			close all
 
-			% obj.plotFuncs.unseenParticipantPlot = @figGroupLevelWrapperME;
-			% obj.plotFuncs.figParticipantWrapperFunc = @figParticipantLevelWrapperME;
+			% TODO: THIS IS A COMPLETE MESS
+
+			% IDEAS:
+			% - Loop over participants (and group if there is one) and create an array of objects of a new participant class. This class will contain all the data for that person, as well as the plotting functions.
+			%
+			% - Or....
 
 			if obj.isGroupLevelModel()
 				IDnames = obj.data.IDname;
@@ -152,17 +155,15 @@ classdef Model < handle
 				IDnames = obj.data.IDname;
 			end
 
-			participantLevelVariables = obj.varList.participantLevel;
-
-			% plot univariate summary statistics
-			obj.mcmc.figUnivariateSummary(IDnames, participantLevelVariables)
+			% plot univariate summary statistics ---------------------------------
+			obj.mcmc.figUnivariateSummary(IDnames, obj.varList.participantLevel)
 			latex_fig(16, 5, 5)
 			myExport('UnivariateSummary',...
 				'saveFolder',obj.saveFolder,...
 				'prefix', obj.modelType)
+			% --------------------------------------------------------------------
 
-
-			%% PARTICIPANT LEVEL =================================
+			%% PARTICIPANT LEVEL
 
 			if obj.isGroupLevelModel()
 				participant_level_prior_variables = cellfun(...
@@ -181,14 +182,18 @@ classdef Model < handle
 			opts.maxD		= max(obj.data.observedData.DB(:));
 			% ??????????????????
 
-			obj.plotFuncs.figParticipantWrapperFunc(...
+			% plot wrapper -------------------------------------------------------
+			figParticipantLevelWrapper(...
 				obj.mcmc,...
 				obj.data,...
 				obj.varList.participantLevel,...
 				participant_level_prior_variables,...
 				obj.saveFolder,...
 				obj.modelType,...
-				opts)
+				opts,...
+				obj.discountFuncType,...
+				obj.plotFuncs.participantFigFunc)
+			% --------------------------------------------------------------------
 
 			%% GROUP LEVEL ======================================
 			if obj.isGroupLevelModel()
@@ -197,32 +202,54 @@ classdef Model < handle
 					obj.varList.groupLevel,...
 					'UniformOutput',false );
 
-				% PSYCHOMETRIC PARAMS
+				% PSYCHOMETRIC PARAMS ----------------------------------------------
 				figPsychometricParamsHierarchical(obj.mcmc, obj.data)
 				myExport('PsychometricParams',...
 					'saveFolder', obj.saveFolder,...
 					'prefix', obj.modelType)
+				% ------------------------------------------------------------------
 
-				% TRIPLOT
+
 				posteriorSamples = obj.mcmc.getSamplesAsMatrix(obj.varList.groupLevel);
 				priorSamples = obj.mcmc.getSamplesAsMatrix(group_level_prior_variables);
+				% TRIPLOT ----------------------------------------------------------
 				figure(87)
 				TriPlotSamples(posteriorSamples, obj.varList.groupLevel, 'PRIOR', priorSamples);
 				myExport('GROUP-triplot',...
 					'saveFolder', obj.saveFolder,...
 					'prefix', obj.modelType)
+				% ------------------------------------------------------------------
+
 
 				% GROUP (UNSEEN PARTICIPANT) PLOT
-				obj.plotFuncs.unseenParticipantPlot(...
-					obj.mcmc,...
-					obj.data,...
-					obj.varList.groupLevel,...
+
+				% strip the '_group' off of variablenames
+				for n=1:numel(obj.varList.groupLevel)
+					temp=regexp(obj.varList.groupLevel{n},'_','split');
+					groupLevelVarName{n} = temp{1};
+				end
+				% get point estimates. TODO: this can be a specific method in mcmc.
+				for n=1:numel(obj.varList.groupLevel)
+					pointEstimate.(groupLevelVarName{n}) =...
+						obj.mcmc.getStats('mean', obj.varList.groupLevel{n});
+				end
+
+				[pSamples] = obj.mcmc.getSamples(obj.varList.groupLevel);
+				% flatten
+				for n=1:numel(obj.varList.groupLevel)
+					pSamples.(groupLevelVarName{n}) = vec(pSamples.(obj.varList.groupLevel{n}));
+					pSamples = rmfield(pSamples,obj.varList.groupLevel{n});
+				end
+
+				% ------------------------------------------------------------------
+				obj.plotFuncs.unseenParticipantPlot(pSamples,...
+					pointEstimate,...
 					obj.saveFolder,...
 					obj.modelType)
-
 				myExport('GROUP',...
 					'saveFolder', obj.saveFolder,...
 					'prefix', obj.modelType)
+				% ------------------------------------------------------------------
 
 			else
 				% this model does not have group level params... don't do anything

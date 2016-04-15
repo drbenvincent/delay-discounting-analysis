@@ -16,10 +16,10 @@ classdef ModelHierarchicalMEUpdated < ModelHierarchicalME
 					modelPath = '/models/hierarchicalMEupdated.txt';
 					obj.sampler = JAGSSampler([toolboxPath modelPath]);
 					[~,obj.modelType,~] = fileparts(modelPath);
+					
 				case{'STAN'}
 					error('NOT IMPLEMENTED YET')
 			end
-
 		end
 		% =================================================================
 
