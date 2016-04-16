@@ -47,8 +47,6 @@ classdef DataClass < handle
 					case{'ID'}
 						obj.IDname{n} = getPrefixOfString(fnames{n},'-')
 				end
-				%obj.IDname{n} = obj.extractParticipantInitialsFromFilename(fnames{n});
-				%obj.IDname{n} = obj.extractIDfromFilename(fnames{n});
 				participantTable = readtable(fullfile(obj.dataFolder,fnames{n}), 'delimiter','tab');
 				participantTable = obj.appendParticipantIDcolumn(participantTable, n);
  				obj.participantLevel(n).table = participantTable;
@@ -100,18 +98,29 @@ classdef DataClass < handle
 			% the MCMC process.
 			maxTrials = max([obj.participantLevel.trialsForThisParticant]);
 			% create an empty matrix which we then fill with data.
-			obj.observedData.A  = NaN(obj.nParticipants, maxTrials);
-			obj.observedData.B  = NaN(obj.nParticipants, maxTrials);
-			obj.observedData.DA = NaN(obj.nParticipants, maxTrials);
-			obj.observedData.DB = NaN(obj.nParticipants, maxTrials);
-			obj.observedData.R  = NaN(obj.nParticipants, maxTrials);
+			% obj.observedData.A  = NaN(obj.nParticipants, maxTrials);
+			% obj.observedData.B  = NaN(obj.nParticipants, maxTrials);
+			% obj.observedData.DA = NaN(obj.nParticipants, maxTrials);
+			% obj.observedData.DB = NaN(obj.nParticipants, maxTrials);
+			% obj.observedData.R  = NaN(obj.nParticipants, maxTrials);
+			% for p=1:obj.nParticipants
+			% 	Tp = obj.participantLevel(p).trialsForThisParticant;
+			% 	obj.observedData.A(p,[1:Tp]) = obj.participantLevel(p).table.('A');
+			% 	obj.observedData.B(p,[1:Tp]) = obj.participantLevel(p).table.('B');
+			% 	obj.observedData.DA(p,[1:Tp]) = obj.participantLevel(p).table.('DA');
+			% 	obj.observedData.DB(p,[1:Tp]) = obj.participantLevel(p).table.('DB');
+			% 	obj.observedData.R(p,[1:Tp]) = obj.participantLevel(p).table.('R');
+			% end
+			fields = {'A', 'B', 'DA', 'DB', 'R'};
 			for p=1:obj.nParticipants
 				Tp = obj.participantLevel(p).trialsForThisParticant;
-				obj.observedData.A(p,[1:Tp]) = obj.participantLevel(p).table.('A');
-				obj.observedData.B(p,[1:Tp]) = obj.participantLevel(p).table.('B');
-				obj.observedData.DA(p,[1:Tp]) = obj.participantLevel(p).table.('DA');
-				obj.observedData.DB(p,[1:Tp]) = obj.participantLevel(p).table.('DB');
-				obj.observedData.R(p,[1:Tp]) = obj.participantLevel(p).table.('R');
+				for n = 1: numel(fields)
+					% makes vector of NaN's
+					obj.observedData.(fields{n})(p,:) = NaN(1, maxTrials);
+					% fills up with data
+					obj.observedData.(fields{n})(p,[1:Tp]) =...
+						obj.participantLevel(p).table.(fields{n});
+				end
 			end
 
 			% T is a vector containing number of trials for each participant

@@ -25,11 +25,9 @@ classdef Model < handle
 		end
 
 		function varNames = extractLevelNVarNames(obj, N)
-			vars = fieldnames(obj.variables);
-			varNames={};
-			for n=1:numel(vars)
-				if obj.variables.(vars{n}).analysisFlag == N
-					varNames{end+1} = vars{n};
+			for var = each(fieldnames(obj.variables))
+				if obj.variables.(var).analysisFlag == N
+					varNames{end+1} = var;
 				end
 			end
 		end
@@ -241,11 +239,17 @@ classdef Model < handle
 					pSamples = rmfield(pSamples,obj.varList.groupLevel{n});
 				end
 
+				% TODO ??????????????????
+				opts.maxlogB	= max(abs(obj.data.observedData.B(:)));
+				opts.maxD		= max(obj.data.observedData.DB(:));
+				% ??????????????????
+
+				% get group level pointEstimates
+				%pointEstimates =
 				% ------------------------------------------------------------------
-				obj.plotFuncs.unseenParticipantPlot(pSamples,...
-					pointEstimate,...
-					obj.saveFolder,...
-					obj.modelType)
+				obj.plotFuncs.participantFigFunc(pSamples,...
+					pointEstimates,...
+					'opts', opts)
 				myExport('GROUP',...
 					'saveFolder', obj.saveFolder,...
 					'prefix', obj.modelType)

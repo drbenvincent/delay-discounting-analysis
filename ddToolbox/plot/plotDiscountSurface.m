@@ -52,19 +52,19 @@ formatAxes()
     opts.maxlogB	= max( abs(p.Results.data.B) );
     opts.maxD		= max( p.Results.data.DB );
 
-    [x,y,z,COL,F] = processData();
+    [x,y,z,markerCol,markerSize] = convertDataIntoMarkers();
 
     % plot
     for i=1:numel(x)
     	h = stem3(x(i), y(i), z(i));
     	h.Color='k';
-    	h.MarkerFaceColor=[1 1 1] .* (1-COL(i));
-    	h.MarkerSize = F(i)+4;
+    	h.MarkerFaceColor=[1 1 1] .* (1-markerCol(i));
+    	h.MarkerSize = markerSize(i)+4;
     	hold on
     end
   end
 
-  function [x,y,z,COL,F] = processData()
+  function [x,y,z,markerCol,markerSize] = convertDataIntoMarkers()
     % find unique experimental designs
     D=[abs(p.Results.data.A), abs(p.Results.data.B), p.Results.data.DA, p.Results.data.DB];
     [C, ia, ic] = unique(D,'rows');
@@ -72,10 +72,10 @@ formatAxes()
     for n=1:max(ic)
       % binary set of which trials this design was used on
       myset=ic==n;
-      % Size = number of times this design has been run
-      F(n) = sum(myset);
+      % markerSize = number of times this design has been run
+      markerSize(n) = sum(myset);
       % Colour = proportion of times participant chose immediate for that design
-      COL(n) = sum(p.Results.data.R(myset)==0) ./ F(n);
+      markerCol(n) = sum(p.Results.data.R(myset)==0) ./ markerSize(n);
 
       x(n) = abs(p.Results.data.B( ia(n) )); % £B
       y(n) = p.Results.data.DB( ia(n) ); % delay to get £B

@@ -23,7 +23,6 @@ classdef ModelHierarchicalLogK < Model
 			end
 			obj.discountFuncType = 'logk';
 			obj.plotFuncs.participantFigFunc = @figParticipantLOGK;
-			obj.plotFuncs.unseenParticipantPlot = @figGroupLevelWrapperLOGK;
 
 			%% Create variables
 			% The intent of this code below is to set up the key variables of the

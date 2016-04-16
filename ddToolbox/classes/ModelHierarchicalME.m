@@ -23,7 +23,6 @@ classdef ModelHierarchicalME < Model
 			end
 			obj.discountFuncType = 'me';
 			obj.plotFuncs.participantFigFunc = @figParticipantME;
-			obj.plotFuncs.unseenParticipantPlot = @figGroupLevelWrapperME;
 
 			%% Create variables
 			% The intent of this code below is to set up the key variables of the

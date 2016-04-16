@@ -36,7 +36,6 @@ classdef JAGSmcmc < mcmcContainer
 			end
 
 			function MCMCParameterReport()
-				%% MCMC parameter report
 				logInfo(fid, 'MCMC inference was conducted with %d chains. ', obj.mcmcparams.nchains)
 				logInfo(fid,'The first %d samples were discarded from each chain, ', obj.mcmcparams.nburnin )
 				logInfo(fid,'resulting in a total of %d samples to approximate the posterior distribution. ', obj.mcmcparams.totalSamples )
@@ -105,7 +104,7 @@ classdef JAGSmcmc < mcmcContainer
 		function plotMCMCchains(obj, variablesToPlot)
 
 			for varName = each(variablesToPlot)
-		
+
 				figure
 				latex_fig(16, 12,10)
 
@@ -150,7 +149,6 @@ classdef JAGSmcmc < mcmcContainer
 			end
 
 			function intPlotDistribution(samples, row, rows)
-				% select the right subplot
 				hHist = subplot(rows,6,row*6);
 				UnivariateDistribution(samples(:));
 			end
@@ -212,6 +210,7 @@ classdef JAGSmcmc < mcmcContainer
 				end
 			end
 		end
+
 		function data = grabParamEstimates(obj, varNames)
 			data=[];
 			for n=1:numel(varNames)
@@ -259,23 +258,19 @@ classdef JAGSmcmc < mcmcContainer
 		end
 
 		function [samplesMatrix] = getSamplesAsMatrix(obj, fieldsToGet)
-
 			[samples] = obj.getSamples(fieldsToGet);
-
 			% flatten across chains
 			for field = each(fieldsToGet)
 				samples.(field) = vec(samples.(field));
 			end
-
 			[samplesMatrix] = struct2Matrix(samples);
 		end
 
-		function [output] = getStats(obj, field, variable)
-			% return column vector
+		function [columnVector] = getStats(obj, field, variable)
 			try
-				output = obj.stats.(field).(variable)';
+				columnVector = obj.stats.(field).(variable)';
 			catch
-				output =[];
+				columnVector =[];
 			end
 		end
 

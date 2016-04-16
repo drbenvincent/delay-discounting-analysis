@@ -49,7 +49,7 @@ classdef JAGSSampler < Sampler
 
 		function setInitialParamValues(obj, variables, nParticipants)
 			for chain=1:obj.mcmcparams.nchains
-				for varName = each(variables)
+				for varName = each(fieldnames(variables))
 					if isempty(variables.(varName).seed), continue, end
 
 					if variables.(varName).single==false

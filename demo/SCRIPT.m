@@ -136,7 +136,7 @@ h_logk.plot()
 
 
 % =========================================================================
-% MODELS BELOW TREAT PARTICIPANTS INDEPE, NO HIERARCHICAL ESTIMATION
+% MODELS BELOW TREAT PARTICIPANTS INDEPENDENTLY, NO HIERARCHICAL ESTIMATION
 % These could be useful in some situations, but we loose the advantages of
 % hierarchical estimation.
 
