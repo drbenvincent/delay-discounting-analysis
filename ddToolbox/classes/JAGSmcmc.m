@@ -274,30 +274,12 @@ classdef JAGSmcmc < mcmcContainer
 			end
 		end
 
-		function pointEstimates = getParticipantPointEstimates(obj, type, n)
-			% TODO: enable cell array input and clean it up, no need for switch statement then
-			switch type
-				case{'me'}
-					mPointEstimates = obj.getStats('mean', 'm');
-					cPointEstimates = obj.getStats('mean', 'c');
-					epsilonPointEstimates = obj.getStats('mean', 'epsilon');
-					alphaPointEstimates = obj.getStats('mean', 'alpha');
-
-					pointEstimates.m = mPointEstimates(n);
-					pointEstimates.c = cPointEstimates(n);
-					pointEstimates.epsilon = epsilonPointEstimates(n);
-					pointEstimates.alpha = alphaPointEstimates(n);
-
-				case{'logk'}
-					logkPointEstimates = obj.getStats('mean', 'logk');
-					epsilonPointEstimates = obj.getStats('mean', 'epsilon');
-					alphaPointEstimates = obj.getStats('mean', 'alpha');
-
-					pointEstimates.logk = logkPointEstimates(n);
-					pointEstimates.epsilon = epsilonPointEstimates(n);
-					pointEstimates.alpha = alphaPointEstimates(n);
+		function pointEstimates = getParticipantPointEstimates(obj, n, variableNames)
+			assert(iscellstr(variableNames))
+			for var = each(variableNames)
+				temp = obj.getStats('mean', var);
+				pointEstimates.(var) = temp(n);
 			end
-
 		end
 
 

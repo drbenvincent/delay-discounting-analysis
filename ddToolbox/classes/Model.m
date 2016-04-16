@@ -25,6 +25,7 @@ classdef Model < handle
 		end
 
 		function varNames = extractLevelNVarNames(obj, N)
+			varNames={};
 			for var = each(fieldnames(obj.variables))
 				if obj.variables.(var).analysisFlag == N
 					varNames{end+1} = var;
@@ -189,7 +190,6 @@ classdef Model < handle
 				obj.saveFolder,...
 				obj.modelType,...
 				opts,...
-				obj.discountFuncType,...
 				obj.plotFuncs.participantFigFunc)
 			% --------------------------------------------------------------------
 
@@ -235,9 +235,14 @@ classdef Model < handle
 				[pSamples] = obj.mcmc.getSamples(obj.varList.groupLevel);
 				% flatten
 				for n=1:numel(obj.varList.groupLevel)
-					pSamples.(groupLevelVarName{n}) = vec(pSamples.(obj.varList.groupLevel{n}));
-					pSamples = rmfield(pSamples,obj.varList.groupLevel{n});
+					pSamples.(obj.varList.groupLevel{n}) = vec(pSamples.(obj.varList.groupLevel{n}));
 				end
+				% rename
+				pSamples = renameFields(...
+					pSamples,...
+					obj.varList.groupLevel,...
+					groupLevelVarName);
+				
 
 				% TODO ??????????????????
 				opts.maxlogB	= max(abs(obj.data.observedData.B(:)));
@@ -245,7 +250,12 @@ classdef Model < handle
 				% ??????????????????
 
 				% get group level pointEstimates
-				%pointEstimates =
+				pointEstimates = obj.mcmc.getParticipantPointEstimates(1, obj.varList.groupLevel);
+				pointEstimates = renameFields(...
+					pointEstimates,...
+					obj.varList.groupLevel,...
+					groupLevelVarName);
+
 				% ------------------------------------------------------------------
 				obj.plotFuncs.participantFigFunc(pSamples,...
 					pointEstimates,...
