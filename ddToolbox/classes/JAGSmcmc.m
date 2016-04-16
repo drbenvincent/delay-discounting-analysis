@@ -108,7 +108,7 @@ classdef JAGSmcmc < mcmcContainer
 				figure
 				latex_fig(16, 12,10)
 
-				mcmcsamples = obj.getSamples(varName);
+				mcmcsamples = obj.getSamples({varName});
 				mcmcsamples = mcmcsamples.(varName);
 				[chains,Nsamples,rows] = size(mcmcsamples);
 				hChain=[];
@@ -249,7 +249,7 @@ classdef JAGSmcmc < mcmcContainer
 
 		function [samples] = getSamples(obj, fieldsToGet)
 			% This will not flatten across chains
-			assert(iscell(fieldsToGet),'fieldsToGet must be a cell array')
+%			assert(iscell(fieldsToGet),'fieldsToGet must be a cell array')
 			for field = each(fieldsToGet)
 				if isfield(obj.samples,field)
 					samples.(field) = obj.samples.(field);

@@ -25,7 +25,7 @@ classdef BivariateDistribution < handle
 			p.addParameter('xLabel','',@isstr);
 			p.addParameter('yLabel','',@isstr);
 			p.addParameter('shouldPlot',true,@islogical);
-			p.addParameter('pointEstimateType','mean',@isstr); % TODO improve validation here
+			p.addParameter('pointEstimateType','mean', @(x)any(strcmp(x,{'mean','median','mode'})));
 			p.parse(xSamples, ySamples, varargin{:});
 			% add p.Results fields into obj
 			fields = fieldnames(p.Results);

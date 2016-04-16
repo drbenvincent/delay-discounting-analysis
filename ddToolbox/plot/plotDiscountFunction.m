@@ -6,7 +6,7 @@ p = inputParser;
 p.FunctionName = mfilename;
 p.addRequired('logK',@isscalar);
 p.addRequired('logKsamples',@isvector);
-p.addParameter('xScale','linear',@isstr);
+p.addParameter('xScale','linear',@(x)any(strcmp(x,{'linear','log'})));
 p.addParameter('data',[],@isstruct)
 p.parse(logK, logKsamples, varargin{:});
 

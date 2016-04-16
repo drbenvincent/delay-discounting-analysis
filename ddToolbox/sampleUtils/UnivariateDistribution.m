@@ -31,7 +31,7 @@ classdef UnivariateDistribution < handle
 			p.addParameter('killYAxis',false,@islogical);
 			p.addParameter('priorCol',[0.8 0.8 0.8],@isvector);
 			p.addParameter('posteriorCol',[0.2 0.2 0.2],@isvector);
-			p.addParameter('pointEstimateType','mean',@isstr); % TODO improve validation here
+			p.addParameter('pointEstimateType','mean', @(x)any(strcmp(x,{'mean','median','mode'})));
 			p.addParameter('plotHDI',true,@islogical);
 			p.parse(posteriorSamples, varargin{:});
 			% add p.Results fields into obj
@@ -151,7 +151,7 @@ classdef UnivariateDistribution < handle
 			end
 
 			set(gca,'Layer','top');
-			
+
 			% switch obj.pointEstimateType
 			% 	case{'mean'}
 			% 		plot(obj.mean(1), obj.mean(2), 'ro')
