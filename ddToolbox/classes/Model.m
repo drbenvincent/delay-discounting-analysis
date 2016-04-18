@@ -61,13 +61,13 @@ classdef Model < handle
 			obj.mcmc.plotMCMCchains(vars);
 		end
 
-		function exportParameterEstimates(obj, varargin)
-			obj.mcmc.exportParameterEstimates(...
+		function paramEstimateTable = exportParameterEstimates(obj, varargin)
+			paramEstimateTable = obj.mcmc.exportParameterEstimates(...
 				obj.extractLevelNVarNames(1),... % Participant-level
 				obj.extractLevelNVarNames(2),...  % group-level)
 				obj.data.IDname,...
 				obj.saveFolder,...
-				varargin)
+				varargin);
 		end
 
 
@@ -242,7 +242,7 @@ classdef Model < handle
 					pSamples,...
 					obj.varList.groupLevel,...
 					groupLevelVarName);
-				
+
 
 				% TODO ??????????????????
 				opts.maxlogB	= max(abs(obj.data.observedData.B(:)));
@@ -270,9 +270,9 @@ classdef Model < handle
 			end
 
 
-% 			%% MC CONTOUR PLOTS
-% 			probMass = 0.5; % <---- 50% prob mass chosen to avoid too much clutter on graph
-% 			plotMCclusters(obj.mcmc, obj.data, [1 0 0], probMass)
+			%% MC CONTOUR PLOTS
+			probMass = 0.5; % <---- 50% prob mass chosen to avoid too much clutter on graph
+			plotMCclusters(obj.mcmc, obj.data, [1 0 0], probMass)
 		end
 
 

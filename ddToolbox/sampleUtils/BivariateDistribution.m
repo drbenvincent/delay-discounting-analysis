@@ -59,15 +59,27 @@ classdef BivariateDistribution < handle
 					obj.mode = [modex modey];
 
 				case{'hist2d'}
-					% a 2D histogram method
-					[obj.density, bx, by] = hist2d([obj.xSamples obj.ySamples], obj.XN, obj.YN, obj.XRANGE, obj.YRANGE);
-					% imagesc(bx, by, density)
+					Xedges = linspace(min(obj.XRANGE),max(obj.XRANGE), obj.XN);
+					Yedges = linspace(min(obj.YRANGE),max(obj.YRANGE), obj.YN);
+					%[X,Y] = meshgrid(Xedges,Yedges);
+					[obj.density,~,~,binx,biny] = histcounts2(x,y,[100 100],...
+						'Normalization','count');
 
 					% Find the mode
 					[i,j]	= argmax2(obj.density);
 					modex	= bx(i);
 					modey	= by(j);
 					obj.mode = [modex modey];
+					
+% 					% a 2D histogram method
+% 					[obj.density, bx, by] = hist2d([obj.xSamples obj.ySamples], obj.XN, obj.YN, obj.XRANGE, obj.YRANGE);
+% 					% imagesc(bx, by, density)
+% 
+% 					% Find the mode
+% 					[i,j]	= argmax2(obj.density);
+% 					modex	= bx(i);
+% 					modey	= by(j);
+% 					obj.mode = [modex modey];
 
 				case{'kde2d'}
 					MIN_XY = [obj.XRANGE(1) obj.YRANGE(1)];
@@ -144,6 +156,75 @@ classdef BivariateDistribution < handle
 			h.MarkerEdgeColor = [0 0 0];
 
 			set(gca,'Layer','top');
+		end
+		
+		
+		function plotContour(obj, probabilityMassAmount, plotOpts)
+			assert(probabilityMassAmount>0 && probabilityMassAmount<1,...
+				'probabilityMassAmount must be a proportion, not a percentage')
+			
+			%% Obtain threshold
+% 			totalCount = sum(obj.density(:));
+% 			massAboveThreshold=inf;
+% 			threshold=0;
+% 			while massAboveThreshold>probabilityMassAmount
+% 				massAboveThreshold = sum(obj.density( obj.density(:)>threshold )) / totalCount;
+% 				threshold=threshold+1;
+% 			end
+			
+			warning('SLOW-ASS ALGORITHM!')
+			obj.density = obj.density ./ sum(obj.density(:));
+			list = sort(obj.density(:));
+			for i=1:numel(list)
+				threshold = list(end-i);
+				massAboveThreshold = sum(obj.density( obj.density(:)>threshold ));
+				if massAboveThreshold>probabilityMassAmount
+					break
+				end
+			end
+			threshold = list(end-i);
+			display(threshold)
+			
+			
+			%% Plot
+			contourmatrix = contourc(obj.xi, obj.yi, obj.density, [threshold, threshold]);
+			
+			% Code below solves a plotting issue I was having, solved by a contributor
+			% from Stackoverflow.
+			% http://stackoverflow.com/questions/36220201/multiple-matlab-contour-plots-with-one-level
+			parsed = false ;
+			iShape = 1 ;
+			while ~parsed
+				%// get coordinates for each isolevel profile
+				%level   = contourmatrix(1,1) ; %// current isolevel
+				nPoints = contourmatrix(2,1) ; %// number of coordinate points for this shape
+				
+				idx = 2:nPoints+1 ; %// prepare the column indices of this shape coordinates
+				xp = contourmatrix(1,idx) ;     %// retrieve shape x-values
+				yp = contourmatrix(2,idx) ;     %// retrieve shape y-values
+				hp(iShape) = patch(xp,yp,'k') ; %// generate path object and save handle for future shape control.
+				
+				if size(contourmatrix,2) > (nPoints+1)
+					%// There is another shape to draw
+					contourmatrix(:,1:nPoints+1) = [] ; %// remove processed points from the contour matrix
+					iShape = iShape+1 ;     %// increment shape counter
+				else
+					%// we are done => exit while loop
+					parsed  = true ;
+				end
+			end
+			
+			set(hp, plotOpts);
+
+			axis xy
+			grid on
+			colormap(gca, flipud(gray));
+			xlabel('slope, $m$','Interpreter','latex')
+			ylabel('intercept, $c$','Interpreter','latex')
+			axis square
+			hold on
+			box off
+
 		end
 
   end
