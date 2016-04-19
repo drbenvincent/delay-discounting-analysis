@@ -163,29 +163,27 @@ classdef BivariateDistribution < handle
 			assert(probabilityMassAmount>0 && probabilityMassAmount<1,...
 				'probabilityMassAmount must be a proportion, not a percentage')
 			
-			%% Obtain threshold
-% 			totalCount = sum(obj.density(:));
-% 			massAboveThreshold=inf;
-% 			threshold=0;
-% 			while massAboveThreshold>probabilityMassAmount
-% 				massAboveThreshold = sum(obj.density( obj.density(:)>threshold )) / totalCount;
-% 				threshold=threshold+1;
-% 			end
+			%% Obtain threshold level containing desired probability mass
+			% normalise
+			obj.density = obj.density./sum(obj.density(:));
+			% make a vector copy *also normalised*
+			list = obj.density(:)./sum(obj.density(:));
+			% find threshold
+			opts = optimset;
+			opts.Display=true;
+			opts.TolX =10^-6;
+			[threshold,FVAL,EXITFLAG,OUTPUT] = fminsearch(@(x) (probabilityMassAmount - sum(list( list>x)))^2,...
+				max(list)/2,...
+				opts);
 			
-			warning('SLOW-ASS ALGORITHM!')
-			obj.density = obj.density ./ sum(obj.density(:));
-			list = sort(obj.density(:));
-			for i=1:numel(list)
-				threshold = list(end-i);
-				massAboveThreshold = sum(obj.density( obj.density(:)>threshold ));
-				if massAboveThreshold>probabilityMassAmount
-					break
-				end
-			end
-			threshold = list(end-i);
-			display(threshold)
-			
-			
+			% % TESTING CODE. Works
+			% err = @(x,pm) (pm - sum(list( list>x)))^2;
+			% pmass=[];
+			% for x = linspace(0,max(list),1000)
+			% 	pmass = [pmass err(x,probabilityMassAmount)];
+			% end
+			% plot(linspace(0,max(list),1000), pmass)
+						
 			%% Plot
 			contourmatrix = contourc(obj.xi, obj.yi, obj.density, [threshold, threshold]);
 			
