@@ -47,7 +47,7 @@ model{
   # We draw these samples, that are independent from the data, so that we can plot our prior beliefs of group-level parameters. These will be determined by the actual values given in the priors.
   # IMPORTANT - Make sure the numerical values you provide below match the priors above.
 
-  groupLogKmu_prior       ~ dnorm(-0.243,1/1000)
+  groupLogKmu_prior       ~ dnorm(-0.243,1/100)
   groupLogKsigma_prior    ~ dunif(0,100)
 
   # comparison acuity

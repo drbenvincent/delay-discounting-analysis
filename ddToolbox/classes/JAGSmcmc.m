@@ -156,7 +156,7 @@ classdef JAGSmcmc < mcmcContainer
 		end
 
 
-		function exportParameterEstimates(obj, level1varNames, level2varNames, IDname, saveFolder, varargin)
+		function paramEstimateTable = exportParameterEstimates(obj, level1varNames, level2varNames, IDname, saveFolder, varargin)
 
 % 			p = inputParser;
 % 			p.FunctionName = mfilename;

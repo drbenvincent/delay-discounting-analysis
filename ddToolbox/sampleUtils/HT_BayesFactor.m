@@ -25,6 +25,7 @@ bayesFactorPlot(density, priorSamples, posteriorSamples, edges)
 end
 
 function density = densityAtZero(samples,edges)
+warning('this function will fail if last entry of ''edges'' is not zero')
 [density.N,~] = histcounts(samples, edges, 'Normalization','pdf');
 density.atZero = density.N(end);
 end

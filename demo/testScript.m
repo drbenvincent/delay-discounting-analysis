@@ -29,7 +29,7 @@ myData = DataClass(pathToData);
 myData.loadDataFiles(fnames);
 
 %%
-nSamples = 10^3;
+nSamples = 10^4;
 nChains = 2;
 
 
@@ -40,6 +40,11 @@ h_me.sampler.setMCMCnumberOfChains(nChains);
 h_me.conductInference(); % TODO: Could return an MCMCFit object here ******
 h_me.exportParameterEstimates();
 h_me.plot()
+
+figure(12), clf
+probMass = 0.5;
+plotMCclusters(h_me.mcmc, h_me.data, [0 0.5 0], probMass)
+
 
 hypothesisTestScript(h_me)
 myExport('BayesFactorMLT1',...
