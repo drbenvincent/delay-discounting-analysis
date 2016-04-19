@@ -1,5 +1,6 @@
 function figGroupLevelWrapper(pSamples, pointEstimate, saveFolder, modelType, participantPlotFunc, opts)
 
+error('Am I even calling this?')
 % participantPlotFunc = {'figParticipantLOGK' or 'figParticipantME'}
 
   figure(99), clf
