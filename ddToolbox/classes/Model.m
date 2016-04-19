@@ -125,9 +125,42 @@ classdef Model < handle
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		% **********************************************************************
 		% **********************************************************************
 		% PLOTTING *************************************************************
 		% **********************************************************************
+		% **********************************************************************
+		% This plot method is highly unsatisfactory. We have a whole bunch of logic
+		% which decides on the properties of the model (hierachical or not) and
+		% (logk vs magnitude effect). It then uses a bunch of get methods in order
+		% to grab the data in the appropriate format. We then pass this data to plot
+		% functions/classes.
+		%
+		% Thinking needs to be done about the best way to refactor all this mess.
+
 
 
 
@@ -135,34 +168,43 @@ classdef Model < handle
 		function plot(obj)
 			close all
 
-			% TODO: THIS IS A COMPLETE MESS
-
 			% IDEAS:
 			% - Loop over participants (and group if there is one) and create an array of objects of a new participant class. This class will contain all the data for that person, as well as the plotting functions.
 			%
 			% - Or....
 
-			if obj.isGroupLevelModel()
-				IDnames = obj.data.IDname;
-				% We are going to add on group level inferences to the end of the
-				% list. This is because the group-level inferences an be
-				% seen as inferences we can make about an as yet unobserved
-				% participant, in the light of the participant data available thus
-				% far.
-				IDnames{end+1}='GROUP';
-			else
-				IDnames = obj.data.IDname;
-			end
 
-			% plot univariate summary statistics ---------------------------------
+
+
+			% UNIVARIATE SUMMARY STATISTICS ---------------------------------
+			% We are going to add on group level inferences to the end of the
+			% list. This is because the group-level inferences an be
+			% seen as inferences we can make about an as yet unobserved
+			% participant, in the light of the participant data available thus
+			% far.
+			IDnames = obj.data.IDname;
+			if obj.isGroupLevelModel()
+				IDnames{end+1}='GROUP';
+			end
+			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			obj.mcmc.figUnivariateSummary(IDnames, obj.varList.participantLevel)
+			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			latex_fig(16, 5, 5)
 			myExport('UnivariateSummary',...
 				'saveFolder',obj.saveFolder,...
 				'prefix', obj.modelType)
 			% --------------------------------------------------------------------
 
+
+
+
+
+
+
 			%% PARTICIPANT LEVEL
+			% We will ALWAYS have participants. So we will ALWAYS want to render some plots that allow us to understand the participant-level inferences made.
+			% This might mean that a Participant class might be a sensible thing, and that could consist of participant data and plot methods.
+
 
 			if obj.isGroupLevelModel()
 				participant_level_prior_variables = cellfun(...
@@ -181,25 +223,18 @@ classdef Model < handle
 			opts.maxD		= max(obj.data.observedData.DB(:));
 			% ??????????????????
 
-			% plot wrapper -------------------------------------------------------
-			% figParticipantLevelWrapper(...
-			% 	obj.mcmc,...
-			% 	obj.data,...
-			% 	obj.varList.participantLevel,...
-			% 	participant_level_prior_variables,...
-			% 	obj.saveFolder,...
-			% 	obj.modelType,...
-			% 	opts,...
-			% 	obj.plotFuncs.participantFigFunc)
-			% --------------------------------------------------------------------
+
+			% obj.plotFuncs.participantFigFunc is a handle to a function that will either plot LOGK or ME.
 			for n = 1:obj.data.nParticipants
 				fh = figure;
 		    fh.Name=['participant: ' obj.data.IDname{n}];
 
+				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		    obj.plotFuncs.participantFigFunc(obj.mcmc.getSamplesAtIndex(n, obj.varList.participantLevel),...
 		      obj.mcmc.getParticipantPointEstimates(n, obj.varList.participantLevel),...
 		      'pData', obj.data.getParticipantData(n),...
 					'opts',opts);
+				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 		    latex_fig(16, 18, 4)
 		    myExport(obj.data.IDname{n},...
@@ -208,106 +243,152 @@ classdef Model < handle
 		    close(fh)
 		  end
 
+			% TRIPLOT
 			for n = 1:obj.data.nParticipants
 				figure(87)
+
+				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 				TriPlotSamples(obj.mcmc.getSamplesFromParticipantAsMatrix(n, obj.varList.participantLevel),...
 					obj.varList.participantLevel,...
 					'PRIOR',obj.mcmc.getSamplesAsMatrix(participant_level_prior_variables));
+				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 				myExport([obj.data.IDname{n} '-triplot'],...
 					'saveFolder', obj.saveFolder,...
 					'prefix', obj.modelType);
 		  end
 
+
+
+
+
+
+
+
+
+
 			%% GROUP LEVEL ======================================
-			if obj.isGroupLevelModel()
-				group_level_prior_variables = cellfun(...
-					@getPriorOfVariable,...
-					obj.varList.groupLevel,...
-					'UniformOutput',false );
+			% SOME but not all models will have group-level inferences. Therefore we only want to proceed with plotting group level parameters if we are dealing with such a model.
 
-				% PSYCHOMETRIC PARAMS ----------------------------------------------
-				figPsychometricParamsHierarchical(obj.mcmc, obj.data)
-				myExport('PsychometricParams',...
-					'saveFolder', obj.saveFolder,...
-					'prefix', obj.modelType)
-				% ------------------------------------------------------------------
-
-
-				posteriorSamples = obj.mcmc.getSamplesAsMatrix(obj.varList.groupLevel);
-				priorSamples = obj.mcmc.getSamplesAsMatrix(group_level_prior_variables);
-				% TRIPLOT ----------------------------------------------------------
-				figure(87)
-				TriPlotSamples(posteriorSamples, obj.varList.groupLevel, 'PRIOR', priorSamples);
-				myExport('GROUP-triplot',...
-					'saveFolder', obj.saveFolder,...
-					'prefix', obj.modelType)
-				% ------------------------------------------------------------------
-
-
-				% GROUP (UNSEEN PARTICIPANT) PLOT
-
-				% strip the '_group' off of variablenames
-				for n=1:numel(obj.varList.groupLevel)
-					temp=regexp(obj.varList.groupLevel{n},'_','split');
-					groupLevelVarName{n} = temp{1};
-				end
-				% get point estimates. TODO: this can be a specific method in mcmc.
-				for n=1:numel(obj.varList.groupLevel)
-					pointEstimate.(groupLevelVarName{n}) =...
-						obj.mcmc.getStats('mean', obj.varList.groupLevel{n});
-				end
-
-				[pSamples] = obj.mcmc.getSamples(obj.varList.groupLevel);
-				% flatten
-				for n=1:numel(obj.varList.groupLevel)
-					pSamples.(obj.varList.groupLevel{n}) = vec(pSamples.(obj.varList.groupLevel{n}));
-				end
-				% rename
-				pSamples = renameFields(...
-					pSamples,...
-					obj.varList.groupLevel,...
-					groupLevelVarName);
-
-
-				% TODO ??????????????????
-				opts.maxlogB	= max(abs(obj.data.observedData.B(:)));
-				opts.maxD		= max(obj.data.observedData.DB(:));
-				% ??????????????????
-
-				% get group level pointEstimates
-				pointEstimates = obj.mcmc.getParticipantPointEstimates(1, obj.varList.groupLevel);
-				pointEstimates = renameFields(...
-					pointEstimates,...
-					obj.varList.groupLevel,...
-					groupLevelVarName);
-
-				% ------------------------------------------------------------------
-				obj.plotFuncs.participantFigFunc(pSamples,...
-					pointEstimates,...
-					'opts', opts)
-				myExport('GROUP',...
-					'saveFolder', obj.saveFolder,...
-					'prefix', obj.modelType)
-				% ------------------------------------------------------------------
-
-			else
-				% this model does not have group level params... don't do anything
+			if ~obj.isGroupLevelModel()
+				break
 			end
+
+
+			group_level_prior_variables = cellfun(...
+				@getPriorOfVariable,...
+				obj.varList.groupLevel,...
+				'UniformOutput',false );
+
+
+
+
+			% PSYCHOMETRIC PARAMS
+			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			figPsychometricParamsHierarchical(obj.mcmc, obj.data)
+			myExport('PsychometricParams',...
+				'saveFolder', obj.saveFolder,...
+				'prefix', obj.modelType)
+			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+
+
+
+
+			% TRIPLOT
+			posteriorSamples = obj.mcmc.getSamplesAsMatrix(obj.varList.groupLevel);
+			priorSamples = obj.mcmc.getSamplesAsMatrix(group_level_prior_variables);
+
+			figure(87)
+			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			TriPlotSamples(posteriorSamples,...
+				obj.varList.groupLevel,...
+			  'PRIOR', priorSamples);
+			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			myExport('GROUP-triplot',...
+				'saveFolder', obj.saveFolder,...
+				'prefix', obj.modelType)
+
+
+
+
+			% GROUP (UNSEEN PARTICIPANT) PLOT
+
+			% strip the '_group' off of variablenames
+			for n=1:numel(obj.varList.groupLevel)
+				temp=regexp(obj.varList.groupLevel{n},'_','split');
+				groupLevelVarName{n} = temp{1};
+			end
+			% get point estimates. TODO: this can be a specific method in mcmc.
+			for n=1:numel(obj.varList.groupLevel)
+				pointEstimate.(groupLevelVarName{n}) =...
+					obj.mcmc.getStats('mean', obj.varList.groupLevel{n});
+			end
+
+			[pSamples] = obj.mcmc.getSamples(obj.varList.groupLevel);
+			% flatten
+			for n=1:numel(obj.varList.groupLevel)
+				pSamples.(obj.varList.groupLevel{n}) = vec(pSamples.(obj.varList.groupLevel{n}));
+			end
+			% rename
+			pSamples = renameFields(...
+				pSamples,...
+				obj.varList.groupLevel,...
+				groupLevelVarName);
+
+
+			% TODO ??????????????????
+			opts.maxlogB	= max(abs(obj.data.observedData.B(:)));
+			opts.maxD		= max(obj.data.observedData.DB(:));
+			% ??????????????????
+
+			% get group level pointEstimates
+			pointEstimates = obj.mcmc.getParticipantPointEstimates(1, obj.varList.groupLevel);
+			pointEstimates = renameFields(...
+				pointEstimates,...
+				obj.varList.groupLevel,...
+				groupLevelVarName);
+
+			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			obj.plotFuncs.participantFigFunc(pSamples,...
+				pointEstimates,...
+				'opts', opts)
+			myExport('GROUP',...
+				'saveFolder', obj.saveFolder,...
+				'prefix', obj.modelType)
+			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 			%% MC CONTOUR PLOTS
 			if strcmp(obj.discountFuncType,'me') % code smell
 				probMass = 0.5; % <---- 50% prob mass chosen to avoid too much clutter on graph
+				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 				plotMCclusters(obj.mcmc, obj.data, [1 0 0], probMass)
+				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			end
 		end
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 		function posteriorPredictive(obj)
-			% TODO: SEPARATE CALCULATION AND PLOTTING INTO DIFFERENT FUNCTIONS?
+			warning('THIS CODE IS IN-PROGRESS, AND EXPERIMENTAL')
 
 			%% Calculation
 			% Calculate log posterior odds of data under the model and a
@@ -324,6 +405,8 @@ classdef Model < handle
 				pRandom = prob(participantResponses, controlPredictions);
 				logSomething(p) = log( pModel ./ pRandom);
 			end
+
+
 			%% Plotting
 			figure(77), clf, colormap(gray)
 			for p=1:nParticipants
