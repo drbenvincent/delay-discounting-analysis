@@ -217,6 +217,8 @@ classdef Model < handle
 					obj.varList.participantLevel,...
 					'UniformOutput',false );
 			end
+			
+
 
 			% TODO ??????????????????
 			opts.maxlogB	= max(abs(obj.data.observedData.B(:)));
@@ -269,11 +271,10 @@ classdef Model < handle
 
 			%% GROUP LEVEL ======================================
 			% SOME but not all models will have group-level inferences. Therefore we only want to proceed with plotting group level parameters if we are dealing with such a model.
-
+			
 			if ~obj.isGroupLevelModel()
-				break
+				return
 			end
-
 
 			group_level_prior_variables = cellfun(...
 				@getPriorOfVariable,...
