@@ -1,7 +1,8 @@
 % Ben's testing script
 
-toolboxPath = setToolboxPath('/Users/benvincent/git-local/delay-discounting-analysis/ddToolbox')
-cd('/Users/benvincent/git-local/delay-discounting-analysis/demo')
+cd('~/git-local/delay-discounting-analysis/demo')
+toolboxPath = setToolboxPath('~/git-local/delay-discounting-analysis/ddToolbox')
+
 setPlotTheme
 
 % fnames={'AC-kirby27-DAYS.txt',...
@@ -59,7 +60,7 @@ h_me.plotMCMCchains({'m_group','c_group', 'alpha_group', 'epsilon_group'})
 %% JAGS - updated
 h_me_updated = ModelHierarchicalMEUpdated(toolboxPath, 'JAGS', myData, 'hierarchical_ME_updated');
 h_me_updated.sampler.setMCMCtotalSamples(nSamples);
-h_me_updated.sampler.setMCMCnumberOfChains(2);
+h_me_updated.sampler.setMCMCnumberOfChains(nChains);
 h_me_updated.conductInference(); % TODO: Could return an MCMCFit object here ******
 h_me_updated.exportParameterEstimates();
 h_me_updated.plot()
@@ -120,7 +121,7 @@ s_logk.plot()
 
 %% ModelHierarchicalLogK
 sModel = ModelHierarchicalLogK(toolboxPath, 'STAN', myData, 'stanModelHierarchicalLogK');
-sModel.sampler.setStanHome('/Users/btvincent/cmdstan')
+sModel.sampler.setStanHome('~/cmdstan')
 clc
 stanFit = sModel.conductInference();
 % ~~~~~~~~~~~~~~~~~

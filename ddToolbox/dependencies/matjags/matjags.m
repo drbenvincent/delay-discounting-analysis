@@ -387,6 +387,11 @@ function [modelFullPath, workingDirFullPath] = get_model_and_working_directory_p
     jagsModel = [ jagsModelBase modelextension ];
 
     cd( whdir );
+	
+	% expand home dir (~) to absolute path
+	if strncmp(whdir, '~', 1)
+		whdir = [getenv('HOME') whdir(2:end)];
+	end
 
     if ~isempty(whdir) && (strcmp(whdir(1),filesep) || (length(whdir) > 2 && whdir(2) == ':'))
         % Case when a full path string is specified for the jagsModel

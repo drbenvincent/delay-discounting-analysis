@@ -1,5 +1,5 @@
 function ensureFolderExists(folderPath)
-if ~exist(folderPath,'dir')
+if exist(folderPath,'dir') ~= 7
   mkdir(folderPath)
 end
-end
+return

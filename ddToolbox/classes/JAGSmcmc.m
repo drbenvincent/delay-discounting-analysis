@@ -22,7 +22,6 @@ classdef JAGSmcmc < mcmcContainer
 		end
 
 		function convergenceSummary(obj,saveFolder,IDnames)
-
 			[fid, fname] = setupFile(saveFolder);
 			MCMCParameterReport();
 			RhatInformation(IDnames);
@@ -33,6 +32,7 @@ classdef JAGSmcmc < mcmcContainer
 				ensureFolderExists(fullfile('figs',saveFolder))
 				fname = fullfile('figs',saveFolder,['ConvergenceReport.txt']);
 				fid=fopen(fname,'w');
+				assert(fid~=-1)
 			end
 
 			function MCMCParameterReport()

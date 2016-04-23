@@ -2,10 +2,10 @@ function SCRIPTstabilityTest
 % tests the stability of the inferences made
 
 %% Preamble
-toolboxPath = '/Users/benvincent/git-local/delayDiscounting/ddToolbox';
-addpath(genpath(toolboxPath)) 
+toolboxPath = '~/git-local/delayDiscounting/ddToolbox';
+addpath(genpath(toolboxPath))
 
-projectPath = '/Users/benvincent/git-local/delayDiscounting/demo';
+projectPath = '~/git-local/delayDiscounting/demo';
 cd(projectPath)
 
 
@@ -45,10 +45,10 @@ kirbyData.loadDataFiles(fnames);
 N=7; % fit the same data this many times
 for n=1:N
 	display(['Hierarchical model ' num2str(n),' of ' num2str(N)])
-	
+
 	tempModel = ModelHierarchical(toolboxPath);
 	tempModel.conductInference(kirbyData);
-	
+
 	% thow the model away, just store the univariate analysis
 	univariate(n) = tempModel.analyses.univariate;
 	clear tempModel
@@ -59,14 +59,14 @@ latex_fig(16, 8, 9)
 myExport([], [], 'hierarchical-reliability-summaryStats')
 % -----------------------------------
 
-% ***************************************************** 
+% *****************************************************
 % Now do the same, but for the seperate-parameter model
 for n=1:N
 	display(['Separate model ' num2str(n),' of ' num2str(N)])
-	
+
 	tempModel = ModelSeperate(toolboxPath);
 	tempModel.conductInference(kirbyData);
-	
+
 	% thow the model away, just store the univariate analysis
 	univariate(n) = tempModel.analyses.univariate;
 	clear tempModel
@@ -76,4 +76,3 @@ figGroupedForestPlot(univariate)
 latex_fig(16, 8, 9)
 myExport([], [], 'separate-reliability-summaryStats')
 % -----------------------------------
-

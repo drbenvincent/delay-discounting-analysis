@@ -1,6 +1,6 @@
 % batchGenerateFigures
 
-toolboxPath = '/Users/benvincent/git-local/delay-discounting-analysis/ddToolbox';
+toolboxPath = '~/git-local/delay-discounting-analysis/ddToolbox';
 addpath(genpath(toolboxPath))
 
 generateFigure1
