@@ -1,6 +1,8 @@
 function  HT_BayesFactor(priorSamples, posteriorSamples)
 warning('This code only implements the hypothesis x<0')
 
+%import mcmc.*
+
 %% Discard samples >0
 % in order to evaluate the order-restricted hypothesis x<0, then we need to
 % remove samples where either prior or posterior contain samples
@@ -44,7 +46,7 @@ plot(0, density.posterior.atZero,'ko','MarkerFaceColor','k')
 axis square
 box off
 axis tight, xlim([-2 0])
-removeYaxis()
+mcmc.removeYaxis()
 %addTextToFigure('TR',...
 %	sprintf('log BF_{10} = %2.2f',log(BF_10)),...
 %	15,	'latex')

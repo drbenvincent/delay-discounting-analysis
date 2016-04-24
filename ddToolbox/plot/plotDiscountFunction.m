@@ -2,6 +2,7 @@ function plotDiscountFunction(logK, logKsamples, varargin)
 
 % TODO clean up this function
 
+
 p = inputParser;
 p.FunctionName = mfilename;
 p.addRequired('logK',@isscalar);
@@ -19,9 +20,15 @@ switch p.Results.xScale
 	case{'linear'}
 		D = linspace(0, halfLife*100, 1000);
 
-		myplot = PosteriorPredictionPlot(discountFraction, D, exp(p.Results.logKsamples) );
-		myplot.plotExamples(100);
-		myplot.plotPointEstimate( exp(logK) );
+		mcmc.PosteriorPrediction1D(discountFraction,...
+			'xInterp',D,...
+			'samples',exp(p.Results.logKsamples),...
+			'ciType','examples',...
+			'variableNames', {'delay', 'discount factor'});
+
+% 		myplot = PosteriorPrediction1D(discountFraction, D, exp(p.Results.logKsamples) );
+% 		myplot.plotExamples(100);
+% 		myplot.plotPointEstimate( exp(logK) );
 
 	case{'log'}
 		D = logspace(-2,4,10000);
@@ -31,10 +38,10 @@ end
 
 % formatting
 axis tight
-axis square
-box off
-xlabel('delay', 'interpreter','latex')
-ylabel('discount factor', 'interpreter','latex')
+% axis square
+% box off
+% xlabel('delay', 'interpreter','latex')
+% ylabel('discount factor', 'interpreter','latex')
 ylim([0 1])
 
 % default scale the x axis from 0 to a multiple of the half life

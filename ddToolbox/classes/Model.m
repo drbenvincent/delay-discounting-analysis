@@ -217,7 +217,7 @@ classdef Model < handle
 					obj.varList.participantLevel,...
 					'UniformOutput',false );
 			end
-			
+
 
 
 			% TODO ??????????????????
@@ -229,21 +229,21 @@ classdef Model < handle
 			% obj.plotFuncs.participantFigFunc is a handle to a function that will either plot LOGK or ME.
 			for n = 1:obj.data.nParticipants
 				fh = figure;
-		    fh.Name=['participant: ' obj.data.IDname{n}];
+				fh.Name=['participant: ' obj.data.IDname{n}];
 
 				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		    obj.plotFuncs.participantFigFunc(obj.mcmc.getSamplesAtIndex(n, obj.varList.participantLevel),...
-		      obj.mcmc.getParticipantPointEstimates(n, obj.varList.participantLevel),...
-		      'pData', obj.data.getParticipantData(n),...
+				obj.plotFuncs.participantFigFunc(obj.mcmc.getSamplesAtIndex(n, obj.varList.participantLevel),...
+					obj.mcmc.getParticipantPointEstimates(n, obj.varList.participantLevel),...
+					'pData', obj.data.getParticipantData(n),...
 					'opts',opts);
 				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-		    latex_fig(16, 18, 4)
-		    myExport(obj.data.IDname{n},...
-		      'saveFolder', obj.saveFolder,...
-		      'prefix', obj.modelType);
-		    close(fh)
-		  end
+				latex_fig(16, 18, 4)
+				myExport(obj.data.IDname{n},...
+					'saveFolder', obj.saveFolder,...
+					'prefix', obj.modelType);
+				close(fh)
+			end
 
 			% TRIPLOT
 			for n = 1:obj.data.nParticipants
@@ -258,7 +258,7 @@ classdef Model < handle
 				myExport([obj.data.IDname{n} '-triplot'],...
 					'saveFolder', obj.saveFolder,...
 					'prefix', obj.modelType);
-		  end
+			end
 
 
 
@@ -271,7 +271,7 @@ classdef Model < handle
 
 			%% GROUP LEVEL ======================================
 			% SOME but not all models will have group-level inferences. Therefore we only want to proceed with plotting group level parameters if we are dealing with such a model.
-			
+
 			if ~obj.isGroupLevelModel()
 				return
 			end
@@ -299,6 +299,7 @@ classdef Model < handle
 
 
 			% TRIPLOT
+			import mcmc.*
 			posteriorSamples = obj.mcmc.getSamplesAsMatrix(obj.varList.groupLevel);
 			priorSamples = obj.mcmc.getSamplesAsMatrix(group_level_prior_variables);
 
@@ -306,7 +307,7 @@ classdef Model < handle
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			TriPlotSamples(posteriorSamples,...
 				obj.varList.groupLevel,...
-			  'PRIOR', priorSamples);
+				'PRIOR', priorSamples);
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			myExport('GROUP-triplot',...
 				'saveFolder', obj.saveFolder,...
@@ -353,9 +354,11 @@ classdef Model < handle
 				groupLevelVarName);
 
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			figure
 			obj.plotFuncs.participantFigFunc(pSamples,...
 				pointEstimates,...
 				'opts', opts)
+			latex_fig(16, 18, 4)
 			myExport('GROUP',...
 				'saveFolder', obj.saveFolder,...
 				'prefix', obj.modelType)

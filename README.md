@@ -29,8 +29,8 @@ Go to the [wiki](https://github.com/drbenvincent/delay-discounting-analysis/wiki
 The commands use to get your analysis up and running are quite quick and easy. Here is a minimum working example of the demo provided:
 
 ```matlab
-toolboxPath = setToolboxPath('~/git-local/delay-discounting-analysis/ddToolbox')
 cd('~/git-local/delay-discounting-analysis/demo')
+toolboxPath = setToolboxPath('~/git-local/delay-discounting-analysis/ddToolbox')
 myData = DataClass('data');
 myData.loadDataFiles({'AC-kirby27-DAYS.txt','CS-kirby27-DAYS.txt','NA-kirby27-DAYS.txt','SB-kirby27-DAYS.txt','bv-kirby27.txt','rm-kirby27.txt','vs-kirby27.txt','BL-kirby27.txt','EP-kirby27.txt','JR-kirby27.txt','KA-kirby27.txt','LJ-kirby27.txt','LY-kirby27.txt','SK-kirby27.txt','VD-kirby27.txt'});
 saveFolder = 'methodspaper-kirby27';

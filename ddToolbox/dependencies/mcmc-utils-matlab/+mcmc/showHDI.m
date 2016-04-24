@@ -2,7 +2,7 @@ function showHDI(samples)
 
 textOrientation = 'vertical';
 
-[HDI] = HDIofSamples(samples, 0.95);
+[HDI] = mcmc.HDIofSamples(samples, 0.95);
 
 hold on
 

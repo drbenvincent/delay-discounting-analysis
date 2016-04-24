@@ -22,6 +22,7 @@ classdef JAGSmcmc < mcmcContainer
 		end
 
 		function convergenceSummary(obj,saveFolder,IDnames)
+
 			[fid, fname] = setupFile(saveFolder);
 			MCMCParameterReport();
 			RhatInformation(IDnames);
@@ -32,7 +33,6 @@ classdef JAGSmcmc < mcmcContainer
 				ensureFolderExists(fullfile('figs',saveFolder))
 				fname = fullfile('figs',saveFolder,['ConvergenceReport.txt']);
 				fid=fopen(fname,'w');
-				assert(fid~=-1)
 			end
 
 			function MCMCParameterReport()
@@ -150,7 +150,7 @@ classdef JAGSmcmc < mcmcContainer
 
 			function intPlotDistribution(samples, row, rows)
 				hHist = subplot(rows,6,row*6);
-				mcmc.UnivariateDistribution(samples(:));
+				UnivariateDistribution(samples(:));
 			end
 
 		end

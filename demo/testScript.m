@@ -1,9 +1,10 @@
 % Ben's testing script
 
 cd('~/git-local/delay-discounting-analysis/demo')
-toolboxPath = setToolboxPath('~/git-local/delay-discounting-analysis/ddToolbox')
+toolboxPath = setToolboxPath('~/git-local/delay-discounting-analysis/ddToolbox');
+import mcmc.*
 
-setPlotTheme
+setPlotTheme('fontsize',16, 'linewidth',1)
 
 % fnames={'AC-kirby27-DAYS.txt',...
 % 'CS-kirby27-DAYS.txt',...
@@ -30,7 +31,7 @@ myData = DataClass(pathToData);
 myData.loadDataFiles(fnames);
 
 %%
-nSamples = 10^4;
+nSamples = 10^5;
 nChains = 2;
 
 

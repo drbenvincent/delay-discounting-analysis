@@ -32,7 +32,7 @@ classdef TriPlotSamples < handle
 			p.addParameter('trueVals',[],@isvector);
 			p.addParameter('posteriorCol',[0.2 0.2 0.2],@isvector);
 			p.addParameter('priorCol',[0.8 0.8 0.8],@isvector);
-			p.addParameter('figSize',22,@iscalar);
+			p.addParameter('figSize',22,@isscalar);
 			p.addParameter('plotHDI',true,@islogical);
 			p.parse(POSTERIOR, labels, varargin{:});
 
@@ -70,14 +70,20 @@ classdef TriPlotSamples < handle
 					elseif col == row
 						%obj.drawHist(row, col)
 						obj.ax(row,col) = subplot(obj.ROWS, obj.COLS, sub2ind([obj.COLS obj.ROWS], col, row) );
-
-						UnivariateDistribution(obj.POSTERIOR(:,col),...
-					    'priorSamples', obj.PRIOR(:,col));
+						
+						if isempty(obj.PRIOR)
+							mcmc.UnivariateDistribution(obj.POSTERIOR(:,col),...
+								'killYAxis', true);
+						else
+							mcmc.UnivariateDistribution(obj.POSTERIOR(:,col),...
+								'priorSamples', obj.PRIOR(:,col),...
+								'killYAxis', true);
+						end
 
 					else
 						obj.ax(row,col) = subplot(obj.ROWS, obj.COLS, sub2ind([obj.COLS obj.ROWS], col, row) );
 
-						BivariateDistribution(...
+						mcmc.BivariateDistribution(...
 							obj.POSTERIOR(:,col),...
 							obj.POSTERIOR(:,row));
 					end

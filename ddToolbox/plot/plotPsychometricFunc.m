@@ -1,4 +1,6 @@
 function plotPsychometricFunc(pSamples, modeVals)
+
+
 % This is the Psychometric function ---------------------------------------
 %fh = @(x,params) params(:,1) + (1-2*params(:,1)) * normcdf( (x ./ params(:,2)) , 0, 1);
 %fh = @FAST_PSYCHOMETRIC;
@@ -11,21 +13,13 @@ fh = @(x,params) bsxfun(@plus,...
 	normcdf( bsxfun(@rdivide, x, params(:,2) ) , 0, 1)) );
 % -------------------------------------------------------------------------
 
-% Determine the x range to plot over
-% TODO: make this a function of alpha?
-x=linspace(-200,200,200);
+samples(:,1) = pSamples.epsilon;
+samples(:,2) = pSamples.alpha;
 
-params(:,1) = pSamples.epsilon;
-params(:,2) = pSamples.alpha;
+mcmc.PosteriorPrediction1D(fh,...
+    'xInterp',linspace(-200,200,200),... % TODO: make this a function of alpha?
+    'samples',samples,...
+    'ciType','examples',...
+    'variableNames', {'$V^B-V^A$', 'P(choose delayed)'});
 
-% Create myplot object (class = PosteriorPredictionPlot)
-myplot = PosteriorPredictionPlot(fh, x, params);
-%myplot = myplot.plotCI([5 95]);
-%myplot.plotProbMass(linspace(0,1,100))
-myplot.plotExamples(100);
-myplot.plotPointEstimate(modeVals);
-
-xlabel('$V^B-V^A$','Interpreter','latex')
-ylabel('P(choose delayed)','Interpreter','latex')
-axis square
 return
