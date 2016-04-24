@@ -15,6 +15,7 @@ classdef TriPlotSamples < handle
 		labels
 		trueVals
 		plotHDI
+		pointEstimateType
 	end
 
 	properties (Dependent)
@@ -34,6 +35,7 @@ classdef TriPlotSamples < handle
 			p.addParameter('priorCol',[0.8 0.8 0.8],@isvector);
 			p.addParameter('figSize',22,@isscalar);
 			p.addParameter('plotHDI',true,@islogical);
+			p.addParameter('pointEstimateType','mode', @(x)any(strcmp(x,{'mean','median','mode'})));
 			p.parse(POSTERIOR, labels, varargin{:});
 
 			% add p.Results fields into obj
@@ -68,16 +70,17 @@ classdef TriPlotSamples < handle
 						% upper triangle is empty
 						break
 					elseif col == row
-						%obj.drawHist(row, col)
 						obj.ax(row,col) = subplot(obj.ROWS, obj.COLS, sub2ind([obj.COLS obj.ROWS], col, row) );
-						
+
 						if isempty(obj.PRIOR)
 							mcmc.UnivariateDistribution(obj.POSTERIOR(:,col),...
-								'killYAxis', true);
+								'killYAxis', true,...
+								'pointEstimateType',obj.pointEstimateType);
 						else
 							mcmc.UnivariateDistribution(obj.POSTERIOR(:,col),...
 								'priorSamples', obj.PRIOR(:,col),...
-								'killYAxis', true);
+								'killYAxis', true,...
+								'pointEstimateType',obj.pointEstimateType);
 						end
 
 					else
@@ -85,40 +88,11 @@ classdef TriPlotSamples < handle
 
 						mcmc.BivariateDistribution(...
 							obj.POSTERIOR(:,col),...
-							obj.POSTERIOR(:,row));
+							obj.POSTERIOR(:,row),...
+							'pointEstimateType',obj.pointEstimateType);
 					end
 				end
 			end
-		end
-
-		function drawHist(obj, row, col)
-			% TODO...
-			warning('Use existing prior/posterior plotting code here')
-			% draw histogram of dimension 'col'
-			obj.ax(row,col) = subplot(obj.ROWS, obj.COLS, sub2ind([obj.COLS obj.ROWS], col, row) );
-
-			h(row,col) = histogram(obj.POSTERIOR(:,col),...
-				'EdgeColor','none',...
-				'Normalization','pdf',...
-				'FaceColor',obj.posteriorCol);
-			axis tight, a=axis; ylim([0 a(4)]);
-			a=axis;
-			if ~isempty(obj.PRIOR)
-				hold on
-				histogram(obj.PRIOR(:,col),...
-					'EdgeColor','none',...
-					'Normalization','pdf',...
-					'FaceColor',obj.priorCol);
-				axis(a);
-			end
-			box off
-
-			axis square
-			if obj.plotHDI
-				showHDI(obj.POSTERIOR(:,col))
-			end
-
-			obj.plotUnivariateTrueValue()
 		end
 
 

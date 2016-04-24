@@ -68,7 +68,8 @@ axis(tempAxisLims)
 figure(3), clf
 tri = mcmc.TriPlotSamples(samples,...
 	variableNames,...
-	'figSize', 20);
+	'figSize', 20,...
+	'pointEstimateType','mode');
 
 
 %% PosteriorPrediction1D
