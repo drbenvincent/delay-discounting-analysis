@@ -51,18 +51,11 @@ hModel = ModelHierarchicalME(toolboxPath, 'JAGS', myData, saveFolder);
 % This will initiate MCMC sampling. This can take some time to run.
 hModel.conductInference();
 
-% Conduct some posterior predictive analysis
-% hModel.posteriorPredictive(); % **** ADDITIONAL FEATURE: NOT YET FINISHED
-
-% Export posterior mode (and credible intervals) of all parameter and group
-% level parameters to a text file
 hModel.exportParameterEstimates();
 
-% Plot all the results
 hModel.plot()
 
 % Inspect mcmc chains
-% Include whatever model variable names you want to inspect
 hModel.plotMCMCchains({'m','c'})
 hModel.plotMCMCchains({'m_group','c_group', 'alpha_group', 'epsilon_group'})
 
@@ -90,13 +83,14 @@ someSamples = hModel.mcmc.getSamples({'m','c'});
 % Below we calculate and plot the discount rates for reward magnitudes of 
 % £100 and £1,000
 
-figure(1), clf
-plotFlag=true;
-ax(1) = subplot(1,2,1);
-hModel.conditionalDiscountRates(100, plotFlag);
-ax(2) = subplot(1,2,2);
-hModel.conditionalDiscountRates(1000, plotFlag);
-linkaxes(ax,'xy')
+% TOD0: fix this
+% figure(1), clf
+% plotFlag=true;
+% ax(1) = subplot(1,2,1);
+% hModel.conditionalDiscountRates(100, plotFlag);
+% ax(2) = subplot(1,2,2);
+% hModel.conditionalDiscountRates(1000, plotFlag);
+% linkaxes(ax,'xy')
 
 
 

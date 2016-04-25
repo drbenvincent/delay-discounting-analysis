@@ -10,7 +10,9 @@ function [posteriorMean,lh] = calculateLogK_ConditionOnReward(reward, params, pl
 		params(:,2)));
 	% -----------------------------------------------------------
 
-	myplot = PosteriorPrediction1D(fh, reward, params);
+	myplot = mcmc.PosteriorPrediction1D(fh,...
+		'xInterp',reward,...
+		'samples',params);
 	myplot = myplot.evaluateFunction([]);
 
 	% Extract samples of P(k|reward)
