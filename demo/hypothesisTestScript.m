@@ -17,6 +17,8 @@ HT_BayesFactor(priorSamples, posteriorSamples)
 
 %% METHOD 2 - examine credible interval
 subplot(1,2,2)
-mcmc.UnivariateDistribution(posteriorSamples, 'priorSamples', priorSamples );
+mcmc.UnivariateDistribution(posteriorSamples,...
+	'priorSamples', priorSamples,...
+	'plotStyle','hist');
 
 end
