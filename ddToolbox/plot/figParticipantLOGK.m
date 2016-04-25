@@ -1,27 +1,26 @@
-function figParticipantLOGK(pSamples, pointEstimate, varargin)
+function figParticipantLOGK(pSamples, pointEstimateType, varargin)
 
 p = inputParser;
 p.FunctionName = mfilename;
 p.addRequired('pSamples',@isstruct);
-p.addRequired('pointEstimate',@isstruct);
+p.addRequired('pointEstimateType',@isstr);
 p.addParameter('pData',[], @isstruct);
 p.addParameter('opts',[], @isstruct);
-p.parse(pSamples, pointEstimate, varargin{:});
+p.parse(pSamples, pointEstimateType, varargin{:});
 
 rows=1; cols=4;
 
 subplot(rows, cols, 1)
-mcmc.BivariateDistribution(pSamples.epsilon, pSamples.alpha,...
+epsilon_alpha = mcmc.BivariateDistribution(pSamples.epsilon, pSamples.alpha,...
 	'xLabel','error rate, $\epsilon$',...
 	'ylabel','comparison accuity, $\alpha$',...
 	'pointEstimateType','mode');
 
 subplot(rows, cols, 2)
-plotPsychometricFunc(pSamples,...
-	[pointEstimate.epsilon, pointEstimate.alpha]);
+plotPsychometricFunc(pSamples, epsilon_alpha.(pointEstimateType));
 
 subplot(rows, cols, 3)
-mcmc.UnivariateDistribution(pSamples.logk(:),...
+logk = mcmc.UnivariateDistribution(pSamples.logk(:),...
  'killYAxis', true,...
  'xLabel', '$\log(k)$');
 
@@ -29,10 +28,10 @@ mcmc.UnivariateDistribution(pSamples.logk(:),...
 subplot(rows, cols, 4)
 if ~isempty(p.Results.pData)
 	% participant level, we have data
-	plotDiscountFunction(pointEstimate.logk, pSamples.logk(:), 'data',p.Results.pData);
+	plotDiscountFunction(logk.(pointEstimateType), pSamples.logk(:), 'data',p.Results.pData);
 else
 	% for group level where there is no data
-	plotDiscountFunction(pointEstimate.logk, pSamples.logk(:));
+	plotDiscountFunction(logk.(pointEstimateType), pSamples.logk(:));
 end
 
 end

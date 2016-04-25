@@ -9,7 +9,7 @@ classdef ModelSeparateLogK < Model
 	methods (Access = public)
 		% =================================================================
 		function obj = ModelSeparateLogK(toolboxPath, samplerType, data, saveFolder, varargin)
-			obj = obj@Model(samplerType, data, saveFolder, varargin);
+			obj = obj@Model(data, saveFolder, varargin{:});
 
 			switch samplerType
 				case{'JAGS'}

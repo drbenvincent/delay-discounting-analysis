@@ -75,10 +75,10 @@ classdef JAGSmcmc < mcmcContainer
 			end
 		end
 
-		function figUnivariateSummary(obj, participantNames, variables)
+		function figUnivariateSummary(obj, participantNames, variables, pointEstimateType)
 			% create a multi-panel figure (one subplot per variable), each
 			% comprisnig of univariate summary stats for all participants.
-
+			warning('TODO: Make use of pointEstimateType option.')
 			figure
 			for v = 1:numel(variables)
 				subplot(numel(variables),1,v)

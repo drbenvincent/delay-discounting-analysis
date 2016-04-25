@@ -13,7 +13,7 @@ classdef ModelSeparateME < Model
 		function obj = ModelSeparateME(toolboxPath, sampler, data, saveFolder, varargin)
 			% Because this class is a subclass of "Model" then we use
 			% this next line to create an instance
-			obj = obj@Model(sampler, data, saveFolder, varargin);
+			obj = obj@Model(data, saveFolder, varargin{:});
 
 			switch sampler
 				case{'JAGS'}

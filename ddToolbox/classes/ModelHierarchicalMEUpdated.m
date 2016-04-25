@@ -7,11 +7,11 @@ classdef ModelHierarchicalMEUpdated < ModelHierarchicalME
 
 	methods (Access = public)
 		% =================================================================
-		function obj = ModelHierarchicalMEUpdated(toolboxPath, sampler, data, saveFolder, varargin)
+		function obj = ModelHierarchicalMEUpdated(toolboxPath, samplerType, data, saveFolder, varargin)
 			% Inherit from ModelHierarchical and override selected methods
-			obj = obj@ModelHierarchicalME(sampler, data, saveFolder, varargin);
+			obj = obj@ModelHierarchicalME(toolboxPath, samplerType, data, saveFolder, varargin{:});
 
-			switch sampler
+			switch samplerType
 				case{'JAGS'}
 					modelPath = '/models/hierarchicalMEupdated.txt';
 					obj.sampler = JAGSSampler([toolboxPath modelPath]);

@@ -20,24 +20,18 @@ classdef Model < handle
 
 	methods (Access = public)
 
-		function obj = Model(sampler, data, saveFolder, varargin)
+		function obj = Model(data, saveFolder, varargin)
 			p = inputParser;
 			p.FunctionName = mfilename;
-			%p.addRequired('toolboxPath',@isstr);
-			p.addRequired('sampler', @ischar);
 			p.addRequired('data', @(x) isa(x,'DataClass'));
 			p.addRequired('saveFolder', @isstr);
 			p.addParameter('pointEstimateType','mode',@(x) any(strcmp(x,{'mean','median','mode'})));
-			p.parse(sampler, data, saveFolder, varargin{:});
+			p.parse(data, saveFolder, varargin{:});
 			% add p.Results fields into obj
 			fields = fieldnames(p.Results);
 			for n=1:numel(fields)
 				obj.(fields{n}) = p.Results.(fields{n});
 			end
-
-
-			obj.data = data;
-			obj.saveFolder = saveFolder;
 		end
 
 		function varNames = extractLevelNVarNames(obj, N)
@@ -191,25 +185,26 @@ classdef Model < handle
 
 
 
-
-			% UNIVARIATE SUMMARY STATISTICS ---------------------------------
-			% We are going to add on group level inferences to the end of the
-			% list. This is because the group-level inferences an be
-			% seen as inferences we can make about an as yet unobserved
-			% participant, in the light of the participant data available thus
-			% far.
-			IDnames = obj.data.IDname;
-			if obj.isGroupLevelModel()
-				IDnames{end+1}='GROUP';
-			end
-			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			obj.mcmc.figUnivariateSummary(IDnames, obj.varList.participantLevel)
-			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			latex_fig(16, 5, 5)
-			myExport('UnivariateSummary',...
-				'saveFolder',obj.saveFolder,...
-				'prefix', obj.modelType)
-			% --------------------------------------------------------------------
+% Temporarily(?) removing this, because it's not really very useful
+% This does NOT utilise the user-specified pointEstimateType, currently.
+% 			% UNIVARIATE SUMMARY STATISTICS ---------------------------------
+% 			% We are going to add on group level inferences to the end of the
+% 			% list. This is because the group-level inferences an be
+% 			% seen as inferences we can make about an as yet unobserved
+% 			% participant, in the light of the participant data available thus
+% 			% far.
+% 			IDnames = obj.data.IDname;
+% 			if obj.isGroupLevelModel()
+% 				IDnames{end+1}='GROUP';
+% 			end
+% 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% 			obj.mcmc.figUnivariateSummary(IDnames, obj.varList.participantLevel, obj.pointEstimateType)
+% 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% 			latex_fig(16, 5, 5)
+% 			myExport('UnivariateSummary',...
+% 				'saveFolder',obj.saveFolder,...
+% 				'prefix', obj.modelType)
+% 			% --------------------------------------------------------------------
 
 
 
@@ -249,7 +244,7 @@ classdef Model < handle
 
 				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 				obj.plotFuncs.participantFigFunc(obj.mcmc.getSamplesAtIndex(n, obj.varList.participantLevel),...
-					obj.mcmc.getParticipantPointEstimates(n, obj.varList.participantLevel),...
+					obj.pointEstimateType,...
 					'pData', obj.data.getParticipantData(n),...
 					'opts',opts);
 				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -268,7 +263,8 @@ classdef Model < handle
 				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 				TriPlotSamples(obj.mcmc.getSamplesFromParticipantAsMatrix(n, obj.varList.participantLevel),...
 					obj.varList.participantLevel,...
-					'PRIOR',obj.mcmc.getSamplesAsMatrix(participant_level_prior_variables));
+					'PRIOR',obj.mcmc.getSamplesAsMatrix(participant_level_prior_variables),...
+					'pointEstimateType',obj.pointEstimateType);
 				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 				myExport([obj.data.IDname{n} '-triplot'],...
@@ -323,7 +319,8 @@ classdef Model < handle
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			TriPlotSamples(posteriorSamples,...
 				obj.varList.groupLevel,...
-				'PRIOR', priorSamples);
+				'PRIOR', priorSamples,...
+				'pointEstimateType',obj.pointEstimateType);
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			myExport('GROUP-triplot',...
 				'saveFolder', obj.saveFolder,...
@@ -339,11 +336,11 @@ classdef Model < handle
 				temp=regexp(obj.varList.groupLevel{n},'_','split');
 				groupLevelVarName{n} = temp{1};
 			end
-			% get point estimates. TODO: this can be a specific method in mcmc.
-			for n=1:numel(obj.varList.groupLevel)
-				pointEstimate.(groupLevelVarName{n}) =...
-					obj.mcmc.getStats('mean', obj.varList.groupLevel{n});
-			end
+% 			% get point estimates. TODO: this can be a specific method in mcmc.
+% 			for n=1:numel(obj.varList.groupLevel)
+% 				pointEstimate.(groupLevelVarName{n}) =...
+% 					obj.mcmc.getStats('mean', obj.varList.groupLevel{n});
+% 			end
 
 			[pSamples] = obj.mcmc.getSamples(obj.varList.groupLevel);
 			% flatten
@@ -360,19 +357,19 @@ classdef Model < handle
 			% TODO ??????????????????
 			opts.maxlogB	= max(abs(obj.data.observedData.B(:)));
 			opts.maxD		= max(obj.data.observedData.DB(:));
-			% ??????????????????
+			% ???????????????????????
 
-			% get group level pointEstimates
-			pointEstimates = obj.mcmc.getParticipantPointEstimates(1, obj.varList.groupLevel);
-			pointEstimates = renameFields(...
-				pointEstimates,...
-				obj.varList.groupLevel,...
-				groupLevelVarName);
+% 			% get group level pointEstimates
+% 			pointEstimates = obj.mcmc.getParticipantPointEstimates(1, obj.varList.groupLevel);
+% 			pointEstimates = renameFields(...
+% 				pointEstimates,...
+% 				obj.varList.groupLevel,...
+% 				groupLevelVarName);
 
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			figure
 			obj.plotFuncs.participantFigFunc(pSamples,...
-				pointEstimates,...
+				obj.pointEstimateType,...
 				'opts', opts)
 			latex_fig(16, 18, 4)
 			myExport('GROUP',...
@@ -385,7 +382,7 @@ classdef Model < handle
 			if strcmp(obj.discountFuncType,'me') % code smell
 				probMass = 0.5; % <---- 50% prob mass chosen to avoid too much clutter on graph
 				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-				plotMCclusters(obj.mcmc, obj.data, [1 0 0], probMass)
+ 				plotMCclusters(obj.mcmc, obj.data, [1 0 0], probMass, obj.pointEstimateType)
 				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			end
 		end
