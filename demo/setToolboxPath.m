@@ -15,4 +15,8 @@ try
 catch
 	error('change the toolboxPath to point to the folder /ddToolbox')
 end
+
+% Ensure we have local copies of GitHub repos that we depend upon
+[sucess] = checkDependencies();
+
 return

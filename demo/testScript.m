@@ -32,7 +32,7 @@ myData.loadDataFiles(fnames);
 
 %%
 nSamples = 10^5;
-nChains = 2;
+nChains = 4;
 
 
 %% JAGS
