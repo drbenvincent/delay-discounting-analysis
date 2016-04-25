@@ -23,7 +23,7 @@ variableNames={'retroflux units, $\rho$',...
 
 
 %% univariate distribution
-figure(1), clf
+figure
 subplot(1,2,1)
 uni = mcmc.UnivariateDistribution(samples(:,1),...
 	'xLabel', variableNames{1});
@@ -36,9 +36,27 @@ uni2 = mcmc.UnivariateDistribution(samples(:,2),...
 title('plotstyle=''hist''')
 
 
+%% univariate distribution (group)
+% if you provide a matrix (multiple columns) of samples, then these will be
+% treated as distinct distributions
+figure
+subplot(1,2,1)
+uniG1 = mcmc.UnivariateDistribution(samples,...
+	'xLabel', 'xLabel here',...
+	'plotHDI',false);
+title('plotstyle=''density''')
+
+subplot(1,2,2)
+uniG2 = mcmc.UnivariateDistribution(samples,...
+	'xLabel', 'xLabel here',...
+	'plotStyle','hist',...
+	'plotHDI',false);
+title('plotstyle=''hist''')
+
+
 
 %% bivariate distribution
-figure(2), clf
+figure
 subplot(1,3,1)
 bi1 = mcmc.BivariateDistribution(samples(:,1),samples(:,2),...
 	'xLabel',variableNames{1},...
@@ -62,10 +80,22 @@ bi3 = mcmc.BivariateDistribution(samples(:,1),samples(:,2),...
 title('plotstyle=''contour''')
 axis(tempAxisLims)
 
+
+% BIVARIATE GROUP
+figure
+% plot all combinations of bivariate
+xsamples = [samples(:,1) samples(:,2) samples(:,1)];
+ysamples = [samples(:,2) samples(:,3) samples(:,3)];
+biG1 = mcmc.BivariateDistribution(xsamples,ysamples,...
+	'xLabel','xLabel here',...
+	'yLabel','yLabel here',...
+	'probMass',0.95);
+
+
 %% Triplot / Corner plot
 % For 2 parameters or more, a corner plot is useful to look at all the
 % univariate and all combinations of bivariate marginal distributions.
-figure(3), clf
+figure
 tri = mcmc.TriPlotSamples(samples,...
 	variableNames,...
 	'figSize', 20,...
@@ -93,7 +123,7 @@ xdata=linspace(-5,20,5);
 ydata=fh(xdata,[2 20]) + randn(size(xdata))*5;
 
 % finally, create the object
-figure(4), clf
+figure
 subplot(1,3,1)
 pp1 = mcmc.PosteriorPrediction1D(fh,...
 	'xInterp',linspace(-5,20,400),...

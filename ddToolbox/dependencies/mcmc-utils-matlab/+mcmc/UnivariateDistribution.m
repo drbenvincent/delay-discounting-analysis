@@ -4,14 +4,17 @@ classdef UnivariateDistribution < handle
 		xLabel,
 		mean, median, mode
 		pointEstimateType
-		priorCol
-		posteriorCol
+		shouldPlotPointEstimate
+		col
 		plotHDI
 		plotStyle
+		N
+		FaceAlpha
 	end
 
 	properties (Access = private)
-		posteriorSamples, priorSamples
+		samples
+		priorSamples, priorCol
 		XRANGE
 		xi
 		density
@@ -28,15 +31,17 @@ classdef UnivariateDistribution < handle
 		function obj = UnivariateDistribution(posteriorSamples, varargin)
 			p = inputParser;
 			p.FunctionName = mfilename;
-			p.addRequired('posteriorSamples',@isvector);
+			p.addRequired('samples',@ismatrix);
 			p.addParameter('priorSamples',[],@isvector);
 			p.addParameter('xLabel','',@isstr);
 			p.addParameter('plotStyle','kde',@(x)any(strcmp(x,{'hist','kde'})))
 			p.addParameter('shouldPlot',true,@islogical);
 			p.addParameter('killYAxis',true,@islogical);
 			p.addParameter('priorCol',[0.8 0.8 0.8],@isvector);
-			p.addParameter('posteriorCol',[0.6 0.6 0.6],@isvector);
+			p.addParameter('col',[0.6 0.6 0.6],@isvector);
 			p.addParameter('pointEstimateType','mode', @(x)any(strcmp(x,{'mean','median','mode'})));
+			p.addParameter('shouldPlotPointEstimate',false,@islogical);
+			p.addParameter('FaceAlpha',0.2,@isscalar);
 			p.addParameter('plotHDI',true,@islogical);
 			p.parse(posteriorSamples, varargin{:});
 			% add p.Results fields into obj
@@ -45,12 +50,13 @@ classdef UnivariateDistribution < handle
 				obj.(fields{n}) = p.Results.(fields{n});
 			end
 
+			obj.N = size(obj.samples,2);
 			% obj.XRANGE = [min(posteriorSamples) max(posteriorSamples)];
 			% obj.YRANGE = [min(priorSamples) max(priorSamples)];
 
 			% Calculate stats upon construction
-			obj.mean = mean(obj.posteriorSamples);
-			obj.median = median(obj.posteriorSamples);
+			obj.mean = mean(obj.samples);
+			obj.median = median(obj.samples);
 			obj.calculateDensityAndPointEstimates();
 
 			if p.Results.shouldPlot
@@ -71,43 +77,48 @@ classdef UnivariateDistribution < handle
 		end
 
 		function calculateDensityAndPointEstimates(obj)
-			[obj.density, obj.xi] = ksdensity(obj.posteriorSamples);
-			[~,ind] = max(obj.density);
-			obj.mode = obj.xi( ind );
+			obj.xi = linspace( min(obj.samples(:)), max(obj.samples(:)), 500);
+			for n=1:obj.N
+				[obj.density(:,n), ~] = ksdensity(obj.samples(:,n), obj.xi);
+				[~,ind] = max(obj.density(:,n));
+				obj.mode(n) = obj.xi( ind );
+			end
 		end
 
 
 		function plotHist(obj)
-			hPost=histogram(obj.posteriorSamples(:),...
-				'Normalization','pdf',...
-				'EdgeColor','none',...
-				'FaceColor',obj.posteriorCol,...
-				'FaceAlpha',1);
-			axis tight
-			a=axis;
-
-			if ~isempty(obj.posteriorSamples)
-				axis(a)
-			else
-				axis tight
+			hold on
+			for n=1:obj.N
+				hPost(n)=histogram(obj.samples(:,n),...
+					'Normalization','pdf',...
+					'EdgeColor','none',...
+					'FaceColor',obj.col,...
+					'FaceAlpha',obj.FaceAlpha);
 			end
-
+			axis tight
 		end
 
 
 		function plotDensity(obj)
-			h = fill(obj.xi,...
-				obj.density,...
-				obj.posteriorCol,...
-				'EdgeColor','none');
+			hold on
+			for n=1:obj.N
+				h(n)= fill(obj.xi,...
+					obj.density(:,n),...
+					obj.col,...
+					'EdgeColor','none',...
+					'FaceAlpha',obj.FaceAlpha);
+			end
 		end
 
 
 		function plotPointEstimate(obj)
+			if ~obj.shouldPlotPointEstimate, return, end
 			a = axis;
-			h = line( [obj.(obj.pointEstimateType) obj.(obj.pointEstimateType)],...
-				[a(3) a(4)]);
-			h.Color = 'k';
+			for n=1:obj.N
+				h = line( [obj.(obj.pointEstimateType)(n) obj.(obj.pointEstimateType)(n)],...
+					[a(3) a(4)]);
+				h.Color = 'k';
+			end
 		end
 
 
@@ -118,7 +129,9 @@ classdef UnivariateDistribution < handle
 			end
 
 			if obj.plotHDI
-				mcmc.showHDI(obj.posteriorSamples)
+				for n=1:obj.N
+					mcmc.showHDI(obj.samples(:,n))
+				end
 			end
 
 			box off

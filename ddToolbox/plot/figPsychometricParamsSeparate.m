@@ -34,7 +34,7 @@ function figPsychometricParamsSeparate(mcmc, data)
           plot(XI, F)
           hold on
         end
-  xlabel('\alpha_p')
+  xlabel('$\alpha_p$')
   box off
 
 % 			%====================================
@@ -65,6 +65,6 @@ function figPsychometricParamsSeparate(mcmc, data)
           plot(XI, F)
           hold on
         end
-  xlabel('\epsilon_p')
+  xlabel('$\epsilon_p$')
   box off
 end
