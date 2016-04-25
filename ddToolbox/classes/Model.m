@@ -12,6 +12,7 @@ classdef Model < handle
 		mcmc % handle to mcmc fit object
 		plotFuncs % structure of function handles
 		discountFuncType
+		pointEstimateType
 	end
 
 	methods(Abstract, Access = public)
@@ -19,7 +20,22 @@ classdef Model < handle
 
 	methods (Access = public)
 
-		function obj = Model(toolboxPath, sampler, data, saveFolder)
+		function obj = Model(sampler, data, saveFolder, varargin)
+			p = inputParser;
+			p.FunctionName = mfilename;
+			%p.addRequired('toolboxPath',@isstr);
+			p.addRequired('sampler', @ischar);
+			p.addRequired('data', @(x) isa(x,'DataClass'));
+			p.addRequired('saveFolder', @isstr);
+			p.addParameter('pointEstimateType','mode',@(x) any(strcmp(x,{'mean','median','mode'})));
+			p.parse(sampler, data, saveFolder, varargin{:});
+			% add p.Results fields into obj
+			fields = fieldnames(p.Results);
+			for n=1:numel(fields)
+				obj.(fields{n}) = p.Results.(fields{n});
+			end
+
+
 			obj.data = data;
 			obj.saveFolder = saveFolder;
 		end

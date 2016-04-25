@@ -31,21 +31,19 @@ myData = DataClass(pathToData);
 myData.loadDataFiles(fnames);
 
 %%
-nSamples = 10^5;
+nSamples = 10^4;
 nChains = 4;
 
 
 %% JAGS
-h_me = ModelHierarchicalME(toolboxPath, 'JAGS', myData, 'hierarchical_ME');
+h_me = ModelHierarchicalME(toolboxPath, 'JAGS', myData, 'hierarchical_ME',...
+	'pointEstimateType','mode');
 h_me.sampler.setMCMCtotalSamples(nSamples);
 h_me.sampler.setMCMCnumberOfChains(nChains);
 h_me.conductInference(); % TODO: Could return an MCMCFit object here ******
 h_me.exportParameterEstimates();
 h_me.plot()
 
-figure(12), clf
-probMass = 0.5;
-plotMCclusters(h_me.mcmc, h_me.data, [0 0.5 0], probMass)
 
 
 hypothesisTestScript(h_me)

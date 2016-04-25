@@ -10,10 +10,10 @@ classdef ModelSeparateME < Model
 	methods (Access = public)
 
 		% CONSTRUCTOR =====================================================
-		function obj = ModelSeparateME(toolboxPath, sampler, data, saveFolder)
+		function obj = ModelSeparateME(toolboxPath, sampler, data, saveFolder, varargin)
 			% Because this class is a subclass of "Model" then we use
 			% this next line to create an instance
-			obj = obj@Model(toolboxPath, sampler, data, saveFolder);
+			obj = obj@Model(sampler, data, saveFolder, varargin);
 
 			switch sampler
 				case{'JAGS'}
