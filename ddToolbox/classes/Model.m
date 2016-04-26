@@ -275,7 +275,24 @@ classdef Model < handle
 
 
 
-
+			%% SUMMARY PLOTS
+			switch obj.discountFuncType
+				case{'me'} % code smell
+					% MC cluster plot
+					probMass = 0.5; % <---- 50% prob mass chosen to avoid too much clutter on graph
+					% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+					plotMCclusters(obj.mcmc, obj.data, [1 0 0], probMass, obj.pointEstimateType)
+					% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+					myExport('MC_summary',...
+						'saveFolder', obj.saveFolder,...
+						'prefix', obj.modelType)
+					
+				case{'logk'}
+					warning('Write an equivalent plot function here, for logk, for many participants')
+% 					myExport('LOGK_summary',...
+% 						'saveFolder', obj.saveFolder,...
+% 						'prefix', obj.modelType)
+			end
 
 
 
@@ -377,15 +394,6 @@ classdef Model < handle
 				'saveFolder', obj.saveFolder,...
 				'prefix', obj.modelType)
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-			%% MC CONTOUR PLOTS
-			if strcmp(obj.discountFuncType,'me') % code smell
-				probMass = 0.5; % <---- 50% prob mass chosen to avoid too much clutter on graph
-				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
- 				plotMCclusters(obj.mcmc, obj.data, [1 0 0], probMass, obj.pointEstimateType)
-				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			end
 		end
 
 
