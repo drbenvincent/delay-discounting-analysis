@@ -288,10 +288,12 @@ classdef Model < handle
 						'prefix', obj.modelType)
 					
 				case{'logk'}
-					warning('Write an equivalent plot function here, for logk, for many participants')
-% 					myExport('LOGK_summary',...
-% 						'saveFolder', obj.saveFolder,...
-% 						'prefix', obj.modelType)
+					% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+					plotLOGKclusters(obj.mcmc, obj.data, [1 0 0], obj.pointEstimateType)
+					% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+					myExport('LOGK_summary',...
+						'saveFolder', obj.saveFolder,...
+						'prefix', obj.modelType)
 			end
 
 
