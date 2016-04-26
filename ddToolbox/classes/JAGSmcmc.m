@@ -156,15 +156,14 @@ classdef JAGSmcmc < mcmcContainer
 		end
 
 
-		function paramEstimateTable = exportParameterEstimates(obj, level1varNames, level2varNames, IDname, saveFolder, varargin)
+		function paramEstimateTable = exportParameterEstimates(obj,...
+				level1varNames, level2varNames, IDname, saveFolder, pointEstimateType, varargin)
 			p = inputParser;
 			p.FunctionName = mfilename;
 			p.addRequired('level1varNames',@iscellstr);
 			p.addRequired('level2varNames',@iscellstr);
 			p.addRequired('IDname',@iscellstr);
 			p.addRequired('saveFolder',@ischar);
-			%p.addParameter('format','txt', @iscell);
-			%p.addParameter('includeCI',true, @islogical);
 			p.addParameter('includeGroupEstimates',true, @islogical);
 			p.parse(level1varNames, level2varNames, IDname, saveFolder,  varargin{:});
 
@@ -180,7 +179,7 @@ classdef JAGSmcmc < mcmcContainer
 
 			%% group level
 			if ~isempty(level2varNames) && p.Results.includeGroupEstimates
-				paramEstimates = obj.grabParamEstimates(level2varNames);
+				paramEstimates = obj.grabParamEstimates(level2varNames); % <----- POINT ESTIMATE TYPE
 				group_level = array2table(paramEstimates,...
 					'VariableNames',colHeaderNames,...
 					'RowNames', {'GroupLevelInference'});
@@ -192,7 +191,9 @@ classdef JAGSmcmc < mcmcContainer
 			display(paramEstimateTable)
 
 			%% Export
-			savename = fullfile('figs', saveFolder, 'parameterEstimates.csv');
+			savename = fullfile('figs',...
+				saveFolder,...
+				['parameterEstimates_Posterior_' pointEstimateType '.csv']);
 			writetable(paramEstimateTable, savename,...
 				'Delimiter','\t',...
 				'WriteRowNames',true)
@@ -203,8 +204,8 @@ classdef JAGSmcmc < mcmcContainer
 				colHeaderNames = {};
 				for var = each(varNames)
 					colHeaderNames{end+1} = sprintf('%s_mean', var);
-					%colHeaderNames{end+1} = sprintf('%s_HDI5', varNames{n});
-					%colHeaderNames{end+1} = sprintf('%s_HDI95', varNames{n});
+% 					colHeaderNames{end+1} = sprintf('%s_HDI5', var);
+% 					colHeaderNames{end+1} = sprintf('%s_HDI95', var);
 				end
 			end
 		end
@@ -212,7 +213,7 @@ classdef JAGSmcmc < mcmcContainer
 		function data = grabParamEstimates(obj, varNames)
 			data=[];
 			for n=1:numel(varNames)
-				data = [data obj.getStats('mean',varNames{n})];
+				data = [data obj.getStats('mean',varNames{n})]; % <----- POINT ESTIMATE TYPE
 				%data = [data obj.getStats('hdi_low',varNames{n})];
 				%data = [data obj.getStats('hdi_high',varNames{n})];
 			end
