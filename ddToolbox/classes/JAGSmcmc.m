@@ -157,17 +157,16 @@ classdef JAGSmcmc < mcmcContainer
 
 
 		function paramEstimateTable = exportParameterEstimates(obj, level1varNames, level2varNames, IDname, saveFolder, varargin)
-
-% 			p = inputParser;
-% 			p.FunctionName = mfilename;
-% 			p.addRequired('level1varNames',@iscellstr);
-% 			p.addRequired('level2varNames',@iscellstr);
-% 			p.addRequired('IDname',@iscellstr);
-% 			p.addRequired('saveFolder',@ischar);
-% 			%p.addParameter('format','txt', @iscell);
-% 			p.addParameter('includeCI',true, @islogical);
-%
-% 			p.parse(level1varNames, level2varNames, IDname, saveFolder,  varargin{:});
+			p = inputParser;
+			p.FunctionName = mfilename;
+			p.addRequired('level1varNames',@iscellstr);
+			p.addRequired('level2varNames',@iscellstr);
+			p.addRequired('IDname',@iscellstr);
+			p.addRequired('saveFolder',@ischar);
+			%p.addParameter('format','txt', @iscell);
+			%p.addParameter('includeCI',true, @islogical);
+			p.addParameter('includeGroupEstimates',true, @islogical);
+			p.parse(level1varNames, level2varNames, IDname, saveFolder,  varargin{:});
 
 			% TODO: act on includeCI preference. Ie get, or do not get CI's.
 
@@ -180,7 +179,7 @@ classdef JAGSmcmc < mcmcContainer
 				'RowNames', IDname);
 
 			%% group level
-			if ~isempty(level2varNames)
+			if ~isempty(level2varNames) && p.Results.includeGroupEstimates
 				paramEstimates = obj.grabParamEstimates(level2varNames);
 				group_level = array2table(paramEstimates,...
 					'VariableNames',colHeaderNames,...
@@ -190,10 +189,9 @@ classdef JAGSmcmc < mcmcContainer
 			end
 
 			%% display to command window
-			paramEstimateTable
+			display(paramEstimateTable)
 
 			%% Export
-
 			savename = fullfile('figs', saveFolder, 'parameterEstimates.csv');
 			writetable(paramEstimateTable, savename,...
 				'Delimiter','\t',...

@@ -41,7 +41,7 @@ h_me = ModelHierarchicalME(toolboxPath, 'JAGS', myData, 'hierarchical_ME',...
 h_me.sampler.setMCMCtotalSamples(nSamples);
 h_me.sampler.setMCMCnumberOfChains(nChains);
 h_me.conductInference(); % TODO: Could return an MCMCFit object here ******
-h_me.exportParameterEstimates();
+h_me.exportParameterEstimates('includeGroupEstimates',false);
 h_me.plot()
 
 

@@ -77,7 +77,7 @@ classdef Model < handle
 				obj.extractLevelNVarNames(2),...  % group-level)
 				obj.data.IDname,...
 				obj.saveFolder,...
-				varargin);
+				varargin{:});
 		end
 
 
