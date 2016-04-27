@@ -35,7 +35,7 @@ classdef ModelSeparateME < Model
 				'm_prior', 'c_prior','alpha_prior','epsilon_prior',...
 				'Rpostpred'};
 			
-			%% Deal with generating initial values of root nodes
+			%% Deal with generating initial values of leaf nodes
 			obj.variables.m = Variable('m',...
 				'seed', @() normrnd(-0.243,2));
 
