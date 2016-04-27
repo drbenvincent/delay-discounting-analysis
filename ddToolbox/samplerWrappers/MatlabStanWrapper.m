@@ -1,5 +1,5 @@
-classdef STANSampler < Sampler
-	%STANSampler
+classdef MatlabStanWrapper < SamplerWrapper
+	%MatlabStanWrapper
 
 	properties (GetAccess = public, SetAccess = private)
 		stanFit % object returned by STAN
@@ -10,8 +10,8 @@ classdef STANSampler < Sampler
 	methods (Access = public)
 
 		% CONSTRUCTOR =====================================================
-		function obj = STANSampler(modelFilename)
-			obj = obj@Sampler();
+		function obj = MatlabStanWrapper(modelFilename)
+			obj = obj@SamplerWrapper();
 
 			obj.modelFilename = modelFilename;
 			obj.sampler = 'STAN';

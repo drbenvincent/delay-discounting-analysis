@@ -2,9 +2,8 @@
 
 cd('~/git-local/delay-discounting-analysis/demo')
 toolboxPath = setToolboxPath('~/git-local/delay-discounting-analysis/ddToolbox');
-import mcmc.*
 
-setPlotTheme('fontsize',16, 'linewidth',1)
+mcmc.setPlotTheme('fontsize',16, 'linewidth',1)
 
 % fnames={'AC-kirby27-DAYS.txt',...
 % 'CS-kirby27-DAYS.txt',...

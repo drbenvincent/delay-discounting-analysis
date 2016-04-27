@@ -24,62 +24,6 @@ classdef STANmcmc < mcmcContainer
 
 		end
 
-		function convergenceSummary(obj,saveFolder,IDnames)
-
-			% [fid, fname] = setupFile(saveFolder);
-			% MCMCParameterReport();
-			% RhatInformation(IDnames);
-			% fclose(fid);
-			% fprintf('Convergence report saved in:\n\t%s\n\n',fname)
-			%
-			% function [fid, fname] = setupFile(saveFolder)
-			% 	ensureFolderExists(fullfile('figs',saveFolder))
-			% 	fname = fullfile('figs',saveFolder,['ConvergenceReport.txt']);
-			% 	fid=fopen(fname,'w');
-			% end
-			%
-			% function MCMCParameterReport()
-			% 	%% MCMC parameter report
-			% 	logInfo(fid, 'MCMC inference was conducted with %d chains. ', obj.mcmcparams.nchains)
-			% 	logInfo(fid,'The first %d samples were discarded from each chain, ', obj.mcmcparams.nburnin )
-			% 	logInfo(fid,'resulting in a total of %d samples to approximate the posterior distribution. ', obj.mcmcparams.totalSamples )
-			% 	logInfo(fid,'\n\n\n');
-			% end
-			%
-			% function RhatInformation(IDnames)
-			% 	warningFlag = false;
-			% 	names = fieldnames(obj.stats.Rhat);
-			% 	% loop over fields and report for either single values or
-			% 	% multiple values (eg when we have multiple participants)
-			% 	for n=1:numel(names)
-			% 		% skip posterior predictive variables
-			% 		if strcmp(names(n),'Rpostpred')
-			% 			continue
-			% 		end
-			% 		RhatValues = obj.stats.Rhat.(names{n});
-			% 		logInfo(fid,'\nRhat for: %s.\n',names{n});
-			% 		for i=1:numel(RhatValues)
-			% 			if numel(RhatValues)>1
-			% 				logInfo(fid,'%s\t', IDnames{i});
-			% 			end
-			% 			logInfo(fid,'%2.5f\t', RhatValues(i));
-			% 			if RhatValues(i)>1.01
-			% 				warningFlag = true;
-			% 				logInfo(fid,'WARNING: poor convergence');
-			% 			end
-			% 			logInfo(fid,'\n');
-			% 		end
-			% 	end
-			% 	if warningFlag
-			% 		logInfo(fid,'\n\n\n**** WARNING: convergence issues :( ****\n\n\n')
-			% 		beep
-			% 	else
-			% 		logInfo(fid,'\n\n\n**** No convergence issues :) ****\n\n\n')
-			% 	end
-			% end
-		end
-
-
 
 		%% GET METHODS ----------------------------------------------------
 		function [samples] = getSamplesAtIndex(obj, index, fieldsToGet)

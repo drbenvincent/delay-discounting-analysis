@@ -7,7 +7,7 @@ cd('~/git-local/delay-discounting-analysis/demo')
 % Update the path below to point toward the '/ddToolbox' folder
 toolboxPath = setToolboxPath('~/git-local/delay-discounting-analysis/ddToolbox');
 
-setPlotTheme('fontsize',16, 'linewidth',1)
+mcmc.setPlotTheme('fontsize',16, 'linewidth',1)
 
 %% Create data object
 

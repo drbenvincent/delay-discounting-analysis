@@ -1,6 +1,5 @@
-classdef JAGSSampler < Sampler
-	%JAGSSampler
-	% Responsibility is to invoke an MCMC sampler and return MCMC chains.
+classdef MatjagsWrapper < SamplerWrapper
+	%MatjagsWrapper
 
 	properties (GetAccess = public, SetAccess = private)
 
@@ -15,8 +14,8 @@ classdef JAGSSampler < Sampler
 	methods (Access = public)
 
 		% CONSTRUCTOR =====================================================
-		function obj = JAGSSampler(modelFilename)
-			obj = obj@Sampler();
+		function obj = MatjagsWrapper(modelFilename)
+			obj = obj@SamplerWrapper();
 
 			obj.modelFilename = modelFilename;
 			%obj.samplerName = 'JAGS';
@@ -32,7 +31,7 @@ classdef JAGSSampler < Sampler
 
 		function mcmc = conductInference(obj, model, data)
 			variables = model.variables;
-			varsToMonitor = model.varList.monitored;
+			%varsToMonitor = model.varList.monitored;
 			nParticipants = data.nParticipants;
 			saveFolder = model.saveFolder;
 			IDnames = data.IDname;
@@ -41,7 +40,8 @@ classdef JAGSSampler < Sampler
 			startParallelPool()
 			obj.setObservedValues(data);
 			obj.setInitialParamValues(variables, nParticipants);
-			obj.setMonitoredValues(varsToMonitor);
+			%obj.setMonitoredValues(varsToMonitor);
+			obj.monitorparams = model.varList.monitored;
 			mcmc = obj.invokeSampler();
 			speak('sampling complete')
 
@@ -52,10 +52,10 @@ classdef JAGSSampler < Sampler
 			for chain=1:obj.mcmcparams.nchains
 				for varName = each(fieldnames(variables))
 					if isempty(variables.(varName).seed), continue, end
-					
+
 					% TODO: fix this. Why can't I call the seed func handle directly?
 					seedFunc = variables.(varName).seed();
-					
+
 					if variables.(varName).single==false
 
 						% participant level
@@ -70,12 +70,12 @@ classdef JAGSSampler < Sampler
 			end
 		end
 
-		function setMonitoredValues(obj, varsToMonitor)
-			% cell array of strings defining the variables we want to monitor
-			%obj.monitorparams = fieldnames(variables);
-			%obj.monitorparams = {variables.str};
-			obj.monitorparams = varsToMonitor;
-		end
+		% function setMonitoredValues(obj, varsToMonitor)
+		% 	% cell array of strings defining the variables we want to monitor
+		% 	%obj.monitorparams = fieldnames(variables);
+		% 	%obj.monitorparams = {variables.str};
+		% 	obj.monitorparams = varsToMonitor;
+		% end
 
 		function mcmcContainer = invokeSampler(obj)
 			fprintf('\nRunning JAGS (%d chains, %d samples each)\n',...

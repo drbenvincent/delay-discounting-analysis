@@ -18,7 +18,7 @@ classdef ModelSeparateME < Model
 			switch sampler
 				case{'JAGS'}
 					modelPath = '/models/separateME.txt';
-					obj.sampler = JAGSSampler([toolboxPath modelPath]);
+					obj.sampler = MatjagsWrapper([toolboxPath modelPath]);
 					[~,obj.modelType,~] = fileparts(modelPath);
 					obj.discountFuncType = 'me';
 				case{'STAN'}
@@ -34,7 +34,7 @@ classdef ModelSeparateME < Model
 			obj.varList.monitored = {'m', 'c','alpha','epsilon',...
 				'm_prior', 'c_prior','alpha_prior','epsilon_prior',...
 				'Rpostpred'};
-			
+
 			%% Deal with generating initial values of leaf nodes
 			obj.variables.m = Variable('m',...
 				'seed', @() normrnd(-0.243,2));
@@ -43,11 +43,9 @@ classdef ModelSeparateME < Model
 				'seed', @() @() normrnd(0,10));
 
 			obj.variables.epsilon = Variable('epsilon',...
-				'str_latex', '\epsilon',...
 				'seed', @() 0.1 + rand/10);
 
 			obj.variables.alpha = Variable('alpha',...
-				'str_latex', '\alpha',...
 				'seed', @() abs(normrnd(0.01,10)));
 
 		end

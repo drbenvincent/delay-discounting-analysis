@@ -14,11 +14,11 @@ classdef ModelHierarchicalLogK < Model
 			switch samplerType
 				case{'JAGS'}
 					modelPath = '/models/hierarchicalLogK.txt';
-					obj.sampler = JAGSSampler([toolboxPath modelPath]);
+					obj.sampler = MatjagsWrapper([toolboxPath modelPath]);
 					[~,obj.modelType,~] = fileparts(modelPath);
 				case{'STAN'}
 					modelPath = '/models/hierarchicalLogK.stan';
-					obj.sampler = STANSampler([toolboxPath modelPath]);
+					obj.sampler = MatlabStanWrapper([toolboxPath modelPath]);
 					[~,obj.modelType,~] = fileparts(modelPath);
 			end
 			obj.discountFuncType = 'logk';

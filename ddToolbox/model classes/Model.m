@@ -5,7 +5,7 @@ classdef Model < handle
 	properties (Access = public)
 		modelType % string
 		data % handle to Data class
-		sampler % handle to Sampler class
+		sampler % handle to SamplerWrapper class
 		variables % array of variables
 		varList
 		saveFolder

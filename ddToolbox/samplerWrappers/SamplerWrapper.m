@@ -1,6 +1,6 @@
-classdef (Abstract) Sampler < handle
-	%Sampler Abstract base class sampler class.
-  % Responsibility is to invoke an MCMC sampler and return MCMC chains.
+classdef (Abstract) SamplerWrapper < handle
+	%SamplerWrapper Abstract base class.
+  % This is basically a wrapper to either matjags or matlabstan.
 
 	properties (Access = public)
 		observed % struct
@@ -19,7 +19,7 @@ classdef (Abstract) Sampler < handle
 	methods (Access = public)
 
 		% CONSTRUCTOR =====================================================
-		function obj = Sampler()
+		function obj = SamplerWrapper()
 		end
 		% =================================================================
 

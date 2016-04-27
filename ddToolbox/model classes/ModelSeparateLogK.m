@@ -14,11 +14,11 @@ classdef ModelSeparateLogK < Model
 			switch samplerType
 				case{'JAGS'}
 					modelPath = '/models/separateLogK.txt';
-					obj.sampler = JAGSSampler([toolboxPath modelPath]);
+					obj.sampler = MatjagsWrapper([toolboxPath modelPath]);
 					[~,obj.modelType,~] = fileparts(modelPath);
 				case{'STAN'}
 					modelPath = '/models/separateLogK.stan';
-					obj.sampler = STANSampler([toolboxPath modelPath]);
+					obj.sampler = MatlabStanWrapper([toolboxPath modelPath]);
 					[~,obj.modelType,~] = fileparts(modelPath);
 			end
 			obj.discountFuncType = 'logk';
@@ -32,18 +32,15 @@ classdef ModelSeparateLogK < Model
 			obj.varList.monitored = {'logk','alpha','epsilon',...
 				'logk_prior','alpha_prior','epsilon_prior',...
 				'Rpostpred'};
-			
+
 			%% Deal with generating initial values of leaf nodes
 			obj.variables.logk = Variable('logk',...
-				'str_latex', '\log (k)',...
 				'seed', @() normrnd(log(1/365),10));
-			
+
 			obj.variables.epsilon = Variable('epsilon',...
-				'str_latex', '\epsilon',...
 				'seed', @() 0.1 + rand/10);
-			
+
 			obj.variables.alpha = Variable('alpha',...
-				'str_latex', '\alpha',...
 				'seed', @() abs(normrnd(0.01,10)));
 
 		end

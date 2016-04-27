@@ -3,7 +3,7 @@ classdef Variable < handle
 
 	properties (Access = public)
 		str
-		str_latex
+		%str_latex
 		%bounds
 		%monitoredFlag
 		%analysisFlag
@@ -23,7 +23,7 @@ classdef Variable < handle
 			p.FunctionName = mfilename;
 			p.addRequired('str',@isstr);
 			%p.addParameter('bounds',[], @isvector);
-			p.addParameter('str_latex',str,@isstr);
+			%p.addParameter('str_latex',str,@isstr);
 			p.addParameter('seed',[], @(x) isa(x,'function_handle'))
 			p.addParameter('single',false, @islogical)
 			%p.addParameter('analysisFlag',[], @isnumeric)
