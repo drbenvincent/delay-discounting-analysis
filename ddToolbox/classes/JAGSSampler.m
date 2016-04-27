@@ -32,6 +32,7 @@ classdef JAGSSampler < Sampler
 
 		function mcmc = conductInference(obj, model, data)
 			variables = model.variables;
+			varsToMonitor = model.varList.monitored;
 			nParticipants = data.nParticipants;
 			saveFolder = model.saveFolder;
 			IDnames = data.IDname;
@@ -40,7 +41,7 @@ classdef JAGSSampler < Sampler
 			startParallelPool()
 			obj.setObservedValues(data);
 			obj.setInitialParamValues(variables, nParticipants);
-			obj.setMonitoredValues(variables);
+			obj.setMonitoredValues(varsToMonitor);
 			mcmc = obj.invokeSampler();
 			speak('sampling complete')
 
@@ -51,10 +52,12 @@ classdef JAGSSampler < Sampler
 			for chain=1:obj.mcmcparams.nchains
 				for varName = each(fieldnames(variables))
 					if isempty(variables.(varName).seed), continue, end
-
+					
+					% TODO: fix this. Why can't I call the seed func handle directly?
+					seedFunc = variables.(varName).seed();
+					
 					if variables.(varName).single==false
-						% TODO: fix this. Why can't I call the seed func handle directly?
-						seedFunc = variables.(varName).seed();
+
 						% participant level
 						for p=1:nParticipants
 							obj.initialParameters(chain).(varName)(p) = seedFunc();
@@ -67,10 +70,11 @@ classdef JAGSSampler < Sampler
 			end
 		end
 
-		function setMonitoredValues(obj, variables)
+		function setMonitoredValues(obj, varsToMonitor)
 			% cell array of strings defining the variables we want to monitor
-			obj.monitorparams = fieldnames(variables);
+			%obj.monitorparams = fieldnames(variables);
 			%obj.monitorparams = {variables.str};
+			obj.monitorparams = varsToMonitor;
 		end
 
 		function mcmcContainer = invokeSampler(obj)

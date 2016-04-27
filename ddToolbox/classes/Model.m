@@ -46,7 +46,9 @@ classdef Model < handle
 		function bool = isGroupLevelModel(obj)
 			% we determine if the model has group level parameters by checking if
 			% we have a 'groupLevel' subfield in the varList.
-			bool = isfield(obj.varList,'groupLevel');
+			if isfield(obj.varList,'groupLevel')
+				bool = ~isempty(obj.varList.groupLevel);
+			end
 		end
 
 		% MIDDLE-MAN METHODS ================================================
@@ -73,8 +75,8 @@ classdef Model < handle
 
 		function paramEstimateTable = exportParameterEstimates(obj, varargin)
 			paramEstimateTable = obj.mcmc.exportParameterEstimates(...
-				obj.extractLevelNVarNames(1),... % Participant-level
-				obj.extractLevelNVarNames(2),...  % group-level)
+				obj.varList.participantLevel,... %obj.extractLevelNVarNames(1),... % Participant-level
+				obj.varList.groupLevel,...obj.extractLevelNVarNames(2),...  % group-level)
 				obj.data.IDname,...
 				obj.saveFolder,...
 				obj.pointEstimateType,...

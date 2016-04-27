@@ -25,47 +25,30 @@ classdef ModelSeparateME < Model
 					error('NOT IMPLEMENTED YET')
 			end
 
-			% % give sampler a handle back to the model (ie this hierarchicalME model)
-			% obj.sampler.modelHandle = obj;
 			obj.plotFuncs.participantFigFunc = @figParticipantME;
 			obj.plotFuncs.figParticipantWrapperFunc = @figParticipantLevelWrapperME;
 
 			%% Create variables
-
-			% Variable list, used for plotting
 			obj.varList.participantLevel = {'m', 'c','alpha','epsilon'};
-
-			% -------------------------------------------------------------------
-			% Participant-level -------------------------------------------------
+			obj.varList.groupLevel = {};
+			obj.varList.monitored = {'m', 'c','alpha','epsilon',...
+				'm_prior', 'c_prior','alpha_prior','epsilon_prior',...
+				'Rpostpred'};
+			
+			%% Deal with generating initial values of root nodes
 			obj.variables.m = Variable('m',...
-				'bounds', [-inf inf],...
-				'seed', @() normrnd(-0.243,2),...
-				'analysisFlag',1);
+				'seed', @() normrnd(-0.243,2));
 
 			obj.variables.c = Variable('c',...
-				'bounds', [-inf inf],...
-				'seed', @() @() normrnd(0,10),...
-				'analysisFlag',1);
+				'seed', @() @() normrnd(0,10));
 
 			obj.variables.epsilon = Variable('epsilon',...
 				'str_latex', '\epsilon',...
-				'bounds', [0 0.5],...
-				'seed', @() 0.1 + rand/10,...
-				'analysisFlag',1);
+				'seed', @() 0.1 + rand/10);
 
 			obj.variables.alpha = Variable('alpha',...
 				'str_latex', '\alpha',...
-				'bounds', [0 inf],...
-				'seed', @() abs(normrnd(0.01,10)),...
-				'analysisFlag',1 );
-
-			obj.variables.m_prior	= Variable('m_prior');
-			obj.variables.c_prior	= Variable('c_prior');
-			obj.variables.epsilon_prior	= Variable('epsilon_prior');
-			obj.variables.alpha_prior	= Variable('alpha_prior');
-
-			% observed response
-			obj.variables.Rpostpred = Variable('R', 'bounds', [0 1]);
+				'seed', @() abs(normrnd(0.01,10)));
 
 		end
 		% ================================================================
