@@ -1,22 +1,26 @@
 function toolboxPath = setToolboxPath(toolboxPath)
-% *** SET THIS TO THE PATH OF THE /ddToolbox FOLDER ***
 
+%% Add toolboxPath to Matlab path
 % expand home dir (~) to absolute path
 if strncmp(toolboxPath, '~', 1)
 	toolboxPath = [getenv('HOME') toolboxPath(2:end)];
 end
-	
-try
-	% check that this folder exists
-	if exist(toolboxPath,'dir')~=7
-		error('change the toolboxPath to point to the folder /ddToolbox')
-	end
-	addpath(genpath(toolboxPath))
-catch
+
+if exist(toolboxPath,'dir') == 7
+	addpath(toolboxPath)
+else
 	error('change the toolboxPath to point to the folder /ddToolbox')
 end
 
-% Ensure we have local copies of GitHub repos that we depend upon
-[sucess] = checkDependencies();
+%% Add subdirectories to Matlab path
+try
+	addSubFoldersToPath()
+catch
+	error('Some error in adding toolbox subpaths')
+end
+
+%% Ensure dependencies are installed and up-to-date.
+checkDependencies();
+import mcmc.*
 
 return

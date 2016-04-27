@@ -11,6 +11,8 @@ installPath = userpath;
 installPath = installPath(1:end-1);
 originalPath = cd;
 
+display('Installing, or updating, the following dependencies from GitHub')
+
 dependencies={...
 'mcmc-utils-matlab', 'https://github.com/drbenvincent/mcmc-utils-matlab';...
 'export_fig', 'https://github.com/altmany/export_fig';...
@@ -38,11 +40,11 @@ addpath(installPath)
 % check if dependencies exist on the matlab patch
 for n=1:size(dependencies,1)
 	repoName = dependencies{n,1};
-	addpath(fullfile(installPath,repoName))
+	addpath(fullfile(installPath,repoName));
 	if ~isRepoOnPath(repoName)
 		address = dependencies{n,2};
 		sucess = cloneGitHubRepo(address, installPath);
-		addpath(fullfile(installPath,repoName))
+		addpath(fullfile(installPath,repoName));
 	else
 		sucess = updateGitHubRepo(installPath,repoName);
 		sucess = true;
@@ -71,7 +73,7 @@ end
 function sucess = updateGitHubRepo(installPath,repoName)
 try
 	cd(fullfile(installPath,repoName))
-	display(repoName)
+	fprintf('\n\n%s\n', repoName)
 	system('git pull');
 	sucess=true;
 catch
