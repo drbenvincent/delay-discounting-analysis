@@ -25,8 +25,10 @@ classdef ModelSeparateME < Model
 					error('NOT IMPLEMENTED YET')
 			end
 
+			% 'Decorate' the object with appropriate plot functions
 			obj.plotFuncs.participantFigFunc = @figParticipantME;
-			obj.plotFuncs.figParticipantWrapperFunc = @figParticipantLevelWrapperME;
+			%obj.plotFuncs.figParticipantWrapperFunc = @figParticipantLevelWrapperME;
+			obj.plotFuncs.plotGroupLevel = @(x) []; % null function
 
 			%% Create variables
 			obj.varList.participantLevel = {'m', 'c','alpha','epsilon'};
@@ -34,6 +36,7 @@ classdef ModelSeparateME < Model
 			obj.varList.monitored = {'m', 'c','alpha','epsilon',...
 				'm_prior', 'c_prior','alpha_prior','epsilon_prior',...
 				'Rpostpred'};
+			obj.varList.participantLevelPriors = {'m_prior', 'c_prior','alpha_prior','epsilon_prior'}
 
 			%% Deal with generating initial values of leaf nodes
 			obj.variables.m = Variable('m',...

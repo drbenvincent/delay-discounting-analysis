@@ -22,7 +22,9 @@ classdef ModelHierarchicalLogK < Model
 					[~,obj.modelType,~] = fileparts(modelPath);
 			end
 			obj.discountFuncType = 'logk';
+			% 'Decorate' the object with appropriate plot functions
 			obj.plotFuncs.participantFigFunc = @figParticipantLOGK;
+			obj.plotFuncs.plotGroupLevel = @plotGroupLevelStuff;
 
 			%% Create variables
 			obj.varList.participantLevel = {'logk','alpha','epsilon'};
@@ -33,6 +35,7 @@ classdef ModelHierarchicalLogK < Model
 				'groupLogKmu', 'groupLogKsigma','groupW','groupK','groupALPHAmu','groupALPHAsigma',...
 				'groupLogKmu_prior', 'groupLogKsigma_prior','groupW_prior','groupK_prior','groupALPHAmu_prior','groupALPHAsigma_prior',...
 				'Rpostpred'};
+			obj.varList.participantLevelPriors = {'logk_group_prior','alpha_group_prior','epsilon_group_prior'};
 
 			%% Deal with generating initial values of leaf nodes
 			obj.variables.groupLogKmu = Variable('groupLogKmu',...
@@ -63,6 +66,7 @@ classdef ModelHierarchicalLogK < Model
 		function conditionalDiscountRates_GroupLevel(obj, reward, plotFlag)
 			error('Not applicable to this model that calculates log(k)')
 		end
+
 
 	end
 
