@@ -2,7 +2,7 @@ function plotLOGKclusters(mcmcContainer, data, col, pointEstimateType)
 
 % plot posteriors over log(k) for all participants
 
-figure(12), clf
+%figure(12), clf
 
 % build samples
 for p = 1:data.nParticipants
@@ -39,7 +39,7 @@ try % TODO: Deal with this better than a try... catch. I'm not a peasant.
 catch
 	% NO GROUP LEVEL
 end
-
+set(gca,'PlotBoxAspectRatio',[3,1,1])
 axis(participantAxisBounds)
 % set(gca,'XAxisLocation','origin',...
 % 	'YAxisLocation','origin')
@@ -53,7 +53,7 @@ drawnow
 
 	function plotOpts = definePlotOptions4Group(col)
 		plotOpts = {'FaceColor', 'none',...
-			'EdgeColor', col,...
-			'LineWidth', 2};
+			'EdgeColor', col/2,...
+			'LineWidth', 3};
 	end
 end

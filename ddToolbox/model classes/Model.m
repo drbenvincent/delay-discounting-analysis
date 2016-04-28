@@ -283,6 +283,7 @@ classdef Model < handle
 					% MC cluster plot
 					probMass = 0.5; % <---- 50% prob mass chosen to avoid too much clutter on graph
 					% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+					figure(12)
 					plotMCclusters(obj.mcmc, obj.data, [1 0 0], probMass, obj.pointEstimateType)
 					% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 					myExport('MC_summary',...
@@ -291,6 +292,7 @@ classdef Model < handle
 					
 				case{'logk'}
 					% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+					figure(12)
 					plotLOGKclusters(obj.mcmc, obj.data, [1 0 0], obj.pointEstimateType)
 					% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 					myExport('LOGK_summary',...

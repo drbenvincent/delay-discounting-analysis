@@ -43,8 +43,6 @@ h_me.conductInference(); % TODO: Could return an MCMCFit object here ******
 h_me.exportParameterEstimates('includeGroupEstimates',false);
 h_me.plot()
 
-
-
 hypothesisTestScript(h_me)
 myExport('BayesFactorMLT1',...
 	'saveFolder', h_me.saveFolder,...
@@ -92,6 +90,22 @@ s_logk.plot()
 
 
 
+
+%% Compare hierarchical and non-hierarchical inferences for log(k) models
+figure
+subplot(2,1,1)
+plotLOGKclusters(s_logk.mcmc, s_logk.data, [0.7 0 0], 'mode')
+title('non-hierarchical')
+
+subplot(2,1,2)
+plotLOGKclusters(h_logk.mcmc, h_logk.data, [0.7 0 0], 'mode')
+title('hierarchical')
+
+subplot(2,1,2), a=axis; subplot(2,1,1), axis(a);
+
+
+
+
 %% test all plot functions, without re-running fit
 h_me.plot()
 h_me_updated.plot()
@@ -117,39 +131,39 @@ s_logk.plot()
 
 
 
-%% ModelHierarchicalLogK
-sModel = ModelHierarchicalLogK(toolboxPath, 'STAN', myData, 'stanModelHierarchicalLogK');
-sModel.sampler.setStanHome('~/cmdstan')
-clc
-stanFit = sModel.conductInference();
-% ~~~~~~~~~~~~~~~~~
-sModel.plot()
-% ~~~~~~~~~~~~~~~~~
-
-%% HOW TO GET STATS VALUES
-% can get summary by typing this into TERMINAL
-% bin/stansummary /Users/benvincent/git-local/delay-discounting-analysis/demo/output-1.csv
-
-sModel.sampler.stanFit.print()
-
-
-
-
-sModel.sampler.stanFit
-clf
-sModel.sampler.stanFit.print()
-
-temp = sModel.sampler.stanFit.extract('pars','logk_group').logk_group;
-hist(temp,100)
-
-temp = sModel.sampler.stanFit.extract('pars','epsilon_group').epsilon_group;
-hist(temp,100)
-
-temp = sModel.sampler.stanFit.extract('pars','alpha_group').alpha_group;
-hist(temp,100)
-
-% EXTRACT ALL
-all = sModel.sampler.stanFit.extract('permuted',true);
+% %% ModelHierarchicalLogK
+% sModel = ModelHierarchicalLogK(toolboxPath, 'STAN', myData, 'stanModelHierarchicalLogK');
+% sModel.sampler.setStanHome('~/cmdstan')
+% clc
+% stanFit = sModel.conductInference();
+% % ~~~~~~~~~~~~~~~~~
+% sModel.plot()
+% % ~~~~~~~~~~~~~~~~~
+% 
+% %% HOW TO GET STATS VALUES
+% % can get summary by typing this into TERMINAL
+% % bin/stansummary /Users/benvincent/git-local/delay-discounting-analysis/demo/output-1.csv
+% 
+% sModel.sampler.stanFit.print()
+% 
+% 
+% 
+% 
+% sModel.sampler.stanFit
+% clf
+% sModel.sampler.stanFit.print()
+% 
+% temp = sModel.sampler.stanFit.extract('pars','logk_group').logk_group;
+% hist(temp,100)
+% 
+% temp = sModel.sampler.stanFit.extract('pars','epsilon_group').epsilon_group;
+% hist(temp,100)
+% 
+% temp = sModel.sampler.stanFit.extract('pars','alpha_group').alpha_group;
+% hist(temp,100)
+% 
+% % EXTRACT ALL
+% all = sModel.sampler.stanFit.extract('permuted',true);
 
 
 %stanModel.sampler.stanFit.traceplot() % use with care

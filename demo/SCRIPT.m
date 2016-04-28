@@ -150,4 +150,19 @@ s_logk.conductInference();
 s_logk.exportParameterEstimates();
 s_logk.plot()
 
+
+%% Compare hierarchical and non-hierarchical inferences for log(k) models
+figure
+subplot(2,1,1)
+plotLOGKclusters(s_logk.mcmc, s_logk.data, [0.7 0 0], 'mode')
+title('non-hierarchical')
+
+subplot(2,1,2)
+plotLOGKclusters(h_logk.mcmc, h_logk.data, [0.7 0 0], 'mode')
+title('hierarchical')
+
+subplot(2,1,2), a=axis; subplot(2,1,1), axis(a);
+
+
+
 return
