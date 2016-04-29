@@ -289,21 +289,35 @@ classdef Model < handle
 			% 			% --------------------------------------------------------------------
 
 
-			% TODO ??????????????????
-			opts.maxlogB	= max(abs(obj.data.observedData.B(:)));
-			opts.maxD		= max(obj.data.observedData.DB(:));
-			% ??????????????????
 
 
-			% obj.plotFuncs.participantFigFunc is a handle to a function that will either plot LOGK or ME.
+			pVariableNames = obj.varList.participantLevel;
+
+			%import mcmc.* % for TriPlotSamples
+
+			% LOOP OVER PARTICIPANTS
 			for n = 1:obj.data.nParticipants
+				participantFigFunc()
+				participantTriPlot()
+			end
+
+
+			function participantFigFunc()
+				% TODO ??????????????????
+				opts.maxlogB	= max(abs(obj.data.observedData.B(:)));
+				opts.maxD		= max(obj.data.observedData.DB(:));
+				% ??????????????????
+
 				fh = figure;
 				fh.Name=['participant: ' obj.data.IDname{n}];
 
 				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-				obj.plotFuncs.participantFigFunc(obj.mcmc.getSamplesAtIndex(n, obj.varList.participantLevel),...
+				participantSamples = obj.mcmc.getSamplesAtIndex(n, pVariableNames);
+				pData = obj.data.getParticipantData(n);
+
+				obj.plotFuncs.participantFigFunc(participantSamples,...
 					obj.pointEstimateType,...
-					'pData', obj.data.getParticipantData(n),...
+					'pData', pData,...
 					'opts',opts);
 				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -314,15 +328,16 @@ classdef Model < handle
 				close(fh)
 			end
 
-			% TRIPLOT
-			import mcmc.* % for TriPlotSamples
-			for n = 1:obj.data.nParticipants
+			function participantTriPlot()
 				figure(87)
 
 				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-				TriPlotSamples(obj.mcmc.getSamplesFromParticipantAsMatrix(n, obj.varList.participantLevel),...
-					obj.varList.participantLevel,...
-					'PRIOR',obj.mcmc.getSamplesAsMatrix(obj.varList.participantLevelPriors),...
+				participantSamples = obj.mcmc.getSamplesFromParticipantAsMatrix(n, pVariableNames);
+				priorSamples = obj.mcmc.getSamplesAsMatrix(obj.varList.participantLevelPriors);
+
+				mcmc.TriPlotSamples(participantSamples,...
+					pVariableNames,...
+					'PRIOR',priorSamples,...
 					'pointEstimateType',obj.pointEstimateType);
 				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -333,6 +348,12 @@ classdef Model < handle
 
 
 
+
+
+
+
+
+
 			%% SUMMARY PLOTS
 			switch obj.discountFuncType
 				case{'me'} % code smell
@@ -340,7 +361,10 @@ classdef Model < handle
 					probMass = 0.5; % <-- 50% prob mass to avoid too much clutter on graph
 					% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 					figure(12)
-					plotMCclusters(obj.mcmc, obj.data, [1 0 0], probMass, obj.pointEstimateType)
+					plotMCclusters(obj.mcmc,...
+						obj.data, [1 0 0],...
+					  probMass,...
+						obj.pointEstimateType)
 					% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 					myExport('MC_summary',...
 						'saveFolder', obj.saveFolder,...
