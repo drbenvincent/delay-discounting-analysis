@@ -14,7 +14,7 @@ subplot(rows, cols, 1)
 epsilon_alpha = mcmc.BivariateDistribution(pSamples.epsilon, pSamples.alpha,...
 	'xLabel','error rate, $\epsilon$',...
 	'ylabel','comparison accuity, $\alpha$',...
-	'pointEstimateType','mode');
+	'pointEstimateType',p.Results.pointEstimateType);
 
 subplot(rows, cols, 2)
 plotPsychometricFunc(pSamples, epsilon_alpha.(pointEstimateType));
@@ -22,16 +22,20 @@ plotPsychometricFunc(pSamples, epsilon_alpha.(pointEstimateType));
 subplot(rows, cols, 3)
 logk = mcmc.UnivariateDistribution(pSamples.logk(:),...
  'killYAxis', true,...
- 'xLabel', '$\log(k)$');
+ 'xLabel', '$\log(k)$',...
+ 'pointEstimateType',p.Results.pointEstimateType);
 
 % Plot in 2D data space
 subplot(rows, cols, 4)
 if ~isempty(p.Results.pData)
 	% participant level, we have data
-	plotDiscountFunction(logk.(pointEstimateType), pSamples.logk(:), 'data',p.Results.pData);
+	plotDiscountFunction(logk.(pointEstimateType), pSamples.logk(:),...
+		'data',p.Results.pData,...
+		'pointEstimateType',p.Results.pointEstimateType);
 else
 	% for group level where there is no data
-	plotDiscountFunction(logk.(pointEstimateType), pSamples.logk(:));
+	plotDiscountFunction(logk.(pointEstimateType), pSamples.logk(:),...
+		'pointEstimateType',p.Results.pointEstimateType);
 end
 
 end

@@ -8,7 +8,8 @@ p.FunctionName = mfilename;
 p.addRequired('logK',@isscalar);
 p.addRequired('logKsamples',@isvector);
 p.addParameter('xScale','linear',@(x)any(strcmp(x,{'linear','log'})));
-p.addParameter('data',[],@isstruct)
+p.addParameter('data',[],@isstruct);
+p.addParameter('pointEstimateType','mean',@isstr);
 p.parse(logK, logKsamples, varargin{:});
 
 k = exp(p.Results.logK);
@@ -24,7 +25,8 @@ switch p.Results.xScale
 			'xInterp',D,...
 			'samples',exp(p.Results.logKsamples),...
 			'ciType','examples',...
-			'variableNames', {'delay', 'discount factor'});
+			'variableNames', {'delay', 'discount factor'},...
+			'pointEstimateType',p.Results.pointEstimateType);
 
 % 		myplot = PosteriorPrediction1D(discountFraction, D, exp(p.Results.logKsamples) );
 % 		myplot.plotExamples(100);
