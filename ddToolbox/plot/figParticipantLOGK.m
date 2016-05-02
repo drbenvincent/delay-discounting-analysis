@@ -17,7 +17,7 @@ epsilon_alpha = mcmc.BivariateDistribution(pSamples.epsilon, pSamples.alpha,...
 	'pointEstimateType',p.Results.pointEstimateType);
 
 subplot(rows, cols, 2)
-plotPsychometricFunc(pSamples, epsilon_alpha.(pointEstimateType));
+plotPsychometricFunc(pSamples, p.Results.pointEstimateType);
 
 subplot(rows, cols, 3)
 logk = mcmc.UnivariateDistribution(pSamples.logk(:),...

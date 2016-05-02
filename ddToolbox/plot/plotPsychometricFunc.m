@@ -1,4 +1,4 @@
-function plotPsychometricFunc(pSamples, modeVals)
+function plotPsychometricFunc(pSamples, pointEstimateType)
 
 
 % This is the Psychometric function ---------------------------------------
@@ -20,6 +20,7 @@ mcmc.PosteriorPrediction1D(fh,...
     'xInterp',linspace(-200,200,200),... % TODO: make this a function of alpha?
     'samples',samples,...
     'ciType','examples',...
-    'variableNames', {'$V^B-V^A$', 'P(choose delayed)'});
+    'variableNames', {'$V^B-V^A$', 'P(choose delayed)'},...
+	'pointEstimateType',pointEstimateType);
 
 return
