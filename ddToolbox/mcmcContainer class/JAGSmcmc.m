@@ -22,12 +22,15 @@ classdef JAGSmcmc < mcmcContainer
 		end
 
 
-		function data = grabParamEstimates(obj, varNames)
+		function data = grabParamEstimates(obj, varNames, getCI)
+			assert(islogical(getCI))
 			data=[];
 			for n=1:numel(varNames)
 				data = [data obj.getStats('mean',varNames{n})]; % <----- POINT ESTIMATE TYPE
-				%data = [data obj.getStats('hdi_low',varNames{n})];
-				%data = [data obj.getStats('hdi_high',varNames{n})];
+				if getCI
+					data = [data obj.getStats('hdi_low',varNames{n})];
+					data = [data obj.getStats('hdi_high',varNames{n})];
+				end 
 			end
 		end
 

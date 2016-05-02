@@ -188,18 +188,13 @@ classdef Model < handle
 
 
 			%% PARTICIPANT LEVEL  ======================================
-			% We will ALWAYS have participants. So we will ALWAYS want to render some plots that allow us to understand the participant-level inferences made.
-			% This might mean that a Participant class might be a sensible thing, and that could consist of participant data and plot methods.
-
+			% We will ALWAYS have participants.
 			obj.plotParticiantStuff( )
-
 
 
 			%% GROUP LEVEL ======================================
 			% We are going to call this function, but it will be a 'null function' for models not doing hierachical inference. This is set in the concrete model class constructors.
-
 			obj.plotFuncs.plotGroupLevel( obj )
-
 
 		end
 
@@ -293,7 +288,6 @@ classdef Model < handle
 
 			pVariableNames = obj.varList.participantLevel;
 
-			%import mcmc.* % for TriPlotSamples
 
 			% LOOP OVER PARTICIPANTS
 			for n = 1:obj.data.nParticipants

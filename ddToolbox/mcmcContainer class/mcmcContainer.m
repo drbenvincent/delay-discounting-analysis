@@ -30,21 +30,22 @@ classdef mcmcContainer < handle
 			p.addRequired('IDname',@iscellstr);
 			p.addRequired('saveFolder',@ischar);
 			p.addParameter('includeGroupEstimates',true, @islogical);
+			p.addParameter('includeCI',true, @islogical);
 			p.parse(level1varNames, level2varNames, IDname, saveFolder,  varargin{:});
 
 			% TODO: act on includeCI preference. Ie get, or do not get CI's.
 
 
 			%% participant level
-			colHeaderNames = createColumnHeaders(level1varNames);
-			paramEstimates = obj.grabParamEstimates(level1varNames);
+			colHeaderNames = createColumnHeaders(level1varNames, p.Results.includeCI);
+			paramEstimates = obj.grabParamEstimates(level1varNames, p.Results.includeCI);
 			paramEstimateTable = array2table(paramEstimates,...
 				'VariableNames',colHeaderNames,...
 				'RowNames', IDname);
 
 			%% group level
 			if ~isempty(level2varNames) && p.Results.includeGroupEstimates
-				paramEstimates = obj.grabParamEstimates(level2varNames); % <----- POINT ESTIMATE TYPE
+				paramEstimates = obj.grabParamEstimates(level2varNames, p.Results.includeCI); % <----- POINT ESTIMATE TYPE
 				group_level = array2table(paramEstimates,...
 					'VariableNames',colHeaderNames,...
 					'RowNames', {'GroupLevelInference'});
@@ -65,12 +66,14 @@ classdef mcmcContainer < handle
 			fprintf('The above table of parameter estimates was exported to:\n')
 			fprintf('\t%s\n\n',savename)
 
-			function colHeaderNames = createColumnHeaders(varNames)
+			function colHeaderNames = createColumnHeaders(varNames,getCI)
 				colHeaderNames = {};
 				for var = each(varNames)
 					colHeaderNames{end+1} = sprintf('%s_mean', var);
-% 					colHeaderNames{end+1} = sprintf('%s_HDI5', var);
-% 					colHeaderNames{end+1} = sprintf('%s_HDI95', var);
+					if getCI
+						colHeaderNames{end+1} = sprintf('%s_HDI5', var);
+						colHeaderNames{end+1} = sprintf('%s_HDI95', var);
+					end
 				end
 			end
 		end
