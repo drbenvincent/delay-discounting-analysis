@@ -15,19 +15,19 @@ subplot(rows, cols, 1)
 epsilon_alpha = mcmc.BivariateDistribution(pSamples.epsilon(:), pSamples.alpha(:),...
 	'xLabel','error rate, $\epsilon$',...
 	'ylabel','comparison accuity, $\alpha$',...
-	'pointEstimateType',pointEstimateType);
+	'pointEstimateType',p.Results.pointEstimateType);
 
 subplot(rows, cols, 2)
-plotPsychometricFunc(pSamples, epsilon_alpha.(pointEstimateType));
+plotPsychometricFunc(pSamples, p.Results.pointEstimateType);
 
 subplot(rows, cols, 3)
 m_c = mcmc.BivariateDistribution(pSamples.m(:), pSamples.c(:),...
 	'xLabel','slope, $m$',...
 	'ylabel','intercept, $c$',...
-	'pointEstimateType','mode');
+	'pointEstimateType',p.Results.pointEstimateType);
 
 subplot(rows, cols, 4)
-plotMagnitudeEffect(pSamples, m_c.(pointEstimateType));
+plotMagnitudeEffect(pSamples, p.Results.pointEstimateType);
 
 % Plot in 3D data space
 subplot(rows, cols, 5)
