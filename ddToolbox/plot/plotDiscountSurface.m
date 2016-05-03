@@ -1,15 +1,22 @@
-function [logB,D,AB] = plotDiscountSurface(mcParams, opts, varargin)
+function [logB,D,AB] = plotDiscountSurface(mSamples,cSamples, opts, varargin)
 
 p = inputParser;
 p.FunctionName = mfilename;
-p.addRequired('mcParams',@isvector);
+p.addRequired('mSamples',@isvector); 
+p.addRequired('cSamples',@isvector); 
 p.addRequired('opts',@isstruct);
 % p.addParameter('xScale','linear',@isstr);
+p.addParameter('pointEstimateType','mean',@isstr);
 p.addParameter('data',[],@isstruct)
-p.parse(mcParams, opts, varargin{:});
+p.parse(mSamples, cSamples, opts, varargin{:});
 
-m = p.Results.mcParams(1);
-c = p.Results.mcParams(2);
+%% Calculate point estimates
+mcBivariate = mcmc.BivariateDistribution(mSamples,cSamples,...
+	'shouldPlot',false,...
+	'pointEstimateType', p.Results.pointEstimateType);
+mc = mcBivariate.(p.Results.pointEstimateType);
+m = mc(1);
+c = mc(2);
 
 global pow
 
