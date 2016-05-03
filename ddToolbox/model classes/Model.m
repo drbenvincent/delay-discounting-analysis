@@ -262,26 +262,24 @@ classdef Model < handle
 
 		function plotParticiantStuff(obj)
 
-			% Temporarily(?) removing this, because it's not really very useful
-			% This does NOT utilise the user-specified pointEstimateType, currently.
-			% 			% UNIVARIATE SUMMARY STATISTICS ---------------------------------
-			% 			% We are going to add on group level inferences to the end of the
-			% 			% list. This is because the group-level inferences an be
-			% 			% seen as inferences we can make about an as yet unobserved
-			% 			% participant, in the light of the participant data available thus
-			% 			% far.
-			% 			IDnames = obj.data.IDname;
-			% 			if obj.isGroupLevelModel()
-			% 				IDnames{end+1}='GROUP';
-			% 			end
-			% 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			% 			obj.mcmc.figUnivariateSummary(IDnames, obj.varList.participantLevel, obj.pointEstimateType)
-			% 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			% 			latex_fig(16, 5, 5)
-			% 			myExport('UnivariateSummary',...
-			% 				'saveFolder',obj.saveFolder,...
-			% 				'prefix', obj.modelType)
-			% 			% --------------------------------------------------------------------
+			% UNIVARIATE SUMMARY STATISTICS ---------------------------------
+			% We are going to add on group level inferences to the end of the
+			% list. This is because the group-level inferences an be
+			% seen as inferences we can make about an as yet unobserved
+			% participant, in the light of the participant data available thus
+			% far.
+			IDnames = obj.data.IDname;
+			if obj.isGroupLevelModel()
+				IDnames{end+1}='GROUP';
+			end
+			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			obj.mcmc.figUnivariateSummary(IDnames, obj.varList.participantLevel, obj.pointEstimateType)
+			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			latex_fig(16, 5, 5)
+			myExport('UnivariateSummary',...
+				'saveFolder',obj.saveFolder,...
+				'prefix', obj.modelType)
+			% --------------------------------------------------------------------
 
 
 
