@@ -96,8 +96,9 @@ classdef MatjagsWrapper < SamplerWrapper
 				'cleanup', 1,...
 				'rndseed', 1,...
 				'dic', 0);
-
-				mcmcContainer = JAGSmcmc(samples, stats, obj.mcmcparams);
+			
+			% output an mcmcContainer object, made from the samples
+			mcmcContainer = JAGSmcmc(samples, stats, obj.mcmcparams);
 		end
 
 		%% SET METHODS ----------------------------------------------------
