@@ -1,38 +1,48 @@
-function plotDiscountFunction(logK, logKsamples, varargin)
+function plotDiscountFunction(logKsamples, varargin)
 
 % TODO clean up this function
 
-
 p = inputParser;
 p.FunctionName = mfilename;
-p.addRequired('logK',@isscalar);
 p.addRequired('logKsamples',@isvector);
 p.addParameter('xScale','linear',@(x)any(strcmp(x,{'linear','log'})));
 p.addParameter('data',[],@isstruct);
 p.addParameter('pointEstimateType','mean',@isstr);
-p.parse(logK, logKsamples, varargin{:});
+p.parse(logKsamples, varargin{:});
 
-k = exp(p.Results.logK);
+%% Calculate half-life
+logkDistribution = mcmc.UnivariateDistribution(logKsamples,...
+	'shouldPlot',false,...
+	'pointEstimateType',p.Results.pointEstimateType);
+logKpointEstimate = logkDistribution.(p.Results.pointEstimateType);
+k = exp(logKpointEstimate);
 halfLife = 1/k;
+	
+%% determine x-range
+if ~isempty(p.Results.data)
+	maxDelay = max( p.Results.data.DB );
+else
+	maxDelay = halfLife*100;
+end
 
+
+% TODO: This should be an indepedent function, the name of which is
+% provided as an input
 discountFraction = @(k,D) bsxfun(@rdivide, 1, 1 + (bsxfun(@times, k, D) ) );
 
 switch p.Results.xScale
 	case{'linear'}
-		D = linspace(0, halfLife*100, 1000);
-
+		D = linspace(0, maxDelay, 1000);
+		
 		mcmc.PosteriorPrediction1D(discountFraction,...
 			'xInterp',D,...
 			'samples',exp(p.Results.logKsamples),...
 			'ciType','examples',...
 			'variableNames', {'delay', 'discount factor'},...
 			'pointEstimateType',p.Results.pointEstimateType);
-
-% 		myplot = PosteriorPrediction1D(discountFraction, D, exp(p.Results.logKsamples) );
-% 		myplot.plotExamples(100);
-% 		myplot.plotPointEstimate( exp(logK) );
-
+		
 	case{'log'}
+		error('')
 		D = logspace(-2,4,10000);
 		AB		= discountFraction(k,D);
 		semilogx(D, AB);
