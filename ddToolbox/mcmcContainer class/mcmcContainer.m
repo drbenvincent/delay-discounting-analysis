@@ -37,7 +37,7 @@ classdef mcmcContainer < handle
 
 
 			%% participant level
-			colHeaderNames = createColumnHeaders(level1varNames, p.Results.includeCI);
+			colHeaderNames = createColumnHeaders(level1varNames, p.Results.includeCI, pointEstimateType);
 			paramEstimates = obj.grabParamEstimates(level1varNames, p.Results.includeCI);
 			paramEstimateTable = array2table(paramEstimates,...
 				'VariableNames',colHeaderNames,...
@@ -66,10 +66,10 @@ classdef mcmcContainer < handle
 			fprintf('The above table of parameter estimates was exported to:\n')
 			fprintf('\t%s\n\n',savename)
 
-			function colHeaderNames = createColumnHeaders(varNames,getCI)
+			function colHeaderNames = createColumnHeaders(varNames,getCI, pointEstimateType)
 				colHeaderNames = {};
 				for var = each(varNames)
-					colHeaderNames{end+1} = sprintf('%s_mean', var);
+					colHeaderNames{end+1} = sprintf('%s_%s', var, pointEstimateType);
 					if getCI
 						colHeaderNames{end+1} = sprintf('%s_HDI5', var);
 						colHeaderNames{end+1} = sprintf('%s_HDI95', var);
