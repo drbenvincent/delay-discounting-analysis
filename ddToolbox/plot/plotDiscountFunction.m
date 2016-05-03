@@ -15,8 +15,8 @@ logkDistribution = mcmc.UnivariateDistribution(logKsamples,...
 	'shouldPlot',false,...
 	'pointEstimateType',p.Results.pointEstimateType);
 logKpointEstimate = logkDistribution.(p.Results.pointEstimateType);
-k = exp(logKpointEstimate);
-halfLife = 1/k;
+kPpointEstimate = exp(logKpointEstimate);
+halfLife = 1/kPpointEstimate;
 	
 %% determine x-range
 if ~isempty(p.Results.data)
@@ -34,17 +34,20 @@ switch p.Results.xScale
 	case{'linear'}
 		D = linspace(0, maxDelay, 1000);
 		
+		% provide the point estimated calculated above (on logk) rather than k,
+		% because of numerical problems.
 		mcmc.PosteriorPrediction1D(discountFraction,...
 			'xInterp',D,...
 			'samples',exp(p.Results.logKsamples),...
 			'ciType','examples',...
 			'variableNames', {'delay', 'discount factor'},...
-			'pointEstimateType',p.Results.pointEstimateType);
+			'pointEstimateType',p.Results.pointEstimateType,...
+			'pointEstimate',kPpointEstimate);
 		
 	case{'log'}
 		error('')
 		D = logspace(-2,4,10000);
-		AB		= discountFraction(k,D);
+		AB		= discountFraction(kPpointEstimate,D);
 		semilogx(D, AB);
 end
 
@@ -54,11 +57,9 @@ axis tight
 % box off
 % xlabel('delay', 'interpreter','latex')
 % ylabel('discount factor', 'interpreter','latex')
+
+xlim([0 maxDelay])
 ylim([0 1])
-
-% default scale the x axis from 0 to a multiple of the half life
-xlim([0 halfLife*5])
-
 
 % if we have data
 if ~isempty(p.Results.data)
