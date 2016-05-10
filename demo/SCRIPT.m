@@ -141,15 +141,15 @@ h_logk.plot()
 warning('Chain convergence issues: priors need to be refined.')
 s_me = ModelSeparateME(toolboxPath, 'JAGS', myData, 'separate_ME');
 s_me.sampler.setMCMCtotalSamples(10^5);
-s_me.conductInference('includeCI',false);
-s_me.exportParameterEstimates();
+s_me.conductInference();
+s_me.exportParameterEstimates('includeCI',false);
 s_me.plot()
 
 %% Independent participants (non-hierarchical) estimation of log(k)
 s_logk = ModelSeparateLogK(toolboxPath, 'JAGS', myData, 'separate_logk');
 s_logk.sampler.setMCMCtotalSamples(10^5);
-s_logk.conductInference('includeCI',false);
-s_logk.exportParameterEstimates();
+s_logk.conductInference();
+s_logk.exportParameterEstimates('includeCI',false);
 s_logk.plot()
 
 
