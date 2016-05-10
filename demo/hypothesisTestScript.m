@@ -17,8 +17,8 @@ HT_BayesFactor(priorSamples, posteriorSamples)
 
 %% METHOD 2 - examine credible interval
 subplot(1,2,2)
-plotPosteriorHDI(priorSamples, posteriorSamples)
+mcmc.UnivariateDistribution(posteriorSamples,...
+	'priorSamples', priorSamples,...
+	'plotStyle','hist');
 
-%%
-myExport(modelObject.saveFolder, [], '-BayesFactorMLT1')
 end

@@ -1,31 +1,41 @@
-function figParticipantLOGK(pSamples, pData, logkMEAN, epsilonMEAN, alphaMEAN)
+function figParticipantLOGK(pSamples, pointEstimateType, varargin)
+
+p = inputParser;
+p.FunctionName = mfilename;
+p.addRequired('pSamples',@isstruct);
+p.addRequired('pointEstimateType',@isstr);
+p.addParameter('pData',[], @isstruct);
+p.addParameter('opts',[], @isstruct);
+p.parse(pSamples, pointEstimateType, varargin{:});
+
 rows=1; cols=4;
 
-% BIVARIATE PLOT: lapse rate & comparison accuity
 subplot(rows, cols, 1)
-plot2DErrorAccuity(pSamples.epsilon(:), pSamples.alpha(:), epsilonMEAN, alphaMEAN);
+epsilon_alpha = mcmc.BivariateDistribution(pSamples.epsilon, pSamples.alpha,...
+	'xLabel','error rate, $\epsilon$',...
+	'ylabel','comparison accuity, $\alpha$',...
+	'pointEstimateType',p.Results.pointEstimateType);
 
-% PSYCHOMETRIC FUNCTION (using my posterior-prediction-plot-matlab GitHub repository)
 subplot(rows, cols, 2)
-plotPsychometricFunc(pSamples, [epsilonMEAN, alphaMEAN])
+plotPsychometricFunc(pSamples, p.Results.pointEstimateType);
 
-% logk
 subplot(rows, cols, 3)
-plotPriorPostHist([], pSamples.logk(:));
-%histogram(pSamples.logk(:))
-removeYaxis()
-axis square
-xlabel('$\log(k)$', 'interpreter', 'latex')
+logk = mcmc.UnivariateDistribution(pSamples.logk(:),...
+ 'killYAxis', true,...
+ 'xLabel', '$\log(k)$',...
+ 'pointEstimateType',p.Results.pointEstimateType);
 
-% TODO:
 % Plot in 2D data space
 subplot(rows, cols, 4)
-if ~isempty(pData)
-	% participant level
-	plot2DdataSpace(pData, logkMEAN, pSamples.logk(:))
+if ~isempty(p.Results.pData)
+	% participant level, we have data
+	plotDiscountFunction(pSamples.logk(:),...
+		'data',p.Results.pData,...
+		'pointEstimateType',p.Results.pointEstimateType);
 else
 	% for group level where there is no data
-	plotDiscountFunction(logkMEAN, pSamples.logk(:));
+	plotDiscountFunction(pSamples.logk(:),...
+		'pointEstimateType',p.Results.pointEstimateType);
 end
 
 end

@@ -1,7 +1,8 @@
-function plotMagnitudeEffect(samples, modeVals)
+function plotMagnitudeEffect(mcmcsamples, pointEstimateType)
 %
 % log(k) = m * log(|B|) + c
 % k = exp( m * log(|B|) + c )
+
 
 % -----------------------------------------------------------
 %fh = @(x,params) exp( params(:,1) * log(|x|) + params(:,2));
@@ -11,25 +12,20 @@ fh = @(x,params) exp( bsxfun(@plus, ...
 	params(:,2)));
 % -----------------------------------------------------------
 
-x=logspace(0,4,50);
+samples(:,1) = mcmcsamples.m(:);
+samples(:,2) = mcmcsamples.c(:);
 
-params(:,1) = samples.m(:);
-params(:,2) = samples.c(:);
+mcmc.PosteriorPrediction1D(fh,...
+    'xInterp',logspace(0,4,50),...
+    'samples',samples,...
+    'ciType','examples',...
+    'variableNames', {'reward, $\pounds$', '$k$ (days$^{-1}$)'},...
+	'pointEstimateType',pointEstimateType);
 
-% Create myplot object (class = PosteriorPredictionPlot)
-myplot = PosteriorPredictionPlot(fh, x, params);
-%myplot = myplot.plotCI([5 95]);
-myplot.plotExamples(100);
-myplot.plotPointEstimate(modeVals);
-
-%% Formatting
+% Extra formatting
 set(gca,'XScale','log')
 set(gca,'YScale','log')
 set(gca,'XTick',logspace(1,6,6))
 set(gca,'YTick',logspace(-4,0,5))
-forceNonExponentialTick
-xlabel('reward','Interpreter','latex')
-ylabel('$k$ (days$^{-1}$)','Interpreter','latex')
-box off
-axis square
+%forceNonExponentialTick
 return

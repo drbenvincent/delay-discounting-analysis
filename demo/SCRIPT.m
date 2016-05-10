@@ -2,11 +2,12 @@ function SCRIPT
 % code used in the preparation of the paper
 
 %% Preamble
-% Update the path below to point toward the '/ddToolbox' folder
-toolboxPath = setToolboxPath('/Users/benvincent/git-local/delay-discounting-analysis/ddToolbox');
 % Ensure the current directory is the 'project folder'
-cd('/Users/benvincent/git-local/delay-discounting-analysis/demo')
-setPlotTheme
+cd('~/git-local/delay-discounting-analysis/demo')
+% Update the path below to point toward the '/ddToolbox' folder
+toolboxPath = setToolboxPath('~/git-local/delay-discounting-analysis/ddToolbox');
+
+mcmc.setPlotTheme('fontsize',16, 'linewidth',1)
 
 %% Create data object
 
@@ -50,18 +51,12 @@ hModel = ModelHierarchicalME(toolboxPath, 'JAGS', myData, saveFolder);
 % This will initiate MCMC sampling. This can take some time to run.
 hModel.conductInference();
 
-% Conduct some posterior predictive analysis
-% hModel.posteriorPredictive(); % **** ADDITIONAL FEATURE: NOT YET FINISHED
+hModel.exportParameterEstimates('includeGroupEstimates', true,...
+	'includeCI',false);
 
-% Export posterior mode (and credible intervals) of all parameter and group
-% level parameters to a text file
-hModel.exportParameterEstimates();
-
-% Plot all the results
 hModel.plot()
 
 % Inspect mcmc chains
-% Include whatever model variable names you want to inspect
 hModel.plotMCMCchains({'m','c'})
 hModel.plotMCMCchains({'m_group','c_group', 'alpha_group', 'epsilon_group'})
 
@@ -89,13 +84,14 @@ someSamples = hModel.mcmc.getSamples({'m','c'});
 % Below we calculate and plot the discount rates for reward magnitudes of 
 % £100 and £1,000
 
-figure(1), clf
-plotFlag=true;
-ax(1) = subplot(1,2,1);
-hModel.conditionalDiscountRates(100, plotFlag);
-ax(2) = subplot(1,2,2);
-hModel.conditionalDiscountRates(1000, plotFlag);
-linkaxes(ax,'xy')
+% TOD0: fix this
+% figure(1), clf
+% plotFlag=true;
+% ax(1) = subplot(1,2,1);
+% hModel.conditionalDiscountRates(100, plotFlag);
+% ax(2) = subplot(1,2,2);
+% hModel.conditionalDiscountRates(1000, plotFlag);
+% linkaxes(ax,'xy')
 
 
 
@@ -124,7 +120,7 @@ saveFolder = 'hierarchical_updated_priors';
 h_me_updated = ModelHierarchicalMEUpdated(toolboxPath, 'JAGS', myData, saveFolder);
 h_me_updated.sampler.setMCMCtotalSamples(10^5);
 h_me_updated.conductInference();
-h_me_updated.exportParameterEstimates();
+h_me_updated.exportParameterEstimates('includeCI',false);
 h_me_updated.plot()
 
 
@@ -132,11 +128,12 @@ h_me_updated.plot()
 h_logk = ModelHierarchicalLogK(toolboxPath, 'JAGS', myData, 'hierarchical_logk');
 h_logk.sampler.setMCMCtotalSamples(10^5);
 h_logk.conductInference();
+h_logk.exportParameterEstimates('includeCI','false');
 h_logk.plot()
 
 
 % =========================================================================
-% MODELS BELOW TREAT PARTICIPANTS INDEPE, NO HIERARCHICAL ESTIMATION
+% MODELS BELOW TREAT PARTICIPANTS INDEPENDENTLY, NO HIERARCHICAL ESTIMATION
 % These could be useful in some situations, but we loose the advantages of
 % hierarchical estimation.
 
@@ -145,14 +142,29 @@ warning('Chain convergence issues: priors need to be refined.')
 s_me = ModelSeparateME(toolboxPath, 'JAGS', myData, 'separate_ME');
 s_me.sampler.setMCMCtotalSamples(10^5);
 s_me.conductInference();
-s_me.exportParameterEstimates();
+s_me.exportParameterEstimates('includeCI',false);
 s_me.plot()
 
 %% Independent participants (non-hierarchical) estimation of log(k)
 s_logk = ModelSeparateLogK(toolboxPath, 'JAGS', myData, 'separate_logk');
 s_logk.sampler.setMCMCtotalSamples(10^5);
 s_logk.conductInference();
-s_logk.exportParameterEstimates();
+s_logk.exportParameterEstimates('includeCI',false);
 s_logk.plot()
+
+
+%% Compare hierarchical and non-hierarchical inferences for log(k) models
+figure
+subplot(2,1,1)
+plotLOGKclusters(s_logk.mcmc, s_logk.data, [0.7 0 0], 'mode')
+title('non-hierarchical')
+
+subplot(2,1,2)
+plotLOGKclusters(h_logk.mcmc, h_logk.data, [0.7 0 0], 'mode')
+title('hierarchical')
+
+subplot(2,1,2), a=axis; subplot(2,1,1), axis(a);
+
+
 
 return

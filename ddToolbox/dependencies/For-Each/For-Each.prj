@@ -1,0 +1,89 @@
+<deployment-project plugin="plugin.toolbox" plugin-version="1.0">
+  <configuration file="C:\Users\jhughes\Desktop\matlab-each-for-file-exchange-15c4777f2e390ea4104356a20c9a8f16fd89f700\matlab-each-for-file-exchange.git\For-Each.prj" location="C:\Users\jhughes\Desktop\matlab-each-for-file-exchange-15c4777f2e390ea4104356a20c9a8f16fd89f700\matlab-each-for-file-exchange.git" name="For-Each" target="target.toolbox" target-name="Package Toolbox">
+    <param.appname>For-Each</param.appname>
+    <param.authnamewatermark>Jeremy Hughes</param.authnamewatermark>
+    <param.email>Jeremy.Hughes@mathworks.com</param.email>
+    <param.company>The MathWorks, Inc.</param.company>
+    <param.summary>Tools for simplifying for-loops. Customizable loop iteration.</param.summary>
+    <param.description>The for-each tools enable simple, readable, and powerful for loops in MATLAB(R). 
+For example, you can: 
+* Loop over the contents of a cell array without using braces for indexing, 
+* Convert an arbitrarily nested for-loop to a single loop using eachCombination, 
+* Loop through slices of an N-D array along any dimension(s), 
+* Loop over large numbers of permutations of a vector, 
+* Define your own rules for iterating over an array.</param.description>
+    <param.screenshot />
+    <param.version>1.01</param.version>
+    <param.output>${PROJECT_ROOT}\For-Each.mltbx</param.output>
+    <param.products.name>
+      <item>MATLAB</item>
+    </param.products.name>
+    <param.products.id>
+      <item>1</item>
+    </param.products.id>
+    <param.products.version>
+      <item>8.4</item>
+    </param.products.version>
+    <param.platforms />
+    <param.guid>67dad571-3b87-494c-a0f4-105d2a2d5cc3</param.guid>
+    <param.exclude.filters />
+    <param.examples>&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;examples/&gt;</param.examples>
+    <param.demosxml />
+    <param.apps />
+    <param.docs />
+    <unset>
+      <param.screenshot />
+      <param.output />
+      <param.platforms />
+      <param.exclude.filters />
+      <param.demosxml />
+      <param.apps />
+      <param.docs />
+    </unset>
+    <fileset.rootdir>
+      <file>C:\Users\jhughes\Desktop\matlab-each-for-file-exchange-15c4777f2e390ea4104356a20c9a8f16fd89f700\matlab-each-for-file-exchange.git</file>
+    </fileset.rootdir>
+    <fileset.rootfiles>
+      <file>${PROJECT_ROOT}\+each</file>
+      <file>${PROJECT_ROOT}\@cell</file>
+      <file>${PROJECT_ROOT}\each.m</file>
+      <file>${PROJECT_ROOT}\eachColumn.m</file>
+      <file>${PROJECT_ROOT}\eachCombination.m</file>
+      <file>${PROJECT_ROOT}\eachPermutation.m</file>
+      <file>${PROJECT_ROOT}\eachRow.m</file>
+      <file>${PROJECT_ROOT}\eachSlice.m</file>
+      <file>${PROJECT_ROOT}\eachTuple.m</file>
+      <file>${PROJECT_ROOT}\For-Each.prj</file>
+      <file>${PROJECT_ROOT}\README</file>
+    </fileset.rootfiles>
+    <fileset.depfun.included />
+    <fileset.depfun.excluded>
+      <file>\\mathworks\public\Jeremy_Hughes\each\@cell\each.m</file>
+    </fileset.depfun.excluded>
+    <fileset.package />
+    <build-deliverables>
+      <file location="C:\Users\jhughes\Desktop\matlab-each-for-file-exchange-15c4777f2e390ea4104356a20c9a8f16fd89f700\matlab-each-for-file-exchange.git" name="For-Each.mltbx" optional="false">C:\Users\jhughes\Desktop\matlab-each-for-file-exchange-15c4777f2e390ea4104356a20c9a8f16fd89f700\matlab-each-for-file-exchange.git\For-Each.mltbx</file>
+    </build-deliverables>
+    <workflow />
+    <matlab>
+      <root>L:\R2014b</root>
+      <toolboxes />
+    </matlab>
+    <platform>
+      <unix>false</unix>
+      <mac>false</mac>
+      <windows>true</windows>
+      <win2k>false</win2k>
+      <winxp>false</winxp>
+      <vista>false</vista>
+      <linux>false</linux>
+      <solaris>false</solaris>
+      <osver>6.1</osver>
+      <os32>false</os32>
+      <os64>true</os64>
+      <arch>win64</arch>
+      <matlab>true</matlab>
+    </platform>
+  </configuration>
+</deployment-project>

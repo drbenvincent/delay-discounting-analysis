@@ -1,7 +1,7 @@
 model{
 
   logk_MEAN <- log(1/365)
-  logk_PRECISION <- 1/(10^2)
+  logk_PRECISION <- 1/(2^2)
 
   # Participant-level parameters
   for (p in 1:nParticipants){
