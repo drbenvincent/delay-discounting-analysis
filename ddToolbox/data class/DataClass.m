@@ -45,7 +45,7 @@ classdef DataClass < handle
 					case {'all'}
 						[~,obj.IDname{n},~] = fileparts(fnames{n}); % just get filename
 					case{'ID'}
-						obj.IDname{n} = getPrefixOfString(fnames{n},'-')
+						obj.IDname{n} = getPrefixOfString(fnames{n},'-');
 				end
 				participantTable = readtable(fullfile(obj.dataFolder,fnames{n}), 'delimiter','tab');
 				participantTable = obj.appendParticipantIDcolumn(participantTable, n);
@@ -125,6 +125,7 @@ classdef DataClass < handle
 
 			% T is a vector containing number of trials for each participant
 			obj.observedData.T = [obj.participantLevel.trialsForThisParticant];
+			obj.observedData.nParticipants = obj.nParticipants;
 		end
 
 	end
