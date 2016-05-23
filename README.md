@@ -9,7 +9,7 @@ This repository contains the code for the paper:
 
 This code conducts Bayesian estimation and hypothesis testing on data obtained from delay discounting (aka inter-temporal choice) experiments.
 
-![](ddToolbox/pics/overview.png)
+![](img/overview.png)
 
 # [Documentation](https://github.com/drbenvincent/delay-discounting-analysis/wiki) and help.
 Go to the [wiki](https://github.com/drbenvincent/delay-discounting-analysis/wiki) for full instructions.
