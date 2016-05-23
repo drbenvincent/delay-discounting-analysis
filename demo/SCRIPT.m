@@ -1,13 +1,18 @@
 function SCRIPT
-% code used in the preparation of the paper
+% Example use of the delay discounting analysis toolbox
+
+%% User options
+% ** You should update the following lines according for your system **
+% Note: on a mac '~' corresponds to your home dir eg '/Users/myusername'
+projectPath = '~/git-local/delay-discounting-analysis/demo';
+toolboxPath = '~/git-local/delay-discounting-analysis/ddToolbox';
+
 
 %% Preamble
-% Ensure the current directory is the 'project folder'
-cd('~/git-local/delay-discounting-analysis/demo')
-% Update the path below to point toward the '/ddToolbox' folder
-toolboxPath = setToolboxPath('~/git-local/delay-discounting-analysis/ddToolbox');
-
+cd(projectPath)
+toolboxPath = setToolboxPath(toolboxPath);
 mcmc.setPlotTheme('fontsize',16, 'linewidth',1)
+
 
 %% Create data object
 
@@ -28,11 +33,8 @@ fnames={'AC-kirby27-DAYS.txt',...
 'SK-kirby27.txt',...
 'VD-kirby27.txt'};
 
-% You can use this function if you would like to exlude participants.
+% Optional participant exclusion.
 %fnames = excludeTheseParticipants(fnames, {'SK-kirby27.txt', 'VD-kirby27.txt'})
-
-% Participant-level data will be aggregated into a larger group-level data
-% file. This is also saved for inspection, but is not used in later code.
 
 pathToData='data';
 myData = DataClass(pathToData);
@@ -41,22 +43,22 @@ myData.loadDataFiles(fnames);
 
 %% Analyse the data with the hierarchical model
 
-% First we create a model object, which we will call hModel. This is an
-% instance of the class 'ModelHierarchical'
+% 1) Create a model object
 saveFolder = 'methodspaper-kirby27';
 hModel = ModelHierarchicalME(toolboxPath, 'JAGS', myData, saveFolder);
-% hModel.setMCMCtotalSamples(10^6);
-% hModel.setMCMCnumberOfChains(4);
+% optionally override default options:
+hModel.setMCMCtotalSamples(10^4);
+hModel.setMCMCnumberOfChains(4);
 
-% This will initiate MCMC sampling. This can take some time to run.
+% 2) Do MCMC sampling
 hModel.conductInference();
 
+% 3) Export estimates and plotting
 hModel.exportParameterEstimates('includeGroupEstimates', true,...
 	'includeCI',false);
 
 hModel.plot()
 
-% Inspect mcmc chains
 hModel.plotMCMCchains({'m','c'})
 hModel.plotMCMCchains({'m_group','c_group', 'alpha_group', 'epsilon_group'})
 
