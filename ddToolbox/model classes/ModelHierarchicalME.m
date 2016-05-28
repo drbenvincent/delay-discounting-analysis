@@ -77,7 +77,7 @@ classdef ModelHierarchicalME < Model
 			obj.conditionalDiscountRates_ParticipantLevel(reward, plotFlag)
 			obj.conditionalDiscountRates_GroupLevel(reward, plotFlag)
 			if plotFlag % FORMATTING OF FIGURE
-				removeYaxis
+				mcmc.removeYaxis()
 				title(sprintf('$P(\\log(k)|$reward=$\\pounds$%d$)$', reward),'Interpreter','latex')
 				xlabel('$\log(k)$','Interpreter','latex')
 				axis square

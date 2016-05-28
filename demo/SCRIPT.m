@@ -86,14 +86,13 @@ someSamples = hModel.mcmc.getSamples({'m','c'});
 % Below we calculate and plot the discount rates for reward magnitudes of 
 % £100 and £1,000
 
-% TOD0: fix this
-% figure(1), clf
-% plotFlag=true;
-% ax(1) = subplot(1,2,1);
-% hModel.conditionalDiscountRates(100, plotFlag);
-% ax(2) = subplot(1,2,2);
-% hModel.conditionalDiscountRates(1000, plotFlag);
-% linkaxes(ax,'xy')
+figure(1), clf
+plotFlag=true;
+ax(1) = subplot(1,2,1);
+hModel.conditionalDiscountRates(100, plotFlag);
+ax(2) = subplot(1,2,2);
+hModel.conditionalDiscountRates(1000, plotFlag);
+linkaxes(ax,'xy')
 
 
 
