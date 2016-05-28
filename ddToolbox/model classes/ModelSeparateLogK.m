@@ -29,11 +29,11 @@ classdef ModelSeparateLogK < Model
 
 			%% Create variables
 			obj.varList.participantLevel = {'logk','alpha','epsilon'};
+            obj.varList.participantLevelPriors = {'logk_prior','alpha_prior','epsilon_prior'};
 			obj.varList.groupLevel = {};
 			obj.varList.monitored = {'logk','alpha','epsilon',...
 				'logk_prior','alpha_prior','epsilon_prior',...
 				'Rpostpred'};
-			obj.varList.participantLevelPriors = {'logk_prior','alpha_prior','epsilon_prior'};
 
 			%% Deal with generating initial values of leaf nodes
 			obj.variables.logk = Variable('logk',...

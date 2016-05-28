@@ -1,11 +1,9 @@
 function plotPsychometricFunc(pSamples, pointEstimateType)
 
 
-% This is the Psychometric function ---------------------------------------
+% Psychometric function ---------------------------------------------------
 %fh = @(x,params) params(:,1) + (1-2*params(:,1)) * normcdf( (x ./ params(:,2)) , 0, 1);
-%fh = @FAST_PSYCHOMETRIC;
-% This is converted to work FAST ------------------------------------------
-%display('**** SPEED THIS CODE UP ****')
+% Fast verion -------------------------------------------------------------
 fh = @(x,params) bsxfun(@plus,...
 	params(:,1),...
 	bsxfun(@times, ...

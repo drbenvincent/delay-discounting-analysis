@@ -27,6 +27,7 @@ classdef ModelHierarchicalME < Model
 
 			%% Create variables
 			obj.varList.participantLevel = {'m', 'c','alpha','epsilon'};
+            obj.varList.participantLevelPriors = {'m_group_prior', 'c_group_prior','alpha_group_prior','epsilon_group_prior'};
 			obj.varList.groupLevel = {'m_group', 'c_group','alpha_group','epsilon_group'};
 			obj.varList.monitored = {'m', 'c','alpha','epsilon',...
 				'm_group', 'c_group','alpha_group','epsilon_group',...
@@ -34,7 +35,7 @@ classdef ModelHierarchicalME < Model
 				'groupMmu', 'groupMsigma', 'groupCmu','groupCsigma','groupW','groupK','groupALPHAmu','groupALPHAsigma',...
 				'groupMmu_prior', 'groupMsigma_prior', 'groupCmu_prior','groupCsigma_prior','groupW_prior','groupK_prior','groupALPHAmu_prior','groupALPHAsigma_prior',...
 				'Rpostpred'};
-			obj.varList.participantLevelPriors = {'m_group_prior', 'c_group_prior','alpha_group_prior','epsilon_group_prior'}
+
 
 			%% Deal with generating initial values of leaf nodes
 			% TODO: ADD SEED FUNCTIONS TO THESE

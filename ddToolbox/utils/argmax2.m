@@ -5,5 +5,5 @@ function [i,j] = argmax2(x)
 % See also ARGMAX.
 
 [colmax,i] = max(x);
-[ignore,j] = max(colmax);
+[~,j] = max(colmax);
 i = i(j);

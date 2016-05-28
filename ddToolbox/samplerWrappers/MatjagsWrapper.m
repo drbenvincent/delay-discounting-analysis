@@ -70,13 +70,6 @@ classdef MatjagsWrapper < SamplerWrapper
 			end
 		end
 
-		% function setMonitoredValues(obj, varsToMonitor)
-		% 	% cell array of strings defining the variables we want to monitor
-		% 	%obj.monitorparams = fieldnames(variables);
-		% 	%obj.monitorparams = {variables.str};
-		% 	obj.monitorparams = varsToMonitor;
-		% end
-
 		function mcmcContainer = invokeSampler(obj)
 			fprintf('\nRunning JAGS (%d chains, %d samples each)\n',...
 				obj.mcmcparams.nchains,...
@@ -96,7 +89,7 @@ classdef MatjagsWrapper < SamplerWrapper
 				'cleanup', 1,...
 				'rndseed', 1,...
 				'dic', 0);
-			
+
 			% output an mcmcContainer object, made from the samples
 			mcmcContainer = JAGSmcmc(samples, stats, obj.mcmcparams);
 		end
