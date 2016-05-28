@@ -105,7 +105,8 @@ classdef DataClass < handle
 			end
 
 			obj.observedData.T = [obj.participantLevel.trialsForThisParticant];
-			obj.observedData.nParticipants = obj.nParticipants;
+			%obj.observedData.nParticipants = obj.nParticipants;
+			obj.observedData.participantIndexList = [1:obj.nParticipants];
 		end
 
 	end

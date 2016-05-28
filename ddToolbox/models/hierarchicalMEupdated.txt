@@ -30,14 +30,16 @@ model{
 
   # ---------------------------------------------------------------
   # Participant-level parameters
-  for (p in 1:nParticipants){
+  for (p in participantIndexList){
 
       m[p]        ~ dnorm(groupMmu, 1/(groupMsigma^2))
       c[p]        ~ dnorm(groupCmu, 1/(groupCsigma^2))
 
       epsilon[p]  ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
       alpha[p]    ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
+  }
 
+  for (p in participantIndexList){
       for (t in 1:T[p]) {
           # Calculate log discount rate for each reward
           lkA[p,t] <- m[p]*log(abs(A[p,t]))+c[p]
@@ -96,7 +98,7 @@ model{
   epsilon_group_prior  ~ dbeta(groupW_prior*(groupK_prior-2)+1 , (1-groupW_prior)*(groupK_prior-2)+1 ) T(,0.5)
 
 
-  for (p in 1:nParticipants){
+  for (p in participantIndexList){
     for (t in 1:T[p]) {
       # posterior predictive distribution of responses
       Rpostpred[p,t] ~ dbern(P[p,t])

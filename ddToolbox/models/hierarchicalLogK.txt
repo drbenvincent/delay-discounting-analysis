@@ -18,14 +18,14 @@ model{
 
   # --------------------------------------------------------------------------
   # Participant-level parameters
-  for (p in 1:nParticipants){
+  for (p in participantIndexList){
     # magnitude effect (m,c) for each person
     logk[p]     ~ dnorm(groupLogKmu, 1/(groupLogKsigma^2))
     epsilon[p]  ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
     alpha[p]    ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
   }
 
-  for (p in 1:nParticipants){
+  for (p in participantIndexList){
     for (t in 1:T[p]) {
       # calculate present subjective value for each reward
       VA[p,t] <- A[p,t] / (1+(exp(logk[p])*DA[p,t]))
@@ -72,7 +72,7 @@ model{
   epsilon_group       ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
 
 
-  for (p in 1:nParticipants){
+  for (p in participantIndexList){
     for (t in 1:T[p]) {
       Rpostpred[p,t] ~ dbern(P[p,t])
     }
