@@ -129,8 +129,19 @@ h_me_updated.plot()
 h_logk = ModelHierarchicalLogK(toolboxPath, 'JAGS', myData, 'hierarchical_logk');
 h_logk.sampler.setMCMCtotalSamples(10^5);
 h_logk.conductInference();
-h_logk.exportParameterEstimates('includeCI','false');
+h_logk.exportParameterEstimates('includeCI',false);
 h_logk.plot()
+
+
+%% Mixed model, estimate discount rate = log(k), no magnitude effect
+% logk: non-hierarchical
+% epsilon: hierarchical
+% alpha: hierarchical
+m_logk = ModelMixedLogK(toolboxPath, 'JAGS', myData, 'mixed_logk');
+m_logk.sampler.setMCMCtotalSamples(10^4);
+m_logk.conductInference();
+m_logk.exportParameterEstimates('includeCI',false);
+m_logk.plot()
 
 
 % =========================================================================

@@ -25,6 +25,8 @@ fnames={'AC-kirby27-DAYS.txt',...
 'CS-kirby27-DAYS.txt',...
 'NA-kirby27-DAYS.txt'};
 
+fnames={'AC-kirby27-DAYS.txt'};
+
 pathToData='data';
 myData = DataClass(pathToData);
 myData.loadDataFiles(fnames);
@@ -79,6 +81,18 @@ s_me.sampler.setMCMCnumberOfChains(nChains);
 s_me.conductInference();
 s_me.exportParameterEstimates();
 s_me.plot()
+
+
+%% Mixed model, estimate discount rate = log(k), no magnitude effect
+% logk: non-hierarchical
+% epsilon: hierarchical
+% alpha: hierarchical
+m_logk = ModelMixedLogK(toolboxPath, 'JAGS', myData, 'mixed_logk');
+s_logk.sampler.setMCMCtotalSamples(nSamples);
+s_logk.sampler.setMCMCnumberOfChains(nChains);
+m_logk.conductInference();
+%m_logk.exportParameterEstimates('includeCI',false);
+m_logk.plot()
 
 %% JAGS - separate logk
 s_logk = ModelSeparateLogK(toolboxPath, 'JAGS', myData, 'separate_logk');

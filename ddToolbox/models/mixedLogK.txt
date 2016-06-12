@@ -1,0 +1,80 @@
+model{
+
+  # --------------------------------------------------------------------------
+  # Group-level hyperpriors
+
+  groupLogKmu <- log(1/365)
+  groupLogKsigma <- 2
+
+  # comparison acuity (alpha)
+  groupALPHAmu        ~ dnorm(0,1/(100^2)) T(0,) ## UPDATED SINCE PAPER
+  groupALPHAsigma     ~ dunif(0,500) ## UPDATED SINCE PAPER
+
+  # error rates (epsilon)
+  groupW          ~ dbeta(1.1, 10.9)  # mode for lapse rate
+  groupKminus2    ~ dgamma(0.5,0.5) # concentration parameter ## UPDATED SINCE PAPER
+  groupK          <- groupKminus2+2
+
+
+  # --------------------------------------------------------------------------
+  # Participant-level parameters
+  for (p in participantIndexList){
+    # magnitude effect (m,c) for each person
+    logk[p]     ~ dnorm(groupLogKmu, 1/groupLogKsigma)
+    epsilon[p]  ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
+    alpha[p]    ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
+  }
+
+  for (p in participantIndexList){
+    for (t in 1:T[p]) {
+      # calculate present subjective value for each reward
+      VA[p,t] <- A[p,t] / (1+(exp(logk[p])*DA[p,t]))
+      VB[p,t] <- B[p,t] / (1+(exp(logk[p])*DB[p,t]))
+
+      # Psychometric function
+      P[p,t] <- epsilon[p] + (1-2*epsilon[p]) * phi( (VB[p,t]-VA[p,t]) / alpha[p] )
+
+      # response
+      R[p,t] ~ dbern(P[p,t])
+    }
+  }
+
+
+  # #############################################
+  # GENERATED QUANTITIES ########################
+
+  # Sample hyperpriors (Make sure values correspond to the priors given above)
+  # We draw these samples, that are independent from the data, so that we can plot our prior beliefs of group-level parameters. These will be determined by the actual values given in the priors.
+  # IMPORTANT - Make sure the numerical values you provide below match the priors above.
+
+  groupLogKmu_prior       <- log(1/365)
+  groupLogKsigma_prior    <- 2
+
+  # comparison acuity
+  groupALPHAmu_prior    ~ dnorm(0,1/(100^2)) T(0,) ## UPDATED SINCE PAPER
+  groupALPHAsigma_prior ~ dunif(0,500) ## UPDATED SINCE PAPER
+
+  # error rates
+  groupW_prior          ~ dbeta(1.1, 10.9)  # mode for lapse rate
+  groupKminus2_prior    ~ dgamma(0.5,0.5) # concentration parameter
+  groupK_prior          <- groupKminus2_prior+2
+
+  # Prior beliefs about the group level (equivalently, an as yet unobserved participant). As determined by priors on parameters specified above
+  logk_group_prior     ~ dnorm(groupLogKmu_prior, 1/(groupLogKsigma_prior^2))
+  alpha_group_prior    ~ dnorm(groupALPHAmu_prior, 1/(groupALPHAsigma_prior^2)) T(0,)
+  epsilon_group_prior  ~ dbeta(groupW_prior*(groupK_prior-2)+1 , (1-groupW_prior)*(groupK_prior-2)+1 ) T(,0.5)
+
+
+
+  # Group-level posterior predictive distributions. These samples can be seen as inferences about an as yet unobserved participant who represents what we know about the parameters at the group level.
+  logk_group    ~ dnorm(groupLogKmu, 1/groupLogKsigma^2)
+  alpha_group   ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
+  epsilon_group ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
+
+
+  for (p in participantIndexList){
+    for (t in 1:T[p]) {
+      Rpostpred[p,t] ~ dbern(P[p,t])
+    }
+  }
+}
