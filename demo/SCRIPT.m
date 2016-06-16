@@ -40,7 +40,6 @@ pathToData='data';
 myData = DataClass(pathToData);
 myData.loadDataFiles(fnames);
 
-
 %% Analyse the data with the hierarchical model
 
 % 1) Create a model object

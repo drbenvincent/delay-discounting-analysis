@@ -1,0 +1,64 @@
+# Discount rate modelled as a Gaussian Random Walk :)
+
+# Observed data being provided:
+# - participantIndexList
+# - T
+# - A, DA, B, DB, T
+# - uniqueDelays
+# - delayLookUp[p,t] is an index into the delay
+
+# Parameters
+# - alpha
+# - epsilon
+# - discountFraction: a vector of params, one for each unique delay
+
+model{
+
+  epsilon <- 0.01
+  alpha <- 10
+
+  # variance increase per unit time # DO INFERENCE OVER THIS RATHER THAN SETTING ITS VALUE
+  #varInc ~ dnorm(0.01,1/5) T(0,)
+  varInc <- 0.001
+
+  for (p in participantIndexList){
+
+    #for (d in 1:length(uniqueDelays)){
+    #    discountFraction[p,d] ~ dnorm(1, 1/(5)) T(0,)
+    #}
+
+    # GAUSSIAN RANDOM WALK PRIORS
+    discountFraction[p,1] ~ dnorm(1, 1/(uniqueDelays[1]*varInc)) T(0,)
+
+    for (d in 2:length(uniqueDelays)) {
+      discountFraction[p,d] ~ dnorm( discountFraction[p,d-1], 1/ (varInc * (uniqueDelays[d]-uniqueDelays[d-1]))) T(0,)
+    }
+
+  }
+
+  for (p in participantIndexList){
+    for (t in 1:T[p]) {
+      VA[p,t] <- (A[p,t]) # NO DELAY FOR A
+      VB[p,t] <- (B[p,t]) * discountFraction[p, delayLookUp[p,t] ]
+      P[p,t] <- epsilon + (1-2*epsilon) * phi( (VB[p,t]-VA[p,t]) / alpha )
+      R[p,t] ~ dbern(P[p,t])
+    }
+  }
+
+
+
+  # ERROR: this is unattached to the data do far
+  # Posterior predicted indifference points at interpolated delays
+
+
+  for (p in participantIndexList){
+    dfInterp[p,1] ~ dnorm(1, 1/(dInterp[1]*varInc)) T(0,)
+
+    for (i in 2:length(dInterp)) {
+      dfInterp[p,i] ~ dnorm( dfInterp[p,i-1], 1/ (varInc * (dInterp[i]-dInterp[i-1]))) T(0,)
+    }
+
+  }
+
+
+}

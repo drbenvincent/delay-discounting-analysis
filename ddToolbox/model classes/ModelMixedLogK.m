@@ -37,29 +37,23 @@ classdef ModelMixedLogK < Model
 				'groupW','groupK','groupALPHAmu','groupALPHAsigma',...
 				'groupLogKmu_prior', 'groupLogKsigma_prior','groupW_prior','groupK_prior','groupALPHAmu_prior','groupALPHAsigma_prior',...
 				'Rpostpred'};
-
-			%% Deal with generating initial values of leaf nodes
-% 			obj.variables.groupLogKmu = Variable('groupLogKmu',...
-% 				'seed', @() normrnd(-0.243,5),...
-% 				'single',true);
-% 			obj.variables.groupLogKsigma = Variable('groupLogKsigma',...
-% 				'seed', @() rand*10,...
-% 				'single',true);
-
-			obj.variables.groupW = Variable('groupW','single',true,...
-				'seed', @() rand);
-			obj.variables.groupK = Variable('groupK','single',true); % TODO: SHOULD BE groupKminus2 !!
-
-			obj.variables.groupALPHAmu = Variable('groupALPHAmu',...
-				'seed', @() rand*100,...
-				'single',true);
-			obj.variables.groupALPHAsigma = Variable('groupALPHAsigma',...
-				'seed', @() rand*100,...
-				'single',true);
-
 		end
 		% =================================================================
 
+		% Generate initial values of the leaf nodes
+		function setInitialParamValues(obj)
+			
+			nTrials = size(obj.data.observedData.A,2);
+			nParticipants = obj.data.nParticipants;
+			nUniqueDelays = numel(obj.data.observedData.uniqueDelays);
+			
+			for chain = 1:obj.sampler.mcmcparams.nchains
+				obj.initialParams(chain).groupW = rand;
+				obj.initialParams(chain).groupALPHAmu		= rand*100;
+				obj.initialParams(chain).groupALPHAsigma	= rand*100;
+			end
+		end
+		
 		function conditionalDiscountRates(obj, reward, plotFlag)
 			error('Not applicable to this model that calculates log(k)')
 		end

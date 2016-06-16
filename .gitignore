@@ -21,3 +21,8 @@ ddToolbox/models/hierarchicalME
 ddToolbox/models/hierarchicalLogK
 
 demo/data/groupLevelData/COMBINED_DATA.txt
+
+demo-nonparametric/data/groupLevelData/COMBINED_DATA.txt
+
+demo-nonparametric/data
+demo-nonparametric/figs

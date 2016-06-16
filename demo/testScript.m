@@ -25,15 +25,28 @@ fnames={'AC-kirby27-DAYS.txt',...
 'CS-kirby27-DAYS.txt',...
 'NA-kirby27-DAYS.txt'};
 
-fnames={'AC-kirby27-DAYS.txt'};
+%fnames={'AC-kirby27-DAYS.txt'};
 
 pathToData='data';
 myData = DataClass(pathToData);
 myData.loadDataFiles(fnames);
 
 %%
-nSamples = 10^4;
+nSamples = 10^5;
 nChains = 4;
+
+
+
+% %% TEST GAUSSIAN RANDOM WALK MODEL
+% grw = ModelMixedGRWalt(toolboxPath,...
+% 	'JAGS', myData,...
+% 	'GRWalt',...
+% 	'pointEstimateType','mode');
+% grw.sampler.setMCMCtotalSamples(nSamples);
+% grw.sampler.setMCMCnumberOfChains(nChains);
+% grw.conductInference(); % TODO: Could return an MCMCFit object here ******
+% grw.plot()
+
 
 
 %% JAGS
@@ -88,8 +101,8 @@ s_me.plot()
 % epsilon: hierarchical
 % alpha: hierarchical
 m_logk = ModelMixedLogK(toolboxPath, 'JAGS', myData, 'mixed_logk');
-s_logk.sampler.setMCMCtotalSamples(nSamples);
-s_logk.sampler.setMCMCnumberOfChains(nChains);
+m_logk.sampler.setMCMCtotalSamples(nSamples);
+m_logk.sampler.setMCMCnumberOfChains(nChains);
 m_logk.conductInference();
 %m_logk.exportParameterEstimates('includeCI',false);
 m_logk.plot()

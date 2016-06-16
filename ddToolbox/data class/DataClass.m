@@ -107,6 +107,21 @@ classdef DataClass < handle
 			obj.observedData.T = [obj.participantLevel.trialsForThisParticant];
 			%obj.observedData.nParticipants = obj.nParticipants;
 			obj.observedData.participantIndexList = [1:obj.nParticipants];
+			
+			obj.observedData.uniqueDelays = sort(unique(obj.observedData.DB))';
+			
+			% This is for the gaussian random walk model... create a lookup
+			% table, for a given [participant,trial], this is the index of
+			% DB.
+			temp = obj.observedData.DB;
+			for n=1: numel(obj.observedData.uniqueDelays)
+				delay = obj.observedData.uniqueDelays(n);
+				temp(obj.observedData.DB==delay) = n;
+			end
+			obj.observedData.delayLookUp = temp;
+			
+			% just for gaussian random walk model
+			obj.observedData.dInterp = [7, 21, 35, 49, 63, 77, 91, 105, 119, 133, 147, 161, 175, 189, 203, 217, 231, 245, 259, 273, 287, 301, 315, 329, 343, 357];
 		end
 
 	end

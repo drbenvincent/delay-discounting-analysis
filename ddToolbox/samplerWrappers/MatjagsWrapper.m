@@ -1,14 +1,14 @@
 classdef MatjagsWrapper < SamplerWrapper
 	%MatjagsWrapper
 	
-	properties (GetAccess = public, SetAccess = private)
-		
+	properties 
+		initialParameters % struct required by matjags
 	end
 	
 	properties (Access = private)
 		% samples % structure returned by matjags
 		% stats % structure returned by matjags
-		initialParameters % struct required by matjags
+		
 	end
 	
 	methods (Access = public)
@@ -32,7 +32,7 @@ classdef MatjagsWrapper < SamplerWrapper
 			assert(obj.mcmcparams.nchains>=2,'Use a minimum of 2 MCMC chains')
 			startParallelPool()
 			obj.observed = data.observedData;
-			obj.setInitialParamValues(variables, nParticipants);
+			%obj.setInitialParamValues(variables, nParticipants);
 			obj.monitorparams = model.varList.monitored;
 			mcmc = obj.invokeSampler();
 			speak('sampling complete')
@@ -40,28 +40,6 @@ classdef MatjagsWrapper < SamplerWrapper
 			mcmc.convergenceSummary(saveFolder,IDnames)
 		end
 		
-		function setInitialParamValues(obj, variables, nParticipants)
-			for chain=1:obj.mcmcparams.nchains
-				for varName = each(fieldnames(variables))
-					if isempty(variables.(varName).seed), continue, end
-					
-					% TODO: fix this. Why can't I call the seed func handle directly?
-					seedFunc = variables.(varName).seed(); % () evaluates it??
-					%seedFunc = variables.(varName).seed;
-					
-					if variables.(varName).single==false
-						
-						% participant level
-						for p=1:nParticipants
-							obj.initialParameters(chain).(varName)(p) = seedFunc();
-						end
-					else
-						% non-participant level
-						obj.initialParameters(chain).(varName) = seedFunc();
-					end
-				end
-			end
-		end
 		
 		function mcmcContainer = invokeSampler(obj)
 			fprintf('\nRunning JAGS (%d chains, %d samples each)\n',...

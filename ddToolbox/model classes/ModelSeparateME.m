@@ -37,23 +37,25 @@ classdef ModelSeparateME < Model
 			obj.varList.monitored = {'m', 'c','alpha','epsilon',...
 				'm_prior', 'c_prior','alpha_prior','epsilon_prior',...
 				'Rpostpred'};
-
-			%% Deal with generating initial values of leaf nodes
-			obj.variables.m = Variable('m',...
-				'seed', @() normrnd(-0.243,2));
-
-			obj.variables.c = Variable('c',...
-				'seed', @() @() normrnd(0,10));
-
-			obj.variables.epsilon = Variable('epsilon',...
-				'seed', @() 0.1 + rand/10);
-
-			obj.variables.alpha = Variable('alpha',...
-				'seed', @() abs(normrnd(0.01,10)));
-
 		end
 		% ================================================================
 
+		% Generate initial values of the leaf nodes
+		function setInitialParamValues(obj)
+			
+			nTrials = size(obj.data.observedData.A,2);
+			nParticipants = obj.data.nParticipants;
+			nUniqueDelays = numel(obj.data.observedData.uniqueDelays);
+			
+			for chain = 1:obj.sampler.mcmcparams.nchains
+				obj.initialParams(chain).m = normrnd(-0.243,2, [nParticipants,1]);
+				obj.initialParams(chain).c = normrnd(0,10, [nParticipants,1]);
+				obj.initialParams(chain).alpha = abs(normrnd(0.01,10, [nParticipants,1]));
+				obj.initialParams(chain).epsilon = 0.1 + rand([nParticipants,1])/10;
+
+			end
+		end
+		
 	end
 
 end

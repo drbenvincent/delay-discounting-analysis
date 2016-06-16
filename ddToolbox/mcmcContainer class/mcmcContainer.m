@@ -105,30 +105,35 @@ classdef mcmcContainer < handle
 				names = fieldnames(obj.stats.Rhat);
 				% loop over fields and report for either single values or
 				% multiple values (eg when we have multiple participants)
-				for name = each(names)
-					% skip posterior predictive variables
-					if strcmp(name,'Rpostpred')
-						continue
-					end
-					RhatValues = obj.stats.Rhat.(name);
-					logInfo(fid,'\nRhat for: %s.\n',name);
-					for i=1:numel(RhatValues)
-						if numel(RhatValues)>1
-							logInfo(fid,'%s\t', IDnames{i});
+				try
+					for name = each(names)
+						% skip posterior predictive variables
+						if strcmp(name,'Rpostpred')
+							continue
 						end
-						logInfo(fid,'%2.5f\t', RhatValues(i));
-						if RhatValues(i)>1.01
-							warningFlag = true;
-							logInfo(fid,'WARNING: poor convergence');
+						RhatValues = obj.stats.Rhat.(name);
+						logInfo(fid,'\nRhat for: %s.\n',name);
+						for i=1:numel(RhatValues)
+							if numel(RhatValues)>1
+								logInfo(fid,'%s\t', IDnames{i});
+							end
+							logInfo(fid,'%2.5f\t', RhatValues(i));
+							if RhatValues(i)>1.01
+								warningFlag = true;
+								logInfo(fid,'WARNING: poor convergence');
+							end
+							logInfo(fid,'\n');
 						end
-						logInfo(fid,'\n');
 					end
-				end
-				if warningFlag
-					logInfo(fid,'\n\n\n**** WARNING: convergence issues :( ****\n\n\n')
-					speak('there were some convergence issues')
-				else
-					logInfo(fid,'\n\n\n**** No convergence issues :) ****\n\n\n')
+					if warningFlag
+						logInfo(fid,'\n\n\n**** WARNING: convergence issues :( ****\n\n\n')
+						speak('there were some convergence issues')
+					else
+						logInfo(fid,'\n\n\n**** No convergence issues :) ****\n\n\n')
+					end
+				catch
+					warning('ERROR IN RhatInformation()')
+					beep
 				end
 			end
 		end

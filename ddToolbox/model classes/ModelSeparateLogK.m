@@ -34,20 +34,23 @@ classdef ModelSeparateLogK < Model
 			obj.varList.monitored = {'logk','alpha','epsilon',...
 				'logk_prior','alpha_prior','epsilon_prior',...
 				'Rpostpred'};
-
-			%% Deal with generating initial values of leaf nodes
-			obj.variables.logk = Variable('logk',...
-				'seed', @() normrnd(log(1/365),10));
-
-			obj.variables.epsilon = Variable('epsilon',...
-				'seed', @() 0.1 + rand/10);
-
-			obj.variables.alpha = Variable('alpha',...
-				'seed', @() abs(normrnd(0.01,10)));
-
 		end
 		% =================================================================
 
+		% Generate initial values of the leaf nodes
+		function setInitialParamValues(obj)
+			
+			nTrials = size(obj.data.observedData.A,2);
+			nParticipants = obj.data.nParticipants;
+			nUniqueDelays = numel(obj.data.observedData.uniqueDelays);
+			
+			for chain = 1:obj.sampler.mcmcparams.nchains
+				obj.initialParams(chain).logk = normrnd(log(1/365),10, [nParticipants,1]);
+				obj.initialParams(chain).epsilon = 0.1 + rand([nParticipants,1])/10;
+				obj.initialParams(chain).alpha = abs(normrnd(0.01,10,[nParticipants,1]));
+			end
+		end
+		
 		function conditionalDiscountRates(obj, reward, plotFlag)
 			error('Not applicable to this model that calculates log(k)')
 		end

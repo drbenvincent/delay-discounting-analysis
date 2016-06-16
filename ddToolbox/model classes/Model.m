@@ -13,6 +13,7 @@ classdef Model < handle
 		plotFuncs % structure of function handles
 		discountFuncType
 		pointEstimateType
+		initialParams
 	end
 
 	methods(Abstract, Access = public)
@@ -54,6 +55,10 @@ classdef Model < handle
 		% MIDDLE-MAN METHODS ================================================
 
 		function conductInference(obj)
+			% ** NEW **
+			obj.setInitialParamValues();
+			obj.sampler.initialParameters = obj.initialParams;
+			
 			obj.mcmc = obj.sampler.conductInference( obj , obj.data );
 		end
 
