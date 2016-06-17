@@ -239,8 +239,12 @@ classdef ModelGaussianRandomWalkSimple < Model
 			% Create a structure with all the useful info about a person
 			% p = person number
 			participantName = obj.data.IDname{p};
-			parts = strsplit(participantName,'-');
-			personStruct.participantName= strjoin(parts(1:2),'-');
+			try
+				parts = strsplit(participantName,'-');
+				personStruct.participantName = strjoin(parts(1:2),'-');
+			catch 
+				personStruct.participantName = participantName;
+			end
 			personStruct.delays = obj.data.observedData.uniqueDelays;
 			personStruct.dfSamples = obj.extractDiscountFunctionSamples(p);
 			personStruct.data = obj.data.getParticipantData(p);
