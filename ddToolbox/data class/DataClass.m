@@ -123,7 +123,8 @@ classdef DataClass < handle
 			%  interpolation_delays = [] 
 			
 			unique_delays_from_data = sort(unique(obj.observedData.DB))';
-			interpolation_delays = [7:7:365-7]; 
+			interpolation_delays =  [ [7:7:365-7] ...
+				[7*52:7:7*80]]; % <--- future
 			combined = [unique_delays_from_data interpolation_delays];
 			obj.observedData.uniqueDelays = sort(unique(combined));
 			
@@ -137,8 +138,10 @@ classdef DataClass < handle
 			end
 			obj.observedData.delayLookUp = temp;
 			
-			% just for gaussian random walk model
-			obj.observedData.dInterp = [7, 21, 35, 49, 63, 77, 91, 105, 119, 133, 147, 161, 175, 189, 203, 217, 231, 245, 259, 273, 287, 301, 315, 329, 343, 357];
+% 			% just for gaussian random walk model
+% 			% TODO: generalise this !
+% 			obj.observedData.dInterp = [7, 21, 35, 49, 63, 77, 91, 105, 119, 133, 147, 161, 175, 189, 203, 217, 231, 245, 259, 273, 287, 301, 315, 329, 343, 357,...
+% 				371, 378, 385, 392, 399, 406];% <--- off into the future
 		end
 
 	end

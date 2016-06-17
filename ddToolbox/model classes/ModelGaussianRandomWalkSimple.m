@@ -3,14 +3,13 @@
 % point for a set number of delays.
 
 classdef ModelGaussianRandomWalkSimple < Model
-	%ModelHierarchical A model to estimate the magnitide effect
-	%   Detailed explanation goes here
+	%ModelGaussianRandomWalkSimple 
 
 	properties
 		AUC_DATA
 	end
 
-
+	
 	methods (Access = public)
 		% =================================================================
 		function obj = ModelGaussianRandomWalkSimple(toolboxPath, samplerType, data, saveFolder, varargin)
@@ -23,34 +22,20 @@ classdef ModelGaussianRandomWalkSimple < Model
 					[~,obj.modelType,~] = fileparts(modelPath);
 				case{'STAN'}
 					error('model not implemented in STAN.')
-% 					modelPath = '/models/hierarchicalLogK.stan';
+% 					modelPath = '/models/mixedGRWsimple.stan';
 % 					obj.sampler = MatlabStanWrapper([toolboxPath modelPath]);
 % 					[~,obj.modelType,~] = fileparts(modelPath);
 			end
-			obj.discountFuncType = 'logk';
+			obj.discountFuncType = 'nonparametric';
 			% 'Decorate' the object with appropriate plot functions
 			obj.plotFuncs.participantFigFunc = @figParticipantLOGK;
 			obj.plotFuncs.plotGroupLevel = @plotGroupLevelStuff;
 
-			
-% 			%% Create variables
-% 			obj.varList.participantLevel = {'discountFraction',};
-%             obj.varList.participantLevelPriors = {};
-% 			obj.varList.groupLevel = {};
 			% TODO: remove varList as a property of Model base class. 
  			obj.varList.monitored = {'discountFraction',...
 				'alpha','epsilon', 'varInc',...
 				'alpha_prior', 'epsilon_prior', 'varInc_prior'};
-% 
-% 			%% Deal with generating initial values of leaf nodes
-% 			obj.variables.discountFraction = Variable('discountFraction',...
-% 				'seed', @() normrnd(1,0.1),...
-% 				'single',false);
-			
 
-
-			
-			
 		end
 		% =================================================================
 
@@ -83,7 +68,6 @@ classdef ModelGaussianRandomWalkSimple < Model
 		
 	
 		function plot(obj) % overriding from Model base class			
-						
 			
 			%% Analyse AUC scores 
 			% TODO: Put this is a "generated quantities" function which is
@@ -96,7 +80,6 @@ classdef ModelGaussianRandomWalkSimple < Model
 				%obj.AUC_DATA(p).name = participantName;
 			end
 			
-		
 			
 			close all
 			
@@ -116,7 +99,6 @@ classdef ModelGaussianRandomWalkSimple < Model
 				'saveFolder', obj.saveFolder,...
 				'prefix', 'group')
 				
-			
 			%% Plot indifference functions for each participant
 			for p=1:obj.data.nParticipants
 				% Extract info about a person for plotting purposes
