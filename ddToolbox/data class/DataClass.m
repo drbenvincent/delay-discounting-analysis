@@ -108,11 +108,30 @@ classdef DataClass < handle
 			%obj.observedData.nParticipants = obj.nParticipants;
 			obj.observedData.participantIndexList = [1:obj.nParticipants];
 			
-			obj.observedData.uniqueDelays = sort(unique(obj.observedData.DB))';
 			
-			% This is for the gaussian random walk model... create a lookup
+			
+			% **** Observed variables below are for the Gaussian Random
+			% Walk model ****
+			%
+			% Create a lookup
 			% table, for a given [participant,trial], this is the index of
 			% DB.
+			
+			% If we insert additional delays into this vector (uniqueDelays)
+			% , then the
+			% model will interpolate between the delays that we have data
+			% for.
+			% If you do not want to interpolate any delays, then set :
+			%  interpolation_delays = [] 
+			
+			unique_delays_from_data = sort(unique(obj.observedData.DB))';
+			interpolation_delays = [7:7:365-7]; 
+			combined = [unique_delays_from_data interpolation_delays];
+			obj.observedData.uniqueDelays = sort(unique(combined));
+			
+			% Now we create a lookup table [participants,tials] full of
+			% integers which point to the index of the delay value in 
+			% uniqueDelays
 			temp = obj.observedData.DB;
 			for n=1: numel(obj.observedData.uniqueDelays)
 				delay = obj.observedData.uniqueDelays(n);

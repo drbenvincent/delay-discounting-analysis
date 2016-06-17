@@ -19,7 +19,7 @@ model{
 
   # variance increase per unit time # DO INFERENCE OVER THIS RATHER THAN SETTING ITS VALUE
   #varInc ~ dnorm(0.01,1/5) T(0,)
-  varInc <- 0.001
+  varInc <- 0.0001
 
   for (p in participantIndexList){
 
@@ -43,21 +43,6 @@ model{
       P[p,t] <- epsilon + (1-2*epsilon) * phi( (VB[p,t]-VA[p,t]) / alpha )
       R[p,t] ~ dbern(P[p,t])
     }
-  }
-
-
-
-  # ERROR: this is unattached to the data do far
-  # Posterior predicted indifference points at interpolated delays
-
-
-  for (p in participantIndexList){
-    dfInterp[p,1] ~ dnorm(1, 1/(dInterp[1]*varInc)) T(0,)
-
-    for (i in 2:length(dInterp)) {
-      dfInterp[p,i] ~ dnorm( dfInterp[p,i-1], 1/ (varInc * (dInterp[i]-dInterp[i-1]))) T(0,)
-    }
-
   }
 
 
