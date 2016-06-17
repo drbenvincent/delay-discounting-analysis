@@ -113,14 +113,12 @@ classdef DataClass < handle
 			% **** Observed variables below are for the Gaussian Random
 			% Walk model ****
 			%
-			% Create a lookup
-			% table, for a given [participant,trial], this is the index of
-			% DB.
+			% Create a lookup table, for a given [participant,trial], this 
+			% is the index of DB.
 			
-			% If we insert additional delays into this vector (uniqueDelays)
-			% , then the
-			% model will interpolate between the delays that we have data
-			% for.
+			% If we insert additional delays into this vector 
+			% (uniqueDelays), then the model will interpolate between the 
+			% delays that we have data for.
 			% If you do not want to interpolate any delays, then set :
 			%  interpolation_delays = [] 
 			

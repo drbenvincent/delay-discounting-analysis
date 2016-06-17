@@ -1,9 +1,15 @@
 # Discount rate modelled as a Gaussian Random Walk :)
 
+
+
+# **** WARNING ****
+# We also assume reward A is immediate, ie DA=0
+
+
 # Observed data being provided:
 # - participantIndexList
-# - T
-# - A, DA, B, DB, T
+# - T (vector of trials per participant)
+# - A, B
 # - uniqueDelays
 # - delayLookUp[p,t] is an index into the delay
 
@@ -14,22 +20,21 @@
 
 model{
 
-  epsilon <- 0.01
-  alpha <- 10
+  # group-level priors
+  alpha   ~ dexp(0.01)
+  epsilon ~ dbeta(1.1 , 10.9) T(,0.5)
 
-  # variance increase per unit time # DO INFERENCE OVER THIS RATHER THAN SETTING ITS VALUE
-  #varInc ~ dnorm(0.01,1/5) T(0,)
-  varInc <- 0.0001
+  # varInc: This is the variance of the Gaussian Random Walk per unit of time.
+  # We can set this to a particular value, but we have no a priori knowledge of what this should be. So instead we infer a distribution over it. We specify a prior over precision, then take the reciprocal to have our variance.
+  precision ~ dgamma(0.0001, 0.0001)
+  varInc <- 1 / precision
 
+  # GAUSSIAN RANDOM WALK PRIORS
   for (p in participantIndexList){
-
-    #for (d in 1:length(uniqueDelays)){
-    #    discountFraction[p,d] ~ dnorm(1, 1/(5)) T(0,)
-    #}
-
-    # GAUSSIAN RANDOM WALK PRIORS
+    # Special treatment for the first delay
     discountFraction[p,1] ~ dnorm(1, 1/(uniqueDelays[1]*varInc)) T(0,)
 
+    # subsequent priors are centered on previous discount fraction, and variance is a function of duration since last delay
     for (d in 2:length(uniqueDelays)) {
       discountFraction[p,d] ~ dnorm( discountFraction[p,d-1], 1/ (varInc * (uniqueDelays[d]-uniqueDelays[d-1]))) T(0,)
     }
@@ -38,12 +43,24 @@ model{
 
   for (p in participantIndexList){
     for (t in 1:T[p]) {
-      VA[p,t] <- (A[p,t]) # NO DELAY FOR A
+      VA[p,t] <- A[p,t] # NO DELAY FOR A
       VB[p,t] <- (B[p,t]) * discountFraction[p, delayLookUp[p,t] ]
       P[p,t] <- epsilon + (1-2*epsilon) * phi( (VB[p,t]-VA[p,t]) / alpha )
       R[p,t] ~ dbern(P[p,t])
     }
   }
 
+
+
+
+
+
+  # GENERATED QUANTITIES ########################
+  alpha_prior   ~ dexp(0.01)
+  epsilon_prior ~ dbeta(1.1 , 10.9) T(,0.5)
+
+  precision_prior ~ dgamma(0.0001, 0.0001)
+  # avoid divide by zero errors?
+  varInc_prior  <- 1 / (precision_prior+0.00000000001)
 
 }
