@@ -1,5 +1,8 @@
 % SCRIPT
 % To test the Gaussian Random Walk model
+% This model is most appropriate when applied to data focussing on finding
+% indifference points for a set number of delays. Ie, not the Kirby dataset
+% because all delays are unique.
 
 %% Setup
 cd('~/git-local/delay-discounting-analysis/demo-nonparametric')

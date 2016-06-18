@@ -34,7 +34,6 @@ myData = DataClass(pathToData);
 myData.loadDataFiles(fnames);
 
 
-
 %% JAGS
 h_me = ModelHierarchicalME(toolboxPath, 'JAGS', myData, 'hierarchical_ME',...
 	'pointEstimateType','mode');
@@ -133,7 +132,17 @@ s_logk.plot()
 
 
 
-
+%% GAUSSIAN RANDOM WALK MODEL
+% *** This model is NOT really appropriate to apply to the Kirby data, but
+% I am including it here to see what it will do. ***
+grw = ModelGaussianRandomWalkSimple(toolboxPath,...
+	'JAGS', myData,...
+	'ModelGaussianRandomWalkSimple',...
+	'pointEstimateType','mode');
+grw.sampler.setMCMCtotalSamples(10^4);
+grw.sampler.setMCMCnumberOfChains(4);
+grw.conductInference(); 
+grw.plot()
 
 
 
