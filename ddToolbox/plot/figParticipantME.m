@@ -3,7 +3,7 @@ function figParticipantME(pSamples, pointEstimateType, varargin)
 p = inputParser;
 p.FunctionName = mfilename;
 p.addRequired('pSamples',@isstruct);
-p.addRequired('pointEstimateType',@isstr);
+p.addRequired('pointEstimateType', @(x) any(strcmp(x,{'mean','median','mode'})));
 p.addParameter('pData',[], @isstruct);
 p.addParameter('opts',[], @isstruct);
 p.parse(pSamples, pointEstimateType, varargin{:});

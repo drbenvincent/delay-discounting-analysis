@@ -3,17 +3,17 @@ function fnamesWhiteList = excludeTheseParticipants(fnames, exludeList)
 
 count=1;
 for fCount = 1:numel(fnames)
-	nameOnWhiteList=false;
-	for eCount = 1:numel(exludeList)
-		if strcmp(fnames{fCount}, exludeList{eCount})
-			nameOnWhiteList=true;
-			continue
-		end
-	end
-	if ~nameOnWhiteList
-			% add to new list
-			fnamesWhiteList{count} = fnames{fCount};
-			count=count+1;
-		end
+    nameOnWhiteList=false;
+    for eCount = 1:numel(exludeList)
+        if strcmp(fnames{fCount}, exludeList{eCount})
+            nameOnWhiteList=true;
+            continue
+        end
+    end
+    if ~nameOnWhiteList
+        % add to new list
+        fnamesWhiteList{count} = fnames{fCount};
+        count=count+1;
+    end
 end
 return

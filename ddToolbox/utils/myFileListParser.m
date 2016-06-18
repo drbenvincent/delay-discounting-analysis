@@ -10,8 +10,8 @@ if nArgsIn==0
 		'MultiSelect','on');
 elseif nArgsIn==2
 	% loop through files listed in the cell array
-	files=myCellArray{1};
-	
+	files = myCellArray{1};
+
 	% if we only had one filename, then fine, but if that was `bv*`
 	% then we will interpret this as wanting to analyse all available files
 	% starting with `bv`
@@ -20,11 +20,11 @@ elseif nArgsIn==2
 			case{'*'}
 				% find all files starting with whatever preceeded '*'
 				pref = files{1}(1:end-1);
-				temp=dir( files{1} );
+				temp = dir( files{1} );
 				files = {temp.name};
 		end
 	end
-	
+
 end
 
 cd(start_folder)

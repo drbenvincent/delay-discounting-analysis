@@ -1,4 +1,4 @@
-classdef ModelHierarchicalLogK < Model
+classdef ModelMixedLogK < Model
 	%ModelHierarchical A model to estimate the magnitide effect
 	%   Detailed explanation goes here
 
@@ -8,15 +8,16 @@ classdef ModelHierarchicalLogK < Model
 
 	methods (Access = public)
 		% =================================================================
-		function obj = ModelHierarchicalLogK(toolboxPath, samplerType, data, saveFolder, varargin)
+		function obj = ModelMixedLogK(toolboxPath, samplerType, data, saveFolder, varargin)
 			obj = obj@Model(data, saveFolder, varargin{:});
 
 			switch samplerType
 				case{'JAGS'}
-					modelPath = '/models/hierarchicalLogK.txt';
+					modelPath = '/models/mixedLogK.txt';
 					obj.sampler = MatjagsWrapper([toolboxPath modelPath]);
 					[~,obj.modelType,~] = fileparts(modelPath);
 				case{'STAN'}
+					error('model not implemented in STAN.')
 					modelPath = '/models/hierarchicalLogK.stan';
 					obj.sampler = MatlabStanWrapper([toolboxPath modelPath]);
 					[~,obj.modelType,~] = fileparts(modelPath);
@@ -33,10 +34,9 @@ classdef ModelHierarchicalLogK < Model
 			obj.varList.monitored = {'logk','alpha','epsilon',...
 				'logk_group','alpha_group','epsilon_group',...
 				'logk_group_prior','epsilon_group_prior','alpha_group_prior',...
-				'groupLogKmu', 'groupLogKsigma','groupW','groupK','groupALPHAmu','groupALPHAsigma',...
+				'groupW','groupK','groupALPHAmu','groupALPHAsigma',...
 				'groupLogKmu_prior', 'groupLogKsigma_prior','groupW_prior','groupK_prior','groupALPHAmu_prior','groupALPHAsigma_prior',...
 				'Rpostpred'};
-
 		end
 		% =================================================================
 
@@ -48,8 +48,6 @@ classdef ModelHierarchicalLogK < Model
 			nUniqueDelays = numel(obj.data.observedData.uniqueDelays);
 			
 			for chain = 1:obj.sampler.mcmcparams.nchains
-				obj.initialParams(chain).groupLogKmu = normrnd(-0.243,5);
-				obj.initialParams(chain).groupLogKsigma = rand*10;
 				obj.initialParams(chain).groupW = rand;
 				obj.initialParams(chain).groupALPHAmu		= rand*100;
 				obj.initialParams(chain).groupALPHAsigma	= rand*100;

@@ -1,10 +1,14 @@
 % Ben's testing script
 
+%% Setup
 cd('~/git-local/delay-discounting-analysis/demo')
 toolboxPath = setToolboxPath('~/git-local/delay-discounting-analysis/ddToolbox');
-
 mcmc.setPlotTheme('fontsize',16, 'linewidth',1)
 
+nSamples = 10^4;
+nChains = 4;
+
+%% Load data
 % fnames={'AC-kirby27-DAYS.txt',...
 % 'CS-kirby27-DAYS.txt',...
 % 'NA-kirby27-DAYS.txt',...
@@ -28,10 +32,6 @@ fnames={'AC-kirby27-DAYS.txt',...
 pathToData='data';
 myData = DataClass(pathToData);
 myData.loadDataFiles(fnames);
-
-%%
-nSamples = 10^4;
-nChains = 4;
 
 
 %% JAGS
@@ -80,6 +80,23 @@ s_me.conductInference();
 s_me.exportParameterEstimates();
 s_me.plot()
 
+
+%% Mixed model, estimate discount rate = log(k), no magnitude effect
+% logk: non-hierarchical, we just have a prior of logk which applies to
+%		each participant
+% epsilon: hierarchical
+% alpha: hierarchical
+% Note that *group* level logk values reported are determined by your prior
+% over logk. Participant-level logk is our posterior over logk, determined
+% by the data and the prior, but is NOT influenced by other participants in
+% the sample.
+m_logk = ModelMixedLogK(toolboxPath, 'JAGS', myData, 'mixed_logk');
+m_logk.sampler.setMCMCtotalSamples(nSamples);
+m_logk.sampler.setMCMCnumberOfChains(nChains);
+m_logk.conductInference();
+m_logk.exportParameterEstimates('includeCI',false);
+m_logk.plot()
+
 %% JAGS - separate logk
 s_logk = ModelSeparateLogK(toolboxPath, 'JAGS', myData, 'separate_logk');
 s_logk.sampler.setMCMCtotalSamples(nSamples);
@@ -120,7 +137,17 @@ s_logk.plot()
 
 
 
-
+%% GAUSSIAN RANDOM WALK MODEL
+% *** This model is NOT really appropriate to apply to the Kirby data, but
+% I am including it here to see what it will do. ***
+grw = ModelGaussianRandomWalkSimple(toolboxPath,...
+	'JAGS', myData,...
+	'ModelGaussianRandomWalkSimple',...
+	'pointEstimateType','mode');
+grw.sampler.setMCMCtotalSamples(10^4);
+grw.sampler.setMCMCnumberOfChains(4);
+grw.conductInference(); 
+grw.plot()
 
 
 

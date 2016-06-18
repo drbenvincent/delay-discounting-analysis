@@ -26,48 +26,41 @@ classdef ModelHierarchicalME < Model
 			obj.plotFuncs.plotGroupLevel = @plotGroupLevelStuff;
 
 			%% Create variables
+			% TODO: These lists could be removed with some work
 			obj.varList.participantLevel = {'m', 'c','alpha','epsilon'};
+            obj.varList.participantLevelPriors = {'m_group_prior', 'c_group_prior','alpha_group_prior','epsilon_group_prior'};
 			obj.varList.groupLevel = {'m_group', 'c_group','alpha_group','epsilon_group'};
+			
+			% These need to be kept for JAGS
 			obj.varList.monitored = {'m', 'c','alpha','epsilon',...
 				'm_group', 'c_group','alpha_group','epsilon_group',...
 				'm_group_prior', 'c_group_prior','epsilon_group_prior','alpha_group_prior',...
 				'groupMmu', 'groupMsigma', 'groupCmu','groupCsigma','groupW','groupK','groupALPHAmu','groupALPHAsigma',...
 				'groupMmu_prior', 'groupMsigma_prior', 'groupCmu_prior','groupCsigma_prior','groupW_prior','groupK_prior','groupALPHAmu_prior','groupALPHAsigma_prior',...
 				'Rpostpred'};
-			obj.varList.participantLevelPriors = {'m_group_prior', 'c_group_prior','alpha_group_prior','epsilon_group_prior'}
-
-			%% Deal with generating initial values of leaf nodes
-			% TODO: ADD SEED FUNCTIONS TO THESE
-			obj.variables.groupMmu = Variable('groupMmu',...
-				'seed', @() normrnd(-0.243,10),...
-				'single',true);
-			obj.variables.groupMsigma = Variable('groupMsigma',...
-				'single',true,...
-				'seed', @() rand*10);
-
-			obj.variables.groupCmu = Variable('groupCmu',...
-				'single',true,...
-				'seed', @() normrnd(0,30));
-			obj.variables.groupCsigma = Variable('groupCsigma',...
-				'single',true,...
-				'seed', @() rand*10);
-
- 			obj.variables.groupW = Variable('groupW',...
-				'seed',@() rand,...
-				'single',true);
- 			obj.variables.groupK = Variable('groupK',... % TODO: Should be groupKminus2 !!
-				'single',true);
-
-			obj.variables.groupALPHAmu = Variable('groupALPHAmu',...
-				'seed', @() rand*100,...
-				'single',true);
-			obj.variables.groupALPHAsigma = Variable('groupALPHAsigma',...
-				'seed', @() rand*100,...
-				'single',true);
 
 		end
 		% =================================================================
 
+		
+		% Generate initial values of the leaf nodes
+		function setInitialParamValues(obj)
+			
+			nTrials = size(obj.data.observedData.A,2);
+			nParticipants = obj.data.nParticipants;
+			nUniqueDelays = numel(obj.data.observedData.uniqueDelays);
+			
+			for chain = 1:obj.sampler.mcmcparams.nchains
+				obj.initialParams(chain).groupMmu = normrnd(-0.243,10);
+				obj.initialParams(chain).groupMsigma = rand*10;
+				obj.initialParams(chain).groupCmu = normrnd(0,30);
+				obj.initialParams(chain).groupCsigma = rand*10;
+				obj.initialParams(chain).groupW = rand;
+				obj.initialParams(chain).groupALPHAmu		= rand*100;
+				obj.initialParams(chain).groupALPHAsigma	= rand*100;
+			end
+		end
+		
 
 
 		%% ******** SORT OUT WHERE THESE AND OTHER FUNCTIONS SHOULD BE *************
@@ -77,7 +70,7 @@ classdef ModelHierarchicalME < Model
 			obj.conditionalDiscountRates_ParticipantLevel(reward, plotFlag)
 			obj.conditionalDiscountRates_GroupLevel(reward, plotFlag)
 			if plotFlag % FORMATTING OF FIGURE
-				removeYaxis
+				mcmc.removeYaxis()
 				title(sprintf('$P(\\log(k)|$reward=$\\pounds$%d$)$', reward),'Interpreter','latex')
 				xlabel('$\log(k)$','Interpreter','latex')
 				axis square

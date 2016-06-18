@@ -82,55 +82,78 @@ classdef mcmcContainer < handle
 		function convergenceSummary(obj,saveFolder,IDnames)
 			[fid, fname] = setupFile(saveFolder);
 			MCMCParameterReport();
-			RhatInformation(IDnames);
+			printRhatInformation(IDnames);
 			fclose(fid);
 			fprintf('Convergence report saved in:\n\t%s\n\n',fname)
 
 			function [fid, fname] = setupFile(saveFolder)
 				ensureFolderExists(fullfile('figs',saveFolder))
-				fname = fullfile('figs',saveFolder,['ConvergenceReport.txt']);
+				fname = fullfile('figs',saveFolder,'ConvergenceReport.txt');
 				fid=fopen(fname,'w');
 				assert(fid~=-1)
 			end
 
 			function MCMCParameterReport()
-				logInfo(fid, 'MCMC inference was conducted with %d chains. ', obj.mcmcparams.nchains)
+				logInfo(fid,'MCMC inference was conducted with %d chains. ', obj.mcmcparams.nchains)
 				logInfo(fid,'The first %d samples were discarded from each chain, ', obj.mcmcparams.nburnin )
 				logInfo(fid,'resulting in a total of %d samples to approximate the posterior distribution. ', obj.mcmcparams.totalSamples )
 				logInfo(fid,'\n\n\n');
 			end
 
-			function RhatInformation(IDnames)
-				warningFlag = false;
-				names = fieldnames(obj.stats.Rhat);
-				% loop over fields and report for either single values or
-				% multiple values (eg when we have multiple participants)
-				for name = each(names)
+			function printRhatInformation(IDnames)
+				nParticipants = numel(IDnames);
+				rhatThreshold = 1.01;
+				isRhatThresholdExceeded = false;
+				varNames = fieldnames(obj.stats.Rhat);
+				
+				for varName = each(varNames)
 					% skip posterior predictive variables
-					if strcmp(name,'Rpostpred')
-						continue
-					end
-					RhatValues = obj.stats.Rhat.(name);
-					logInfo(fid,'\nRhat for: %s.\n',name);
-					for i=1:numel(RhatValues)
-						if numel(RhatValues)>1
-							logInfo(fid,'%s\t', IDnames{i});
+					if strcmp(varName,'Rpostpred'), continue, end
+					RhatValues = obj.stats.Rhat.(varName);
+					
+					% conditions
+					isVectorOfParticipants = @(x,p) isvector(x) && numel(x)==p;
+					isVecorForEachParticipant = @(x,p) ismatrix(x) && size(x,1)==p;
+					
+					if isscalar(RhatValues)
+						logInfo(fid,'\nRhat for: %s\t',varName);
+						logInfo(fid,'%2.5f', RhatValues);
+					elseif isVectorOfParticipants(RhatValues,nParticipants)
+						logInfo(fid,'\nRhat for: %s\n',varName);
+						for i=1:numel(IDnames)
+							logInfo(fid,'%s:\t', IDnames{i}); % participant name
+							logInfo(fid,'%2.5f\t', RhatValues(i));
+							checkRhatExceedThreshold(RhatValues(i));
+							logInfo(fid,'\n');
 						end
-						logInfo(fid,'%2.5f\t', RhatValues(i));
-						if RhatValues(i)>1.01
-							warningFlag = true;
-							logInfo(fid,'WARNING: poor convergence');
+					elseif isVecorForEachParticipant(RhatValues,nParticipants)
+						logInfo(fid,'\nRhat for: %s\n',varName);
+						for i=1:numel(IDnames)
+							logInfo(fid,'%s\t', IDnames{i}); % participant name
+							logInfo(fid,'%2.5f\t', RhatValues(i,:));
+							checkRhatExceedThreshold(RhatValues);
+							logInfo(fid,'\n');
 						end
-						logInfo(fid,'\n');
 					end
 				end
-				if warningFlag
+				
+				if isRhatThresholdExceeded
 					logInfo(fid,'\n\n\n**** WARNING: convergence issues :( ****\n\n\n')
 					speak('there were some convergence issues')
 				else
 					logInfo(fid,'\n\n\n**** No convergence issues :) ****\n\n\n')
 				end
+				
+				function checkRhatExceedThreshold(RhatValues)
+					if any(RhatValues>rhatThreshold)
+						isRhatThresholdExceeded = true;
+						logInfo(fid,'(WARNING: poor convergence)');
+					end
+				end
+				
 			end
+			
+
 		end
 
 

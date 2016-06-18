@@ -1,12 +1,10 @@
 function plotMagnitudeEffect(mcmcsamples, pointEstimateType)
-%
-% log(k) = m * log(|B|) + c
-% k = exp( m * log(|B|) + c )
-
 
 % -----------------------------------------------------------
-%fh = @(x,params) exp( params(:,1) * log(|x|) + params(:,2));
-% a FAST vectorised version of above ------------------------
+% log(k) = m * log(|B|) + c
+% k = exp( m * log(|B|) + c )
+% fh = @(x,params) exp( params(:,1) * log(|x|) + params(:,2));
+% Fast vectorised version of above --------------------------
 fh = @(x,params) exp( bsxfun(@plus, ...
 	bsxfun(@times,params(:,1),log(abs(x))),...
 	params(:,2)));

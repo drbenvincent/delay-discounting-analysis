@@ -25,10 +25,10 @@ h =patch(x,y,[0.8 0.8 0.8]);
 uistack(h,'bottom') 
 
 % set the colour
-set(h,'EdgeColor',col)
+set(h,'EdgeColor','none')
 set(h,'FaceColor',col)
 
-%set(handle,'FaceAlpha',0.5)
+set(h,'FaceAlpha',0.2)
 
 % leave the figure hold status as it was
 if g==0

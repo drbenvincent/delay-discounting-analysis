@@ -2,14 +2,23 @@ function myExport(saveName, varargin)
 p = inputParser;
 p.FunctionName = mfilename;
 p.addRequired('saveName',@isstr);
-p.addParameter('prefix',[],@isstr);
-p.addParameter('suffix',[],@isstr);
+p.addParameter('prefix','',@isstr);
+p.addParameter('suffix','',@isstr);
 p.addParameter('saveFolder','',@isstr);
 p.addParameter('formats',{'png'},@iscellstr);
+p.addParameter('delimiter','-',@isstr);
 p.parse(saveName, varargin{:});
-			
+
 %% saveAs
-saveFileName = [p.Results.prefix '-' p.Results.saveName p.Results.suffix];
+components = {p.Results.prefix, p.Results.saveName, p.Results.suffix};
+% remove empty components
+components = components(~cellfun('isempty',components));
+saveFileName = strjoin( components, p.Results.delimiter);
+% [p.Results.prefix...
+%     p.Results.delimiter...
+%     p.Results.saveName...
+%     p.Results.delimiter...
+%     p.Results.suffix];
 saveAs = fullfile('figs', p.Results.saveFolder, saveFileName);
 ensureFolderExists(fullfile('figs', p.Results.saveFolder))
 

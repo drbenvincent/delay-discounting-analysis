@@ -8,9 +8,7 @@ classdef DataClass < handle
 		nParticipants
 		totalTrials
 		IDname
-
 		participantLevel
-
 		groupTable
 		observedData
 	end
@@ -33,20 +31,16 @@ classdef DataClass < handle
 
 
 		function [obj] = loadDataFiles(obj,fnames)
-			% INPUT:
-			% - fnames	a cell arrage of filenames of participant data
+			assert( iscellstr(fnames), 'fnames should be a cell array of filenames')
 
 			obj.nParticipants = numel(fnames);
 			obj.participantFilenames = fnames;
 
-			fnameType = 'all'; % {'all', 'ID'}
 			for n=1:obj.nParticipants
-				switch fnameType
-					case {'all'}
-						[~,obj.IDname{n},~] = fileparts(fnames{n}); % just get filename
-					case{'ID'}
-						obj.IDname{n} = getPrefixOfString(fnames{n},'-');
-				end
+                % determined participant ID string
+                [~,obj.IDname{n},~] = fileparts(fnames{n}); % just get filename
+                %obj.IDname{n} = getPrefixOfString(fnames{n},'-');
+
 				participantTable = readtable(fullfile(obj.dataFolder,fnames{n}), 'delimiter','tab');
 				participantTable = obj.appendParticipantIDcolumn(participantTable, n);
  				obj.participantLevel(n).table = participantTable;
@@ -97,20 +91,7 @@ classdef DataClass < handle
 			% construct a structure of ObservedData which will provide input to
 			% the MCMC process.
 			maxTrials = max([obj.participantLevel.trialsForThisParticant]);
-			% create an empty matrix which we then fill with data.
-			% obj.observedData.A  = NaN(obj.nParticipants, maxTrials);
-			% obj.observedData.B  = NaN(obj.nParticipants, maxTrials);
-			% obj.observedData.DA = NaN(obj.nParticipants, maxTrials);
-			% obj.observedData.DB = NaN(obj.nParticipants, maxTrials);
-			% obj.observedData.R  = NaN(obj.nParticipants, maxTrials);
-			% for p=1:obj.nParticipants
-			% 	Tp = obj.participantLevel(p).trialsForThisParticant;
-			% 	obj.observedData.A(p,[1:Tp]) = obj.participantLevel(p).table.('A');
-			% 	obj.observedData.B(p,[1:Tp]) = obj.participantLevel(p).table.('B');
-			% 	obj.observedData.DA(p,[1:Tp]) = obj.participantLevel(p).table.('DA');
-			% 	obj.observedData.DB(p,[1:Tp]) = obj.participantLevel(p).table.('DB');
-			% 	obj.observedData.R(p,[1:Tp]) = obj.participantLevel(p).table.('R');
-			% end
+
 			fields = {'A', 'B', 'DA', 'DB', 'R'};
 			for p=1:obj.nParticipants
 				Tp = obj.participantLevel(p).trialsForThisParticant;
@@ -123,9 +104,44 @@ classdef DataClass < handle
 				end
 			end
 
-			% T is a vector containing number of trials for each participant
 			obj.observedData.T = [obj.participantLevel.trialsForThisParticant];
-			obj.observedData.nParticipants = obj.nParticipants;
+			%obj.observedData.nParticipants = obj.nParticipants;
+			obj.observedData.participantIndexList = [1:obj.nParticipants];
+			
+			
+			
+			% **** Observed variables below are for the Gaussian Random
+			% Walk model ****
+			%
+			% Create a lookup table, for a given [participant,trial], this 
+			% is the index of DB.
+			
+			% If we insert additional delays into this vector 
+			% (uniqueDelays), then the model will interpolate between the 
+			% delays that we have data for.
+			% If you do not want to interpolate any delays, then set :
+			%  interpolation_delays = [] 
+			
+			unique_delays_from_data = sort(unique(obj.observedData.DB))';
+			interpolation_delays =  [ [7:7:365-7] ...
+				[7*52:7:7*80]]; % <--- future
+			combined = [unique_delays_from_data interpolation_delays];
+			obj.observedData.uniqueDelays = sort(unique(combined));
+			
+			% Now we create a lookup table [participants,tials] full of
+			% integers which point to the index of the delay value in 
+			% uniqueDelays
+			temp = obj.observedData.DB;
+			for n=1: numel(obj.observedData.uniqueDelays)
+				delay = obj.observedData.uniqueDelays(n);
+				temp(obj.observedData.DB==delay) = n;
+			end
+			obj.observedData.delayLookUp = temp;
+			
+% 			% just for gaussian random walk model
+% 			% TODO: generalise this !
+% 			obj.observedData.dInterp = [7, 21, 35, 49, 63, 77, 91, 105, 119, 133, 147, 161, 175, 189, 203, 217, 231, 245, 259, 273, 287, 301, 315, 329, 343, 357,...
+% 				371, 378, 385, 392, 399, 406];% <--- off into the future
 		end
 
 	end

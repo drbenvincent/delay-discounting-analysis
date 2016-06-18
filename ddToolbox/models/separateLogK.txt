@@ -1,17 +1,18 @@
 model{
 
-  logk_MEAN <- log(1/365)
-  logk_PRECISION <- 1/(2^2)
+  # mean half-life of 50 days from a sample from my lab, with a std of ~2.5. Note k = 1/halflife.
+  logk_MEAN <- log(1/50)
+  logk_PRECISION <- 1/(2.5^2)
 
   # Participant-level parameters
-  for (p in 1:nParticipants){
+  for (p in participantIndexList){
     # magnitude effect (m,c) for each person
     logk[p]     ~ dnorm(logk_MEAN, logk_PRECISION)
     epsilon[p]  ~ dbeta(1.1 , 10.9) T(,0.5)
     alpha[p]    ~ dexp(0.01)
   }
 
-  for (p in 1:nParticipants){
+  for (p in participantIndexList){
     for (t in 1:T[p]) {
       # calculate present subjective value for each reward
       VA[p,t] <- A[p,t] / (1+(exp(logk[p])*DA[p,t]))
@@ -34,7 +35,7 @@ model{
   epsilon_prior  ~ dbeta(1.1 , 10.9) T(,0.5)
   alpha_prior    ~ dexp(0.01)
 
-  for (p in 1:nParticipants){
+  for (p in participantIndexList){
     for (t in 1:T[p]) {
       Rpostpred[p,t] ~ dbern(P[p,t])
     }

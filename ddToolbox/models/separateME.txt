@@ -1,14 +1,14 @@
 model{
 
   # Separate and independent priors for each participant.
-  for (p in 1:nParticipants){
+  for (p in participantIndexList){
       m[p]       ~ dnorm(-0.243, 1/(0.072^2))
       c[p]       ~ dnorm(0, 1/(1000^2))
       alpha[p]   ~ dexp(0.01)
       epsilon[p] ~ dbeta(1.1, 10.9) T(,0.5)
   }
 
-  for (p in 1:nParticipants){
+  for (p in participantIndexList){
     for (t in 1:T[p]) {
       # MAGNITUDE EFFECT
       # what is log(k) on this trial?
@@ -41,7 +41,7 @@ model{
   epsilon_prior ~  dbeta(1.1, 10.9) T(,0.5)
 
 
-  for (p in 1:nParticipants){
+  for (p in participantIndexList){
     for (t in 1:T[p]) {
       Rpostpred[p,t] ~ dbern(P[p,t])
     }
