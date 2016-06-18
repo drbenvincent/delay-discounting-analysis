@@ -1,10 +1,14 @@
 % Ben's testing script
 
+%% Setup
 cd('~/git-local/delay-discounting-analysis/demo')
 toolboxPath = setToolboxPath('~/git-local/delay-discounting-analysis/ddToolbox');
-
 mcmc.setPlotTheme('fontsize',16, 'linewidth',1)
 
+nSamples = 10^4;
+nChains = 4;
+
+%% Load data
 % fnames={'AC-kirby27-DAYS.txt',...
 % 'CS-kirby27-DAYS.txt',...
 % 'NA-kirby27-DAYS.txt',...
@@ -25,27 +29,9 @@ fnames={'AC-kirby27-DAYS.txt',...
 'CS-kirby27-DAYS.txt',...
 'NA-kirby27-DAYS.txt'};
 
-%fnames={'AC-kirby27-DAYS.txt'};
-
 pathToData='data';
 myData = DataClass(pathToData);
 myData.loadDataFiles(fnames);
-
-%%
-nSamples = 10^5;
-nChains = 4;
-
-
-
-% %% TEST GAUSSIAN RANDOM WALK MODEL
-% grw = ModelMixedGRWalt(toolboxPath,...
-% 	'JAGS', myData,...
-% 	'GRWalt',...
-% 	'pointEstimateType','mode');
-% grw.sampler.setMCMCtotalSamples(nSamples);
-% grw.sampler.setMCMCnumberOfChains(nChains);
-% grw.conductInference(); % TODO: Could return an MCMCFit object here ******
-% grw.plot()
 
 
 

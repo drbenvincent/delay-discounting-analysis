@@ -55,7 +55,6 @@ classdef Model < handle
 		% MIDDLE-MAN METHODS ================================================
 
 		function conductInference(obj)
-			% ** NEW **
 			obj.setInitialParamValues();
 			obj.sampler.initialParameters = obj.initialParams;
 			
