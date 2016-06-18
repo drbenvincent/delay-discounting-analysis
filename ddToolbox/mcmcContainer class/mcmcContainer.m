@@ -1,13 +1,34 @@
 classdef mcmcContainer < handle
-	%mcmcContainer
+	%mcmcContainer lass contains MCMC samples and has a number of methods
+	%that operate on those samples.
+	%
+	% - exportParameterEstimates()
+	% - convergenceSummary()
+	% - figUnivariateSummary()
+	% - plotMCMCchains()
+	%
+	% And concrete class implemetations must also have a bunch of get
+	% methods:
+	% - getStats()
+	% - getSamplesAsMatrix()
+	% - getSamples()
+	% - getSamplesFromParticipantAsMatrix()
+	% - getSamplesAtIndex()
+	
+	% This is an interface class, and must be implemented by concrete
+	% classes
+	
+% TODO: We should really just have ONE mcmcContainer class and we should be
+% able to get samples from both JAGS and STAN into that.
+% But if STAN / MatlabStan have their own mcmc classes then it seems unwise
+% to make my own. Better explore the STAN angle first and then recap.
+	
 
 	properties (Access = public)
 		samples
 	end
 
 	methods(Abstract, Access = public)
-		%convergenceSummary()
-		%figUnivariateSummary()
 		getStats()
 		getSamplesAsMatrix()
 		getSamples()

@@ -1,6 +1,5 @@
 classdef DataClass < handle
 	%data A class to load and handle data
-	%   Detailed explanation goes here
 
 	properties (GetAccess = public, SetAccess = private)
 		participantFilenames
@@ -9,8 +8,8 @@ classdef DataClass < handle
 		totalTrials
 		IDname
 		participantLevel
-		groupTable
-		observedData
+		groupTable % table of A, DA, B, DB, R, ID
+		observedData % TODO make this  in model?
 	end
 
 

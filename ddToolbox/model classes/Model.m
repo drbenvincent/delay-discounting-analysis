@@ -1,6 +1,5 @@
 classdef Model < handle
 	%Model Base class to provide basic functionality
-	%	xxxx
 
 	properties (Access = public)
 		modelType % string
@@ -55,6 +54,8 @@ classdef Model < handle
 		% MIDDLE-MAN METHODS ================================================
 
 		function conductInference(obj)
+			% TODO: get the observed data from the raw group data here.
+			
 			obj.setInitialParamValues();
 			obj.sampler.initialParameters = obj.initialParams;
 			
@@ -79,8 +80,8 @@ classdef Model < handle
 
 		function paramEstimateTable = exportParameterEstimates(obj, varargin)
 			paramEstimateTable = obj.mcmc.exportParameterEstimates(...
-				obj.varList.participantLevel,... %obj.extractLevelNVarNames(1),... % Participant-level
-				obj.varList.groupLevel,...obj.extractLevelNVarNames(2),...  % group-level)
+				obj.varList.participantLevel,...
+				obj.varList.groupLevel,...
 				obj.data.IDname,...
 				obj.saveFolder,...
 				obj.pointEstimateType,...

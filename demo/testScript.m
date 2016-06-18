@@ -27,7 +27,8 @@ nChains = 4;
 
 fnames={'AC-kirby27-DAYS.txt',...
 'CS-kirby27-DAYS.txt',...
-'NA-kirby27-DAYS.txt'};
+'NA-kirby27-DAYS.txt',...
+'SB-kirby27-DAYS.txt'};
 
 pathToData='data';
 myData = DataClass(pathToData);

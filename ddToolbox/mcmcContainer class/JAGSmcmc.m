@@ -1,5 +1,5 @@
 classdef JAGSmcmc < mcmcContainer
-	%JAGSmcmc
+	%JAGSmcmc Implements the mcmcContainer interface
 
 	properties (Access = public)
 		stats
@@ -18,7 +18,6 @@ classdef JAGSmcmc < mcmcContainer
 			obj.samples = samples;
 			obj.stats = stats;
 			obj.mcmcparams = mcmcparams;
-
 		end
 
 
