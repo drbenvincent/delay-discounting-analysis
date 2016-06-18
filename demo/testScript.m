@@ -82,14 +82,19 @@ s_me.plot()
 
 
 %% Mixed model, estimate discount rate = log(k), no magnitude effect
-% logk: non-hierarchical
+% logk: non-hierarchical, we just have a prior of logk which applies to
+%		each participant
 % epsilon: hierarchical
 % alpha: hierarchical
+% Note that *group* level logk values reported are determined by your prior
+% over logk. Participant-level logk is our posterior over logk, determined
+% by the data and the prior, but is NOT influenced by other participants in
+% the sample.
 m_logk = ModelMixedLogK(toolboxPath, 'JAGS', myData, 'mixed_logk');
 m_logk.sampler.setMCMCtotalSamples(nSamples);
 m_logk.sampler.setMCMCnumberOfChains(nChains);
 m_logk.conductInference();
-%m_logk.exportParameterEstimates('includeCI',false);
+m_logk.exportParameterEstimates('includeCI',false);
 m_logk.plot()
 
 %% JAGS - separate logk

@@ -1,10 +1,19 @@
+# This model DOES employ group-level prior knowledge in log(k), because using this prior knowledge makes sense. However, we do NOT make inferences over the group mean, and so:
+#   Participant-level log(k) will be 'shrunk' toward the prior
+#   Participant-level log(k) will NOT be 'shrunk' toward the sample mean
+#
+# This is useful because we DO want to use our prior knowledge to inform the log(k) estimates of each person individually, but we do NOT want our estimates to be shrunk toward the sample mean in some situations. For example, when we know we have a heterogeneous population.
+
+
 model{
 
   # --------------------------------------------------------------------------
   # Group-level hyperpriors
+  # remember to change the corresponding priors below (see Generated Quantities)
 
-  groupLogKmu <- log(1/365)
-  groupLogKsigma <- 2
+  # mean half-life of 50 days from a sample from my lab, with a std of ~2.5. Note k = 1/halflife.
+  groupLogKmu <- log(1/50)
+  groupLogKsigma <- 2.5 #std
 
   # comparison acuity (alpha)
   groupALPHAmu        ~ dnorm(0,1/(100^2)) T(0,) ## UPDATED SINCE PAPER
@@ -20,7 +29,7 @@ model{
   # Participant-level parameters
   for (p in participantIndexList){
     # magnitude effect (m,c) for each person
-    logk[p]     ~ dnorm(groupLogKmu, 1/groupLogKsigma)
+    logk[p]     ~ dnorm(groupLogKmu, 1/(groupLogKsigma^2))
     epsilon[p]  ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
     alpha[p]    ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
   }
@@ -47,8 +56,8 @@ model{
   # We draw these samples, that are independent from the data, so that we can plot our prior beliefs of group-level parameters. These will be determined by the actual values given in the priors.
   # IMPORTANT - Make sure the numerical values you provide below match the priors above.
 
-  groupLogKmu_prior       <- log(1/365)
-  groupLogKsigma_prior    <- 2
+  groupLogKmu_prior       <- log(1/50)
+  groupLogKsigma_prior    <- 2.5 #std
 
   # comparison acuity
   groupALPHAmu_prior    ~ dnorm(0,1/(100^2)) T(0,) ## UPDATED SINCE PAPER
@@ -64,13 +73,10 @@ model{
   alpha_group_prior    ~ dnorm(groupALPHAmu_prior, 1/(groupALPHAsigma_prior^2)) T(0,)
   epsilon_group_prior  ~ dbeta(groupW_prior*(groupK_prior-2)+1 , (1-groupW_prior)*(groupK_prior-2)+1 ) T(,0.5)
 
-
-
   # Group-level posterior predictive distributions. These samples can be seen as inferences about an as yet unobserved participant who represents what we know about the parameters at the group level.
   logk_group    ~ dnorm(groupLogKmu, 1/groupLogKsigma^2)
   alpha_group   ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
   epsilon_group ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
-
 
   for (p in participantIndexList){
     for (t in 1:T[p]) {

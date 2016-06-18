@@ -1,7 +1,8 @@
 model{
 
-  logk_MEAN <- log(1/365)
-  logk_PRECISION <- 1/(2^2)
+  # mean half-life of 50 days from a sample from my lab, with a std of ~2.5. Note k = 1/halflife.
+  logk_MEAN <- log(1/50)
+  logk_PRECISION <- 1/(2.5^2)
 
   # Participant-level parameters
   for (p in participantIndexList){

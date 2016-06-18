@@ -123,7 +123,7 @@ classdef mcmcContainer < handle
 						for i=1:numel(IDnames)
 							logInfo(fid,'%s:\t', IDnames{i}); % participant name
 							logInfo(fid,'%2.5f\t', RhatValues(i));
-							checkRhatExceedThreshold(RhatValues);
+							checkRhatExceedThreshold(RhatValues(i));
 							logInfo(fid,'\n');
 						end
 					elseif isVecorForEachParticipant(RhatValues,nParticipants)
