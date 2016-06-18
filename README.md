@@ -41,3 +41,10 @@ model.plot();
 ```
 # Get in touch
 Please use the [GitHub Issues](https://github.com/drbenvincent/delay-discounting-analysis/issues) feature to ask question, report a bug, or request a feature. You'll need a GitHub account to do this, which isn't very hard to set up. But you could always email me instead.
+
+# Videos
+Click below to follow through to youtube videos...
+
+## Overview
+
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/kDafp-xB7js/0.jpg)](https://www.youtube.com/watch?v=kDafp-xB7js)
