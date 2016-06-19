@@ -46,20 +46,20 @@ classdef ModelHierarchicalLogK < Model
 
 		% Generate initial values of the leaf nodes
 		function setInitialParamValues(obj)
-			
+
 			nTrials = size(obj.data.observedData.A,2);
 			nParticipants = obj.data.nParticipants;
 			nUniqueDelays = numel(obj.data.observedData.uniqueDelays);
-			
+
 			for chain = 1:obj.sampler.mcmcparams.nchains
-				obj.initialParams(chain).groupLogKmu = normrnd(-0.243,5);
+				obj.initialParams(chain).groupLogKmu = normrnd(log(1/50),1);
 				obj.initialParams(chain).groupLogKsigma = rand*5;
 				obj.initialParams(chain).groupW = rand;
 				obj.initialParams(chain).groupALPHAmu		= rand*10;
 				obj.initialParams(chain).groupALPHAsigma	= rand*5;
 			end
 		end
-		
+
 		function conditionalDiscountRates(obj, reward, plotFlag)
 			error('Not applicable to this model that calculates log(k)')
 		end
