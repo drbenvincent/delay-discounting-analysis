@@ -55,10 +55,10 @@ classdef Model < handle
 
 		function conductInference(obj)
 			% TODO: get the observed data from the raw group data here.
-			
+
 			obj.setInitialParamValues();
 			obj.sampler.initialParameters = obj.initialParams;
-			
+
 			obj.mcmc = obj.sampler.conductInference( obj , obj.data );
 		end
 
@@ -221,32 +221,33 @@ classdef Model < handle
 
 
 		function posteriorPredictive(obj)
-			
+
 			%% Calculation
 			% Calculate log posterior odds of data under the model and a
 			% control model where prob of responding is 0.5.
 			prob = @(responses, predicted) prod(binopdf(responses, ...
 				ones(size(responses)),...
 				predicted));
-			
+
 			nParticipants = obj.data.nParticipants;
 			for p=1:nParticipants
 				participantResponses = obj.data.participantLevel(p).table.R; % <-- replace with a get method
-				
+
 				% Calculate fit between posterior predictive responses and actual
 				participant(p).predicted = obj.mcmc.getParticipantPredictedResponses(p);
 				pModel = prob(participantResponses, participant(p).predicted');
-				
+
 				% calculate fit between control (random) model and actual
 				% responses
 				controlPredictions = ones(size(participantResponses)) .* 0.5;
 				pRandom = prob(participantResponses, controlPredictions);
-				
+
 				logSomething(p) = log( pModel ./ pRandom);
 			end
 
-			%% Export info to text file.
-			% << TODO >>
+			%% Set up text file to write information to
+			[fid, fname] = setupTextFile(obj.saveFolder, 'PosteriorPredictiveReport.txt');
+
 
 			%% Plotting
 			for p=1:nParticipants
@@ -265,14 +266,22 @@ classdef Model < handle
 				%addTextToFigure('TR', myString, 12);
 				title(myString)
 				xlabel('trial')
-				
-				% Export
+
+				% Export figure
 				myExport('PosteriorPredictive',...
 				'saveFolder',obj.saveFolder,...
 				'prefix', obj.data.IDname{p},...
 				'suffix', obj.modelType)
+
+                % Write info to text file
+                myString = sprintf('%s: %3.2f\n', obj.data.IDname{p}, logSomething(p));
+                logInfo(fid,myString)
 			end
-			
+
+            % close text file
+            fclose(fid);
+            fprintf('Posterior predictive info saved in:\n\t%s\n\n',fname)
+
 		end
 
 

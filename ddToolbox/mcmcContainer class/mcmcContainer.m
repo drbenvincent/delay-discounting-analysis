@@ -14,15 +14,15 @@ classdef mcmcContainer < handle
 	% - getSamples()
 	% - getSamplesFromParticipantAsMatrix()
 	% - getSamplesAtIndex()
-	
+
 	% This is an interface class, and must be implemented by concrete
 	% classes
-	
+
 % TODO: We should really just have ONE mcmcContainer class and we should be
 % able to get samples from both JAGS and STAN into that.
 % But if STAN / MatlabStan have their own mcmc classes then it seems unwise
 % to make my own. Better explore the STAN angle first and then recap.
-	
+
 
 	properties (Access = public)
 		samples
@@ -101,18 +101,12 @@ classdef mcmcContainer < handle
 
 
 		function convergenceSummary(obj,saveFolder,IDnames)
-			[fid, fname] = setupFile(saveFolder);
+			[fid, fname] = setupTextFile(saveFolder, 'ConvergenceReport.txt');
 			MCMCParameterReport();
 			printRhatInformation(IDnames);
 			fclose(fid);
 			fprintf('Convergence report saved in:\n\t%s\n\n',fname)
 
-			function [fid, fname] = setupFile(saveFolder)
-				ensureFolderExists(fullfile('figs',saveFolder))
-				fname = fullfile('figs',saveFolder,'ConvergenceReport.txt');
-				fid=fopen(fname,'w');
-				assert(fid~=-1)
-			end
 
 			function MCMCParameterReport()
 				logInfo(fid,'MCMC inference was conducted with %d chains. ', obj.mcmcparams.nchains)
@@ -126,16 +120,16 @@ classdef mcmcContainer < handle
 				rhatThreshold = 1.01;
 				isRhatThresholdExceeded = false;
 				varNames = fieldnames(obj.stats.Rhat);
-				
+
 				for varName = each(varNames)
 					% skip posterior predictive variables
 					if strcmp(varName,'Rpostpred'), continue, end
 					RhatValues = obj.stats.Rhat.(varName);
-					
+
 					% conditions
 					isVectorOfParticipants = @(x,p) isvector(x) && numel(x)==p;
 					isVecorForEachParticipant = @(x,p) ismatrix(x) && size(x,1)==p;
-					
+
 					if isscalar(RhatValues)
 						logInfo(fid,'\nRhat for: %s\t',varName);
 						logInfo(fid,'%2.5f', RhatValues);
@@ -157,23 +151,23 @@ classdef mcmcContainer < handle
 						end
 					end
 				end
-				
+
 				if isRhatThresholdExceeded
 					logInfo(fid,'\n\n\n**** WARNING: convergence issues :( ****\n\n\n')
 					speak('there were some convergence issues')
 				else
 					logInfo(fid,'\n\n\n**** No convergence issues :) ****\n\n\n')
 				end
-				
+
 				function checkRhatExceedThreshold(RhatValues)
 					if any(RhatValues>rhatThreshold)
 						isRhatThresholdExceeded = true;
 						logInfo(fid,'(WARNING: poor convergence)');
 					end
 				end
-				
+
 			end
-			
+
 
 		end
 
