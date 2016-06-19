@@ -221,29 +221,37 @@ classdef Model < handle
 
 
 		function posteriorPredictive(obj)
-			warning('THIS CODE IS IN-PROGRESS, AND EXPERIMENTAL')
-
+			
 			%% Calculation
 			% Calculate log posterior odds of data under the model and a
 			% control model where prob of responding is 0.5.
 			prob = @(responses, predicted) prod(binopdf(responses, ...
 				ones(size(responses)),...
 				predicted));
+			
 			nParticipants = obj.data.nParticipants;
 			for p=1:nParticipants
-				participantResponses = obj.data.participantLevel(p).data.R;% <-- replace with a get method
-				participant(p).predicted = obj.sampler.getParticipantPredictedResponses(p);
+				participantResponses = obj.data.participantLevel(p).table.R; % <-- replace with a get method
+				
+				% Calculate fit between posterior predictive responses and actual
+				participant(p).predicted = obj.mcmc.getParticipantPredictedResponses(p);
 				pModel = prob(participantResponses, participant(p).predicted');
+				
+				% calculate fit between control (random) model and actual
+				% responses
 				controlPredictions = ones(size(participantResponses)) .* 0.5;
 				pRandom = prob(participantResponses, controlPredictions);
+				
 				logSomething(p) = log( pModel ./ pRandom);
 			end
 
+			%% Export info to text file.
+			% << TODO >>
 
 			%% Plotting
-			figure(77), clf, colormap(gray)
 			for p=1:nParticipants
-				subplot(nParticipants,1,p)
+				figure, colormap(gray)
+				%subplot(nParticipants,1,p)
 				% plot predicted probability of choosing delayed
 				bar(participant(p).predicted,'BarWidth',1)
 				if p<nParticipants, set(gca,'XTick',[]), end
@@ -251,13 +259,16 @@ classdef Model < handle
 				% plot response data
 				hold on
 				plot([1:obj.data.participantLevel(p).trialsForThisParticant],... % <-- replace with a get method
-					obj.data.participantLevel(p).data.R,... % <-- replace with a get method
+					obj.data.participantLevel(p).table.R,... % <-- replace with a get method
 					'o')
-				addTextToFigure('TR',...
-					sprintf('%s: %3.2f\n', obj.data.IDname{p}, logSomething(p)),...
-					10);
+				myString = sprintf('%s: %3.2f\n', obj.data.IDname{p}, logSomething(p));
+				%addTextToFigure('TR', myString, 12);
+				title(myString)
+				xlabel('trial')
+				
+				% << TODO: Export figure here >>
 			end
-			xlabel('trials')
+			
 		end
 
 

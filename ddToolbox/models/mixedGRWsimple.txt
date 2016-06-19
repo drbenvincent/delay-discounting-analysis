@@ -46,7 +46,10 @@ model{
       VA[p,t] <- A[p,t] # NO DELAY FOR A
       VB[p,t] <- (B[p,t]) * discountFraction[p, delayLookUp[p,t] ]
       P[p,t] <- epsilon + (1-2*epsilon) * phi( (VB[p,t]-VA[p,t]) / alpha )
-      R[p,t] ~ dbern(P[p,t])
+
+      # response likelihood
+      R[p,t]         ~ dbern(P[p,t]) # likelihood of actual response
+      Rpostpred[p,t] ~ dbern(P[p,t]) # posterior predicted response
     }
   }
 

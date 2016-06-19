@@ -21,8 +21,9 @@ model{
       # Psychometric function
       P[p,t] <- epsilon[p] + (1-2*epsilon[p]) * phi( (VB[p,t]-VA[p,t]) / alpha[p] )
 
-      # response
-      R[p,t] ~ dbern(P[p,t])
+      # response likelihood
+      R[p,t]         ~ dbern(P[p,t]) # likelihood of actual response
+      Rpostpred[p,t] ~ dbern(P[p,t]) # posterior predicted response
     }
   }
 
@@ -35,9 +36,4 @@ model{
   epsilon_prior  ~ dbeta(1.1 , 10.9) T(,0.5)
   alpha_prior    ~ dexp(0.01)
 
-  for (p in participantIndexList){
-    for (t in 1:T[p]) {
-      Rpostpred[p,t] ~ dbern(P[p,t])
-    }
-  }
 }

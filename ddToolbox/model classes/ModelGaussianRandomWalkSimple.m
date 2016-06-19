@@ -3,13 +3,13 @@
 % point for a set number of delays.
 
 classdef ModelGaussianRandomWalkSimple < Model
-	%ModelGaussianRandomWalkSimple 
+	%ModelGaussianRandomWalkSimple
 
 	properties
 		AUC_DATA
 	end
 
-	
+
 	methods (Access = public)
 		% =================================================================
 		function obj = ModelGaussianRandomWalkSimple(toolboxPath, samplerType, data, saveFolder, varargin)
@@ -31,30 +31,31 @@ classdef ModelGaussianRandomWalkSimple < Model
 			obj.plotFuncs.participantFigFunc = @figParticipantLOGK;
 			obj.plotFuncs.plotGroupLevel = @plotGroupLevelStuff;
 
-			% TODO: remove varList as a property of Model base class. 
+			% TODO: remove varList as a property of Model base class.
  			obj.varList.monitored = {'discountFraction',...
 				'alpha','epsilon', 'varInc',...
-				'alpha_prior', 'epsilon_prior', 'varInc_prior'};
+				'alpha_prior', 'epsilon_prior', 'varInc_prior',...
+                'Rpostpred'};
 
 		end
 		% =================================================================
 
 		% Generate initial values of the leaf nodes
 		function setInitialParamValues(obj)
-			
+
 			nTrials = size(obj.data.observedData.A,2);
 			nParticipants = obj.data.nParticipants;
 			nUniqueDelays = numel(obj.data.observedData.uniqueDelays);
-			
+
 			for chain = 1:obj.sampler.mcmcparams.nchains
 				obj.initialParams(chain).discountFraction = normrnd(1, 0.1, [nParticipants,nUniqueDelays]);
 			end
 			% TODO: have a function called discountFraction and pass it
 			% into this initialParam maker loop
 		end
-		
-		
-		
+
+
+
 		function conditionalDiscountRates(obj, reward, plotFlag)
 			error('Not applicable to this model that calculates log(k)')
 		end
@@ -63,31 +64,31 @@ classdef ModelGaussianRandomWalkSimple < Model
 			error('Not applicable to this model that calculates log(k)')
 		end
 
-		
-		
-		
-	
-		function plot(obj) % overriding from Model base class			
-			
-			%% Analyse AUC scores 
+
+
+
+
+		function plot(obj) % overriding from Model base class
+
+			%% Analyse AUC scores
 			% TODO: Put this is a "generated quantities" function which is
 			% auto-called after JAGS?
 			delays = obj.data.observedData.uniqueDelays;
 			for p=1:obj.data.nParticipants
 				dfSamples = obj.extractDiscountFunctionSamples(p);
-				
+
 				obj.AUC_DATA(p).AUCsamples = calculateAUC(delays,dfSamples, false);
 				%obj.AUC_DATA(p).name = participantName;
 			end
-			
-			
+
+
 			close all
-			
+
 			%% Corner plot of group-level params
 			posteriorSamples = obj.mcmc.getSamplesAsMatrix({'varInc','alpha','epsilon'});
 			priorSamples = obj.mcmc.getSamplesAsMatrix({'varInc_prior','alpha_prior','epsilon_prior'});
 			varLabals = {'varInc','alpha','epsilon'};
-		
+
 			figure(87)
 			import mcmc.*
 			TriPlotSamples(posteriorSamples,...
@@ -98,31 +99,31 @@ classdef ModelGaussianRandomWalkSimple < Model
 			myExport('triplot',...
 				'saveFolder', obj.saveFolder,...
 				'prefix', 'group')
-				
+
 			%% Plot indifference functions for each participant
 			for p=1:obj.data.nParticipants
 				% Extract info about a person for plotting purposes
 				personInfo = obj.getParticipantData(p);
-				
+
 				% Plotting
 				figure
 				intervals = [50 95];
 				plotDiscountFunctionGRW(personInfo, intervals)
-				
+
 				myExport('discountfunction',...
 				'saveFolder', obj.saveFolder,...
 				'prefix', personInfo.participantName)
 			end
-			
-			
-			
-			
-			
-			% CODE BELOW HERE NEEDS TO BE FIXED AND EXTRACTED TO 
+
+
+
+
+
+			% CODE BELOW HERE NEEDS TO BE FIXED AND EXTRACTED TO
 			% PROJECT GAIN-LOSS
-			
-			
-			
+
+
+
 % 			% PLOT AUC HERE
 % 			% We have a structure with fields name, Z.
 % 			% The names are suffixed with 'gain' or 'loss', so go through
@@ -147,7 +148,7 @@ classdef ModelGaussianRandomWalkSimple < Model
 % 			n_unique_people = length(all_names);
 % 			for p=1:n_unique_people
 % 				initials = all_names{p};
-% 				
+%
 % 				% cycle through all people to find their gain
 % 				search_for = strjoin({initials,'gains'},'-');
 % 				for I=1:obj.data.nParticipants
@@ -160,7 +161,7 @@ classdef ModelGaussianRandomWalkSimple < Model
 % 						summary(p).gain_upper = UL(2);
 % 					end
 % 				end
-% 
+%
 % 				% cycle through all people to find their loss
 % 				search_for = strjoin({initials,'loss'},'-');
 % 				for I=1:obj.data.nParticipants
@@ -174,9 +175,9 @@ classdef ModelGaussianRandomWalkSimple < Model
 % 					end
 % 				end
 % 			end
-% 
+%
 % 			summary
-% 			
+%
 % 			% FINALLY! Plot in losses space
 % 			figure(3), clf
 % 			for n=1:n_unique_people
@@ -195,16 +196,16 @@ classdef ModelGaussianRandomWalkSimple < Model
 % 			axis([0 3 0 3])
 % 			axis square
 % 			grid on
-% 			
+%
 % 			hline(1)
 % 			vline(1)
-			
+
 			%set(gca,'XAxisLocation','origin')
 			%set(gca,'YAxisLocation','origin')
-			
+
 % 			delays = obj.data.observedData.dInterp;
 % 			figure(2)
-% 			
+%
 % 			% extract samples for this participant
 % 			personSamples = squeeze(obj.mcmc.samples.dfInterp(:,:,p,:));
 % 			% collapse over chains
@@ -215,8 +216,8 @@ classdef ModelGaussianRandomWalkSimple < Model
 % 			ribbon_plot(delays, dfSamples, [0.9 0.9 0.9])
 
 		end
-		
-		
+
+
 		function personStruct = getParticipantData(obj, p)
 			% Create a structure with all the useful info about a person
 			% p = person number
@@ -224,7 +225,7 @@ classdef ModelGaussianRandomWalkSimple < Model
 			try
 				parts = strsplit(participantName,'-');
 				personStruct.participantName = strjoin(parts(1:2),'-');
-			catch 
+			catch
 				personStruct.participantName = participantName;
 			end
 			personStruct.delays = obj.data.observedData.uniqueDelays;
@@ -232,8 +233,8 @@ classdef ModelGaussianRandomWalkSimple < Model
 			personStruct.data = obj.data.getParticipantData(p);
 			personStruct.AUCsamples = obj.AUC_DATA(p).AUCsamples;
 		end
-		
-		
+
+
 		function dfSamples = extractDiscountFunctionSamples(obj, personNumber)
 			[chains, samples, participants, nDelays] = size(obj.mcmc.samples.discountFraction);
 			personSamples = squeeze(obj.mcmc.samples.discountFraction(:,:,personNumber,:));
@@ -243,11 +244,6 @@ classdef ModelGaussianRandomWalkSimple < Model
 			end
 		end
 
-	end	
-	
+	end
+
 end
-
-
-
-
-
