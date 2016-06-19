@@ -256,28 +256,21 @@ classdef Model < handle
 			%% Plotting
 			for p=1:nParticipants
 				figure(1), colormap(gray), clf
-				%subplot(nParticipants,1,p)
-				% plot predicted probability of choosing delayed
-				bar(participant(p).predicted,'BarWidth',1)
-				if p<nParticipants, set(gca,'XTick',[]), end
-				box off
-				% plot response data
-				hold on
-				plot([1:obj.data.participantLevel(p).trialsForThisParticant],... % <-- replace with a get method
-					obj.data.participantLevel(p).table.R,... % <-- replace with a get method
-					'o')
-				myString = sprintf('%s: %3.2f\n', obj.data.IDname{p}, logSomething(p));
-				%addTextToFigure('TR', myString, 12);
-				title(myString)
-				xlabel('trial')
-
-				% Export figure
+				% plot predictions + responses for all trials
+				subplot(2,1,1)
+				pp_plotTrials()
+				
+				% plot predicted P(choose delayed) vs response
+				subplot(2,1,2)
+				pp_plotPredictionAndResponse()
+				
+				%% Export figure
 				myExport('PosteriorPredictive',...
 				'saveFolder',obj.saveFolder,...
 				'prefix', obj.data.IDname{p},...
 				'suffix', obj.modelType)
 
-                % Write info to text file
+                %% Write info to text file
                 myString = sprintf('%s: %3.2f\n', obj.data.IDname{p}, logSomething(p));
                 logInfo(fid,myString)
 			end
@@ -295,12 +288,38 @@ classdef Model < handle
 				
 				% get all their predicted responses
 				all = obj.mcmc.getParticipantPredictedResponses(p);
-				
 				% trim any extra off, corresponding to the ragged array
 				nQuestionsThisParticipantDid = obj.data.participantLevel(p).trialsForThisParticant;
 				RpostPred = all([1:nQuestionsThisParticipantDid]);
-				
 			end
+			
+			function pp_plotTrials()
+				%subplot(nParticipants,1,p)
+				% plot predicted probability of choosing delayed
+				bar(participant(p).predicted,'BarWidth',1)
+				if p<nParticipants, set(gca,'XTick',[]), end
+				box off
+				% plot response data
+				hold on
+				plot([1:obj.data.participantLevel(p).trialsForThisParticant],... % <-- replace with a get method
+					obj.data.participantLevel(p).table.R,... % <-- replace with a get method
+					'o')
+				myString = sprintf('%s: %3.2f\n', obj.data.IDname{p}, logSomething(p));
+				%addTextToFigure('TR', myString, 12);
+				title(myString)
+				xlabel('trial')
+			end
+			
+			function pp_plotPredictionAndResponse()
+				h(1) = plot(participant(p).predicted, participantResponses, 'o');
+				xlabel('P(choose delayed)')
+				ylabel('Response')
+				legend(h, 'data')
+				addTextToFigure('BR','TODO: add a fitted logistic function?', 15)
+				box off
+			end
+			
+			
 		end
 
 
