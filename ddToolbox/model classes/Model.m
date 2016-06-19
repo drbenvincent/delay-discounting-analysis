@@ -266,7 +266,11 @@ classdef Model < handle
 				title(myString)
 				xlabel('trial')
 				
-				% << TODO: Export figure here >>
+				% Export
+				myExport('PosteriorPredictive',...
+				'saveFolder',obj.saveFolder,...
+				'prefix', obj.data.IDname{p},...
+				'suffix', obj.modelType)
 			end
 			
 		end
