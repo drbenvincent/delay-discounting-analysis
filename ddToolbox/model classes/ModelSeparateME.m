@@ -36,17 +36,17 @@ classdef ModelSeparateME < Model
 			obj.varList.groupLevel = {};
 			obj.varList.monitored = {'m', 'c','alpha','epsilon',...
 				'm_prior', 'c_prior','alpha_prior','epsilon_prior',...
-				'Rpostpred'};
+				'Rpostpred', 'P'};
 		end
 		% ================================================================
 
 		% Generate initial values of the leaf nodes
 		function setInitialParamValues(obj)
-			
+
 			nTrials = size(obj.data.observedData.A,2);
 			nParticipants = obj.data.nParticipants;
 			nUniqueDelays = numel(obj.data.observedData.uniqueDelays);
-			
+
 			for chain = 1:obj.sampler.mcmcparams.nchains
 				obj.initialParams(chain).m = normrnd(-0.243,2, [nParticipants,1]);
 				obj.initialParams(chain).c = normrnd(0,10, [nParticipants,1]);
@@ -55,7 +55,7 @@ classdef ModelSeparateME < Model
 
 			end
 		end
-		
+
 	end
 
 end

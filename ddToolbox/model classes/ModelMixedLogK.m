@@ -36,24 +36,24 @@ classdef ModelMixedLogK < Model
 				'logk_group_prior','epsilon_group_prior','alpha_group_prior',...
 				'groupW','groupK','groupALPHAmu','groupALPHAsigma',...
 				'groupLogKmu_prior', 'groupLogKsigma_prior','groupW_prior','groupK_prior','groupALPHAmu_prior','groupALPHAsigma_prior',...
-				'Rpostpred'};
+				'Rpostpred', 'P'};
 		end
 		% =================================================================
 
 		% Generate initial values of the leaf nodes
 		function setInitialParamValues(obj)
-			
+
 			nTrials = size(obj.data.observedData.A,2);
 			nParticipants = obj.data.nParticipants;
 			nUniqueDelays = numel(obj.data.observedData.uniqueDelays);
-			
+
 			for chain = 1:obj.sampler.mcmcparams.nchains
 				obj.initialParams(chain).groupW = rand;
 				obj.initialParams(chain).groupALPHAmu		= rand*100;
 				obj.initialParams(chain).groupALPHAsigma	= rand*100;
 			end
 		end
-		
+
 		function conditionalDiscountRates(obj, reward, plotFlag)
 			error('Not applicable to this model that calculates log(k)')
 		end
