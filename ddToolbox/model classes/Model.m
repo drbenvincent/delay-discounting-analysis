@@ -235,7 +235,7 @@ classdef Model < handle
 				participantResponses = obj.data.participantLevel(p).table.R; % <-- replace with a get method
 
 				% Calculate fit between posterior predictive responses and actual
-				participant(p).predicted = obj.mcmc.getParticipantPredictedResponses(p);
+				participant(p).predicted = getParticipantPredictedResponses(p);
 				pModel = prob(participantResponses, participant(p).predicted');
 
 				% calculate fit between control (random) model and actual
@@ -255,7 +255,7 @@ classdef Model < handle
 
 			%% Plotting
 			for p=1:nParticipants
-				figure, colormap(gray)
+				figure(1), colormap(gray), clf
 				%subplot(nParticipants,1,p)
 				% plot predicted probability of choosing delayed
 				bar(participant(p).predicted,'BarWidth',1)
@@ -286,6 +286,21 @@ classdef Model < handle
             fclose(fid);
             fprintf('Posterior predictive info saved in:\n\t%s\n\n',fname)
 
+			function RpostPred = getParticipantPredictedResponses(p)
+				% Note that, because of the way how the data are
+				% represented (with ragged arrays, because not all
+				% participant did the same number of trials), we have to
+				% just get the posterior predicted values corresponding to
+				% the number of questions they actually did
+				
+				% get all their predicted responses
+				all = obj.mcmc.getParticipantPredictedResponses(p);
+				
+				% trim any extra off, corresponding to the ragged array
+				nQuestionsThisParticipantDid = obj.data.participantLevel(p).trialsForThisParticant;
+				RpostPred = all([1:nQuestionsThisParticipantDid]);
+				
+			end
 		end
 
 
