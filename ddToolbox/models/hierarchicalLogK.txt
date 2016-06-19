@@ -21,7 +21,7 @@ model{
   for (p in participantIndexList){
     # small constant (0.0001) added below to avoid numerical problems. And in the corresponding prior below
     logk[p]     ~ dnorm(groupLogKmu, 1/((groupLogKsigma+0.0001)^2))
-    epsilon[p]  ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
+    epsilon[p]  ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 )
     alpha[p]    ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
   }
 
@@ -63,13 +63,13 @@ model{
   # Prior beliefs about the group level (equivalently, an as yet unobserved participant). As determined by priors on parameters specified above
   logk_group_prior     ~ dnorm(groupLogKmu_prior, 1/((groupLogKsigma_prior+0.0001)^2))
   alpha_group_prior    ~ dnorm(groupALPHAmu_prior, 1/(groupALPHAsigma_prior^2)) T(0,)
-  epsilon_group_prior  ~ dbeta(groupW_prior*(groupK_prior-2)+1 , (1-groupW_prior)*(groupK_prior-2)+1 ) T(,0.5)
+  epsilon_group_prior  ~ dbeta(groupW_prior*(groupK_prior-2)+1 , (1-groupW_prior)*(groupK_prior-2)+1 )
 
 
 
   # Group-level posterior predictive distributions. These samples can be seen as inferences about an as yet unobserved participant who represents what we know about the parameters at the group level.
   logk_group          ~ dnorm(groupLogKmu, 1/(groupLogKsigma^2))
   alpha_group         ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
-  epsilon_group       ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
+  epsilon_group       ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) 
 
 }

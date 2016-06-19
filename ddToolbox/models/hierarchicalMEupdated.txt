@@ -35,7 +35,7 @@ model{
       m[p]        ~ dnorm(groupMmu, 1/(groupMsigma^2))
       c[p]        ~ dnorm(groupCmu, 1/(groupCsigma^2))
 
-      epsilon[p]  ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
+      epsilon[p]  ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 )
       alpha[p]    ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
   }
 
@@ -89,13 +89,13 @@ model{
   m_group             ~ dnorm(groupMmu, 1/(groupMsigma^2))
   c_group             ~ dnorm(groupCmu, 1/(groupCsigma^2))
   alpha_group         ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
-  epsilon_group       ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
+  epsilon_group       ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 )
 
   # Prior beliefs about the group level (equivalently, an as yet unobserved participant). As determined by priors on parameters specified above
   m_group_prior        ~ dnorm(groupMmu_prior, 1/(groupMsigma_prior^2))
   c_group_prior        ~ dnorm(groupCmu_prior, 1/(groupCsigma_prior^2))
   alpha_group_prior    ~ dnorm(groupALPHAmu_prior, 1/(groupALPHAsigma_prior^2)) T(0,)
-  epsilon_group_prior  ~ dbeta(groupW_prior*(groupK_prior-2)+1 , (1-groupW_prior)*(groupK_prior-2)+1 ) T(,0.5)
+  epsilon_group_prior  ~ dbeta(groupW_prior*(groupK_prior-2)+1 , (1-groupW_prior)*(groupK_prior-2)+1 ) 
 
 
   for (p in participantIndexList){

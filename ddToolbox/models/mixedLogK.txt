@@ -30,7 +30,7 @@ model{
   for (p in participantIndexList){
     # magnitude effect (m,c) for each person
     logk[p]     ~ dnorm(groupLogKmu, 1/(groupLogKsigma^2))
-    epsilon[p]  ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
+    epsilon[p]  ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 )
     alpha[p]    ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
   }
 
@@ -77,6 +77,6 @@ model{
   # Group-level posterior predictive distributions. These samples can be seen as inferences about an as yet unobserved participant who represents what we know about the parameters at the group level.
   logk_group    ~ dnorm(groupLogKmu, 1/groupLogKsigma^2)
   alpha_group   ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
-  epsilon_group ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
+  epsilon_group ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 )
 
 }
