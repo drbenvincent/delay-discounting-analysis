@@ -13,6 +13,7 @@ classdef Model < handle
 		discountFuncType
 		pointEstimateType
 		initialParams
+		goodnessOfFit
 	end
 
 	methods(Abstract, Access = public)
@@ -243,6 +244,9 @@ classdef Model < handle
 				pRandom = prob(participantResponses, controlPredictions);
 
 				logSomething(p) = log( pModel ./ pRandom);
+				
+				% save this value
+				obj.goodnessOfFit(p).score = logSomething(p);
 			end
 
 			%% Set up text file to write information to
@@ -336,10 +340,17 @@ classdef Model < handle
 				participantSamples = obj.mcmc.getSamplesAtIndex(n, pVariableNames);
 				pData = obj.data.getParticipantData(n);
 
+				if ~isempty(obj.goodnessOfFit)
+					goodnessOfFitScore = obj.goodnessOfFit(n).score;
+				else
+					goodnessOfFitScore = [];
+				end
+				
 				obj.plotFuncs.participantFigFunc(participantSamples,...
 					obj.pointEstimateType,...
 					'pData', pData,...
-					'opts',opts);
+					'opts',opts,...
+					'goodnessOfFit',goodnessOfFitScore);
 				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 				latex_fig(16, 18, 4)
