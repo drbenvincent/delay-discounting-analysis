@@ -77,16 +77,6 @@ classdef mcmcContainer < handle
 			%% display to command window
 			display(paramEstimateTable)
 
-			%% Export
-			savename = fullfile('figs',...
-				saveFolder,...
-				['parameterEstimates_Posterior_' pointEstimateType '.csv']);
-			writetable(paramEstimateTable, savename,...
-				'Delimiter','\t',...
-				'WriteRowNames',true)
-			fprintf('The above table of parameter estimates was exported to:\n')
-			fprintf('\t%s\n\n',savename)
-
 			function colHeaderNames = createColumnHeaders(varNames,getCI, pointEstimateType)
 				colHeaderNames = {};
 				for var = each(varNames)
