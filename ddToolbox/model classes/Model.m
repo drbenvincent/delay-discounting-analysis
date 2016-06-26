@@ -13,7 +13,8 @@ classdef Model < handle
 		discountFuncType
 		pointEstimateType
 		initialParams
-		goodnessOfFit
+		%goodnessOfFit
+		postPred
 	end
 
 	methods(Abstract, Access = public)
@@ -222,97 +223,36 @@ classdef Model < handle
 
 
 		function posteriorPredictive(obj)
-
-			%% Posterior predictive model checking #1
-			% This approach comes up with a single goodness of fit score.
-			% It is the log ratio between the posterior predicted responses
-			% of the model and the predicted responses of a control model
-			% (which responses randomly).
-			% NOTE: That this is based upon Rpostpred.
 			
-			% Calculate log posterior odds of data under the model and a
-			% control model where prob of responding is 0.5.
-			% Responses are Bernoulli distributed, which is a special case
-			% of the Binomial with 1 event.
-			prob = @(responses, predicted) prod(binopdf(responses, ...
-				ones(size(responses)),...
-				predicted));
-
 			nParticipants = obj.data.nParticipants;
+			
+			%% Calculate various posterior predictive measures
+			% data saved to obj.postPred(p).xxx
+			
 			for p=1:nParticipants
-				participantResponses = obj.data.participantLevel(p).table.R; % <-- replace with a get method
-
-				% Calculate fit between posterior predictive responses and actual
-				participant(p).predicted = getParticipantPredictedResponses(p);
-				pModel = prob(participantResponses, participant(p).predicted');
-
-				% calculate fit between control (random) model and actual
-				% responses
-				controlPredictions = ones(size(participantResponses)) .* 0.5;
-				pRandom = prob(participantResponses, controlPredictions);
-
-				logSomething(p) = log( pModel ./ pRandom);
 				
-				% save this value
-				obj.goodnessOfFit(p).score = logSomething(p);
-			end
-
-
-			%% Posterior predictive model checking #2
-			% This takes a different approach. Because we calculate
-			% P(choose delayed) directly (variable P in the model) then we
-			% haev these predicted probabilities for every MCMC sample.
-			% This means we can compute a distribution of model fits
-			% compared to the control model.
-			% We can then examine whether the 95% CI overlaps with 1, which
-			% we can take as indicating the model does not predict people's
-			% responases better than chance.
-			function [GOF_distribtion, percentPredictedDistribution] = calcGoodnessOfFitDistribution(p)
-				% return a distribution of goodness of fit scores. One
-				% value for each MCMC sample.
-				% This is quite memory-intensive, so we are calculating it
-				% on demand and not storing it.
+				% Calculate overall log prob of model, compared to random
+				obj.postPred(p).score = obj.postPredOverallScore(p);
 				
-				% get predicted P(choose delayed)
-				P = obj.mcmc.getPChooseDelayed(p);
-				% trim off any empty data from the ragged array approach
-				P = P([1:obj.data.participantLevel(p).trialsForThisParticant],:);
+				% Calculate:
+				% - distribution of log ratio scores 
+				% - distribution of percent of responses predicted
+				[obj.postPred(p).GOF_distribtion,...
+					obj.postPred(p).percentPredictedDistribution] ...
+					= obj.calcGoodnessOfFitDistribution(p);
 				
-				nQuestions = size(P,1);
-				% get participant responses
-				participantResponses = obj.data.participantLevel(p).table.R;
-				totalSamples = obj.mcmc.mcmcparams.totalSamples;
+				% TODO: make judgements about whether model is good enough
 				
-				% Expand the participant responses so we can do vectorised
-				% calculations below
-				participantResponsesREP = repmat(participantResponses, [1,totalSamples]);
-				
-				%% Calculate % responses predicted by the model
-				%modelPrediction(P<0.5)=0;
-				modelPrediction = zeros(size(P));
-				modelPrediction(P>=0.5)=1;
-				isCorrectPrediction = modelPrediction == participantResponsesREP;
-				percentPredictedDistribution = sum(isCorrectPrediction,1)./nQuestions;
-				
-				%% Calculate goodness of fit
-				% P(responses | model)
-				% product is over trials
-				pModel = prod(binopdf(participantResponsesREP, ones(size(participantResponsesREP)), P));
-				
-				% P(responses | control model)
-				controlP = ones(size(P)).*0.5;
-				pControl = prod(binopdf(participantResponsesREP, ones(size(participantResponsesREP)), controlP));
-				
-				% Calculate log goodness of fit ratio
-				GOF_distribtion = log(pModel./pControl);
 			end
 			
-			
+
+
 			%% Write info to text file
 			% Set up text file to write information to
 			[fid, fname] = setupTextFile(obj.saveFolder, 'PosteriorPredictiveReport.txt');
 			for p=1:nParticipants
-                myString = sprintf('%s: %3.2f\n', obj.data.IDname{p}, logSomething(p));
+				
+                myString = sprintf('%s: %3.2f\n', obj.data.IDname{p}, obj.postPred(p).score);
                 logInfo(fid,myString)
 			end
             % close text file
@@ -320,21 +260,21 @@ classdef Model < handle
             fprintf('Posterior predictive info saved in:\n\t%s\n\n',fname)
 
 			
-			%% Plotting & Data export
+			%% Plotting
 			for p=1:nParticipants
 				
-				% Calc goodness of fit and % responses predicted,
-				% distributions
-				[GOFdistribution, percentPredictedDistribution] = calcGoodnessOfFitDistribution(p);
+% 				% Calc goodness of fit and % responses predicted,
+% 				% distributions
+% 				[GOFdistribution, percentPredictedDistribution] = calcGoodnessOfFitDistribution(p);
 				
 				figure(1), colormap(gray), clf
 				% plot predictions + responses for all trials
 				subplot(2,2,1)
-				pp_plotTrials()
+				obj.pp_plotTrials(p)
 				
 				% plot goodness of fit distribution
 				subplot(2,2,2)
-				histogram(GOFdistribution ,...
+				histogram(obj.postPred(p).GOF_distribtion ,...
 					'BinWidth', 0.2,...
 					'EdgeColor', 'none')
 				xlabel('goodness of fit score')
@@ -344,12 +284,12 @@ classdef Model < handle
 
 				% plot predicted P(choose delayed) vs response
 				subplot(2,2,3)
-				pp_plotPredictionAndResponse()
+				obj.pp_plotPredictionAndResponse(p)
 				
 				
 				subplot(2,2,4)
 				nQuestions = obj.data.participantLevel(p).trialsForThisParticant;
-				histogram(percentPredictedDistribution ,...
+				histogram(obj.postPred(p).percentPredictedDistribution,...
 					'EdgeColor', 'none',...
 					'BinEdges', linspace(0,1,nQuestions) )
 				xlabel('%proportion responses accounted for')
@@ -366,65 +306,139 @@ classdef Model < handle
 				'prefix', obj.data.IDname{p},...
 				'suffix', obj.modelType)
 			end
-%                 %% Write info to text file
-%                 myString = sprintf('%s: %3.2f\n', obj.data.IDname{p}, logSomething(p));
-%                 logInfo(fid,myString)
-% 			end
-% 
-%             % close text file
-%             fclose(fid);
-%             fprintf('Posterior predictive info saved in:\n\t%s\n\n',fname)
-% 
-% 			
 
-
-			
-			function RpostPred = getParticipantPredictedResponses(p)
-				% Note that, because of the way how the data are
-				% represented (with ragged arrays, because not all
-				% participant did the same number of trials), we have to
-				% just get the posterior predicted values corresponding to
-				% the number of questions they actually did
-				
-				% get all their predicted responses
-				all = obj.mcmc.getParticipantPredictedResponses(p);
-				% trim any extra off, corresponding to the ragged array
-				nQuestionsThisParticipantDid = obj.data.participantLevel(p).trialsForThisParticant;
-				RpostPred = all([1:nQuestionsThisParticipantDid]);
-			end
-			
-			function pp_plotTrials()
-				%subplot(nParticipants,1,p)
-				% plot predicted probability of choosing delayed
-				bar(participant(p).predicted,'BarWidth',1)
-				if p<nParticipants, set(gca,'XTick',[]), end
-				box off
-				axis tight
-				% plot response data
-				hold on
-				plot([1:obj.data.participantLevel(p).trialsForThisParticant],... % <-- replace with a get method
-					obj.data.participantLevel(p).table.R,... % <-- replace with a get method
-					'o')
-				myString = sprintf('%s: %3.2f\n', obj.data.IDname{p}, logSomething(p));
-				%addTextToFigure('TR', myString, 12);
-				title(myString)
-				
-				xlabel('trial')
-			end
-			
-			function pp_plotPredictionAndResponse()
-				h(1) = plot(participant(p).predicted, participantResponses, 'o');
-				xlabel('P(choose delayed)')
-				ylabel('Response')
-				legend(h, 'data')
-				addTextToFigure('BR','TODO: add a fitted logistic function?', 15)
-				box off
-			end
-			
-			
 		end
 
-
+		function RpostPred = getParticipantPredictedResponses(obj,p)
+			% Note that, because of the way how the data are
+			% represented (with ragged arrays, because not all
+			% participant did the same number of trials), we have to
+			% just get the posterior predicted values corresponding to
+			% the number of questions they actually did
+			
+			% get all their predicted responses
+			all = obj.mcmc.getParticipantPredictedResponses(p);
+			% trim any extra off, corresponding to the ragged array
+			nQuestionsThisParticipantDid = obj.data.participantLevel(p).trialsForThisParticant;
+			RpostPred = all([1:nQuestionsThisParticipantDid]);
+		end
+		
+		function pp_plotTrials(obj,p)
+			%subplot(nParticipants,1,p)
+			% plot predicted probability of choosing delayed
+			bar(obj.getParticipantPredictedResponses(p),'BarWidth',1)
+			if p<obj.data.nParticipants, set(gca,'XTick',[]), end
+			box off
+			axis tight
+			% plot response data
+			hold on
+			plot([1:obj.data.participantLevel(p).trialsForThisParticant],... % <-- replace with a get method
+				obj.data.participantLevel(p).table.R,... % <-- replace with a get method
+				'o')
+			myString = sprintf('%s: %3.2f\n', obj.data.IDname{p}, obj.postPred(p).score);
+			%addTextToFigure('TR', myString, 12);
+			title(myString)
+			
+			xlabel('trial')
+		end
+		
+		%% Posterior predictive model checking #1
+		% This approach comes up with a single goodness of fit score.
+		% It is the log ratio between the posterior predicted responses
+		% of the model and the predicted responses of a control model
+		% (which responses randomly).
+		% NOTE: That this is based upon Rpostpred.
+		
+		function score = postPredOverallScore(obj, p)
+			% Calculate log posterior odds of data under the model and a
+			% control model where prob of responding is 0.5.
+			% Responses are Bernoulli distributed, which is a special case
+			% of the Binomial with 1 event.
+			prob = @(responses, predicted) prod(binopdf(responses, ...
+				ones(size(responses)),...
+				predicted));
+			% Calculate fit between posterior predictive responses and actual
+			participant(p).predicted = obj.getParticipantPredictedResponses(p);
+			participantResponses = obj.data.participantLevel(p).table.R;
+			pModel = prob(participantResponses, participant(p).predicted');
+			
+			% calculate fit between control (random) model and actual
+			% responses
+			controlPredictions = ones(size(participantResponses)) .* 0.5;
+			pRandom = prob(participantResponses, controlPredictions);
+			
+			score = log( pModel ./ pRandom);
+		end
+		
+		%% Posterior predictive model checking #2
+		% This takes a different approach. Because we calculate
+		% P(choose delayed) directly (variable P in the model) then we
+		% haev these predicted probabilities for every MCMC sample.
+		% This means we can compute a distribution of model fits
+		% compared to the control model.
+		% We can then examine whether the 95% CI overlaps with 1, which
+		% we can take as indicating the model does not predict people's
+		% responases better than chance.
+		function [GOF_distribtion, percentPredictedDistribution] = calcGoodnessOfFitDistribution(obj,p)
+			% return a distribution of goodness of fit scores. One
+			% value for each MCMC sample.
+			% This is quite memory-intensive, so we are calculating it
+			% on demand and not storing it.
+			
+			% get predicted P(choose delayed)
+			P = obj.mcmc.getPChooseDelayed(p);
+			% trim off any empty data from the ragged array approach
+			P = P([1:obj.data.participantLevel(p).trialsForThisParticant],:);
+			
+			nQuestions = size(P,1);
+			% get participant responses
+			participantResponses = obj.data.participantLevel(p).table.R;
+			totalSamples = obj.mcmc.mcmcparams.totalSamples;
+			
+			% Expand the participant responses so we can do vectorised
+			% calculations below
+			participantResponsesREP = repmat(participantResponses, [1,totalSamples]);
+			
+			%% Calculate % responses predicted by the model
+			%modelPrediction(P<0.5)=0;
+			modelPrediction = zeros(size(P));
+			modelPrediction(P>=0.5)=1;
+			isCorrectPrediction = modelPrediction == participantResponsesREP;
+			percentPredictedDistribution = sum(isCorrectPrediction,1)./nQuestions;
+			
+			%% Calculate goodness of fit
+			% P(responses | model)
+			% product is over trials
+			pModel = prod(binopdf(participantResponsesREP, ones(size(participantResponsesREP)), P));
+			
+			% P(responses | control model)
+			controlP = ones(size(P)).*0.5;
+			pControl = prod(binopdf(participantResponsesREP, ones(size(participantResponsesREP)), controlP));
+			
+			% Calculate log goodness of fit ratio
+			GOF_distribtion = log(pModel./pControl);
+		end
+		
+		function pp_plotPredictionAndResponse(obj, p)
+			h(1) = plot(obj.getParticipantPredictedResponses(p),...
+				obj.data.participantLevel(p).table.R,...
+				'o');
+			xlabel('P(choose delayed)')
+			ylabel('Response')
+			legend(h, 'data')
+			addTextToFigure('BR','TODO: add a fitted logistic function?', 15)
+			box off
+		end
+		
+		
+		
+		
+			
+			
+			
+			
+			
+			
 
 
 
