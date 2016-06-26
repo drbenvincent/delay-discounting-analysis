@@ -58,10 +58,15 @@ classdef Model < handle
 		function conductInference(obj)
 			% TODO: get the observed data from the raw group data here.
 
+			% prep for MCMC
 			obj.setInitialParamValues();
 			obj.sampler.initialParameters = obj.initialParams;
-
+			
+			% do the MCMC sampling
 			obj.mcmc = obj.sampler.conductInference( obj , obj.data );
+			
+			% post MCMC activities
+			obj.calcPosteriorPredictive()
 		end
 
 		function setBurnIn(obj, nburnin)
@@ -130,100 +135,10 @@ classdef Model < handle
 		end
 
 
+		%% POSTERIOR PREDICTION ===========================================
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-		% **********************************************************************
-		% **********************************************************************
-		% PLOTTING *************************************************************
-		% **********************************************************************
-		% **********************************************************************
-		% This plot method is highly unsatisfactory. We have a whole bunch of logic
-		% which decides on the properties of the model (hierachical or not) and
-		% (logk vs magnitude effect). It then uses a bunch of get methods in order
-		% to grab the data in the appropriate format. We then pass this data to plot
-		% functions/classes.
-		%
-		% Thinking needs to be done about the best way to refactor all this mess.
-
-
-
-
-
-		function plot(obj)
-			close all
-
-			% IDEAS:
-			% - Loop over participants (and group if there is one) and create an array of objects of a new participant class. This class will contain all the data for that person, as well as the plotting functions.
-			%
-			% - Or....
-
-
-			%% PARTICIPANT LEVEL  ======================================
-			% We will ALWAYS have participants.
-			obj.plotParticiantStuff( )
-
-
-			%% GROUP LEVEL ======================================
-			% We are going to call this function, but it will be a 'null function' for models not doing hierachical inference. This is set in the concrete model class constructors.
-			obj.plotFuncs.plotGroupLevel( obj )
-
-		end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-		function posteriorPredictive(obj)
-			
+		function calcPosteriorPredictive(obj)
+			display('Calculating posterior predictive measures...')
 			nParticipants = obj.data.nParticipants;
 			
 			%% Calculate various posterior predictive measures
@@ -245,8 +160,6 @@ classdef Model < handle
 				
 			end
 			
-
-
 			%% Write info to text file
 			% Set up text file to write information to
 			[fid, fname] = setupTextFile(obj.saveFolder, 'PosteriorPredictiveReport.txt');
@@ -258,55 +171,6 @@ classdef Model < handle
             % close text file
             fclose(fid);
             fprintf('Posterior predictive info saved in:\n\t%s\n\n',fname)
-
-			
-			%% Plotting
-			for p=1:nParticipants
-				
-% 				% Calc goodness of fit and % responses predicted,
-% 				% distributions
-% 				[GOFdistribution, percentPredictedDistribution] = calcGoodnessOfFitDistribution(p);
-				
-				figure(1), colormap(gray), clf
-				% plot predictions + responses for all trials
-				subplot(2,2,1)
-				obj.pp_plotTrials(p)
-				
-				% plot goodness of fit distribution
-				subplot(2,2,2)
-				histogram(obj.postPred(p).GOF_distribtion ,...
-					'BinWidth', 0.2,...
-					'EdgeColor', 'none')
-				xlabel('goodness of fit score')
-				axis tight
-				box off
-				vline(0)
-
-				% plot predicted P(choose delayed) vs response
-				subplot(2,2,3)
-				obj.pp_plotPredictionAndResponse(p)
-				
-				
-				subplot(2,2,4)
-				nQuestions = obj.data.participantLevel(p).trialsForThisParticant;
-				histogram(obj.postPred(p).percentPredictedDistribution,...
-					'EdgeColor', 'none',...
-					'BinEdges', linspace(0,1,nQuestions) )
-				xlabel('%proportion responses accounted for')
-				axis tight
-				box off
-				vline(0.5)
-				set(gca,'XLim',[0 1])
-				
-				drawnow
-				
-				%% Export figure
-				myExport('PosteriorPredictive',...
-				'saveFolder',obj.saveFolder,...
-				'prefix', obj.data.IDname{p},...
-				'suffix', obj.modelType)
-			end
-
 		end
 
 		function RpostPred = getParticipantPredictedResponses(obj,p)
@@ -322,26 +186,7 @@ classdef Model < handle
 			nQuestionsThisParticipantDid = obj.data.participantLevel(p).trialsForThisParticant;
 			RpostPred = all([1:nQuestionsThisParticipantDid]);
 		end
-		
-		function pp_plotTrials(obj,p)
-			%subplot(nParticipants,1,p)
-			% plot predicted probability of choosing delayed
-			bar(obj.getParticipantPredictedResponses(p),'BarWidth',1)
-			if p<obj.data.nParticipants, set(gca,'XTick',[]), end
-			box off
-			axis tight
-			% plot response data
-			hold on
-			plot([1:obj.data.participantLevel(p).trialsForThisParticant],... % <-- replace with a get method
-				obj.data.participantLevel(p).table.R,... % <-- replace with a get method
-				'o')
-			myString = sprintf('%s: %3.2f\n', obj.data.IDname{p}, obj.postPred(p).score);
-			%addTextToFigure('TR', myString, 12);
-			title(myString)
-			
-			xlabel('trial')
-		end
-		
+
 		%% Posterior predictive model checking #1
 		% This approach comes up with a single goodness of fit score.
 		% It is the log ratio between the posterior predicted responses
@@ -418,6 +263,163 @@ classdef Model < handle
 			% Calculate log goodness of fit ratio
 			GOF_distribtion = log(pModel./pControl);
 		end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		% **********************************************************************
+		% **********************************************************************
+		% PLOTTING *************************************************************
+		% **********************************************************************
+		% **********************************************************************
+		% This plot method is highly unsatisfactory. We have a whole bunch of logic
+		% which decides on the properties of the model (hierachical or not) and
+		% (logk vs magnitude effect). It then uses a bunch of get methods in order
+		% to grab the data in the appropriate format. We then pass this data to plot
+		% functions/classes.
+		%
+		% Thinking needs to be done about the best way to refactor all this mess.
+
+
+
+
+
+		function plot(obj)
+			close all
+
+			% IDEAS:
+			% - Loop over participants (and group if there is one) and create an array of objects of a new participant class. This class will contain all the data for that person, as well as the plotting functions.
+			%
+			% - Or....
+
+
+			%% PARTICIPANT LEVEL  =========================================
+			% We will ALWAYS have participants.
+			obj.plotParticiantStuff( )
+
+
+			%% GROUP LEVEL ================================================
+			% We are going to call this function, but it will be a 'null function' for models not doing hierachical inference. This is set in the concrete model class constructors.
+			obj.plotFuncs.plotGroupLevel( obj )
+
+			
+			%% POSTERIOR PREDICTION PLOTS =================================
+			for p=1:obj.data.nParticipants
+				
+% 				% Calc goodness of fit and % responses predicted,
+% 				% distributions
+% 				[GOFdistribution, percentPredictedDistribution] = calcGoodnessOfFitDistribution(p);
+				
+				figure(1), colormap(gray), clf
+				% plot predictions + responses for all trials
+				subplot(2,2,1)
+				obj.pp_plotTrials(p)
+				
+				% plot goodness of fit distribution
+				subplot(2,2,2)
+				histogram(obj.postPred(p).GOF_distribtion ,...
+					'BinWidth', 0.2,...
+					'EdgeColor', 'none')
+				xlabel('goodness of fit score')
+				axis tight
+				box off
+				vline(0)
+
+				% plot predicted P(choose delayed) vs response
+				subplot(2,2,3)
+				obj.pp_plotPredictionAndResponse(p)
+				
+				
+				subplot(2,2,4)
+				nQuestions = obj.data.participantLevel(p).trialsForThisParticant;
+				histogram(obj.postPred(p).percentPredictedDistribution,...
+					'EdgeColor', 'none',...
+					'BinEdges', linspace(0,1,nQuestions) )
+				xlabel('%proportion responses accounted for')
+				axis tight
+				box off
+				vline(0.5)
+				set(gca,'XLim',[0 1])
+				
+				drawnow
+				
+				%% Export figure
+				myExport('PosteriorPredictive',...
+				'saveFolder',obj.saveFolder,...
+				'prefix', obj.data.IDname{p},...
+				'suffix', obj.modelType)
+			end
+			
+		end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
+		function pp_plotTrials(obj,p)
+			%subplot(nParticipants,1,p)
+			% plot predicted probability of choosing delayed
+			bar(obj.getParticipantPredictedResponses(p),'BarWidth',1)
+			if p<obj.data.nParticipants, set(gca,'XTick',[]), end
+			box off
+			axis tight
+			% plot response data
+			hold on
+			plot([1:obj.data.participantLevel(p).trialsForThisParticant],... % <-- replace with a get method
+				obj.data.participantLevel(p).table.R,... % <-- replace with a get method
+				'o')
+			myString = sprintf('%s: %3.2f\n', obj.data.IDname{p}, obj.postPred(p).score);
+			%addTextToFigure('TR', myString, 12);
+			title(myString)
+			
+			xlabel('trial')
+		end
+		
+		
 		
 		function pp_plotPredictionAndResponse(obj, p)
 			h(1) = plot(obj.getParticipantPredictedResponses(p),...
@@ -490,9 +492,10 @@ classdef Model < handle
 				participantSamples = obj.mcmc.getSamplesAtIndex(n, pVariableNames);
 				pData = obj.data.getParticipantData(n);
 
-				if ~isempty(obj.goodnessOfFit)
-					goodnessOfFitScore = obj.goodnessOfFit(n).score;
+				if ~isempty(obj.postPred(n).score)
+					goodnessOfFitScore = obj.postPred(n).score;
 				else
+					warning('goodness of fit score (posterior prediction) not found')
 					goodnessOfFitScore = [];
 				end
 				

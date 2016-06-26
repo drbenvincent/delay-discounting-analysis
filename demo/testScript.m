@@ -44,7 +44,6 @@ h_me = ModelHierarchicalME(toolboxPath, 'JAGS', myData, 'hierarchical_ME',...
 h_me.sampler.setMCMCtotalSamples(nSamples);
 h_me.sampler.setMCMCnumberOfChains(nChains);
 h_me.conductInference(); % TODO: Could return an MCMCFit object here ******
-h_me.posteriorPredictive();
 h_me.exportParameterEstimates('includeGroupEstimates',false);
 h_me.plot()
 
@@ -64,7 +63,6 @@ h_me_updated = ModelHierarchicalMEUpdated(toolboxPath, 'JAGS', myData, 'hierarch
 h_me_updated.sampler.setMCMCtotalSamples(nSamples);
 h_me_updated.sampler.setMCMCnumberOfChains(nChains);
 h_me_updated.conductInference(); % TODO: Could return an MCMCFit object here ******
-h_me_updated.posteriorPredictive();
 h_me_updated.exportParameterEstimates();
 h_me_updated.plot()
 
@@ -74,7 +72,6 @@ h_logk = ModelHierarchicalLogK(toolboxPath, 'JAGS', myData, 'hierarchical_logk')
 h_logk.sampler.setMCMCtotalSamples(nSamples);
 h_logk.sampler.setMCMCnumberOfChains(nChains);
 h_logk.conductInference();
-h_logk.posteriorPredictive();
 h_logk.plot()
 h_logk.exportParameterEstimates();
 % h_logk.plotMCMCchains()
@@ -85,7 +82,6 @@ s_me = ModelSeparateME(toolboxPath, 'JAGS', myData, 'separate_ME');
 s_me.sampler.setMCMCtotalSamples(nSamples);
 s_me.sampler.setMCMCnumberOfChains(nChains);
 s_me.conductInference();
-s_me.posteriorPredictive();
 s_me.exportParameterEstimates();
 s_me.plot()
 
@@ -103,7 +99,6 @@ m_logk = ModelMixedLogK(toolboxPath, 'JAGS', myData, 'mixed_logk');
 m_logk.sampler.setMCMCtotalSamples(nSamples);
 m_logk.sampler.setMCMCnumberOfChains(nChains);
 m_logk.conductInference();
-m_logk.posteriorPredictive();
 m_logk.exportParameterEstimates('includeCI',false);
 m_logk.plot()
 
@@ -112,7 +107,6 @@ s_logk = ModelSeparateLogK(toolboxPath, 'JAGS', myData, 'separate_logk');
 s_logk.sampler.setMCMCtotalSamples(nSamples);
 s_logk.sampler.setMCMCnumberOfChains(nChains);
 s_logk.conductInference();
-s_logk.posteriorPredictive();
 s_logk.exportParameterEstimates();
 s_logk.plot()
 
@@ -158,7 +152,6 @@ grw = ModelGaussianRandomWalkSimple(toolboxPath,...
 grw.sampler.setMCMCtotalSamples(10^4);
 grw.sampler.setMCMCnumberOfChains(4);
 grw.conductInference(); 
-grw.posteriorPredictive();
 grw.plot()
 
 
