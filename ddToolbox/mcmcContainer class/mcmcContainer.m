@@ -50,8 +50,8 @@ classdef mcmcContainer < handle
 			p.addRequired('level2varNames',@iscellstr);
 			p.addRequired('IDname',@iscellstr);
 			p.addRequired('saveFolder',@ischar);
-			p.addParameter('includeGroupEstimates',true, @islogical);
-			p.addParameter('includeCI',true, @islogical);
+			p.addParameter('includeGroupEstimates',false, @islogical);
+			p.addParameter('includeCI',false, @islogical);
 			p.parse(level1varNames, level2varNames, IDname, saveFolder,  varargin{:});
 
 			% TODO: act on includeCI preference. Ie get, or do not get CI's.
@@ -75,7 +75,7 @@ classdef mcmcContainer < handle
 			end
 
 			%% display to command window
-			display(paramEstimateTable)
+			%display(paramEstimateTable)
 
 			function colHeaderNames = createColumnHeaders(varNames,getCI, pointEstimateType)
 				colHeaderNames = {};

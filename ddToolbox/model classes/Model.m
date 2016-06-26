@@ -85,7 +85,8 @@ classdef Model < handle
 			obj.mcmc.plotMCMCchains(vars);
 		end
 		
-		function paramEstimateTable = exportParameterEstimates(obj, varargin)
+		function finalTable = exportParameterEstimates(obj, varargin)
+			%% Create table of parameter estimates
 			paramEstimateTable = obj.mcmc.exportParameterEstimates(...
 				obj.varList.participantLevel,...
 				obj.varList.groupLevel,...
@@ -93,15 +94,27 @@ classdef Model < handle
 				obj.saveFolder,...
 				obj.pointEstimateType,...
 				varargin{:});
-			% Export
-			savename = fullfile('figs',...
-				obj.saveFolder,...
-				['parameterEstimates_Posterior_' obj.pointEstimateType '.csv']);
-			writetable(paramEstimateTable, savename,...
-				'Delimiter','\t',...
-				'WriteRowNames',true)
-			fprintf('The above table of parameter estimates was exported to:\n')
-			fprintf('\t%s\n\n',savename)
+			%% Create table of posterior prediction measures
+			% Add mean score (log ratio of model vs control)
+			ppScore = [obj.postPred(:).score]';
+			% Calculate point estimates of perceptPredicted. use the point
+			% estimate type that the user specified
+			pointEstFunc = str2func(obj.pointEstimateType);
+			for p=1:obj.data.nParticipants
+				percentPredicted(p,1) = pointEstFunc( obj.postPred(p).percentPredictedDistribution );
+			end
+			postPredTable = table(ppScore, percentPredicted,...
+				'RowNames',obj.data.IDname);
+			
+			%% Combine the tables
+			finalTable = join(paramEstimateTable,postPredTable,...
+				'Keys','RowNames');
+			display(finalTable)
+			
+			%% Export table to textfile
+			fname = ['parameterEstimates_Posterior_' obj.pointEstimateType '.csv'];
+			savePath = fullfile('figs',obj.saveFolder,fname);	
+			exportTable(finalTable, savePath);
 			
 		end
 
