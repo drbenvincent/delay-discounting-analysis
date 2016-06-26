@@ -103,11 +103,26 @@ classdef Model < handle
 			for p=1:obj.data.nParticipants
 				percentPredicted(p,1) = pointEstFunc( obj.postPred(p).percentPredictedDistribution );
 			end
-			postPredTable = table(ppScore, percentPredicted,...
+			% Check if HDI of percentPredicted overlaps with 0.5
+			% Using mcmc-utils-matlab package
+			for p=1:obj.data.nParticipants
+				[HDI] = mcmc.HDIofSamples(...
+					obj.postPred(p).percentPredictedDistribution,...
+					0.95);
+				if HDI(1)<0.5
+					warning_percent_predicted(p,1) = true;
+				else
+					warning_percent_predicted(p,1) = false;
+				end
+			end
+			% make table
+			postPredTable = table(ppScore,...
+				percentPredicted,...
+				warning_percent_predicted,...
 				'RowNames',obj.data.IDname);
 			
 			%% Combine the tables
-			finalTable = join(paramEstimateTable,postPredTable,...
+			finalTable = join(paramEstimateTable, postPredTable,...
 				'Keys','RowNames');
 			display(finalTable)
 			
