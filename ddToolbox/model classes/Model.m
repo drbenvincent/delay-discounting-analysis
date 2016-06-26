@@ -308,14 +308,19 @@ classdef Model < handle
 			end
 			
 			
-			
-			
-
-			%% Plotting & Data export
-			
+			%% Write info to text file
 			% Set up text file to write information to
 			[fid, fname] = setupTextFile(obj.saveFolder, 'PosteriorPredictiveReport.txt');
+			for p=1:nParticipants
+                myString = sprintf('%s: %3.2f\n', obj.data.IDname{p}, logSomething(p));
+                logInfo(fid,myString)
+			end
+            % close text file
+            fclose(fid);
+            fprintf('Posterior predictive info saved in:\n\t%s\n\n',fname)
+
 			
+			%% Plotting & Data export
 			for p=1:nParticipants
 				
 				% Calc goodness of fit and % responses predicted,
@@ -360,17 +365,17 @@ classdef Model < handle
 				'saveFolder',obj.saveFolder,...
 				'prefix', obj.data.IDname{p},...
 				'suffix', obj.modelType)
-
-                %% Write info to text file
-                myString = sprintf('%s: %3.2f\n', obj.data.IDname{p}, logSomething(p));
-                logInfo(fid,myString)
 			end
-
-            % close text file
-            fclose(fid);
-            fprintf('Posterior predictive info saved in:\n\t%s\n\n',fname)
-
-			
+%                 %% Write info to text file
+%                 myString = sprintf('%s: %3.2f\n', obj.data.IDname{p}, logSomething(p));
+%                 logInfo(fid,myString)
+% 			end
+% 
+%             % close text file
+%             fclose(fid);
+%             fprintf('Posterior predictive info saved in:\n\t%s\n\n',fname)
+% 
+% 			
 
 
 			
