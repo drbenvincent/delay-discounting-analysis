@@ -360,14 +360,14 @@ classdef Model < handle
 			% - Or....
 
 
-			%% PARTICIPANT LEVEL  =========================================
-			% We will ALWAYS have participants.
-			obj.plotParticiantStuff( )
-
-
-			%% GROUP LEVEL ================================================
-			% We are going to call this function, but it will be a 'null function' for models not doing hierachical inference. This is set in the concrete model class constructors.
-			obj.plotFuncs.plotGroupLevel( obj )
+% 			%% PARTICIPANT LEVEL  =========================================
+% 			% We will ALWAYS have participants.
+% 			obj.plotParticiantStuff( )
+% 
+% 
+% 			%% GROUP LEVEL ================================================
+% 			% We are going to call this function, but it will be a 'null function' for models not doing hierachical inference. This is set in the concrete model class constructors.
+% 			obj.plotFuncs.plotGroupLevel( obj )
 
 			
 			%% POSTERIOR PREDICTION PLOTS =================================
@@ -403,6 +403,15 @@ classdef Model < handle
 					'EdgeColor', 'none',...
 					'BinEdges', linspace(0,1,nQuestions) )
 				xlabel('%proportion responses accounted for')
+				
+				peFunc = str2func(obj.pointEstimateType);
+				
+				pointEstimate = peFunc(obj.postPred(p).percentPredictedDistribution);
+				[HDI] = mcmc.HDIofSamples(obj.postPred(p).percentPredictedDistribution, 0.95);
+				titleStr = sprintf('%% accounted for: %3.1f (%3.1f-%3.1f)',...
+					pointEstimate*100, HDI(1)*100, HDI(2)*100);
+				title(titleStr)
+				
 				axis tight
 				box off
 				vline(0.5)
@@ -411,6 +420,7 @@ classdef Model < handle
 				drawnow
 				
 				%% Export figure
+				latex_fig(16, 9, 6)
 				myExport('PosteriorPredictive',...
 				'saveFolder',obj.saveFolder,...
 				'prefix', obj.data.IDname{p},...
@@ -449,7 +459,7 @@ classdef Model < handle
 			hold on
 			plot([1:obj.data.participantLevel(p).trialsForThisParticant],... % <-- replace with a get method
 				obj.data.participantLevel(p).table.R,... % <-- replace with a get method
-				'o')
+				'+')
 			myString = sprintf('%s: %3.2f\n', obj.data.IDname{p}, obj.postPred(p).score);
 			%addTextToFigure('TR', myString, 12);
 			title(myString)
@@ -462,11 +472,10 @@ classdef Model < handle
 		function pp_plotPredictionAndResponse(obj, p)
 			h(1) = plot(obj.getParticipantPredictedResponses(p),...
 				obj.data.participantLevel(p).table.R,...
-				'o');
+				'+');
 			xlabel('P(choose delayed)')
 			ylabel('Response')
 			legend(h, 'data')
-			addTextToFigure('BR','TODO: add a fitted logistic function?', 15)
 			box off
 		end
 		
