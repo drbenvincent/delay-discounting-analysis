@@ -95,7 +95,7 @@ model{
   m_group_prior        ~ dnorm(groupMmu_prior, 1/(groupMsigma_prior^2))
   c_group_prior        ~ dnorm(groupCmu_prior, 1/(groupCsigma_prior^2))
   alpha_group_prior    ~ dnorm(groupALPHAmu_prior, 1/(groupALPHAsigma_prior^2)) T(0,)
-  epsilon_group_prior  ~ dbeta(groupW_prior*(groupK_prior-2)+1 , (1-groupW_prior)*(groupK_prior-2)+1 ) T(,0.5)
+  epsilon_group_prior  ~ dbeta(groupW_prior*(groupK_prior-2)+1 , (1-groupW_prior)*(groupK_prior-2)+1 )  T(,0.5)
 
 
   for (p in participantIndexList){

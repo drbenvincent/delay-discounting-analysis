@@ -29,34 +29,15 @@ classdef ModelGaussianRandomWalkComplex < Model
 
 			%% Create variables
 			obj.varList.participantLevel = {'discountFraction','epsilon'};
-            obj.varList.participantLevelPriors = {'epsilon_group_prior'};
+      obj.varList.participantLevelPriors = {'epsilon_group_prior'};
 			obj.varList.groupLevel = {'epsilon_group'};
+
 			obj.varList.monitored = {'discountFraction','epsilon',...
 				'epsilon_group',...
 				'epsilon_group_prior',...
 				'groupW','groupK',...
 				'groupW_prior','groupK_prior',...
-				'Rpostpred'};
-
-			%% Deal with generating initial values of leaf nodes
-% 			obj.variables.groupLogKmu = Variable('groupLogKmu',...
-% 				'seed', @() normrnd(-0.243,5),...
-% 				'single',true);
-% 			obj.variables.groupLogKsigma = Variable('groupLogKsigma',...
-% 				'seed', @() rand*10,...
-% 				'single',true);
-
-			obj.variables.groupW = Variable('groupW','single',true,...
-				'seed', @() rand);
-			obj.variables.groupK = Variable('groupK','single',true); % TODO: SHOULD BE groupKminus2 !!
-
-% 			obj.variables.groupALPHAmu = Variable('groupALPHAmu',...
-% 				'seed', @() rand*100,...
-% 				'single',true);
-% 			obj.variables.groupALPHAsigma = Variable('groupALPHAsigma',...
-% 				'seed', @() rand*100,...
-% 				'single',true);
-
+				'Rpostpred', 'P'};
 		end
 		% =================================================================
 
@@ -68,51 +49,51 @@ classdef ModelGaussianRandomWalkComplex < Model
 			error('Not applicable to this model that calculates log(k)')
 		end
 
-		
-		
-		
-	
-		function plot(obj) % overriding from Model base class			
-			
+
+
+
+
+		function plot(obj) % overriding from Model base class
+
 			clf
 			% plot the GAUSSIAN RANDOM WALK STUFF
 			for p=1:obj.data.nParticipants
-				
+
 				dfSamples = squeeze(obj.mcmc.samples.discountFraction(:,:,p,:));
-			
+
 				dfSamples = reshape(dfSamples,...
 					[size(dfSamples,1)*size(dfSamples,2), size(dfSamples,3)])';
-				
+
 				subplot(1,obj.data.nParticipants,p)
-				
-				
+
+
 				%plot(obj.data.observedData.uniqueDelays, dfSamples(:,[1:1000]))
-				
+
 				ribbon_plot(obj.data.observedData.uniqueDelays, dfSamples)
-				
+
 				hold on
 				data = obj.data.getParticipantData(p);
 				plotDiscountingData(data)
-				
+
 				%title(['participant: ' num2str(p)])
 				title(obj.data.IDname{p})
 				%hline(1)
 				%set(gca,'XScale','log')
-				
-				
+
+
 				xlabel('delay')
 				%axis square
 				axis tight
 				drawnow
 			end
-			
-			beep
-			
-		end
-		
-		
-		
 
-	end		
+			beep
+
+		end
+
+
+
+
+	end
 
 end

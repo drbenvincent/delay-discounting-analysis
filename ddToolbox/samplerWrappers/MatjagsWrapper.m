@@ -24,6 +24,7 @@ classdef MatjagsWrapper < SamplerWrapper
 		% =================================================================
 		
 		function mcmc = conductInference(obj, model, data)
+			%% preparation for MCMC sampling
 			variables = model.variables;
 			nParticipants = data.nParticipants;
 			saveFolder = model.saveFolder;
@@ -31,12 +32,20 @@ classdef MatjagsWrapper < SamplerWrapper
 			
 			assert(obj.mcmcparams.nchains>=2,'Use a minimum of 2 MCMC chains')
 			startParallelPool()
+			
+			% TODO: rather than ask for this, the model is going to do its
+			% model-specific process to go from raw data to observed variables.
 			obj.observed = data.observedData;
-			%obj.setInitialParamValues(variables, nParticipants);
+			
 			obj.monitorparams = model.varList.monitored;
+			
+			%% Get our sampler to sample
+			% This returns an mcmc container object
 			mcmc = obj.invokeSampler();
+			
 			speak('sampling complete')
 			
+			%% Post-sampling activities
 			mcmc.convergenceSummary(saveFolder,IDnames)
 		end
 		
@@ -52,7 +61,7 @@ classdef MatjagsWrapper < SamplerWrapper
 				'doparallel', obj.mcmcparams.doparallel,...
 				'nchains', obj.mcmcparams.nchains,...
 				'nburnin', obj.mcmcparams.nburnin,...
-				'nsamples', obj.mcmcparams.nsamples,...
+				'nsamples', obj.mcmcparams.nsamples,... % nAdapt', 2000,... 
 				'thin', 1,...
 				'monitorparams', obj.monitorparams,...
 				'savejagsoutput', 0,...

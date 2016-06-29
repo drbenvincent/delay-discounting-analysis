@@ -33,29 +33,33 @@ classdef ModelHierarchicalLogK < Model
 			obj.varList.monitored = {'logk','alpha','epsilon',...
 				'logk_group','alpha_group','epsilon_group',...
 				'logk_group_prior','epsilon_group_prior','alpha_group_prior',...
-				'groupLogKmu', 'groupLogKsigma','groupW','groupK','groupALPHAmu','groupALPHAsigma',...
-				'groupLogKmu_prior', 'groupLogKsigma_prior','groupW_prior','groupK_prior','groupALPHAmu_prior','groupALPHAsigma_prior',...
-				'Rpostpred'};
+				'groupLogKmu', 'groupLogKsigma',...
+				'groupW','groupK',...
+				'groupALPHAmu','groupALPHAsigma',...
+				'groupLogKmu_prior', 'groupLogKsigma_prior',...
+				'groupW_prior','groupK_prior',...
+				'groupALPHAmu_prior','groupALPHAsigma_prior',...
+				'Rpostpred', 'P'};
 
 		end
 		% =================================================================
 
 		% Generate initial values of the leaf nodes
 		function setInitialParamValues(obj)
-			
+
 			nTrials = size(obj.data.observedData.A,2);
 			nParticipants = obj.data.nParticipants;
 			nUniqueDelays = numel(obj.data.observedData.uniqueDelays);
-			
+
 			for chain = 1:obj.sampler.mcmcparams.nchains
-				obj.initialParams(chain).groupLogKmu = normrnd(-0.243,5);
-				obj.initialParams(chain).groupLogKsigma = rand*10;
+				obj.initialParams(chain).groupLogKmu = normrnd(log(1/50),1);
+				obj.initialParams(chain).groupLogKsigma = rand*5;
 				obj.initialParams(chain).groupW = rand;
-				obj.initialParams(chain).groupALPHAmu		= rand*100;
-				obj.initialParams(chain).groupALPHAsigma	= rand*100;
+				obj.initialParams(chain).groupALPHAmu		= rand*10;
+				obj.initialParams(chain).groupALPHAsigma	= rand*5;
 			end
 		end
-		
+
 		function conditionalDiscountRates(obj, reward, plotFlag)
 			error('Not applicable to this model that calculates log(k)')
 		end

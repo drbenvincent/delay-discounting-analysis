@@ -6,6 +6,7 @@ p.addRequired('pSamples',@isstruct);
 p.addRequired('pointEstimateType', @(x) any(strcmp(x,{'mean','median','mode'})));
 p.addParameter('pData',[], @isstruct);
 p.addParameter('opts',[], @isstruct);
+p.addParameter('goodnessStr',[], @isstr);
 p.parse(pSamples, pointEstimateType, varargin{:});
 
 
@@ -37,6 +38,8 @@ if ~isempty(p.Results.pData)
 		p.Results.opts,...
 		'data', p.Results.pData,...
 		'pointEstimateType',p.Results.pointEstimateType);
+	
+	title(p.Results.goodnessStr)
 else
 	% no data for group level
 	plotDiscountSurface(pSamples.m(:), pSamples.c(:),...

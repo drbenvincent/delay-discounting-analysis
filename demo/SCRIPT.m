@@ -62,8 +62,7 @@ hModel.setMCMCnumberOfChains(4);
 hModel.conductInference();
 
 % 3) Export estimates and plotting
-hModel.exportParameterEstimates('includeGroupEstimates', true,...
-	'includeCI',false);
+hModel.exportParameterEstimates();
 
 hModel.plot()
 
@@ -130,16 +129,19 @@ saveFolder = 'hierarchical_updated_priors';
 h_me_updated = ModelHierarchicalMEUpdated(toolboxPath, 'JAGS', myData, saveFolder);
 h_me_updated.sampler.setMCMCtotalSamples(numberOfMCMCSamples);
 h_me_updated.conductInference();
-h_me_updated.exportParameterEstimates('includeCI',false);
+h_me_updated.exportParameterEstimates();
 h_me_updated.plot()
+
 
 
 %% Hierarchical model, estimate discount rate = log(k), no magnitude effect
 h_logk = ModelHierarchicalLogK(toolboxPath, 'JAGS', myData, 'hierarchical_logk');
 h_logk.sampler.setMCMCtotalSamples(numberOfMCMCSamples);
 h_logk.conductInference();
-h_logk.exportParameterEstimates('includeCI',false);
+h_logk.exportParameterEstimates();
 h_logk.plot()
+
+
 
 
 %% Mixed model, estimate discount rate = log(k), no magnitude effect
@@ -154,8 +156,9 @@ h_logk.plot()
 m_logk = ModelMixedLogK(toolboxPath, 'JAGS', myData, 'mixed_logk');
 m_logk.sampler.setMCMCtotalSamples(numberOfMCMCSamples);
 m_logk.conductInference();
-m_logk.exportParameterEstimates('includeCI',false);
+m_logk.exportParameterEstimates();
 m_logk.plot()
+
 
 
 % =========================================================================
@@ -168,14 +171,15 @@ warning('Chain convergence issues: priors need to be refined.')
 s_me = ModelSeparateME(toolboxPath, 'JAGS', myData, 'separate_ME');
 s_me.sampler.setMCMCtotalSamples(numberOfMCMCSamples);
 s_me.conductInference();
-s_me.exportParameterEstimates('includeCI',false);
+s_me.exportParameterEstimates();
 s_me.plot()
+
 
 %% Independent participants (non-hierarchical) estimation of log(k)
 s_logk = ModelSeparateLogK(toolboxPath, 'JAGS', myData, 'separate_logk');
 s_logk.sampler.setMCMCtotalSamples(numberOfMCMCSamples);
 s_logk.conductInference();
-s_logk.exportParameterEstimates('includeCI',false);
+s_logk.exportParameterEstimates();
 s_logk.plot()
 
 

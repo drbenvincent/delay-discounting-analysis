@@ -1,5 +1,5 @@
 classdef JAGSmcmc < mcmcContainer
-	%JAGSmcmc
+	%JAGSmcmc Implements the mcmcContainer interface
 
 	properties (Access = public)
 		stats
@@ -18,7 +18,6 @@ classdef JAGSmcmc < mcmcContainer
 			obj.samples = samples;
 			obj.stats = stats;
 			obj.mcmcparams = mcmcparams;
-
 		end
 
 
@@ -100,15 +99,25 @@ classdef JAGSmcmc < mcmcContainer
 		function [predicted] = getParticipantPredictedResponses(obj, participant)
 			% calculate the probability of choosing the delayed reward, for
 			% all trials, for a particular participant.
-			Rpostpred = obj.samples.Rpostpred;
+			
 			% extract samples from the participant
-			Rpostpred = squeeze(Rpostpred(:,:,participant,:));
+			Rpostpred = squeeze(obj.samples.Rpostpred(:,:,participant,:));
 			% flatten over chains
 			s = size(Rpostpred);
 			participantRpostpredSamples = reshape(Rpostpred, s(1)*s(2), s(3));
-			[nSamples,~] = size(participantRpostpredSamples);
+			
 			% predicted probability of choosing delayed (response = 1)
+			[nSamples,~] = size(participantRpostpredSamples);
 			predicted = sum(participantRpostpredSamples,1)./nSamples;
+		end
+		
+		function [P] = getPChooseDelayed(obj, participant)
+			% get samples for participant
+			P = squeeze( obj.samples.P(:,:,participant,:) );
+			% flatten over chains
+			s = size(P);
+			P = reshape(P, s(1)*s(2), s(3));
+			P=P';
 		end
 
 	end

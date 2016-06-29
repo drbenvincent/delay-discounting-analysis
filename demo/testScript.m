@@ -5,7 +5,7 @@ cd('~/git-local/delay-discounting-analysis/demo')
 toolboxPath = setToolboxPath('~/git-local/delay-discounting-analysis/ddToolbox');
 mcmc.setPlotTheme('fontsize',16, 'linewidth',1)
 
-nSamples = 10^4;
+nSamples = 10^5;
 nChains = 4;
 
 %% Load data
@@ -27,11 +27,15 @@ nChains = 4;
 
 fnames={'AC-kirby27-DAYS.txt',...
 'CS-kirby27-DAYS.txt',...
-'NA-kirby27-DAYS.txt'};
+'NA-kirby27-DAYS.txt',...
+'SB-kirby27-DAYS.txt'};
 
 pathToData='data';
 myData = DataClass(pathToData);
 myData.loadDataFiles(fnames);
+
+
+
 
 
 %% JAGS
@@ -40,8 +44,9 @@ h_me = ModelHierarchicalME(toolboxPath, 'JAGS', myData, 'hierarchical_ME',...
 h_me.sampler.setMCMCtotalSamples(nSamples);
 h_me.sampler.setMCMCnumberOfChains(nChains);
 h_me.conductInference(); % TODO: Could return an MCMCFit object here ******
-h_me.exportParameterEstimates('includeGroupEstimates',false);
+h_me.exportParameterEstimates();
 h_me.plot()
+
 
 hypothesisTestScript(h_me)
 myExport('BayesFactorMLT1',...
