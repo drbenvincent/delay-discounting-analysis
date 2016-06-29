@@ -5,7 +5,7 @@ model{
       m[p]       ~ dnorm(-0.243, 1/(0.072^2))
       c[p]       ~ dnorm(0, 1/(1000^2))
       alpha[p]   ~ dexp(0.01)
-      epsilon[p] ~ dbeta(1.1, 10.9)
+      epsilon[p] ~ dbeta(1.1, 10.9) T(,0.5)
   }
 
   for (p in participantIndexList){
@@ -39,6 +39,6 @@ model{
   m_prior       ~  dnorm(-0.243, 1/(100^2))
   c_prior       ~  dnorm(0, 1/(1000^2))
   alpha_prior   ~  dexp(0.01)
-  epsilon_prior ~  dbeta(1.1, 10.9)
+  epsilon_prior ~  dbeta(1.1, 10.9) T(,0.5)
 
 }

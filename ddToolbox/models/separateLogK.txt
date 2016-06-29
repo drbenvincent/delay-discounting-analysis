@@ -8,7 +8,7 @@ model{
   for (p in participantIndexList){
     # magnitude effect (m,c) for each person
     logk[p]     ~ dnorm(logk_MEAN, logk_PRECISION)
-    epsilon[p]  ~ dbeta(1.1 , 10.9)
+    epsilon[p]  ~ dbeta(1.1 , 10.9) T(,0.5)
     alpha[p]    ~ dexp(0.01)
   }
 
@@ -33,7 +33,7 @@ model{
 
   # priors (scalar)
   logk_prior     ~ dnorm(logk_MEAN, logk_PRECISION)
-  epsilon_prior  ~ dbeta(1.1 , 10.9)
+  epsilon_prior  ~ dbeta(1.1 , 10.9) T(,0.5)
   alpha_prior    ~ dexp(0.01)
 
 }
