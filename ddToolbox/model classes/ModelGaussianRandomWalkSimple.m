@@ -70,7 +70,7 @@ classdef ModelGaussianRandomWalkSimple < Model
 
 		function plot(obj) % overriding from Model base class
 			close all
-
+			
 			%% Corner plot of group-level params
 			posteriorSamples = obj.mcmc.getSamplesAsMatrix({'varInc','alpha','epsilon'});
 			priorSamples = obj.mcmc.getSamplesAsMatrix({'varInc_prior','alpha_prior','epsilon_prior'});
@@ -89,6 +89,7 @@ classdef ModelGaussianRandomWalkSimple < Model
 
 			
 			%% Plot indifference functions for each participant
+			obj.calcAUCscores()
 			for p=1:obj.data.nParticipants
 				% Extract info about a person for plotting purposes
 				personInfo = obj.getParticipantData(p);
