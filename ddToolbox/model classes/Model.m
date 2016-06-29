@@ -198,17 +198,24 @@ classdef Model < handle
 				
 			end
 			
-			%% Write info to text file
-			% Set up text file to write information to
-			[fid, fname] = setupTextFile(obj.saveFolder, 'PosteriorPredictiveReport.txt');
-			for p=1:nParticipants
-				
-                myString = sprintf('%s: %3.2f\n', obj.data.IDname{p}, obj.postPred(p).score);
-                logInfo(fid,myString)
-			end
-            % close text file
-            fclose(fid);
-            fprintf('Posterior predictive info saved in:\n\t%s\n\n',fname)
+			% TODO: remove now that we have posterior predictive
+			% information being exported in the main parameter estimate
+			% .csv file
+			% But maybe keep this here for the moment in case we want to
+			% produce a narrative summary of what dataset exclusion, based
+			% on posterior predictive checks.
+			
+% 			%% Write info to text file
+% 			% Set up text file to write information to
+% 			[fid, fname] = setupTextFile(obj.saveFolder, 'PosteriorPredictiveReport.txt');
+% 			for p=1:nParticipants
+% 				
+%                 myString = sprintf('%s: %3.2f\n', obj.data.IDname{p}, obj.postPred(p).score);
+%                 logInfo(fid,myString)
+% 			end
+%             % close text file
+%             fclose(fid);
+%             fprintf('Posterior predictive info saved in:\n\t%s\n\n',fname)
 		end
 
 		function RpostPred = getParticipantPredictedResponses(obj,p)
@@ -355,19 +362,22 @@ classdef Model < handle
 			close all
 
 			% IDEAS:
-			% - Loop over participants (and group if there is one) and create an array of objects of a new participant class. This class will contain all the data for that person, as well as the plotting functions.
+			% - Loop over participants (and group if there is one) and 
+			% create an array of objects of a new participant class. This 
+			% class will contain all the data for that person, as well as 
+			% the plotting functions.
 			%
 			% - Or....
 
 
-% 			%% PARTICIPANT LEVEL  =========================================
-% 			% We will ALWAYS have participants.
-% 			obj.plotParticiantStuff( )
-% 
-% 
-% 			%% GROUP LEVEL ================================================
-% 			% We are going to call this function, but it will be a 'null function' for models not doing hierachical inference. This is set in the concrete model class constructors.
-% 			obj.plotFuncs.plotGroupLevel( obj )
+			%% PARTICIPANT LEVEL  =========================================
+			% We will ALWAYS have participants.
+			obj.plotParticiantStuff( )
+
+
+			%% GROUP LEVEL ================================================
+			% We are going to call this function, but it will be a 'null function' for models not doing hierachical inference. This is set in the concrete model class constructors.
+			obj.plotFuncs.plotGroupLevel( obj )
 
 			
 			%% POSTERIOR PREDICTION PLOTS =================================
@@ -378,48 +388,22 @@ classdef Model < handle
 % 				[GOFdistribution, percentPredictedDistribution] = calcGoodnessOfFitDistribution(p);
 				
 				figure(1), colormap(gray), clf
-				% plot predictions + responses for all trials
+
 				subplot(2,2,1)
 				obj.pp_plotTrials(p)
 				
-				% plot goodness of fit distribution
 				subplot(2,2,2)
-				histogram(obj.postPred(p).GOF_distribtion ,...
-					'BinWidth', 0.2,...
-					'EdgeColor', 'none')
-				xlabel('goodness of fit score')
-				axis tight
-				box off
-				vline(0)
+ 				obj.pp_plotGOFdistribution(obj.postPred(p).GOF_distribtion)
 
-				% plot predicted P(choose delayed) vs response
 				subplot(2,2,3)
 				obj.pp_plotPredictionAndResponse(p)
 				
-				
 				subplot(2,2,4)
-				nQuestions = obj.data.participantLevel(p).trialsForThisParticant;
-				histogram(obj.postPred(p).percentPredictedDistribution,...
-					'EdgeColor', 'none',...
-					'BinEdges', linspace(0,1,nQuestions) )
-				xlabel('%proportion responses accounted for')
+				obj.pp_ploptPercentPredictedDistribution(p)
 				
-				peFunc = str2func(obj.pointEstimateType);
-				
-				pointEstimate = peFunc(obj.postPred(p).percentPredictedDistribution);
-				[HDI] = mcmc.HDIofSamples(obj.postPred(p).percentPredictedDistribution, 0.95);
-				titleStr = sprintf('%% accounted for: %3.1f (%3.1f-%3.1f)',...
-					pointEstimate*100, HDI(1)*100, HDI(2)*100);
-				title(titleStr)
-				
-				axis tight
-				box off
-				vline(0.5)
-				set(gca,'XLim',[0 1])
-				
-				drawnow
 				
 				%% Export figure
+				drawnow
 				latex_fig(16, 9, 6)
 				myExport('PosteriorPredictive',...
 				'saveFolder',obj.saveFolder,...
@@ -438,18 +422,28 @@ classdef Model < handle
 
 
 
+		function pp_plotGOFdistribution(obj,gofscores)
+			uni = mcmc.UnivariateDistribution(gofscores(:),...
+				'xLabel', 'goodness of fit score',...
+				'plotStyle','hist',...
+				'pointEstimateType',obj.pointEstimateType);
+		end
 
+		function pp_ploptPercentPredictedDistribution(obj,p)
+		
+			nQuestions = obj.data.participantLevel(p).trialsForThisParticant;
+			
+			uni = mcmc.UnivariateDistribution(obj.postPred(p).percentPredictedDistribution(:),...
+				'xLabel', '$\%$ proportion responses accounted for',...
+				'plotStyle','hist',...
+				'pointEstimateType',obj.pointEstimateType);
 
-
-
-
-
-
-
-
+			axis tight
+			vline(0.5)
+			set(gca,'XLim',[0 1])
+		end
 		
 		function pp_plotTrials(obj,p)
-			%subplot(nParticipants,1,p)
 			% plot predicted probability of choosing delayed
 			bar(obj.getParticipantPredictedResponses(p),'BarWidth',1)
 			if p<obj.data.nParticipants, set(gca,'XTick',[]), end
@@ -460,14 +454,13 @@ classdef Model < handle
 			plot([1:obj.data.participantLevel(p).trialsForThisParticant],... % <-- replace with a get method
 				obj.data.participantLevel(p).table.R,... % <-- replace with a get method
 				'+')
-			myString = sprintf('%s: %3.2f\n', obj.data.IDname{p}, obj.postPred(p).score);
-			%addTextToFigure('TR', myString, 12);
+			myString = sprintf('%s', obj.data.IDname{p});
 			title(myString)
 			
 			xlabel('trial')
+			ylabel('response')
+			legend('prediction','response', 'Location','East')
 		end
-		
-		
 		
 		function pp_plotPredictionAndResponse(obj, p)
 			h(1) = plot(obj.getParticipantPredictedResponses(p),...
@@ -539,24 +532,36 @@ classdef Model < handle
 				participantSamples = obj.mcmc.getSamplesAtIndex(n, pVariableNames);
 				pData = obj.data.getParticipantData(n);
 
-				if ~isempty(obj.postPred(n).score)
-					goodnessOfFitScore = obj.postPred(n).score;
-				else
-					warning('goodness of fit score (posterior prediction) not found')
-					goodnessOfFitScore = [];
-				end
+% 				if ~isempty(obj.postPred(n).score)
+% 					goodnessOfFitScore = obj.postPred(n).score;
+% 				else
+% 					warning('goodness of fit score (posterior prediction) not found')
+% 					goodnessOfFitScore = [];
+% 				end
+
+				% create a string describing goodness of fit
+				percentPredicted = obj.postPred(n).percentPredictedDistribution(:);
+				pp = mcmc.UnivariateDistribution(percentPredicted, 'shouldPlot', false);
+				goodnessStr = sprintf('%% predicted: %3.1f (%3.1f - %3.1f)',...
+					pp.(obj.pointEstimateType)*100,...
+					pp.HDI(1)*100,...
+					pp.HDI(2)*100);
 				
 				obj.plotFuncs.participantFigFunc(participantSamples,...
 					obj.pointEstimateType,...
 					'pData', pData,...
 					'opts',opts,...
-					'goodnessOfFit',goodnessOfFitScore);
+					'goodnessStr',goodnessStr);
 				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 				latex_fig(16, 18, 4)
-				myExport(obj.data.IDname{n},...
+% 				myExport(obj.data.IDname{n},...
+% 					'saveFolder', obj.saveFolder,...
+% 					'prefix', obj.modelType);
+				myExport('fig',...
 					'saveFolder', obj.saveFolder,...
-					'prefix', obj.modelType);
+					'prefix', obj.data.IDname{n},...
+					'suffix', obj.modelType);
 				close(fh)
 			end
 
@@ -573,9 +578,14 @@ classdef Model < handle
 					'pointEstimateType',obj.pointEstimateType);
 				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-				myExport([obj.data.IDname{n} '-triplot'],...
+				myExport('triplot',...
 					'saveFolder', obj.saveFolder,...
-					'prefix', obj.modelType);
+					'prefix', obj.data.IDname{n},...
+					'suffix', obj.modelType);
+				
+% 				myExport([obj.data.IDname{n} '-triplot'],...
+% 					'saveFolder', obj.saveFolder,...
+% 					'prefix', obj.modelType);
 			end
 
 

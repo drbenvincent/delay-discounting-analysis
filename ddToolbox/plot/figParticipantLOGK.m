@@ -6,7 +6,7 @@ p.addRequired('pSamples',@isstruct);
 p.addRequired('pointEstimateType', @(x) any(strcmp(x,{'mean','median','mode'})));
 p.addParameter('pData',[], @isstruct);
 p.addParameter('opts',[], @isstruct);
-p.addParameter('goodnessOfFit',[], @isscalar);
+p.addParameter('goodnessStr',[], @isstr);
 p.parse(pSamples, pointEstimateType, varargin{:});
 
 rows=1; cols=4;
@@ -34,7 +34,7 @@ if ~isempty(p.Results.pData)
 		'data',p.Results.pData,...
 		'pointEstimateType',p.Results.pointEstimateType);
 	
-	addGoodnessOfFitScoreToPlot(p.Results.goodnessOfFit)
+	title(p.Results.goodnessStr)
 else
 	% for group level where there is no data
 	plotDiscountFunction(pSamples.logk(:),...
