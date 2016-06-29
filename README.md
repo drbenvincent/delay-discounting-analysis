@@ -45,6 +45,6 @@ Please use the [GitHub Issues](https://github.com/drbenvincent/delay-discounting
 # Videos
 Click below to follow through to youtube videos...
 
-## Overview
+**Summary of using the code**
 
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/kDafp-xB7js/0.jpg)](https://www.youtube.com/watch?v=kDafp-xB7js)
