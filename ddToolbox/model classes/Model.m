@@ -15,6 +15,7 @@ classdef Model < handle
 		initialParams
 		%goodnessOfFit
 		postPred
+		parameterEstimateTable
 	end
 
 	methods(Abstract, Access = public)
@@ -130,6 +131,9 @@ classdef Model < handle
 			fname = ['parameterEstimates_Posterior_' obj.pointEstimateType '.csv'];
 			savePath = fullfile('figs',obj.saveFolder,fname);	
 			exportTable(finalTable, savePath);
+			
+			%% Store the table
+			obj.parameterEstimateTable = finalTable;
 			
 		end
 
