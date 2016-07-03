@@ -7,22 +7,16 @@ classdef ModelMixedLogK < Model
 
 
 	methods (Access = public)
-		% =================================================================
-		function obj = ModelMixedLogK(toolboxPath, samplerType, data, saveFolder, varargin)
-			obj = obj@Model(data, saveFolder, varargin{:});
+    		function obj = ModelMixedLogK(toolboxPath, samplerType, data, saveFolder, varargin)
 
-			switch samplerType
-				case{'JAGS'}
-					modelPath = '/models/mixedLogK.txt';
-					obj.sampler = MatjagsWrapper([toolboxPath modelPath]);
-					[~,obj.modelType,~] = fileparts(modelPath);
-				case{'STAN'}
-					error('model not implemented in STAN.')
-					modelPath = '/models/hierarchicalLogK.stan';
-					obj.sampler = MatlabStanWrapper([toolboxPath modelPath]);
-					[~,obj.modelType,~] = fileparts(modelPath);
-			end
+            samplerType     = lower(samplerType);
+            modelType		= 'mixedLogK';
+            modelPath		= [toolboxPath '/models/' modelType '.' samplerType];
+
+            obj = obj@Model(data, saveFolder, samplerType, modelPath, varargin{:});
+
 			obj.discountFuncType = 'logk';
+            
 			% 'Decorate' the object with appropriate plot functions
 			obj.plotFuncs.participantFigFunc = @figParticipantLOGK;
 			obj.plotFuncs.plotGroupLevel = @plotGroupLevelStuff;
@@ -38,7 +32,6 @@ classdef ModelMixedLogK < Model
 				'groupLogKmu_prior', 'groupLogKsigma_prior','groupW_prior','groupK_prior','groupALPHAmu_prior','groupALPHAsigma_prior',...
 				'Rpostpred', 'P'};
 		end
-		% =================================================================
 
 		% Generate initial values of the leaf nodes
 		function setInitialParamValues(obj)

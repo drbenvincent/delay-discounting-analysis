@@ -11,22 +11,17 @@ classdef ModelGaussianRandomWalkSimple < Model
 
 
 	methods (Access = public)
-		% =================================================================
-		function obj = ModelGaussianRandomWalkSimple(toolboxPath, samplerType, data, saveFolder, varargin)
-			obj = obj@Model(data, saveFolder, varargin{:});
 
-			switch samplerType
-				case{'JAGS'}
-					modelPath = '/models/mixedGRWsimple.txt';
-					obj.sampler = MatjagsWrapper([toolboxPath modelPath]);
-					[~,obj.modelType,~] = fileparts(modelPath);
-				case{'STAN'}
-					error('model not implemented in STAN.')
-% 					modelPath = '/models/mixedGRWsimple.stan';
-% 					obj.sampler = MatlabStanWrapper([toolboxPath modelPath]);
-% 					[~,obj.modelType,~] = fileparts(modelPath);
-			end
+    		function obj = ModelGaussianRandomWalkSimple(toolboxPath, samplerType, data, saveFolder, varargin)
+
+            samplerType = lower(samplerType);
+			modelType		= 'mixedGRWsimple';
+			modelPath		= [toolboxPath '/models/' modelType '.' samplerType];
+
+            obj = obj@Model(data, saveFolder, samplerType, modelPath, varargin{:});
+
 			obj.discountFuncType = 'nonparametric';
+            
 			% 'Decorate' the object with appropriate plot functions
 			obj.plotFuncs.participantFigFunc = @figParticipantLOGK;
 			obj.plotFuncs.plotGroupLevel = @plotGroupLevelStuff;
@@ -38,7 +33,6 @@ classdef ModelGaussianRandomWalkSimple < Model
                 'Rpostpred', 'P'};
 
 		end
-		% =================================================================
 
 		% Generate initial values of the leaf nodes
 		function setInitialParamValues(obj)
@@ -70,7 +64,7 @@ classdef ModelGaussianRandomWalkSimple < Model
 
 		function plot(obj) % overriding from Model base class
 			close all
-			
+
 			%% Corner plot of group-level params
 			posteriorSamples = obj.mcmc.getSamplesAsMatrix({'varInc','alpha','epsilon'});
 			priorSamples = obj.mcmc.getSamplesAsMatrix({'varInc_prior','alpha_prior','epsilon_prior'});
@@ -87,7 +81,7 @@ classdef ModelGaussianRandomWalkSimple < Model
 				'saveFolder', obj.saveFolder,...
 				'prefix', 'group')
 
-			
+
 			%% Plot indifference functions for each participant
 			obj.calcAUCscores()
 			for p=1:obj.data.nParticipants
@@ -104,8 +98,8 @@ classdef ModelGaussianRandomWalkSimple < Model
 				'prefix', personInfo.participantName)
 			end
 		end
-		
-		
+
+
 		function calcAUCscores(obj)
 			%% Analyse AUC scores
 			% TODO: Put this is a "generated quantities" function which is
@@ -113,15 +107,15 @@ classdef ModelGaussianRandomWalkSimple < Model
 			delays = obj.data.observedData.uniqueDelays;
 			for p=1:obj.data.nParticipants
 				dfSamples = obj.extractDiscountFunctionSamples(p);
-				
+
 				obj.AUC_DATA(p).AUCsamples = calculateAUC(delays,dfSamples, false);
-				
+
 				obj.AUC_DATA(p).name  = obj.data.participantFilenames{p};
 				%obj.AUC_DATA(p).name = participantName;
 			end
 		end
 
-		
+
 		function personStruct = getParticipantData(obj, p)
 			% Create a structure with all the useful info about a person
 			% p = person number
@@ -148,9 +142,8 @@ classdef ModelGaussianRandomWalkSimple < Model
 			end
 		end
 
-		
+
 	end
-	
+
 
 end
-

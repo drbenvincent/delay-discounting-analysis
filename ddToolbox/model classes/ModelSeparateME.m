@@ -10,24 +10,18 @@ classdef ModelSeparateME < Model
 	methods (Access = public)
 
 		% CONSTRUCTOR =====================================================
-		function obj = ModelSeparateME(toolboxPath, sampler, data, saveFolder, varargin)
-			% Because this class is a subclass of "Model" then we use
-			% this next line to create an instance
-			obj = obj@Model(data, saveFolder, varargin{:});
+		function obj = ModelSeparateME(toolboxPath, samplerType, data, saveFolder, varargin)
 
-			switch sampler
-				case{'JAGS'}
-					modelPath = '/models/separateME.txt';
-					obj.sampler = MatjagsWrapper([toolboxPath modelPath]);
-					[~,obj.modelType,~] = fileparts(modelPath);
-					obj.discountFuncType = 'me';
-				case{'STAN'}
-					error('NOT IMPLEMENTED YET')
-			end
+            samplerType = lower(samplerType);
+            modelType		= 'separateME';
+            modelPath		= [toolboxPath '/models/' modelType '.' samplerType];
 
+			obj = obj@Model(data, saveFolder, samplerType, modelPath, varargin{:});
+
+            obj.discountFuncType = 'me';
+            
 			% 'Decorate' the object with appropriate plot functions
 			obj.plotFuncs.participantFigFunc = @figParticipantME;
-			%obj.plotFuncs.figParticipantWrapperFunc = @figParticipantLevelWrapperME;
 			obj.plotFuncs.plotGroupLevel = @(x) []; % null function
 
 			%% Create variables

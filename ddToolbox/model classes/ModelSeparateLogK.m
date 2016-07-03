@@ -7,35 +7,28 @@ classdef ModelSeparateLogK < Model
 
 
 	methods (Access = public)
-		% =================================================================
 		function obj = ModelSeparateLogK(toolboxPath, samplerType, data, saveFolder, varargin)
-			obj = obj@Model(data, saveFolder, varargin{:});
 
-			switch samplerType
-				case{'JAGS'}
-					modelPath = '/models/separateLogK.txt';
-					obj.sampler = MatjagsWrapper([toolboxPath modelPath]);
-					[~,obj.modelType,~] = fileparts(modelPath);
-				case{'STAN'}
-					modelPath = '/models/separateLogK.stan';
-					obj.sampler = MatlabStanWrapper([toolboxPath modelPath]);
-					[~,obj.modelType,~] = fileparts(modelPath);
-			end
+			samplerType = lower(samplerType);
+			modelType		= 'separateLogK';
+			modelPath		= [toolboxPath '/models/' modelType '.' samplerType];
+
+			obj = obj@Model(data, saveFolder, samplerType, modelPath, varargin{:});
+
 			obj.discountFuncType = 'logk';
+
 			% 'Decorate' the object with appropriate plot functions
 			obj.plotFuncs.participantFigFunc = @figParticipantLOGK;
-			%obj.plotFuncs.figParticipantWrapperFunc = @figParticipantLevelWrapperLOGK;
 			obj.plotFuncs.plotGroupLevel = @(x) []; % null function
 
 			%% Create variables
 			obj.varList.participantLevel = {'logk','alpha','epsilon'};
-            obj.varList.participantLevelPriors = {'logk_prior','alpha_prior','epsilon_prior'};
+			obj.varList.participantLevelPriors = {'logk_prior','alpha_prior','epsilon_prior'};
 			obj.varList.groupLevel = {};
 			obj.varList.monitored = {'logk','alpha','epsilon',...
 				'logk_prior','alpha_prior','epsilon_prior',...
 				'Rpostpred', 'P'};
 		end
-		% =================================================================
 
 		% Generate initial values of the leaf nodes
 		function setInitialParamValues(obj)

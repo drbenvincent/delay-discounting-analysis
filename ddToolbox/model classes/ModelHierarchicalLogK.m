@@ -7,21 +7,17 @@ classdef ModelHierarchicalLogK < Model
 
 
 	methods (Access = public)
-		% =================================================================
-		function obj = ModelHierarchicalLogK(toolboxPath, samplerType, data, saveFolder, varargin)
-			obj = obj@Model(data, saveFolder, varargin{:});
 
-			switch samplerType
-				case{'JAGS'}
-					modelPath = '/models/hierarchicalLogK.txt';
-					obj.sampler = MatjagsWrapper([toolboxPath modelPath]);
-					[~,obj.modelType,~] = fileparts(modelPath);
-				case{'STAN'}
-					modelPath = '/models/hierarchicalLogK.stan';
-					obj.sampler = MatlabStanWrapper([toolboxPath modelPath]);
-					[~,obj.modelType,~] = fileparts(modelPath);
-			end
+		function obj = ModelHierarchicalLogK(toolboxPath, samplerType, data, saveFolder, varargin)
+
+            samplerType     = lower(samplerType);
+			modelType		= 'hierarchicalLogK';
+			modelPath		= [toolboxPath '/models/' modelType '.' samplerType];
+
+            obj = obj@Model(data, saveFolder, samplerType, modelPath, varargin{:});
+
 			obj.discountFuncType = 'logk';
+            
 			% 'Decorate' the object with appropriate plot functions
 			obj.plotFuncs.participantFigFunc = @figParticipantLOGK;
 			obj.plotFuncs.plotGroupLevel = @plotGroupLevelStuff;
@@ -42,7 +38,6 @@ classdef ModelHierarchicalLogK < Model
 				'Rpostpred', 'P'};
 
 		end
-		% =================================================================
 
 		% Generate initial values of the leaf nodes
 		function setInitialParamValues(obj)

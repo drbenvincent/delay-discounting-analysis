@@ -3,8 +3,10 @@ classdef Model < handle
 
 	properties (Access = public)
 		modelType % string
+		modelFile
 		data % handle to Data class
 		sampler % handle to SamplerWrapper class
+		samplerType
 		variables % array of variables
 		varList
 		saveFolder
@@ -18,23 +20,54 @@ classdef Model < handle
 		parameterEstimateTable
 	end
 
+    properties (Hidden)
+        % User supplied preferences
+        mcmcSamples
+        chains
+    end
+
 	methods(Abstract, Access = public)
 	end
 
 	methods (Access = public)
 
-		function obj = Model(data, saveFolder, varargin)
+		function obj = Model(data, saveFolder, samplerType, modelFile, varargin)
 			p = inputParser;
 			p.FunctionName = mfilename;
 			p.addRequired('data', @(x) isa(x,'DataClass'));
 			p.addRequired('saveFolder', @isstr);
+			p.addRequired('samplerType', @isstr);
+			p.addRequired('modelFile', @isstr);
 			p.addParameter('pointEstimateType','mode',@(x) any(strcmp(x,{'mean','median','mode'})));
-			p.parse(data, saveFolder, varargin{:});
+			% additional user-supplied preferences
+			p.addParameter('mcmcSamples',[], @isscalar)
+			p.addParameter('chains',[], @isscalar)
+
+			p.parse(data, saveFolder, samplerType, modelFile, varargin{:});
+
 			% add p.Results fields into obj
 			fields = fieldnames(p.Results);
 			for n=1:numel(fields)
 				obj.(fields{n}) = p.Results.(fields{n});
 			end
+
+			% Create sampler object
+			switch samplerType
+				case{'jags'}
+					obj.sampler = MatjagsWrapper(modelFile);
+					% override any user-defined prefs
+					if ~isempty( obj.mcmcSamples )
+						obj.sampler.setMCMCtotalSamples(obj.mcmcSamples)
+					end
+					if ~isempty( obj.chains )
+						obj.sampler.setMCMCnumberOfChains(obj.chains)
+					end
+				case{'STAN'}
+					obj.sampler = MatlabStanWrapper(modelFile);
+			end
+
+			[~,obj.modelType,~] = fileparts(obj.modelFile);
+
 		end
 
 		function varNames = extractLevelNVarNames(obj, N)
@@ -62,10 +95,10 @@ classdef Model < handle
 			% prep for MCMC
 			obj.setInitialParamValues();
 			obj.sampler.initialParameters = obj.initialParams;
-			
+
 			% do the MCMC sampling
 			obj.mcmc = obj.sampler.conductInference( obj , obj.data );
-			
+
 			% post MCMC activities
 			obj.calcPosteriorPredictive()
 		end
@@ -85,7 +118,7 @@ classdef Model < handle
 		function plotMCMCchains(obj,vars)
 			obj.mcmc.plotMCMCchains(vars);
 		end
-		
+
 		function finalTable = exportParameterEstimates(obj, varargin)
 			%% Create table of parameter estimates
 			paramEstimateTable = obj.mcmc.exportParameterEstimates(...
@@ -121,20 +154,20 @@ classdef Model < handle
 				percentPredicted,...
 				warning_percent_predicted,...
 				'RowNames',obj.data.IDname);
-			
+
 			%% Combine the tables
 			finalTable = join(paramEstimateTable, postPredTable,...
 				'Keys','RowNames');
 			display(finalTable)
-			
+
 			%% Export table to textfile
 			fname = ['parameterEstimates_Posterior_' obj.pointEstimateType '.csv'];
-			savePath = fullfile('figs',obj.saveFolder,fname);	
+			savePath = fullfile('figs',obj.saveFolder,fname);
 			exportTable(finalTable, savePath);
-			
+
 			%% Store the table
 			obj.parameterEstimateTable = finalTable;
-			
+
 		end
 
 
@@ -182,38 +215,38 @@ classdef Model < handle
 		function calcPosteriorPredictive(obj)
 			display('Calculating posterior predictive measures...')
 			nParticipants = obj.data.nParticipants;
-			
+
 			%% Calculate various posterior predictive measures
 			% data saved to obj.postPred(p).xxx
-			
+
 			for p=1:nParticipants
-				
+
 				% Calculate overall log prob of model, compared to random
 				obj.postPred(p).score = obj.postPredOverallScore(p);
-				
+
 				% Calculate:
-				% - distribution of log ratio scores 
+				% - distribution of log ratio scores
 				% - distribution of percent of responses predicted
 				[obj.postPred(p).GOF_distribtion,...
 					obj.postPred(p).percentPredictedDistribution] ...
 					= obj.calcGoodnessOfFitDistribution(p);
-				
+
 				% TODO: make judgements about whether model is good enough
-				
+
 			end
-			
+
 			% TODO: remove now that we have posterior predictive
 			% information being exported in the main parameter estimate
 			% .csv file
 			% But maybe keep this here for the moment in case we want to
 			% produce a narrative summary of what dataset exclusion, based
 			% on posterior predictive checks.
-			
+
 % 			%% Write info to text file
 % 			% Set up text file to write information to
 % 			[fid, fname] = setupTextFile(obj.saveFolder, 'PosteriorPredictiveReport.txt');
 % 			for p=1:nParticipants
-% 				
+%
 %                 myString = sprintf('%s: %3.2f\n', obj.data.IDname{p}, obj.postPred(p).score);
 %                 logInfo(fid,myString)
 % 			end
@@ -228,7 +261,7 @@ classdef Model < handle
 			% participant did the same number of trials), we have to
 			% just get the posterior predicted values corresponding to
 			% the number of questions they actually did
-			
+
 			% get all their predicted responses
 			all = obj.mcmc.getParticipantPredictedResponses(p);
 			% trim any extra off, corresponding to the ragged array
@@ -242,7 +275,7 @@ classdef Model < handle
 		% of the model and the predicted responses of a control model
 		% (which responses randomly).
 		% NOTE: That this is based upon Rpostpred.
-		
+
 		function score = postPredOverallScore(obj, p)
 			% Calculate log posterior odds of data under the model and a
 			% control model where prob of responding is 0.5.
@@ -255,15 +288,15 @@ classdef Model < handle
 			participant(p).predicted = obj.getParticipantPredictedResponses(p);
 			participantResponses = obj.data.participantLevel(p).table.R;
 			pModel = prob(participantResponses, participant(p).predicted');
-			
+
 			% calculate fit between control (random) model and actual
 			% responses
 			controlPredictions = ones(size(participantResponses)) .* 0.5;
 			pRandom = prob(participantResponses, controlPredictions);
-			
+
 			score = log( pModel ./ pRandom);
 		end
-		
+
 		%% Posterior predictive model checking #2
 		% This takes a different approach. Because we calculate
 		% P(choose delayed) directly (variable P in the model) then we
@@ -278,37 +311,37 @@ classdef Model < handle
 			% value for each MCMC sample.
 			% This is quite memory-intensive, so we are calculating it
 			% on demand and not storing it.
-			
+
 			% get predicted P(choose delayed)
 			P = obj.mcmc.getPChooseDelayed(p);
 			% trim off any empty data from the ragged array approach
 			P = P([1:obj.data.participantLevel(p).trialsForThisParticant],:);
-			
+
 			nQuestions = size(P,1);
 			% get participant responses
 			participantResponses = obj.data.participantLevel(p).table.R;
 			totalSamples = obj.mcmc.mcmcparams.totalSamples;
-			
+
 			% Expand the participant responses so we can do vectorised
 			% calculations below
 			participantResponsesREP = repmat(participantResponses, [1,totalSamples]);
-			
+
 			%% Calculate % responses predicted by the model
 			%modelPrediction(P<0.5)=0;
 			modelPrediction = zeros(size(P));
 			modelPrediction(P>=0.5)=1;
 			isCorrectPrediction = modelPrediction == participantResponsesREP;
 			percentPredictedDistribution = sum(isCorrectPrediction,1)./nQuestions;
-			
+
 			%% Calculate goodness of fit
 			% P(responses | model)
 			% product is over trials
 			pModel = prod(binopdf(participantResponsesREP, ones(size(participantResponsesREP)), P));
-			
+
 			% P(responses | control model)
 			controlP = ones(size(P)).*0.5;
 			pControl = prod(binopdf(participantResponsesREP, ones(size(participantResponsesREP)), controlP));
-			
+
 			% Calculate log goodness of fit ratio
 			GOF_distribtion = log(pModel./pControl);
 		end
@@ -366,9 +399,9 @@ classdef Model < handle
 			close all
 
 			% IDEAS:
-			% - Loop over participants (and group if there is one) and 
-			% create an array of objects of a new participant class. This 
-			% class will contain all the data for that person, as well as 
+			% - Loop over participants (and group if there is one) and
+			% create an array of objects of a new participant class. This
+			% class will contain all the data for that person, as well as
 			% the plotting functions.
 			%
 			% - Or....
@@ -383,29 +416,29 @@ classdef Model < handle
 			% We are going to call this function, but it will be a 'null function' for models not doing hierachical inference. This is set in the concrete model class constructors.
 			obj.plotFuncs.plotGroupLevel( obj )
 
-			
+
 			%% POSTERIOR PREDICTION PLOTS =================================
 			for p=1:obj.data.nParticipants
-				
+
 % 				% Calc goodness of fit and % responses predicted,
 % 				% distributions
 % 				[GOFdistribution, percentPredictedDistribution] = calcGoodnessOfFitDistribution(p);
-				
+
 				figure(1), colormap(gray), clf
 
 				subplot(2,2,1)
 				obj.pp_plotTrials(p)
-				
+
 				subplot(2,2,2)
  				obj.pp_plotGOFdistribution(obj.postPred(p).GOF_distribtion)
 
 				subplot(2,2,3)
 				obj.pp_plotPredictionAndResponse(p)
-				
+
 				subplot(2,2,4)
 				obj.pp_ploptPercentPredictedDistribution(p)
-				
-				
+
+
 				%% Export figure
 				drawnow
 				latex_fig(16, 9, 6)
@@ -414,7 +447,7 @@ classdef Model < handle
 				'prefix', obj.data.IDname{p},...
 				'suffix', obj.modelType)
 			end
-			
+
 		end
 
 
@@ -434,9 +467,9 @@ classdef Model < handle
 		end
 
 		function pp_ploptPercentPredictedDistribution(obj,p)
-		
+
 			nQuestions = obj.data.participantLevel(p).trialsForThisParticant;
-			
+
 			uni = mcmc.UnivariateDistribution(obj.postPred(p).percentPredictedDistribution(:),...
 				'xLabel', '$\%$ proportion responses accounted for',...
 				'plotStyle','hist',...
@@ -446,7 +479,7 @@ classdef Model < handle
 			vline(0.5)
 			set(gca,'XLim',[0 1])
 		end
-		
+
 		function pp_plotTrials(obj,p)
 			% plot predicted probability of choosing delayed
 			bar(obj.getParticipantPredictedResponses(p),'BarWidth',1)
@@ -460,12 +493,12 @@ classdef Model < handle
 				'+')
 			myString = sprintf('%s', obj.data.IDname{p});
 			title(myString)
-			
+
 			xlabel('trial')
 			ylabel('response')
 			legend('prediction','response', 'Location','East')
 		end
-		
+
 		function pp_plotPredictionAndResponse(obj, p)
 			h(1) = plot(obj.getParticipantPredictedResponses(p),...
 				obj.data.participantLevel(p).table.R,...
@@ -475,16 +508,16 @@ classdef Model < handle
 			legend(h, 'data')
 			box off
 		end
-		
-		
-		
-		
-			
-			
-			
-			
-			
-			
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -550,7 +583,7 @@ classdef Model < handle
 					pp.(obj.pointEstimateType)*100,...
 					pp.HDI(1)*100,...
 					pp.HDI(2)*100);
-				
+
 				obj.plotFuncs.participantFigFunc(participantSamples,...
 					obj.pointEstimateType,...
 					'pData', pData,...
@@ -586,7 +619,7 @@ classdef Model < handle
 					'saveFolder', obj.saveFolder,...
 					'prefix', obj.data.IDname{n},...
 					'suffix', obj.modelType);
-				
+
 % 				myExport([obj.data.IDname{n} '-triplot'],...
 % 					'saveFolder', obj.saveFolder,...
 % 					'prefix', obj.modelType);

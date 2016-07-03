@@ -9,20 +9,15 @@ classdef ModelGaussianRandomWalkComplex < Model
 	methods (Access = public)
 		% =================================================================
 		function obj = ModelGaussianRandomWalkComplex(toolboxPath, samplerType, data, saveFolder, varargin)
-			obj = obj@Model(data, saveFolder, varargin{:});
 
-			switch samplerType
-				case{'JAGS'}
-					modelPath = '/models/mixedGRW.txt';
-					obj.sampler = MatjagsWrapper([toolboxPath modelPath]);
-					[~,obj.modelType,~] = fileparts(modelPath);
-				case{'STAN'}
-					error('model not implemented in STAN.')
-% 					modelPath = '/models/hierarchicalLogK.stan';
-% 					obj.sampler = MatlabStanWrapper([toolboxPath modelPath]);
-% 					[~,obj.modelType,~] = fileparts(modelPath);
-			end
+            samplerType = lower(samplerType);
+			modelType		= 'mixedGRWsimple';
+			modelPath		= [toolboxPath '/models/' modelType '.' samplerType];
+
+            obj = obj@Model(data, saveFolder, samplerType, modelPath, varargin{:});
+
 			obj.discountFuncType = 'logk';
+            
 			% 'Decorate' the object with appropriate plot functions
 			obj.plotFuncs.participantFigFunc = @figParticipantLOGK;
 			obj.plotFuncs.plotGroupLevel = @plotGroupLevelStuff;

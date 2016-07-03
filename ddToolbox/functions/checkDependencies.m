@@ -36,7 +36,6 @@ end
 function cloneOrUpdateDependency(url)
 displayDependencyToCommandWindow(url);
 repoName = getRepoNameFromUrl(url);
-%addpath(defineInstallPath()) % < --------do we need to do this??
 addpath(fullfile(defineInstallPath(),repoName));
 if ~isRepoFolderOnPath(repoName)
 	cloneGitHubRepo(url, defineInstallPath());

@@ -7,21 +7,17 @@ classdef ModelHierarchicalME < Model
 
 
 	methods (Access = public)
-		% =================================================================
-		function obj = ModelHierarchicalME(toolboxPath, samplerType, data, saveFolder, varargin)
-			obj = obj@Model(data, saveFolder, varargin{:});
 
-			switch samplerType
-				case{'JAGS'}
-					modelPath = '/models/hierarchicalME.txt';
-					obj.sampler = MatjagsWrapper([toolboxPath modelPath]);
-					[~,obj.modelType,~] = fileparts(modelPath);
-				case{'STAN'}
-					modelPath = '/models/hierarchicalME.stan';
-					obj.sampler = MatlabStanWrapper([toolboxPath modelPath]);
-					[~,obj.modelType,~] = fileparts(modelPath);
-			end
+		function obj = ModelHierarchicalME(toolboxPath, samplerType, data, saveFolder, varargin)
+
+			samplerType     = lower(samplerType);
+			modelType		= 'hierarchicalME';
+			modelPath		= [toolboxPath '/models/' modelType '.' samplerType];
+
+			obj = obj@Model(data, saveFolder, samplerType, modelPath, varargin{:});
+
 			obj.discountFuncType = 'me';
+            
 			obj.plotFuncs.participantFigFunc = @figParticipantME;
 			obj.plotFuncs.plotGroupLevel = @plotGroupLevelStuff;
 
@@ -40,7 +36,6 @@ classdef ModelHierarchicalME < Model
 				'Rpostpred', 'P'};
 
 		end
-		% =================================================================
 
 
 		% Generate initial values of the leaf nodes

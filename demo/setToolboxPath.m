@@ -21,6 +21,5 @@ end
 
 %% Ensure dependencies are installed and up-to-date.
 checkDependencies();
-import mcmc.*
 
 return

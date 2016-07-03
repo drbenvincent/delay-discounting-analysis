@@ -1,106 +1,52 @@
 function SCRIPT
 % Example use of the delay discounting analysis toolbox
 
-%% User options
-% When using JAGS as the MCMC sampler, you'll need at least 10^5 - 10^6
-% total samples for good approximation of the posteriors. You can of course
-% decrease this for testing purposes.
-numberOfMCMCSamples = 10^5; 
+%% Setup stuff
+% User options
+projectPath = '~/git-local/delay-discounting-analysis/demo';		 % <--- set yourself
+toolboxPath = '~/git-local/delay-discounting-analysis/ddToolbox'; % <--- set yourself
+dataPath		= 'data'; % <--- set yourself
+numberOfMCMCSamples = 10^5; % set to 10^4 for faster, but less accurate inferences
 
-% ** You should update the following lines according for your system **
-% Note: on a mac '~' corresponds to your home dir eg '/Users/myusername'
-projectPath = '~/git-local/delay-discounting-analysis/demo';
-toolboxPath = '~/git-local/delay-discounting-analysis/ddToolbox';
-
-
-%% Preamble
+% Preamble
 cd(projectPath)
-toolboxPath = setToolboxPath(toolboxPath);
+setToolboxPath(toolboxPath);
 mcmc.setPlotTheme('fontsize',16, 'linewidth',1)
 
-
 %% Load data
+filesToAnalyse = allFilesInFolder(dataPath, 'txt');
+myData = DataClass(dataPath);
+myData.loadDataFiles(filesToAnalyse);
 
-% define a path to the data files
-pathToData='data';
-
-% create a cell array of participant files to import
-fnames={'AC-kirby27-DAYS.txt',...
-'CS-kirby27-DAYS.txt',...
-'NA-kirby27-DAYS.txt',...
-'SB-kirby27-DAYS.txt',...
-'bv-kirby27.txt',...
-'rm-kirby27.txt',...
-'vs-kirby27.txt',...
-'BL-kirby27.txt',...
-'EP-kirby27.txt',...
-'JR-kirby27.txt',...
-'KA-kirby27.txt',...
-'LJ-kirby27.txt',...
-'LY-kirby27.txt',...
-'SK-kirby27.txt',...
-'VD-kirby27.txt'};
-
-% Optional participant exclusion.
-%fnames = excludeTheseParticipants(fnames, {'SK-kirby27.txt', 'VD-kirby27.txt'})
-
-% load data into a Data object
-myData = DataClass(pathToData);
-myData.loadDataFiles(fnames);
-
-
-%% Analyse the data with the hierarchical model
-
-% 1) Create a model object
+%% Run an analysis
 saveFolder = 'methodspaper-kirby27';
-hModel = ModelHierarchicalME(toolboxPath, 'JAGS', myData, saveFolder);
-% optionally override MCMC defaults
-hModel.setMCMCtotalSamples(numberOfMCMCSamples);
-hModel.setMCMCnumberOfChains(4);
 
-% 2) Do MCMC sampling
+hModel = ModelHierarchicalME(toolboxPath, 'jags', myData, saveFolder,...
+	'mcmcSamples', numberOfMCMCSamples,... % optional
+	'chains', 4); % optional
+
 hModel.conductInference();
-
-% 3) Export estimates and plotting
 hModel.exportParameterEstimates();
-
 hModel.plot()
 
-% you can use this type of command to inspect mcmc chains
+
+%% Example things you can now do
+
+% 1) plot MCMC chains for diagnosic purposes
 hModel.plotMCMCchains({'m','c'})
 hModel.plotMCMCchains({'m_group','c_group', 'alpha_group', 'epsilon_group'})
 
-
-%% Example of a script written to conduct Hypothesis tests
+% 2) Run scripts to conduct hypothesis testing
 hypothesisTestScript(hModel)
 
-
-%% Getting access to samples
-% If you want to get access to the full posterior distributions, then you
-% can ask for the samples.
-% The precise way how this works might change as I am updating the
-% internals of the code. But currently, the method is:
+% 3) Get access to samples, put into a structure
 someSamples = hModel.mcmc.getSamples({'m','c'});
 
+% 4) Calculate discount rates for a given reward magnitude (for magnitude
+% effect models)
+conditionalDiscountRateExample(hModel)
 
-%% Discount rate for a particular reward magnitude
-% You may be interested in the discount rate (at the group and participant
-% levels) at a particular reward magnitude. The method
-% conditionalDiscountRatePlots() plots participant and group level
-% conditional posterior (predictive) distributions. That is...
-% The posterior distribution of discount rate (log(k)) for a given reward
-% magnitude.
-%
-% Below we calculate and plot the discount rates for reward magnitudes of 
-% £100 and £1,000
 
-figure(1), clf
-plotFlag=true;
-ax(1) = subplot(1,2,1);
-hModel.conditionalDiscountRates(100, plotFlag);
-ax(2) = subplot(1,2,2);
-hModel.conditionalDiscountRates(1000, plotFlag);
-linkaxes(ax,'xy')
 
 
 
@@ -123,11 +69,12 @@ linkaxes(ax,'xy')
 
 %% Updated prior model
 % Since publication, I have tested the analysis code on a wider range of
-% datasets and have found it necessary to update some of the the priors in 
+% datasets and have found it necessary to update some of the the priors in
 % order to have more reliable MCMC chain convergence.
 saveFolder = 'hierarchical_updated_priors';
-h_me_updated = ModelHierarchicalMEUpdated(toolboxPath, 'JAGS', myData, saveFolder);
-h_me_updated.sampler.setMCMCtotalSamples(numberOfMCMCSamples);
+h_me_updated = ModelHierarchicalMEUpdated(toolboxPath, 'jags', myData, saveFolder,...
+	'mcmcSamples', numberOfMCMCSamples,... % optional
+	'chains', 4); % optional
 h_me_updated.conductInference();
 h_me_updated.exportParameterEstimates();
 h_me_updated.plot()
@@ -135,8 +82,9 @@ h_me_updated.plot()
 
 
 %% Hierarchical model, estimate discount rate = log(k), no magnitude effect
-h_logk = ModelHierarchicalLogK(toolboxPath, 'JAGS', myData, 'hierarchical_logk');
-h_logk.sampler.setMCMCtotalSamples(numberOfMCMCSamples);
+h_logk = ModelHierarchicalLogK(toolboxPath, 'jags', myData, 'hierarchical_logk',...
+	'mcmcSamples', numberOfMCMCSamples,... % optional
+	'chains', 4); % optional
 h_logk.conductInference();
 h_logk.exportParameterEstimates();
 h_logk.plot()
@@ -153,8 +101,9 @@ h_logk.plot()
 % over logk. Participant-level logk is our posterior over logk, determined
 % by the data and the prior, but is NOT influenced by other participants in
 % the sample.
-m_logk = ModelMixedLogK(toolboxPath, 'JAGS', myData, 'mixed_logk');
-m_logk.sampler.setMCMCtotalSamples(numberOfMCMCSamples);
+m_logk = ModelMixedLogK(toolboxPath, 'jags', myData, 'mixed_logk',...
+	'mcmcSamples', numberOfMCMCSamples,... % optional
+	'chains', 4); % optional
 m_logk.conductInference();
 m_logk.exportParameterEstimates();
 m_logk.plot()
@@ -168,16 +117,18 @@ m_logk.plot()
 
 %% Independent participants (non-hierarchical) estimation of the magnitude effect
 warning('Chain convergence issues: priors need to be refined.')
-s_me = ModelSeparateME(toolboxPath, 'JAGS', myData, 'separate_ME');
-s_me.sampler.setMCMCtotalSamples(numberOfMCMCSamples);
+s_me = ModelSeparateME(toolboxPath, 'jags', myData, 'separate_ME',...
+	'mcmcSamples', numberOfMCMCSamples,... % optional
+	'chains', 4); % optional
 s_me.conductInference();
 s_me.exportParameterEstimates();
 s_me.plot()
 
 
 %% Independent participants (non-hierarchical) estimation of log(k)
-s_logk = ModelSeparateLogK(toolboxPath, 'JAGS', myData, 'separate_logk');
-s_logk.sampler.setMCMCtotalSamples(numberOfMCMCSamples);
+s_logk = ModelSeparateLogK(toolboxPath, 'jags', myData, 'separate_logk',...
+	'mcmcSamples', numberOfMCMCSamples,... % optional
+	'chains', 4); % optional
 s_logk.conductInference();
 s_logk.exportParameterEstimates();
 s_logk.plot()
@@ -195,6 +146,24 @@ title('hierarchical')
 
 subplot(2,1,2), a=axis; subplot(2,1,1), axis(a);
 
+end
 
 
-return
+% You may be interested in the discount rate (at the group and participant
+% levels) at a particular reward magnitude. The method
+% conditionalDiscountRatePlots() plots participant and group level
+% conditional posterior (predictive) distributions. That is...
+% The posterior distribution of discount rate (log(k)) for a given reward
+% magnitude.
+%
+% Below we calculate and plot the discount rates for reward magnitudes of
+% £100 and £1,000
+function conditionalDiscountRateExample(model)
+figure(1), clf
+plotFlag = true;
+ax(1) = subplot(1,2,1);
+model.conditionalDiscountRates(100, plotFlag);
+ax(2) = subplot(1,2,2);
+model.conditionalDiscountRates(1000, plotFlag);
+linkaxes(ax,'xy')
+end
