@@ -7,14 +7,14 @@ classdef ModelHierarchicalMEUpdated < ModelHierarchicalME
 
 	methods (Access = public)
 
-		function obj = ModelHierarchicalMEUpdated(toolboxPath, samplerType, data, saveFolder, varargin)
+		function obj = ModelHierarchicalMEUpdated(samplerType, data, saveFolder, varargin)
 
             samplerType     = lower(samplerType);
             modelType		= 'hierarchicalMEupdated';
-            modelPath		= [toolboxPath '/models/' modelType '.' samplerType];
+            modelPath = makeProbModelsPath(modelType, samplerType);
 
-			% ** NOTE: this call is different **
-			obj = obj@ModelHierarchicalME(toolboxPath, 'JAGS', data, saveFolder, varargin{:});
+			% ** NOTE: this call is differently **
+			obj = obj@ModelHierarchicalME('JAGS', data, saveFolder, varargin{:});
 
 		end
 

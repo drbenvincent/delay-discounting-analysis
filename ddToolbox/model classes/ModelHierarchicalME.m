@@ -8,11 +8,12 @@ classdef ModelHierarchicalME < Model
 
 	methods (Access = public)
 
-		function obj = ModelHierarchicalME(toolboxPath, samplerType, data, saveFolder, varargin)
+		function obj = ModelHierarchicalME(samplerType, data, saveFolder, varargin)
 
 			samplerType     = lower(samplerType);
 			modelType		= 'hierarchicalME';
-			modelPath		= [toolboxPath '/models/' modelType '.' samplerType];
+			
+			modelPath = makeProbModelsPath(modelType, samplerType);
 
 			obj = obj@Model(data, saveFolder, samplerType, modelPath, varargin{:});
 

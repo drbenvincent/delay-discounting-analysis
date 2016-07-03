@@ -12,11 +12,11 @@ classdef ModelGaussianRandomWalkSimple < Model
 
 	methods (Access = public)
 
-    		function obj = ModelGaussianRandomWalkSimple(toolboxPath, samplerType, data, saveFolder, varargin)
+    		function obj = ModelGaussianRandomWalkSimple(samplerType, data, saveFolder, varargin)
 
             samplerType = lower(samplerType);
 			modelType		= 'mixedGRWsimple';
-			modelPath		= [toolboxPath '/models/' modelType '.' samplerType];
+			modelPath = makeProbModelsPath(modelType, samplerType);
 
             obj = obj@Model(data, saveFolder, samplerType, modelPath, varargin{:});
 

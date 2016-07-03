@@ -10,11 +10,11 @@ classdef ModelSeparateME < Model
 	methods (Access = public)
 
 		% CONSTRUCTOR =====================================================
-		function obj = ModelSeparateME(toolboxPath, samplerType, data, saveFolder, varargin)
+		function obj = ModelSeparateME(samplerType, data, saveFolder, varargin)
 
             samplerType = lower(samplerType);
             modelType		= 'separateME';
-            modelPath		= [toolboxPath '/models/' modelType '.' samplerType];
+            modelPath = makeProbModelsPath(modelType, samplerType);
 
 			obj = obj@Model(data, saveFolder, samplerType, modelPath, varargin{:});
 

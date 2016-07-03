@@ -1,98 +1,49 @@
-% Ben's testing script
+function testScript
 
-%% Setup stuff
-% User options
-projectPath = '~/git-local/delay-discounting-analysis/demo';		 % <--- set yourself
-toolboxPath = '~/git-local/delay-discounting-analysis/ddToolbox';% <--- set yourself
-dataPath		= 'data'; % <--- set yourself
-numberOfMCMCSamples = 10^3; % set to 10^4 for faster, but less accurate inferences
+numberOfMCMCSamples = 10^3;
 chains = 2;
 
-% Preamble
-cd(projectPath)
-setToolboxPath(toolboxPath);
-mcmc.setPlotTheme('fontsize',16, 'linewidth',1)
+%% Setup stuff
+environment = ddAnalysisSetUp(...
+	'toolboxPath', '~/git-local/delay-discounting-analysis/ddToolbox',...
+	'projectPath', '~/git-local/delay-discounting-analysis/demo',...
+	'dataPath', '~/git-local/delay-discounting-analysis/demo/data');
 
-% Load data
+listOfModels = {'ModelHierarchicalME',...
+	'ModelHierarchicalMEUpdated',...
+	'ModelHierarchicalLogK',...
+	'ModelSeparateME',...
+	'ModelMixedLogK',...
+	'ModelSeparateLogK'};
+
+%% Load data
 %filesToAnalyse = allFilesInFolder(dataPath, 'txt');
-filesToAnalyse={'AC-kirby27-DAYS.txt',...
-'CS-kirby27-DAYS.txt'};
-myData = DataClass(dataPath);
+filesToAnalyse={'AC-kirby27-DAYS.txt', 'CS-kirby27-DAYS.txt'};
+myData = DataClass(environment.dataPath);
 myData.loadDataFiles(filesToAnalyse);
 
 
-%% Do the analysis
-h_me = ModelHierarchicalME(toolboxPath, 'JAGS', myData, 'hierarchical_ME',...
-	'pointEstimateType','mode',...
-	'mcmcSamples', numberOfMCMCSamples,...
-	'chains', chains);
-h_me.conductInference(); % TODO: Could return an MCMCFit object here ******
-h_me.exportParameterEstimates();
-h_me.plot()
-
-hypothesisTestScript(h_me)
-myExport('BayesFactorMLT1',...
-	'saveFolder', h_me.saveFolder,...
-	'prefix', h_me.modelType)
-
-% Inspect mcmc chains
-h_me.plotMCMCchains({'m','c'})
-h_me.plotMCMCchains({'m_group','c_group', 'alpha_group', 'epsilon_group'})
-
-
-
-%% Test other models below
-
-% ModelHierarchicalMEUpdated
-h_me_updated = ModelHierarchicalMEUpdated(toolboxPath, 'JAGS', myData, 'hierarchical_ME_updated',...
-	'mcmcSamples', numberOfMCMCSamples,...
-	'chains', chains);
-h_me_updated.conductInference(); % TODO: Could return an MCMCFit object here ******
-h_me_updated.exportParameterEstimates();
-h_me_updated.plot()
-
-
-% ModelHierarchicalLogK
-h_logk = ModelHierarchicalLogK(toolboxPath, 'JAGS', myData, 'hierarchical_logk',...
-	'mcmcSamples', numberOfMCMCSamples,...
-	'chains', chains);
-h_logk.conductInference();
-h_logk.plot()
-h_logk.exportParameterEstimates();
-
-% ModelSeparateME
-s_me = ModelSeparateME(toolboxPath, 'JAGS', myData, 'separate_ME',...
-	'mcmcSamples', numberOfMCMCSamples,...
-	'chains', chains);
-s_me.conductInference();
-s_me.exportParameterEstimates();
-s_me.plot()
-
-% ModelMixedLogK
-m_logk = ModelMixedLogK(toolboxPath, 'JAGS', myData, 'mixed_logk',...
-	'mcmcSamples', numberOfMCMCSamples,...
-	'chains', chains);
-m_logk.conductInference();
-m_logk.exportParameterEstimates('includeCI',false);
-m_logk.plot()
-
-% ModelSeparateLogK
-s_logk = ModelSeparateLogK(toolboxPath, 'JAGS', myData, 'separate_logk',...
-	'mcmcSamples', numberOfMCMCSamples,...
-	'chains', chains);
-s_logk.conductInference();
-s_logk.exportParameterEstimates();
-s_logk.plot()
+%% Do the analysis, loop over each of the models
+for modelName = listOfModels
+	makeModelFunction = str2func(modelName{:});
+	models.(modelName{:}) = makeModelFunction('JAGS', myData, modelName{:},...
+		'pointEstimateType','mode',...
+		'mcmcSamples', numberOfMCMCSamples,...
+		'chains', chains);
+	models.(modelName{:}).conductInference();
+	models.(modelName{:}).exportParameterEstimates();
+	models.(modelName{:}).plot()
+end
 
 
 %% Compare hierarchical and non-hierarchical inferences for log(k) models
 figure
 subplot(2,1,1)
-plotLOGKclusters(s_logk.mcmc, s_logk.data, [0.7 0 0], 'mode')
+plotLOGKclusters(models.(ModelSeparateLogK).mcmc, models.(ModelSeparateLogK).data, [0.7 0 0], 'mode')
 title('non-hierarchical')
 
 subplot(2,1,2)
-plotLOGKclusters(h_logk.mcmc, h_logk.data, [0.7 0 0], 'mode')
+plotLOGKclusters(models.(ModelHierarchicalLogK).mcmc, models.(ModelHierarchicalLogK).data, [0.7 0 0], 'mode')
 title('hierarchical')
 
 subplot(2,1,2), a=axis; subplot(2,1,1), axis(a);
@@ -117,8 +68,7 @@ subplot(2,1,2), a=axis; subplot(2,1,1), axis(a);
 %% GAUSSIAN RANDOM WALK MODEL
 % *** This model is NOT really appropriate to apply to the Kirby data, but
 % I am including it here to see what it will do. ***
-grw = ModelGaussianRandomWalkSimple(toolboxPath,...
-	'JAGS', myData,...
+grw = ModelGaussianRandomWalkSimple('JAGS', myData,...
 	'ModelGaussianRandomWalkSimple',...
 	'pointEstimateType','mode',...
 	'mcmcSamples', numberOfMCMCSamples,...
@@ -136,7 +86,7 @@ grw.plot()
 
 
 % %% ModelHierarchicalLogK
-% sModel = ModelHierarchicalLogK(toolboxPath, 'STAN', myData, 'stanModelHierarchicalLogK');
+% sModel = ModelHierarchicalLogK(environment, 'STAN', myData, 'stanModelHierarchicalLogK');
 % sModel.sampler.setStanHome('~/cmdstan')
 % clc
 % stanFit = sModel.conductInference();

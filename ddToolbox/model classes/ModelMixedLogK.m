@@ -7,11 +7,11 @@ classdef ModelMixedLogK < Model
 
 
 	methods (Access = public)
-    		function obj = ModelMixedLogK(toolboxPath, samplerType, data, saveFolder, varargin)
+    		function obj = ModelMixedLogK(samplerType, data, saveFolder, varargin)
 
             samplerType     = lower(samplerType);
             modelType		= 'mixedLogK';
-            modelPath		= [toolboxPath '/models/' modelType '.' samplerType];
+            modelPath = makeProbModelsPath(modelType, samplerType);
 
             obj = obj@Model(data, saveFolder, samplerType, modelPath, varargin{:});
 
