@@ -2,13 +2,10 @@ function SCRIPT
 % Example use of the delay discounting analysis toolbox
 
 %% Setup stuff
-% User options
-projectPath = '~/git-local/delay-discounting-analysis/demo';		 % <--- set yourself
 toolboxPath = '~/git-local/delay-discounting-analysis/ddToolbox'; % <--- set yourself
-dataPath		= 'data'; % <--- set yourself
+projectPath = '~/git-local/delay-discounting-analysis/demo';      % <--- set yourself
+dataPath	= '~/git-local/delay-discounting-analysis/demo/data'; % <--- set yourself
 numberOfMCMCSamples = 10^5; % set to 10^4 for faster, but less accurate inferences
-
-% Preamble
 cd(projectPath)
 setToolboxPath(toolboxPath);
 mcmc.setPlotTheme('fontsize',16, 'linewidth',1)
@@ -149,21 +146,4 @@ subplot(2,1,2), a=axis; subplot(2,1,1), axis(a);
 end
 
 
-% You may be interested in the discount rate (at the group and participant
-% levels) at a particular reward magnitude. The method
-% conditionalDiscountRatePlots() plots participant and group level
-% conditional posterior (predictive) distributions. That is...
-% The posterior distribution of discount rate (log(k)) for a given reward
-% magnitude.
-%
-% Below we calculate and plot the discount rates for reward magnitudes of
-% £100 and £1,000
-function conditionalDiscountRateExample(model)
-figure(1), clf
-plotFlag = true;
-ax(1) = subplot(1,2,1);
-model.conditionalDiscountRates(100, plotFlag);
-ax(2) = subplot(1,2,2);
-model.conditionalDiscountRates(1000, plotFlag);
-linkaxes(ax,'xy')
-end
+
