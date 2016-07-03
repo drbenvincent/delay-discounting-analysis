@@ -1,82 +1,78 @@
-function [sucess] = checkDependencies()
-% Install dependencies
+function checkDependencies()
 
-% See if we have a userpath
+dependencies={...
+	'https://github.com/drbenvincent/mcmc-utils-matlab',...
+	'https://github.com/altmany/export_fig',...
+	'https://github.com/drbenvincent/matjags',...
+	'https://github.com/brian-lau/MatlabProcessManager',...
+	'https://github.com/brian-lau/MatlabStan'};
 
+originalPath = cd;
+
+% THE ALGORITHM
+for url=dependencies
+	cloneOrUpdateDependency(url{:});
+end
+
+cd(originalPath)
+end
+
+
+function installPath = defineInstallPath()
 if isempty(userpath)
 	userpath('reset')
 end
-
 installPath = userpath;
-installPath = installPath(1:end-1);
-originalPath = cd;
-
-display('Installing, or updating, the following dependencies from GitHub')
-
-dependencies={...
-'mcmc-utils-matlab', 'https://github.com/drbenvincent/mcmc-utils-matlab';...
-'export_fig', 'https://github.com/altmany/export_fig';...
-'matjags', 'https://github.com/drbenvincent/matjags';...
-'MatlabProcessManager','https://github.com/brian-lau/MatlabProcessManager';...
-'MatlabStan','https://github.com/brian-lau/MatlabStan'};
-
-display(dependencies);
-
-try
-	sucess = ensureDependenciesExist(installPath, dependencies);
-	cd(originalPath)
-	sucess = true;
-catch
-	cd(originalPath)
-	sucess = false;
+% Fix the trailing ":" which only sometimes appears
+installPath = removeTrailingColon(installPath);
 end
 
-display(sucess)
+function str = removeTrailingColon(str)
+if str(end)==':'
+	str(end)='';
+end
 end
 
-
-function sucess = ensureDependenciesExist( installPath, dependencies )
-addpath(installPath)
-% check if dependencies exist on the matlab patch
-for n=1:size(dependencies,1)
-	repoName = dependencies{n,1};
-	addpath(fullfile(installPath,repoName));
-	if ~isRepoOnPath(repoName)
-		address = dependencies{n,2};
-		sucess = cloneGitHubRepo(address, installPath);
-		addpath(fullfile(installPath,repoName));
-	else
-		sucess = updateGitHubRepo(installPath,repoName);
-		sucess = true;
-	end
+function cloneOrUpdateDependency(url)
+displayDependencyToCommandWindow(url);
+repoName = getRepoNameFromUrl(url);
+%addpath(defineInstallPath()) % < --------do we need to do this??
+addpath(fullfile(defineInstallPath(),repoName));
+if ~isRepoFolderOnPath(repoName)
+	cloneGitHubRepo(url, defineInstallPath());
+else
+	updateGitHubRepo(defineInstallPath(),repoName);
+end
 end
 
+function displayDependencyToCommandWindow(url)
+weblinkCode = makeWeblinkCode(url);
+displayClickableLinkToCommandWindow(url, weblinkCode);
 end
 
-
-function sucess = cloneGitHubRepo(repoAddress, installPath)
+function cloneGitHubRepo(repoAddress, installPath)
 	try
 		cd(installPath)
 		command = sprintf('git clone %s.git', repoAddress);
 		system(command);
-		sucess = true;
 	catch
-		sucess = false;
 		error('git clone failed')
 	end
 end
 
-function onPath = isRepoOnPath(repoName)
+function onPath = isRepoFolderOnPath(repoName)
 	onPath = exist(repoName,'dir')==7;
 end
 
-function sucess = updateGitHubRepo(installPath,repoName)
+function updateGitHubRepo(installPath,repoName)
 try
 	cd(fullfile(installPath,repoName))
-	fprintf('\n\n%s\n', repoName)
 	system('git pull');
-	sucess=true;
 catch
-	sucess = false;
+	warning('Unable to update GitHub repository')
 end
+end
+
+function repoName = getRepoNameFromUrl(url)
+[~,repoName] = fileparts(url);
 end
