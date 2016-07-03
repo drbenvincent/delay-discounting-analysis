@@ -26,7 +26,7 @@ model{
 
   # varInc: This is the variance of the Gaussian Random Walk per unit of time.
   # We can set this to a particular value, but we have no a priori knowledge of what this should be. So instead we infer a distribution over it. We specify a prior over precision, then take the reciprocal to have our variance.
-  precision ~ dgamma(0.0001, 0.0001)
+  precision ~ dgamma(0.001, 0.001)
   varInc <- 1 / precision
 
   # GAUSSIAN RANDOM WALK PRIORS
@@ -62,7 +62,7 @@ model{
   alpha_prior   ~ dexp(0.01)
   epsilon_prior ~ dbeta(1.1 , 10.9)
 
-  precision_prior ~ dgamma(0.0001, 0.0001)
+  precision_prior ~ dgamma(0.001, 0.001)
   # avoid divide by zero errors?
   varInc_prior  <- 1 / (precision_prior+0.00000000001)
 

@@ -21,7 +21,7 @@ set(gca,'YLim',[0 2.5])
 
 %% add AUC measure text to graph
 auc_str = sprintf('mean AUC: %1.2f', mean(personInfo.AUCsamples));
-addTextToFigure('BR',auc_str, 15, 'latex')
+addTextToFigure('TR',auc_str, 15, 'latex')
 
 drawnow
 

@@ -123,14 +123,14 @@ classdef DataClass < handle
 			
 			unique_delays_from_data = sort(unique(obj.observedData.DB))';
 			% optionally add interpolated delays ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			add_interpolated_delays = false;
+			add_interpolated_delays = true;
 			if add_interpolated_delays
 				interpolation_delays =  [ [7:7:365-7] ...
 					[7*52:7:7*80]]; % <--- future
 				combined = [unique_delays_from_data interpolation_delays];
 				obj.observedData.uniqueDelays = sort(unique(combined));
 			else
-				obj.observedData.uniqueDelays = unique_delays_from_data;
+				obj.observedData.uniqueDelays = [0.01 unique_delays_from_data];
 			end
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			

@@ -89,9 +89,19 @@ classdef ModelGaussianRandomWalkSimple < Model
 				personInfo = obj.getParticipantData(p);
 
 				% Plotting
-				figure
+				figure(1), clf
+				
+                subplot(1,2,1)
 				intervals = [50 95];
 				plotDiscountFunctionGRW(personInfo, intervals)
+				latex_fig(16, 14, 4)
+				%set(gca,'XScale','log')
+				%axis tight
+				%axis square
+				
+                subplot(1,2,2)
+                uni = mcmc.UnivariateDistribution(obj.AUC_DATA(p).AUCsamples,...
+                  'xLabel', 'AUC');
 
 				myExport('discountfunction',...
 				'saveFolder', obj.saveFolder,...
