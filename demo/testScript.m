@@ -1,6 +1,6 @@
 function testScript
 
-numberOfMCMCSamples = 10^3;
+numberOfMCMCSamples = 10^4;
 chains = 2;
 
 %% Setup stuff

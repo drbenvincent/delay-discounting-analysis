@@ -43,7 +43,11 @@ classdef DataClass < handle
 				participantTable = readtable(fullfile(obj.dataFolder,fnames{n}), 'delimiter','tab');
 				% Add participant ID column
 				participantTable = obj.appendParticipantIDcolumn(participantTable, n);
-				% append columns PA=1, PB=1, if they do not exist.
+				% Ensure columns PA and PB exist, assuming P=1 if they do not. This
+				% could be the case if we've done a pure delay discounting
+				% experiment and not bothered to sotre the fact that rewards have
+				% 100% of delivery. If they did not, then we would have stored the
+				% vales of PA and PB.
 				if ~obj.isColumnPresent(participantTable, 'PA')
 					PA = ones( height(participantTable), 1);
 					participantTable = [participantTable table(PA)];
@@ -52,7 +56,18 @@ classdef DataClass < handle
 					PB = ones( height(participantTable), 1);
 					participantTable = [participantTable table(PB)];
 				end
-				
+				% Ensure columns DA and DB exist, assuming D=0 if they do not. This
+				% could be the case if we ran a pure probability discounting
+				% experiment, and didn't bother storing the fact that DA and DB
+				% were immediate rewards.
+				if ~obj.isColumnPresent(participantTable, 'DA')
+					DA = zeros( height(participantTable), 1);
+					participantTable = [participantTable table(DA)];
+				end
+				if ~obj.isColumnPresent(participantTable, 'DB')
+					DB = ones( zeros(participantTable), 1);
+					participantTable = [participantTable table(DB)];
+				end
 				% Add
  				obj.participantLevel(n).table = participantTable;
  				obj.participantLevel(n).trialsForThisParticant = height(participantTable);
