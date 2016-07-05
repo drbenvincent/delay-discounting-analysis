@@ -8,7 +8,7 @@ classdef DataClass < handle
 		totalTrials
 		IDname
 		participantLevel
-		groupTable % table of A, DA, B, DB, R, ID
+		groupTable % table of A, DA, B, DB, R, ID, PA, PB
 		observedData % TODO make this  in model?
 	end
 
@@ -36,12 +36,24 @@ classdef DataClass < handle
 			obj.participantFilenames = fnames;
 
 			for n=1:obj.nParticipants
-                % determined participant ID string
-                [~,obj.IDname{n},~] = fileparts(fnames{n}); % just get filename
-                %obj.IDname{n} = getPrefixOfString(fnames{n},'-');
-
+				% determined participant ID string
+				[~,obj.IDname{n},~] = fileparts(fnames{n}); % just get filename
+				%obj.IDname{n} = getPrefixOfString(fnames{n},'-');
+				
 				participantTable = readtable(fullfile(obj.dataFolder,fnames{n}), 'delimiter','tab');
+				% Add participant ID column
 				participantTable = obj.appendParticipantIDcolumn(participantTable, n);
+				% append columns PA=1, PB=1, if they do not exist.
+				if ~obj.isColumnPresent(participantTable, 'PA')
+					PA = ones( height(participantTable), 1);
+					participantTable = [participantTable table(PA)];
+				end
+				if ~obj.isColumnPresent(participantTable, 'PB')
+					PB = ones( height(participantTable), 1);
+					participantTable = [participantTable table(PB)];
+				end
+				
+				% Add
  				obj.participantLevel(n).table = participantTable;
  				obj.participantLevel(n).trialsForThisParticant = height(participantTable);
 			end
@@ -91,10 +103,10 @@ classdef DataClass < handle
 			% the MCMC process.
 			maxTrials = max([obj.participantLevel.trialsForThisParticant]);
 
-			fields = {'A', 'B', 'DA', 'DB', 'R'};
+			fields = {'A', 'B', 'DA', 'DB', 'PA', 'PB', 'R'};
 			for p=1:obj.nParticipants
 				Tp = obj.participantLevel(p).trialsForThisParticant;
-				for n = 1: numel(fields)
+				for n = 1:numel(fields)
 					% makes vector of NaN's
 					obj.observedData.(fields{n})(p,:) = NaN(1, maxTrials);
 					% fills up with data
@@ -153,6 +165,10 @@ classdef DataClass < handle
 		function pTable = appendParticipantIDcolumn(pTable, n)
 			ID = ones( height(pTable), 1) * n;
 			pTable = [pTable table(ID)];
+		end
+		
+		function isPresent = isColumnPresent(table, columnName)
+			isPresent = sum(strcmp(table.Properties.VariableNames,columnName))~=0;
 		end
 
 	end
