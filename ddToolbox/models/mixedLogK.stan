@@ -27,24 +27,11 @@ transformed data {
 
 parameters {
   // group level
-  // real groupLogKmu;
-  // real<lower=0> groupLogKsigma;
-
   real groupALPHAmu;
   real <lower=0> groupALPHAsigma;
 
   real <lower=0,upper=1>groupW;
   real groupKminus2;
-
-  // group level - for sampling from prior
-  real groupLogKmu_prior;
-  real<lower=0> groupLogKsigma_prior;
-
-  real groupALPHAmu_prior;
-  real <lower=0> groupALPHAsigma_prior;
-
-  real <lower=0,upper=1>groupW_prior;
-  real groupKminus2_prior;
 
   // particiant LEVEL
   vector[nParticipants] logk;
@@ -57,12 +44,9 @@ transformed parameters {
   vector[totalTrials] VB;
   vector[totalTrials] P;
   real groupK;
-  real groupK_prior;
 
-  groupK      <- groupKminus2+2;
-  groupK_prior <- groupKminus2_prior+2;
+  groupK <- groupKminus2+2;
 
-  // TODO Can this be vectorized? Phi() can't take vector input
   for (t in 1:totalTrials){
     // calculate present subjective value for each reward
     VA[t] <- A[t] / (1+(exp(logk[ID[t]])*DA[t]));
@@ -74,24 +58,11 @@ transformed parameters {
 
 model {
   // group level priors
-  // groupLogKmu      <- log(1/50);
-  // groupLogKsigma   <- 2.5;
-
   groupALPHAmu     ~ uniform(0,100);
   groupALPHAsigma  ~ inv_gamma(0.01,0.01);
 
   groupW           ~ beta(1.1, 10.9);  // mode for lapse rate
   groupKminus2     ~ gamma(0.1,0.1); // concentration parameter
-
-  // SAMPLING FROM PRIOR group level priors
-  //groupLogKmu_prior      <- log(1.0/50.0);
-  //groupLogKsigma_prior   <- 2.5;
-
-  groupALPHAmu_prior     ~ uniform(0,100);
-  groupALPHAsigma_prior  ~ inv_gamma(0.001,0.001);
-
-  groupW_prior           ~ beta(1.1, 10.9);  // mode for lapse rate
-  groupKminus2_prior     ~ gamma(0.01,0.01); // concentration parameter
 
   // participant level - these are vectors
   logk    ~ normal(groupLogKmu, groupLogKsigma);
@@ -102,6 +73,13 @@ model {
 }
 
 generated quantities {  // NO VECTORIZATION IN THIS BLOCK
+  real groupLogKmu_prior;
+  real groupALPHAmu_prior;
+  real<lower=0> groupALPHAsigma_prior;
+  real groupW_prior;
+  real<lower = 0> groupKminus2_prior;
+  real groupK_prior;
+
   real logk_group;
   real alpha_group; // TODO: NEEDS TO BE POSTIVE-VALUED ONLY
   real <lower=0,upper=1> epsilon_group;
@@ -110,22 +88,32 @@ generated quantities {  // NO VECTORIZATION IN THIS BLOCK
   real alpha_group_prior; // TODO: NEEDS TO BE POSTIVE-VALUED ONLY
   real <lower=0,upper=1> epsilon_group_prior;
 
-
   int <lower=0,upper=1> Rpostpred[totalTrials];
+
+  // POSTERIOR PREDICTION
 
   // group level posterior predictive distributions
   logk_group       <- normal_rng(groupLogKmu, groupLogKsigma);
   alpha_group      <- normal_rng(groupALPHAmu, groupALPHAsigma);
   epsilon_group    <- beta_rng(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 );
+  // posterior predictive responses
+  for (t in 1:totalTrials){
+    Rpostpred[t] <- bernoulli_rng(P[t]);
+  }
+
+  // SAMPLING FROM PRIORS
+
+  //group level priors
+  groupALPHAmu_prior     <- uniform_rng(0,100);
+  groupALPHAsigma_prior  <- inv_gamma_rng(0.001,0.001);
+
+  groupW_prior           <- beta_rng(1.1, 10.9);  // mode for lapse rate
+  groupKminus2_prior     <- gamma_rng(0.01,0.01); // concentration parameter
+  groupK_prior <- groupKminus2_prior+2;
 
   // priors about the group level
   logk_group_prior     <- normal_rng(groupLogKmu, groupLogKsigma);
   alpha_group_prior    <- normal_rng(groupALPHAmu_prior, groupALPHAsigma_prior);
   epsilon_group_prior  <- beta_rng(groupW_prior*(groupK_prior-2)+1 , (1-groupW_prior)*(groupK_prior-2)+1 );
 
-
-  // posterior predictive responses
-  for (t in 1:totalTrials){
-    Rpostpred[t] <- bernoulli_rng(P[t]);
-  }
 }

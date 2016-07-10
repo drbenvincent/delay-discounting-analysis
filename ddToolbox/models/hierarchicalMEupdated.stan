@@ -64,11 +64,11 @@ transformed parameters {
 model {
   // GROUP LEVEL PRIORS ======================================================
   groupMmu        ~ normal(-0.243, 0.27);
-  groupMsigma     ~ normal( 0.072, 0.25); // truncated >0
+  groupMsigma     ~ normal(0,5);
   groupCmu        ~ normal(0, 100);
-  groupCsigma     ~ uniform(0, 10);
+  groupCsigma     ~ normal(0,10);
   groupALPHAmu    ~ exponential(0.01);
-  groupALPHAsigma ~ gamma(0.5, 0.5);
+  groupALPHAsigma ~ normal(0,5);
   groupW          ~ beta(1.1, 10.9);  // mode for lapse rate
   groupKminus2    ~ gamma(0.01, 0.01); // concentration parameter
 

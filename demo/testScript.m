@@ -82,54 +82,78 @@ grw.plot()
 
 
 
-
-%% EXPERIMENTAL FEATURE FOR THE FUTURE -------------------
+% --------------------------------------------------------
+%% INFERENCE WITH STAN
 % --------------------------------------------------------
 
-%% ModelHierarchicalME
-hmeModel = ModelHierarchicalME('STAN', myData, 'hierarchicalME',...
-		'pointEstimateType','mode');
-hmeModel.sampler.setStanHome('~/cmdstan-2.9.0')
-hmeModel.conductInference();
-hmeModel.exportParameterEstimates();
-hmeModel.plot()
+%% HIERARCHICAL ===========================================================
 
+%% Separate
+% sModel = ModelSeparateME('STAN', myData, 'separateME',...
+% 		'pointEstimateType','mean');
+% sModel.sampler.setStanHome('~/cmdstan-2.9.0')
+% sModel.conductInference();
+% sModel.exportParameterEstimates();
+% sModel.plot()
 
+%% Mixed
+% sModel = ModelMixedME('STAN', myData, 'mixedME',...
+% 		'pointEstimateType','mean');
+% sModel.sampler.setStanHome('~/cmdstan-2.9.0')
+% sModel.conductInference();
+% sModel.exportParameterEstimates();
+% sModel.plot()
 
-hmeModel = ModelHierarchicalMEUpdated('STAN', myData, 'hierarchicalMEupdated',...
-		'pointEstimateType','mode');
-hmeModel.sampler.setStanHome('~/cmdstan-2.9.0')
-hmeModel.conductInference();
-hmeModel.exportParameterEstimates();
-hmeModel.plot()
-
-
-
-%% ModelHierarchicalLogK
-sModel = ModelHierarchicalLogK('STAN', myData, 'hierarchicalLogK',...
-		'pointEstimateType','mode');
+%% Hierarchical  **** MODEL NOT WORKING PROPERLY ****
+sModel = ModelHierarchicalME('STAN', myData, 'hierarchicalME',...
+		'pointEstimateType','mean');
 sModel.sampler.setStanHome('~/cmdstan-2.9.0')
 sModel.conductInference();
 sModel.exportParameterEstimates();
 sModel.plot()
 
 
-%% ModelHierarchicalLogK
-sModel = ModelMixedLogK('STAN', myData, 'mixedLogK',...
-		'pointEstimateType','mode');
+%% Hierarchical, updated  **** MODEL NOT WORKING PROPERLY ****
+sModel = ModelHierarchicalMEUpdated('STAN', myData, 'hierarchicalMEupdated',...
+		'pointEstimateType','mean');
 sModel.sampler.setStanHome('~/cmdstan-2.9.0')
 sModel.conductInference();
 sModel.exportParameterEstimates();
 sModel.plot()
 
 
-%% ModelSeparateLogK
+
+
+
+%% LOG K ==================================================================
+
+%% Separate
 sModel = ModelSeparateLogK('STAN', myData, 'separateLogK',...
-		'pointEstimateType','mode');
+		'pointEstimateType','mean');
 sModel.sampler.setStanHome('~/cmdstan-2.9.0')
 sModel.conductInference();
 sModel.exportParameterEstimates();
 sModel.plot()
+
+%% Mixed
+sModel = ModelMixedLogK('STAN', myData, 'mixedLogK',...
+		'pointEstimateType','mean');
+sModel.sampler.setStanHome('~/cmdstan-2.9.0')
+sModel.conductInference();
+sModel.exportParameterEstimates();
+sModel.plot()
+
+%% Hierarchical **** MODEL NOT WORKING PROPERLY ****
+sModel = ModelHierarchicalLogK('STAN', myData, 'hierarchicalLogK',...
+		'pointEstimateType','mean');
+sModel.sampler.setStanHome('~/cmdstan-2.9.0')
+sModel.conductInference();
+sModel.exportParameterEstimates();
+sModel.plot()
+
+
+
+
 
 
 %% HOW TO GET STATS VALUES

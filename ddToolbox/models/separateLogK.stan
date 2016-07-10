@@ -41,8 +41,8 @@ model {
   // participant level - these are vectors
   logk    ~ normal(-3.9120, 2.5);
   alpha   ~ exponential(0.01);
-  epsilon ~ beta(1.1, 10.9); // truncate?   0<epsilon<0.5
-  R ~ bernoulli(P);
+  epsilon ~ beta(1.1, 10.9); # T[,0.5]
+  R       ~ bernoulli(P);
 }
 
 generated quantities {  // NO VECTORIZATION IN THIS BLOCK
@@ -51,18 +51,13 @@ generated quantities {  // NO VECTORIZATION IN THIS BLOCK
   real alpha_prior; // TODO: NEEDS TO BE POSTIVE-VALUED ONLY
   real <lower=0,upper=1> epsilon_prior;
 
+  // POSTERIOR PREDICTION
   for (t in 1:totalTrials){
-    // posterior predictive responses
     Rpostpred[t] <- bernoulli_rng(P[t]);
-    // // sample from priors
-    // logk_prior[t] <- normal_rng(-3.9120, 2.5);
-    // alpha_prior[t] <- exponential_rng(0.01);
-    // epsilon_prior[t] <- beta_rng(1.1, 10.9);
   }
 
-  // sample from priors
+  // SAMPLING FROM PRIORS
   logk_prior <- normal_rng(-3.9120, 2.5);
   alpha_prior <- exponential_rng(0.01);
-  epsilon_prior <- beta_rng(1.1, 10.9);
-
+  epsilon_prior <- beta_rng(1.1, 10.9); // how do I trunate <0.5
 }
