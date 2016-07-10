@@ -256,17 +256,25 @@ classdef Model < handle
 		end
 
 		function RpostPred = getParticipantPredictedResponses(obj,p)
-			% Note that, because of the way how the data are
-			% represented (with ragged arrays, because not all
-			% participant did the same number of trials), we have to
-			% just get the posterior predicted values corresponding to
-			% the number of questions they actually did
-
-			% get all their predicted responses
-			all = obj.mcmc.getParticipantPredictedResponses(p);
-			% trim any extra off, corresponding to the ragged array
-			nQuestionsThisParticipantDid = obj.data.participantLevel(p).trialsForThisParticant;
-			RpostPred = all([1:nQuestionsThisParticipantDid]);
+			
+			trialIndOfThisParicipant = obj.data.observedData.ID==p;
+			% get it
+			RpostPred = obj.mcmc.getParticipantPredictedResponses(trialIndOfThisParicipant);
+			
+			
+% 			% collapse over chains
+% 			
+% 			% Note that, because of the way how the data are
+% 			% represented (with ragged arrays, because not all
+% 			% participant did the same number of trials), we have to
+% 			% just get the posterior predicted values corresponding to
+% 			% the number of questions they actually did
+% 
+% 			% get all their predicted responses
+% 			all = obj.mcmc.getParticipantPredictedResponses(p);
+% 			% trim any extra off, corresponding to the ragged array
+% 			nQuestionsThisParticipantDid = obj.data.participantLevel(p).trialsForThisParticant;
+% 			RpostPred = all([1:nQuestionsThisParticipantDid]);
 		end
 
 		%% Posterior predictive model checking #1
@@ -313,9 +321,10 @@ classdef Model < handle
 			% on demand and not storing it.
 
 			% get predicted P(choose delayed)
-			P = obj.mcmc.getPChooseDelayed(p);
-			% trim off any empty data from the ragged array approach
-			P = P([1:obj.data.participantLevel(p).trialsForThisParticant],:);
+			trialIndOfThisParicipant = obj.data.observedData.ID==p;
+			P = obj.mcmc.getPChooseDelayed(trialIndOfThisParicipant);
+% 			% trim off any empty data from the ragged array approach
+% 			P = P([1:obj.data.participantLevel(p).trialsForThisParticant],:);
 
 			nQuestions = size(P,1);
 			% get participant responses

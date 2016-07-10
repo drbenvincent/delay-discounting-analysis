@@ -38,23 +38,22 @@ model{
       alpha[p]    ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
     }
 
-    for (p in participantIndexList){
-      for (t in 1:(T[p])) {
+
+  for (t in 1:length(ID)) {
         # Calculate log discount rate for each reward
-        lkA[p,t] <- m[p]*log(abs(A[p,t]))+c[p]
-        lkB[p,t] <- m[p]*log(abs(B[p,t]))+c[p]
+        lkA[t] <- m[ID[t]]*log(abs(A[t]))+c[ID[t]]
+        lkB[t] <- m[ID[t]]*log(abs(B[t]))+c[ID[t]]
 
         # calculate present subjective value for each reward
-        VA[p,t] <- A[p,t] / (1+(exp(lkA[p,t])*DA[p,t]))
-        VB[p,t] <- B[p,t] / (1+(exp(lkB[p,t])*DB[p,t]))
+        VA[t] <- A[t] / (1+(exp(lkA[t])*DA[t]))
+        VB[t] <- B[t] / (1+(exp(lkB[t])*DB[t]))
 
         # Psychometric function
-        P[p,t] <- epsilon[p] + (1-2*epsilon[p]) * phi( (VB[p,t]-VA[p,t]) / alpha[p] )
+        P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * phi( (VB[t]-VA[t]) / alpha[ID[t]] )
 
         # response likelihood
-        R[p,t]         ~ dbern(P[p,t]) # likelihood of actual response
-        Rpostpred[p,t] ~ dbern(P[p,t]) # posterior predicted response
-      }
+        R[t]         ~ dbern(P[t]) # likelihood of actual response
+        Rpostpred[t] ~ dbern(P[t]) # posterior predicted response
     }
 
 

@@ -11,7 +11,7 @@
 # - T (vector of trials per participant)
 # - A, B
 # - uniqueDelays
-# - delayLookUp[p,t] is an index into the delay
+# - delayLookUp[t] is an index into the delay
 
 # Parameters
 # - alpha
@@ -41,16 +41,14 @@ model{
 
   }
 
-  for (p in participantIndexList){
-    for (t in 1:T[p]) {
-      VA[p,t] <- A[p,t] # NO DELAY FOR A
-      VB[p,t] <- (B[p,t]) * discountFraction[p, delayLookUp[p,t] ]
-      P[p,t] <- epsilon + (1-2*epsilon) * phi( (VB[p,t]-VA[p,t]) / alpha )
+  for (t in 1:length(ID)) {
+      VA[t] <- A[t] # NO DELAY FOR A
+      VB[t] <- (B[t]) * discountFraction[p, delayLookUp[t] ]
+      P[t] <- epsilon + (1-2*epsilon) * phi( (VB[t]-VA[t]) / alpha )
 
       # response likelihood
-      R[p,t]         ~ dbern(P[p,t]) # likelihood of actual response
-      Rpostpred[p,t] ~ dbern(P[p,t]) # posterior predicted response
-    }
+      R[t]         ~ dbern(P[t]) # likelihood of actual response
+      Rpostpred[t] ~ dbern(P[t]) # posterior predicted response
   }
 
 

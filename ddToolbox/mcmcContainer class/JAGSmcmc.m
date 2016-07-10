@@ -96,24 +96,37 @@ classdef JAGSmcmc < mcmcContainer
 		end
 
 
-		function [predicted] = getParticipantPredictedResponses(obj, participant)
-			% calculate the probability of choosing the delayed reward, for
-			% all trials, for a particular participant.
+		function [predicted] = getParticipantPredictedResponses(obj, ind)
 			
-			% extract samples from the participant
-			Rpostpred = squeeze(obj.samples.Rpostpred(:,:,participant,:));
-			% flatten over chains
-			s = size(Rpostpred);
-			participantRpostpredSamples = reshape(Rpostpred, s(1)*s(2), s(3));
+			RpostPred = obj.samples.Rpostpred(:,:,ind);
+			% collapse over chains
+			s = size(RpostPred);
+			participantRpostpredSamples = reshape(RpostPred, s(1)*s(2), s(3));
 			
-			% predicted probability of choosing delayed (response = 1)
-			[nSamples,~] = size(participantRpostpredSamples);
-			predicted = sum(participantRpostpredSamples,1)./nSamples;
+			predicted = sum(participantRpostpredSamples,1) ./ size(participantRpostpredSamples,1);
+			
+% 			% calculate the probability of choosing the delayed reward, for
+% 			% all trials, for a particular participant.
+% 			
+% % 			% extract samples from the participant
+% % 			Rpostpred = squeeze(obj.samples.Rpostpred(:,:,participant));
+% % 			% flatten over chains
+% % 			s = size(Rpostpred);
+% % 			participantRpostpredSamples = reshape(Rpostpred, s(1)*s(2), s(3));
+% 
+% % get trials corresponding to this participant
+% 
+% 			participantRpostpredSamples = vec(obj.samples.Rpostpred(:,:,participant));
+% 			
+% 			% predicted probability of choosing delayed (response = 1)
+% % 			[nSamples,~] = size(participantRpostpredSamples);
+% % 			predicted = sum(participantRpostpredSamples,1)./nSamples;
+% 			predicted = sum(participantRpostpredSamples)./numel(participantRpostpredSamples);
 		end
 		
-		function [P] = getPChooseDelayed(obj, participant)
+		function [P] = getPChooseDelayed(obj, pInd)
 			% get samples for participant
-			P = squeeze( obj.samples.P(:,:,participant,:) );
+			P = obj.samples.P(:,:,pInd);
 			% flatten over chains
 			s = size(P);
 			P = reshape(P, s(1)*s(2), s(3));
@@ -130,8 +143,15 @@ classdef JAGSmcmc < mcmcContainer
 			for field = each(fieldsToGet)
 				temp = samples.(field);
 				oldDims = size(temp);
-				newDims = [oldDims(1)*oldDims(2) oldDims([3:end])];
-				samples.(field) = reshape(temp, newDims);
+				switch numel(oldDims)
+					case{2}
+						% only dealing with one participant
+						samples.(field) = vec(temp);
+					case{3}
+						% dealing with multiple participants
+						newDims = [oldDims(1)*oldDims(2) oldDims([3:end])];
+						samples.(field) = reshape(temp, newDims);
+				end
 			end
 		end
 

@@ -19,7 +19,7 @@ classdef ModelSeparateME < Model
 			obj = obj@Model(data, saveFolder, samplerType, modelPath, varargin{:});
 
             obj.discountFuncType = 'me';
-            
+
 			% 'Decorate' the object with appropriate plot functions
 			obj.plotFuncs.participantFigFunc = @figParticipantME;
 			obj.plotFuncs.plotGroupLevel = @(x) []; % null function
@@ -37,9 +37,9 @@ classdef ModelSeparateME < Model
 		% Generate initial values of the leaf nodes
 		function setInitialParamValues(obj)
 
-			nTrials = size(obj.data.observedData.A,2);
+			% nTrials = size(obj.data.observedData.A,2);
 			nParticipants = obj.data.nParticipants;
-			nUniqueDelays = numel(obj.data.observedData.uniqueDelays);
+			% nUniqueDelays = numel(obj.data.observedData.uniqueDelays);
 
 			for chain = 1:obj.sampler.mcmcparams.nchains
 				obj.initialParams(chain).m = normrnd(-0.243,2, [nParticipants,1]);

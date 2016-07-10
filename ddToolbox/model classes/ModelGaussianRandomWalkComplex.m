@@ -17,14 +17,14 @@ classdef ModelGaussianRandomWalkComplex < Model
             obj = obj@Model(data, saveFolder, samplerType, modelPath, varargin{:});
 
 			obj.discountFuncType = 'logk';
-            
+
 			% 'Decorate' the object with appropriate plot functions
 			obj.plotFuncs.participantFigFunc = @figParticipantLOGK;
 			obj.plotFuncs.plotGroupLevel = @plotGroupLevelStuff;
 
 			%% Create variables
 			obj.varList.participantLevel = {'discountFraction','epsilon'};
-      obj.varList.participantLevelPriors = {'epsilon_group_prior'};
+            obj.varList.participantLevelPriors = {'epsilon_group_prior'};
 			obj.varList.groupLevel = {'epsilon_group'};
 
 			obj.varList.monitored = {'discountFraction','epsilon',...

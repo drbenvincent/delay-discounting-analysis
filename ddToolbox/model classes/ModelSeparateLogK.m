@@ -33,9 +33,9 @@ classdef ModelSeparateLogK < Model
 		% Generate initial values of the leaf nodes
 		function setInitialParamValues(obj)
 
-			nTrials = size(obj.data.observedData.A,2);
+			%nTrials = size(obj.data.observedData.A,2);
 			nParticipants = obj.data.nParticipants;
-			nUniqueDelays = numel(obj.data.observedData.uniqueDelays);
+			%nUniqueDelays = numel(obj.data.observedData.uniqueDelays);
 
 			for chain = 1:obj.sampler.mcmcparams.nchains
 				obj.initialParams(chain).logk = normrnd(log(1/365),10, [nParticipants,1]);

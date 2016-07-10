@@ -42,9 +42,9 @@ classdef ModelHierarchicalME < Model
 		% Generate initial values of the leaf nodes
 		function setInitialParamValues(obj)
 
-			nTrials = size(obj.data.observedData.A,2);
-			nParticipants = obj.data.nParticipants;
-			nUniqueDelays = numel(obj.data.observedData.uniqueDelays);
+% 			nTrials = size(obj.data.observedData.A,2);
+% 			nParticipants = obj.data.nParticipants;
+% 			nUniqueDelays = numel(obj.data.observedData.uniqueDelays);
 
 			for chain = 1:obj.sampler.mcmcparams.nchains
 				obj.initialParams(chain).groupMmu = normrnd(-0.243,10);

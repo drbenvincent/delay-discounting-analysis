@@ -21,7 +21,7 @@ classdef ModelGaussianRandomWalkSimple < Model
             obj = obj@Model(data, saveFolder, samplerType, modelPath, varargin{:});
 
 			obj.discountFuncType = 'nonparametric';
-            
+
 			% 'Decorate' the object with appropriate plot functions
 			obj.plotFuncs.participantFigFunc = @figParticipantLOGK;
 			obj.plotFuncs.plotGroupLevel = @plotGroupLevelStuff;
@@ -37,7 +37,7 @@ classdef ModelGaussianRandomWalkSimple < Model
 		% Generate initial values of the leaf nodes
 		function setInitialParamValues(obj)
 
-			nTrials = size(obj.data.observedData.A,2);
+			%nTrials = size(obj.data.observedData.A,2);
 			nParticipants = obj.data.nParticipants;
 			nUniqueDelays = numel(obj.data.observedData.uniqueDelays);
 
@@ -90,7 +90,7 @@ classdef ModelGaussianRandomWalkSimple < Model
 
 				% Plotting
 				figure(1), clf
-				
+
                 subplot(1,2,1)
 				intervals = [50 95];
 				plotDiscountFunctionGRW(personInfo, intervals)
@@ -98,7 +98,7 @@ classdef ModelGaussianRandomWalkSimple < Model
 				%set(gca,'XScale','log')
 				%axis tight
 				%axis square
-				
+
                 subplot(1,2,2)
                 uni = mcmc.UnivariateDistribution(obj.AUC_DATA(p).AUCsamples,...
                   'xLabel', 'AUC');
