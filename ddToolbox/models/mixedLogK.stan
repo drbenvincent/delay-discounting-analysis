@@ -21,8 +21,8 @@ data {
 transformed data {
   real groupLogKmu;
   real<lower=0> groupLogKsigma;
-  groupLogKmu = -3.9120; #log(1/50)
-  groupLogKsigma = 2.5;
+  groupLogKmu <- -3.9120; #log(1/50)
+  groupLogKsigma <- 2.5;
 }
 
 parameters {
@@ -84,8 +84,8 @@ model {
   groupKminus2     ~ gamma(0.1,0.1); // concentration parameter
 
   // SAMPLING FROM PRIOR group level priors
-  groupLogKmu_prior      <- log(1/50);
-  groupLogKsigma_prior   <- 2.5;
+  //groupLogKmu_prior      <- log(1.0/50.0);
+  //groupLogKsigma_prior   <- 2.5;
 
   groupALPHAmu_prior     ~ uniform(0,100);
   groupALPHAsigma_prior  ~ inv_gamma(0.001,0.001);
@@ -119,7 +119,7 @@ generated quantities {  // NO VECTORIZATION IN THIS BLOCK
   epsilon_group    <- beta_rng(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 );
 
   // priors about the group level
-  logk_group_prior     <- normal_rng(groupLogKmu_prior, groupLogKsigma_prior);
+  logk_group_prior     <- normal_rng(groupLogKmu, groupLogKsigma);
   alpha_group_prior    <- normal_rng(groupALPHAmu_prior, groupALPHAsigma_prior);
   epsilon_group_prior  <- beta_rng(groupW_prior*(groupK_prior-2)+1 , (1-groupW_prior)*(groupK_prior-2)+1 );
 
