@@ -1,4 +1,10 @@
 function exportTable(myTable, savePath)
+
+% ensure target location exists
+[folderPath, ~] = fileparts(savePath);
+ensureFolderExists(folderPath)
+
+% export
 writetable(myTable, savePath,...
 	'Delimiter','\t',...
 	'WriteRowNames',true)

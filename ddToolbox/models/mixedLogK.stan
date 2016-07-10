@@ -15,12 +15,20 @@ data {
   vector<lower=0>[totalTrials] DB;
   int <lower=0,upper=1> R[totalTrials];
   int <lower=0,upper=nParticipants> ID[totalTrials];
+
+}
+
+transformed data {
+  real groupLogKmu;
+  real<lower=0> groupLogKsigma;
+  groupLogKmu = -3.9120; #log(1/50)
+  groupLogKsigma = 2.5;
 }
 
 parameters {
   // group level
-  real groupLogKmu;
-  real<lower=0> groupLogKsigma;
+  // real groupLogKmu;
+  // real<lower=0> groupLogKsigma;
 
   real groupALPHAmu;
   real <lower=0> groupALPHAsigma;
@@ -66,8 +74,8 @@ transformed parameters {
 
 model {
   // group level priors
-  groupLogKmu      ~ normal(-3.9120,2.5);
-  groupLogKsigma   ~ inv_gamma(0.01,0.01);
+  // groupLogKmu      <- log(1/50);
+  // groupLogKsigma   <- 2.5;
 
   groupALPHAmu     ~ uniform(0,100);
   groupALPHAsigma  ~ inv_gamma(0.01,0.01);
@@ -76,8 +84,8 @@ model {
   groupKminus2     ~ gamma(0.1,0.1); // concentration parameter
 
   // SAMPLING FROM PRIOR group level priors
-  groupLogKmu_prior      ~ normal(-3.9120,2.5);
-  groupLogKsigma_prior   ~ inv_gamma(0.001,0.001);
+  groupLogKmu_prior      <- log(1/50);
+  groupLogKsigma_prior   <- 2.5;
 
   groupALPHAmu_prior     ~ uniform(0,100);
   groupALPHAsigma_prior  ~ inv_gamma(0.001,0.001);

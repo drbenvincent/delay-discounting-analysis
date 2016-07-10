@@ -25,3 +25,6 @@ demo/data/groupLevelData/COMBINED_DATA.txt
 demo-nonparametric/data/groupLevelData/COMBINED_DATA.txt
 
 demo-nonparametric/figs
+demo/output-3.csv
+
+demo/output-4.csv

@@ -62,8 +62,14 @@ classdef Model < handle
 					if ~isempty( obj.chains )
 						obj.sampler.setMCMCnumberOfChains(obj.chains)
 					end
-				case{'STAN'}
+				case{'stan'}
 					obj.sampler = MatlabStanWrapper(modelFile);
+					
+					obj.sampler.mcmcparams.warmup = 100;
+					obj.sampler.mcmcparams.iter = 5000;
+					obj.sampler.mcmcparams.chains = 4;
+					obj.sampler.mcmcparams.totalSamples = obj.sampler.mcmcparams.chains * obj.sampler.mcmcparams.iter;
+
 			end
 
 			[~,obj.modelType,~] = fileparts(obj.modelFile);
@@ -92,9 +98,11 @@ classdef Model < handle
 		function conductInference(obj)
 			% TODO: get the observed data from the raw group data here.
 
-			% prep for MCMC
-			obj.setInitialParamValues();
-			obj.sampler.initialParameters = obj.initialParams;
+% 			% ~~~~~ONLY NEEDED FOR JAGS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% 			% prep for MCMC
+% 			obj.setInitialParamValues();
+% 			obj.sampler.initialParameters = obj.initialParams;
+% 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 			% do the MCMC sampling
 			obj.mcmc = obj.sampler.conductInference( obj , obj.data );
@@ -256,20 +264,20 @@ classdef Model < handle
 		end
 
 		function RpostPred = getParticipantPredictedResponses(obj,p)
-			
+
 			trialIndOfThisParicipant = obj.data.observedData.ID==p;
 			% get it
 			RpostPred = obj.mcmc.getParticipantPredictedResponses(trialIndOfThisParicipant);
-			
-			
+
+
 % 			% collapse over chains
-% 			
+%
 % 			% Note that, because of the way how the data are
 % 			% represented (with ragged arrays, because not all
 % 			% participant did the same number of trials), we have to
 % 			% just get the posterior predicted values corresponding to
 % 			% the number of questions they actually did
-% 
+%
 % 			% get all their predicted responses
 % 			all = obj.mcmc.getParticipantPredictedResponses(p);
 % 			% trim any extra off, corresponding to the ragged array
@@ -327,9 +335,10 @@ classdef Model < handle
 % 			P = P([1:obj.data.participantLevel(p).trialsForThisParticant],:);
 
 			nQuestions = size(P,1);
+			totalSamples = size(P,2);
 			% get participant responses
 			participantResponses = obj.data.participantLevel(p).table.R;
-			totalSamples = obj.mcmc.mcmcparams.totalSamples;
+			%totalSamples = obj.sampler.mcmcparams.totalSamples;
 
 			% Expand the participant responses so we can do vectorised
 			% calculations below

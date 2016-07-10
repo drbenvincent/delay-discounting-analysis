@@ -14,7 +14,7 @@ classdef ModelHierarchicalMEUpdated < ModelHierarchicalME
             modelPath = makeProbModelsPath(modelType, samplerType);
 
 			% ** NOTE: this call is differently **
-			obj = obj@ModelHierarchicalME('JAGS', data, saveFolder, varargin{:});
+			obj = obj@ModelHierarchicalME(samplerType, data, saveFolder, varargin{:});
 
 		end
 

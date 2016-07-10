@@ -24,6 +24,8 @@ myData = DataClass(environment.dataPath);
 myData.loadDataFiles(filesToAnalyse);
 
 
+
+
 %% Do the analysis, loop over each of the models
 for modelName = listOfModels
 	makeModelFunction = str2func(modelName{:});
@@ -84,22 +86,57 @@ grw.plot()
 %% EXPERIMENTAL FEATURE FOR THE FUTURE -------------------
 % --------------------------------------------------------
 
+%% ModelHierarchicalME
+hmeModel = ModelHierarchicalME('STAN', myData, 'hierarchicalME',...
+		'pointEstimateType','mode');
+hmeModel.sampler.setStanHome('~/cmdstan-2.9.0')
+hmeModel.conductInference();
+hmeModel.exportParameterEstimates();
+hmeModel.plot()
 
 
-% %% ModelHierarchicalLogK
-% sModel = ModelHierarchicalLogK(environment, 'STAN', myData, 'stanModelHierarchicalLogK');
-% sModel.sampler.setStanHome('~/cmdstan')
-% clc
-% stanFit = sModel.conductInference();
-% % ~~~~~~~~~~~~~~~~~
-% sModel.plot()
-% % ~~~~~~~~~~~~~~~~~
-% 
-% %% HOW TO GET STATS VALUES
-% % can get summary by typing this into TERMINAL
-% % bin/stansummary /Users/benvincent/git-local/delay-discounting-analysis/demo/output-1.csv
-% 
-% sModel.sampler.stanFit.print()
+
+hmeModel = ModelHierarchicalMEUpdated('STAN', myData, 'hierarchicalMEupdated',...
+		'pointEstimateType','mode');
+hmeModel.sampler.setStanHome('~/cmdstan-2.9.0')
+hmeModel.conductInference();
+hmeModel.exportParameterEstimates();
+hmeModel.plot()
+
+
+
+%% ModelHierarchicalLogK
+sModel = ModelHierarchicalLogK('STAN', myData, 'hierarchicalLogK',...
+		'pointEstimateType','mode');
+sModel.sampler.setStanHome('~/cmdstan-2.9.0')
+sModel.conductInference();
+sModel.exportParameterEstimates();
+sModel.plot()
+
+
+%% ModelHierarchicalLogK
+sModel = ModelMixedLogK('STAN', myData, 'mixedLogK',...
+		'pointEstimateType','mode');
+sModel.sampler.setStanHome('~/cmdstan-2.9.0')
+sModel.conductInference();
+sModel.exportParameterEstimates();
+sModel.plot()
+
+
+%% ModelSeparateLogK
+sModel = ModelSeparateLogK('STAN', myData, 'separateLogK',...
+		'pointEstimateType','mode');
+sModel.sampler.setStanHome('~/cmdstan-2.9.0')
+sModel.conductInference();
+sModel.exportParameterEstimates();
+sModel.plot()
+
+
+%% HOW TO GET STATS VALUES
+% can get summary by typing this into TERMINAL
+% bin/stansummary /Users/benvincent/git-local/delay-discounting-analysis/demo/output-1.csv
+
+sModel.sampler.stanFit.print()
 % 
 % 
 % 

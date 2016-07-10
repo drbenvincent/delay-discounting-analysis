@@ -1,8 +1,9 @@
 classdef STANmcmc < mcmcContainer
-	%STANmcmc
+	%STANmcmc This is an MCMC container which wraps around a StanFit
+	%object. It provides useful getter functions
 
 	properties (Access = public)
-    stanFit % object returned by STAN
+		stanFit % object returned by STAN
 		stats
 		mcmcparams
 	end
@@ -21,9 +22,35 @@ classdef STANmcmc < mcmcContainer
 			obj.samples = obj.stanFit.extract('permuted',true);
 			%obj.stats = stats;
 			%obj.mcmcparams = mcmcparams;
+			
+			%% Calculate a variety of stats here
+			obj.calcStatsFromSamples()
 
 		end
 
+		function calcStatsFromSamples(obj)
+			f = fieldnames(obj.samples);
+			for n=1:numel(f)
+				obj.stats.mean.(f{n}) = mean(obj.samples.(f{n}));
+				obj.stats.median.(f{n}) = median(obj.samples.(f{n}));
+				obj.stats.mode.(f{n}) = mode(obj.samples.(f{n}));
+				obj.stats.std.(f{n}) = std(obj.samples.(f{n}));
+				% get HDI
+				tempSamples = obj.samples.(f{n});
+				for i=1:size(tempSamples,2)
+					[HDI] = HDIofSamples(tempSamples(:,i), 0.95);
+					obj.stats.hdi_low.(f{n})(:,i) = HDI(1);
+					obj.stats.hdi_high.(f{n})(:,i) = HDI(2);
+				end
+				% get 95% CI
+				tempSamples = obj.samples.(f{n});
+				for i=1:size(tempSamples,2)
+					[CI] = prctile(tempSamples(:,i), [2.5 97.5]);
+					obj.stats.ci_low.(f{n})(:,i) = CI(1);
+					obj.stats.ci_high.(f{n})(:,i) = CI(2);
+				end
+			end
+		end
 
 		%% GET METHODS ----------------------------------------------------
 		function [samples] = getSamplesAtIndex(obj, index, fieldsToGet)
@@ -34,11 +61,11 @@ classdef STANmcmc < mcmcContainer
 			% 2. mcmc sample number
 			% 3. index of variable, meaning depends upon context of the
 			% model
-
+			
 			% % [flatSamples] = obj.flattenChains(obj.samples, fieldsToGet);
 			for field = each(fieldsToGet)
-			 	samples.(field) = obj.samples.(field)(:,index);
-			 end
+				samples.(field) = obj.samples.(field)(:,index);
+			end
 		end
 
 		function [samplesMatrix] = getSamplesFromParticipantAsMatrix(obj, participant, fieldsToGet)
@@ -62,48 +89,46 @@ classdef STANmcmc < mcmcContainer
 			[samplesMatrix] = struct2Matrix(samples);
 		end
 
-		function [output] = getStats(obj, field, variable)
+		function [columnVector] = getStats(obj, pointEstimateType, variable)
 			% % return column vector
 			% output = obj.stats.(field).(variable)';
-			switch field
-				case{'mean'}
-					output = mean( obj.samples.(variable) );
+			try
+				columnVector = obj.stats.(pointEstimateType).(variable)';
+			catch
+				columnVector =[];
 			end
 		end
 
 		function [output] = getAllStats(obj)
+			beep
 			% warning('Try to remove this method')
 			% output = obj.stats;
 		end
 
-		function [predicted] = getParticipantPredictedResponses(obj, participant)
-			% % calculate the probability of choosing the delayed reward, for
-			% % all trials, for a particular participant.
-			% Rpostpred = obj.samples.Rpostpred;
-			% % extract samples from the participant
-			% Rpostpred = squeeze(Rpostpred(:,:,participant,:));
-			% % flatten over chains
-			% s = size(Rpostpred);
-			% participantRpostpredSamples = reshape(Rpostpred, s(1)*s(2), s(3));
-			% [nSamples,~] = size(participantRpostpredSamples);
-			% % predicted probability of choosing delayed (response = 1)
-			% predicted = sum(participantRpostpredSamples,1)./nSamples;
+		function [predicted] = getParticipantPredictedResponses(obj, ind)
+			RpostPred = obj.samples.Rpostpred(:,ind);
+			predicted = sum(RpostPred,1) ./ size(RpostPred,1);
 		end
+		
+		function [P] = getPChooseDelayed(obj, ind)
+			% get samples for participant
+			P = obj.samples.P(:,ind);
+			P=P';
+		end
+		
 
+		function data = grabParamEstimates(obj, varNames, getCI, pointEstimateType)
+			assert(islogical(getCI))
+			data=[];
+			for n=1:numel(varNames)
+				data = [data obj.getStats(pointEstimateType,varNames{n})]; % <----- TODO: POINT ESTIMATE TYPE
+				if getCI
+					data = [data obj.getStats('hdi_low',varNames{n})];
+					data = [data obj.getStats('hdi_high',varNames{n})];
+				end
+			end
+		end
+		
 	end
 
-	% methods(Static)
-	%
-	% 	function [samples] = flattenChains(samples, fieldsToGet)
-	% 		% collapse the first 2 dimensions of samples (number of MCMC
-	% 		% chains, number of MCMC samples)
-	% 		for n=1:numel(fieldsToGet)
-	% 			temp = samples.(fieldsToGet{n});
-	% 			oldDims = size(temp);
-	% 			newDims = [oldDims(1)*oldDims(2) oldDims([3:end])];
-	% 			samples.(fieldsToGet{n}) = reshape(temp, newDims);
-	% 		end
-	% 	end
-	%
-	% end
 end
