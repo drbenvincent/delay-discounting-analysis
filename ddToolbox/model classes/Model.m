@@ -1,4 +1,4 @@
-classdef Model < handle
+classdef Model
 	%Model Base class to provide basic functionality
 	
 	properties (Access = public)
@@ -51,7 +51,7 @@ classdef Model < handle
 		
 		% MIDDLE-MAN METHODS ================================================
 		
-		function mcmcObject = conductInference(obj, samplerType, varargin)
+		function obj = conductInference(obj, samplerType, varargin)
 			% TODO: get the observed data from the raw group data here.
 			samplerType     = lower(samplerType);
 			
@@ -103,7 +103,7 @@ classdef Model < handle
 			% fix/check ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 			
 			%% Post-sampling activities
-			obj.calcPosteriorPredictive()
+			obj = obj.calcPosteriorPredictive();
 			obj.mcmc.convergenceSummary(obj.saveFolder, obj.data.IDname)
 			obj.exportParameterEstimates();
 			
@@ -115,19 +115,19 @@ classdef Model < handle
 			obj.tellUserAboutPublicMethods()
 		end
 		
-		function setBurnIn(obj, nburnin)
+		function obj = setBurnIn(obj, nburnin)
 			obj.sampler.setBurnIn(nburnin)
 		end
 		
-		function setMCMCtotalSamples(obj, totalSamples)
+		function obj = setMCMCtotalSamples(obj, totalSamples)
 			obj.sampler.setMCMCtotalSamples(totalSamples)
 		end
 		
-		function setMCMCnumberOfChains(obj, nchains)
+		function obj = setMCMCnumberOfChains(obj, nchains)
 			obj.sampler.setMCMCnumberOfChains(nchains)
 		end
 		
-		function plotMCMCchains(obj,vars)
+		function obj = plotMCMCchains(obj,vars)
 			obj.mcmc.plotMCMCchains(vars);
 		end
 		
@@ -186,7 +186,7 @@ classdef Model < handle
 		
 		
 		
-		function conditionalDiscountRates(obj, reward, plotFlag)
+		function obj = conditionalDiscountRates(obj, reward, plotFlag)
 			% Extract and plot P( log(k) | reward)
 			warning('THIS METHOD IS A TOTAL MESS - PLAN THIS AGAIN FROM SCRATCH')
 			obj.conditionalDiscountRates_ParticipantLevel(reward, plotFlag)
@@ -336,7 +336,7 @@ classdef Model < handle
 		
 		%% POSTERIOR PREDICTION ===========================================
 		
-		function calcPosteriorPredictive(obj)
+		function obj = calcPosteriorPredictive(obj)
 			display('Calculating posterior predictive measures...')
 			nParticipants = obj.data.nParticipants;
 			

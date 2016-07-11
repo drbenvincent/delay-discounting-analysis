@@ -20,7 +20,7 @@ hModel = ModelHierarchicalME(myData,...
 	'saveFolder', 'analysis_with_hierarchical_magnitude_effect');
 
 % Call the model's conductInference method
-hModel.conductInference('jags',... % {'jags', 'stan'}
+hModel = hModel.conductInference('jags',... % {'jags', 'stan'}
 	'shouldPlot','no'); % TODO: add mcmcparams over-ride
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

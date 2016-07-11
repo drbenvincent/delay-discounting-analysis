@@ -1,6 +1,6 @@
 function testScript
 
-numberOfMCMCSamples = 10^3;
+numberOfMCMCSamples = 10^2;
 chains = 2;
 sampler = 'jags';
 
@@ -30,7 +30,7 @@ for modelName = listOfModels
 		'saveFolder', modelName{:},...
 		'pointEstimateType','mode');
 	
-	models.(modelName{:}).conductInference('jags',... % {'jags', 'stan'}
+	models.(modelName{:}) = models.(modelName{:}).conductInference('jags',... % {'jags', 'stan'}
 		'shouldPlot','no'); % TODO: add mcmcparams over-ride
 end
 

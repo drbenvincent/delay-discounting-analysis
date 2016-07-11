@@ -25,7 +25,7 @@ classdef MatjagsWrapper < SamplerWrapper
 			% move it to model.conductInference()
 			
 			%% preparation for MCMC sampling
-			model.setInitialParamValues();
+			model = model.setInitialParamValues();
 			obj.initialParameters = model.initialParams;
 			
 			variables = model.variables;

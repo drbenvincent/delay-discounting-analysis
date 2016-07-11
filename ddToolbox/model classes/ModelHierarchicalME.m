@@ -33,7 +33,7 @@ classdef ModelHierarchicalME < Model
 		end
 
 		% Generate initial values of the leaf nodes
-		function setInitialParamValues(obj)
+		function obj = setInitialParamValues(obj)
 			for chain = 1:obj.sampler.mcmcparams.nchains
 				obj.initialParams(chain).groupMmu		= normrnd(-0.243,10);
 				obj.initialParams(chain).groupMsigma	= rand*10;
@@ -47,7 +47,7 @@ classdef ModelHierarchicalME < Model
 
 
 		%% ******** SORT OUT WHERE THESE AND OTHER FUNCTIONS SHOULD BE *************
-		function conditionalDiscountRates(obj, reward, plotFlag)
+		function obj = conditionalDiscountRates(obj, reward, plotFlag)
 			% For group level and all participants, extract and plot P( log(k) | reward)
 			warning('THIS METHOD IS A TOTAL MESS - PLAN THIS AGAIN FROM SCRATCH')
 			obj.conditionalDiscountRates_ParticipantLevel(reward, plotFlag)
