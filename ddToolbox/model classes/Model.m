@@ -18,6 +18,7 @@ classdef Model < handle
 		%goodnessOfFit
 		postPred
 		parameterEstimateTable
+		shouldPlot
 	end
 
     properties (Hidden)
@@ -42,6 +43,7 @@ classdef Model < handle
 			% additional user-supplied preferences
 			p.addParameter('mcmcSamples',[], @isscalar)
 			p.addParameter('chains',[], @isscalar)
+			p.addParameter('shouldPlot','no',@(x) any(strcmp(x,{'all','no'})));
 
 			p.parse(data, saveFolder, samplerType, modelFile, varargin{:});
 
@@ -111,6 +113,11 @@ classdef Model < handle
 			obj.calcPosteriorPredictive()
 			obj.mcmc.convergenceSummary(obj.saveFolder, obj.data.IDname)
 			obj.exportParameterEstimates();
+			
+			% Deal with plotting options
+			if ~strcmp(obj.shouldPlot,'no')
+				obj.plot()
+			end
 			
 		end
 

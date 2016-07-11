@@ -20,7 +20,8 @@ listOfModels = {'ModelHierarchicalME',...
 filesToAnalyse = allFilesInFolder(environment.dataPath, 'txt');
 %filesToAnalyse={'AC-kirby27-DAYS.txt', 'CS-kirby27-DAYS.txt'};
 %filesToAnalyse={'AC-kirby27-DAYS.txt'};
-myData = DataClass(environment.dataPath, 'files', filesToAnalyse);
+myData = DataClass(environment.dataPath,...
+	'files', filesToAnalyse);
 
 
 
@@ -31,9 +32,9 @@ for modelName = listOfModels
 	models.(modelName{:}) = makeModelFunction('JAGS', myData, modelName{:},...
 		'pointEstimateType','mode',...
 		'mcmcSamples', numberOfMCMCSamples,...
-		'chains', chains);
+		'chains', chains,...
+		'shouldPlot','all');
 	models.(modelName{:}).conductInference();
-	models.(modelName{:}).plot()
 end
 
 
@@ -73,9 +74,10 @@ grw = ModelGaussianRandomWalkSimple('JAGS', myData,...
 	'ModelGaussianRandomWalkSimple',...
 	'pointEstimateType','mode',...
 	'mcmcSamples', numberOfMCMCSamples,...
-	'chains', chains);
+	'chains', chains,...
+	'shouldPlot','all');
 grw.conductInference(); 
-grw.plot()
+
 
 
 
@@ -112,10 +114,11 @@ sModel.plot()
 
 %% Hierarchical, updated  **** MODEL NOT WORKING PROPERLY ****
 sModel = ModelHierarchicalMEUpdated('STAN', myData, 'hierarchicalMEupdated',...
-		'pointEstimateType','mean');
+		'pointEstimateType','mean',...
+		'shouldPlot','all');
 sModel.sampler.setStanHome('~/cmdstan-2.9.0')
 sModel.conductInference();
-sModel.plot()
+
 
 
 
@@ -125,24 +128,27 @@ sModel.plot()
 
 %% Separate
 sModel = ModelSeparateLogK('STAN', myData, 'separateLogK',...
-		'pointEstimateType','mean');
+		'pointEstimateType','mean',...
+		'shouldPlot','all');
 sModel.sampler.setStanHome('~/cmdstan-2.9.0')
 sModel.conductInference();
-sModel.plot()
+
 
 %% Mixed
 sModel = ModelMixedLogK('STAN', myData, 'mixedLogK',...
-		'pointEstimateType','mean');
+		'pointEstimateType','mean',...
+		'shouldPlot','all');
 sModel.sampler.setStanHome('~/cmdstan-2.9.0')
 sModel.conductInference();
-sModel.plot()
+
 
 %% Hierarchical **** MODEL NOT WORKING PROPERLY ****
 sModel = ModelHierarchicalLogK('STAN', myData, 'hierarchicalLogK',...
-		'pointEstimateType','mean');
+		'pointEstimateType','mean',...
+		'shouldPlot','all');
 sModel.sampler.setStanHome('~/cmdstan-2.9.0')
 sModel.conductInference();
-sModel.plot()
+
 
 
 
