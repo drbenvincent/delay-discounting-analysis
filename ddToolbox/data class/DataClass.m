@@ -35,7 +35,7 @@ classdef DataClass < handle
 			
 			% Load data files if they have beeb provided
 			if ~isempty(p.Results.files)
-				obj.loadDataFiles(p.Results.files)
+				obj.loadDataFiles(p.Results.files);
 			end
 			
 			

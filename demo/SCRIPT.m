@@ -10,6 +10,11 @@ environment = ddAnalysisSetUp(...
 myData = DataClass(environment.dataPath,...
 	'files', allFilesInFolder(environment.dataPath, 'txt'));
 
+
+% TODO: provide data into conduct inference rather than model?????
+
+% TODO: can get rid of handle class now?
+
 % Create an analysis model
 hModel = ModelHierarchicalME(myData,...
 	'saveFolder', 'analysis_with_hierarchical_magnitude_effect');
