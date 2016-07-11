@@ -10,24 +10,17 @@ environment = ddAnalysisSetUp(...
 myData = DataClass(environment.dataPath,...
 	'files', allFilesInFolder(environment.dataPath, 'txt'));
 
-
-% TODO: provide data into conduct inference rather than model?????
-
-% TODO: can get rid of handle class now?
-
 % Create an analysis model
 hModel = ModelHierarchicalME(myData,...
 	'saveFolder', 'analysis_with_hierarchical_magnitude_effect');
 
-% Call the model's conductInference method
+% Do some Bayesian inference with JAGS or STAN
 hModel = hModel.conductInference('jags',... % {'jags', 'stan'}
 	'shouldPlot','no'); % TODO: add mcmcparams over-ride
-% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 
-
-%% Example things you can now do
+%% Example things you can now do ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 % Plot MCMC chains for diagnosic purposes
 hModel.plotMCMCchains({'m','c'})

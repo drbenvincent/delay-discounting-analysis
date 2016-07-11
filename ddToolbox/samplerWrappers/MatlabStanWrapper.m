@@ -14,11 +14,11 @@ classdef MatlabStanWrapper < SamplerWrapper
 			obj = obj@SamplerWrapper();
 
 			obj.modelFilename = modelFilename;
-			obj.setMCMCparams();
+			obj = obj.setMCMCparams();
 		end
 		% =================================================================
 		
-		function setMCMCparams(obj)
+		function obj = setMCMCparams(obj)
 			% Default parameters
 			obj.mcmcparams.warmup = 100;
 			obj.mcmcparams.iter = 500;
@@ -29,7 +29,7 @@ classdef MatlabStanWrapper < SamplerWrapper
 		function mcmcFitObject = conductInference(obj, model, data)
 			%% preparation for MCMC sampling
 			% Prepare data
-			obj.setObservedValues(data);
+			obj = obj.setObservedValues(data);
 			% create Stan Model
 			stan_model = StanModel('file',obj.modelFilename,...
 				'stan_home', obj.stanHome);
@@ -69,7 +69,7 @@ classdef MatlabStanWrapper < SamplerWrapper
 			% % display('***** SAVE THE MODEL OBJECT HERE *****')
 		end
 
-		function setObservedValues(obj, data)
+		function obj = setObservedValues(obj, data)
 			obj.observed = data.observedData;
 			obj.observed.nParticipants	= data.nParticipants;
 			obj.observed.totalTrials	= data.totalTrials;
@@ -109,20 +109,16 @@ classdef MatlabStanWrapper < SamplerWrapper
 % 			obj.observed.ID = ID';
 % 		end
 
-		function setStanHome(obj, stanHome)
+		function obj = setStanHome(obj, stanHome)
 			warning('TODO: validate this folder exists')
 			obj.stanHome = stanHome;
 		end
-
-
+		
 		function convergenceSummary(obj,saveFolder,IDnames)
 		end
 
 		function figUnivariateSummary(obj, participantIDlist, variables)
 		end
-
-
-		
 
 	end
 

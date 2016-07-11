@@ -2,29 +2,27 @@ classdef Model
 	%Model Base class to provide basic functionality
 	
 	properties (Access = public)
-		modelType % string (ie modelType.jags, or modelType.stan)
 		modelFile
-		data % handle to Data class
-		sampler % handle to SamplerWrapper class
 		samplerType
-		variables % array of variables
-		varList
 		saveFolder
 		mcmc % handle to mcmc fit object
-		plotFuncs % structure of function handles
 		discountFuncType
 		pointEstimateType
-		initialParams
-		%goodnessOfFit
 		postPred
 		parameterEstimateTable
-		shouldPlot
 	end
 	
 	properties (Hidden)
 		% User supplied preferences
 		mcmcSamples
 		chains
+		modelType % string (ie modelType.jags, or modelType.stan)
+		sampler % handle to SamplerWrapper class
+		data % handle to Data class
+		varList
+		plotFuncs % structure of function handles
+		initialParams
+		shouldPlot
 	end
 	
 	methods(Abstract, Access = public)

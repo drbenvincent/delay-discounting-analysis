@@ -15,7 +15,7 @@ classdef MatjagsWrapper < SamplerWrapper
 			obj = obj@SamplerWrapper();
 
 			obj.modelFilename = modelFilename;
-			obj.setMCMCparams();
+			obj = obj.setMCMCparams();
 		end
 		% =================================================================
 
@@ -27,11 +27,6 @@ classdef MatjagsWrapper < SamplerWrapper
 			%% preparation for MCMC sampling
 			model = model.setInitialParamValues();
 			obj.initialParameters = model.initialParams;
-			
-			variables = model.variables;
-			nParticipants = data.nParticipants;
-			saveFolder = model.saveFolder;
-			IDnames = data.IDname;
 			
 			obj.displayMCMCparamInfo();
 		
@@ -77,28 +72,30 @@ classdef MatjagsWrapper < SamplerWrapper
 		end
 
 		%% SET METHODS ----------------------------------------------------
-		function setMCMCparams(obj)
+		function obj = setMCMCparams(obj)
 			% Default parameters
 			obj.mcmcparams.doparallel = 1;
 			obj.mcmcparams.nburnin = 5000;
 			obj.mcmcparams.nchains = 2;
-			obj.setMCMCtotalSamples(10^3); % 10^5 - 10^6 minimum
+			obj = obj.setMCMCtotalSamples(10^3); % 10^5 - 10^6 minimum
 			obj.mcmcparams.model = obj.modelFilename;
-			obj.setMCMCnumberOfChains(2);
+			obj = obj.setMCMCnumberOfChains(2);
 			obj.mcmcparams.totalSamples = obj.mcmcparams.nchains * obj.mcmcparams.nsamples;
 		end
 
-		function setBurnIn(obj, nburnin)
+		% TODO: remove these methods below
+		
+		function obj = setBurnIn(obj, nburnin)
 			obj.mcmcparams.nburnin = nburnin;
 			fprintf('Burn in: %d samples\n', obj.mcmcparams.nburnin)
 		end
 
-		function setMCMCtotalSamples(obj, totalSamples)
+		function obj = setMCMCtotalSamples(obj, totalSamples)
 			obj.mcmcparams.nsamples     = totalSamples / obj.mcmcparams.nchains;
 			obj.mcmcparams.totalSamples = totalSamples;
 		end
 
-		function setMCMCnumberOfChains(obj, nchains)
+		function obj = setMCMCnumberOfChains(obj, nchains)
 			obj.mcmcparams.nchains = nchains;
 			obj.mcmcparams.nsamples = obj.mcmcparams.totalSamples / obj.mcmcparams.nchains;
 		end

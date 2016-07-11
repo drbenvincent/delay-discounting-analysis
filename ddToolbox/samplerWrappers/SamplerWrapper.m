@@ -1,4 +1,4 @@
-classdef (Abstract) SamplerWrapper < handle
+classdef (Abstract) SamplerWrapper
 	%SamplerWrapper Abstract base class.
   % This is basically a wrapper to either matjags or matlabstan.
 
