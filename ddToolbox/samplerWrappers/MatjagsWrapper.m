@@ -6,9 +6,6 @@ classdef MatjagsWrapper < SamplerWrapper
 	end
 
 	properties (Access = private)
-		% samples % structure returned by matjags
-		% stats % structure returned by matjags
-
 	end
 
 	methods (Access = public)
@@ -18,16 +15,18 @@ classdef MatjagsWrapper < SamplerWrapper
 			obj = obj@SamplerWrapper();
 
 			obj.modelFilename = modelFilename;
-			%obj.samplerName = 'JAGS';
 			obj.setMCMCparams();
 		end
 		% =================================================================
 
 		function mcmc = conductInference(obj, model, data)
+			
+			% &&&&&& TODO: If this stuff below is sampler-indepdent, then
+			% move it to model.conductInference()
+			
 			%% preparation for MCMC sampling
 			model.setInitialParamValues();
 			obj.initialParameters = model.initialParams;
-			
 			
 			variables = model.variables;
 			nParticipants = data.nParticipants;
@@ -50,10 +49,6 @@ classdef MatjagsWrapper < SamplerWrapper
 			mcmc = obj.invokeSampler();
 
 			speak('sampling complete')
-
-% 			%% Post-sampling activities
-% 			mcmc.convergenceSummary(saveFolder,IDnames)
-% 			model.exportParameterEstimates();
 		end
 
 
@@ -86,10 +81,10 @@ classdef MatjagsWrapper < SamplerWrapper
 			% Default parameters
 			obj.mcmcparams.doparallel = 1;
 			obj.mcmcparams.nburnin = 5000;
-			obj.mcmcparams.nchains = 4;
-			obj.setMCMCtotalSamples(10^5); % 10^5 - 10^6 minimum
+			obj.mcmcparams.nchains = 2;
+			obj.setMCMCtotalSamples(10^3); % 10^5 - 10^6 minimum
 			obj.mcmcparams.model = obj.modelFilename;
-			obj.setMCMCnumberOfChains(4);
+			obj.setMCMCnumberOfChains(2);
 			obj.mcmcparams.totalSamples = obj.mcmcparams.nchains * obj.mcmcparams.nsamples;
 		end
 
@@ -101,13 +96,11 @@ classdef MatjagsWrapper < SamplerWrapper
 		function setMCMCtotalSamples(obj, totalSamples)
 			obj.mcmcparams.nsamples     = totalSamples / obj.mcmcparams.nchains;
 			obj.mcmcparams.totalSamples = totalSamples;
-			%obj.displayMCMCparamInfo();
 		end
 
 		function setMCMCnumberOfChains(obj, nchains)
 			obj.mcmcparams.nchains = nchains;
 			obj.mcmcparams.nsamples = obj.mcmcparams.totalSamples / obj.mcmcparams.nchains;
-			%obj.displayMCMCparamInfo();
 		end
 
 		function displayMCMCparamInfo(obj)

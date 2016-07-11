@@ -7,14 +7,12 @@ classdef ModelMixedLogK < Model
 
 
 	methods (Access = public)
-    		function obj = ModelMixedLogK(samplerType, data, varargin)
+		
+    		function obj = ModelMixedLogK(data, varargin)
 
-            samplerType     = lower(samplerType);
-            modelType		= 'mixedLogK';
-            modelPath = makeProbModelsPath(modelType, samplerType);
-
-            obj = obj@Model(data, samplerType, modelPath, varargin{:});
-
+            obj = obj@Model(data, varargin{:});
+			
+			obj.modelType = 'mixedLogK';
 			obj.discountFuncType = 'logk';
 
 			% 'Decorate' the object with appropriate plot functions

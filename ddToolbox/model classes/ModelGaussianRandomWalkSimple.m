@@ -11,29 +11,25 @@ classdef ModelGaussianRandomWalkSimple < Model
 
 
 	methods (Access = public)
-
-    		function obj = ModelGaussianRandomWalkSimple(samplerType, data, varargin)
-
-            samplerType = lower(samplerType);
-			modelType		= 'mixedGRWsimple';
-			modelPath = makeProbModelsPath(modelType, samplerType);
-
-            obj = obj@Model(data, samplerType, modelPath, varargin{:});
-
+		
+		function obj = ModelGaussianRandomWalkSimple(data, varargin)
+			obj = obj@Model(data, varargin{:});
+			
+			obj.modelType		= 'mixedGRWsimple';
 			obj.discountFuncType = 'nonparametric';
-
+			
 			% 'Decorate' the object with appropriate plot functions
 			obj.plotFuncs.participantFigFunc = @figParticipantLOGK;
 			obj.plotFuncs.plotGroupLevel = @plotGroupLevelStuff;
-
+			
 			% TODO: remove varList as a property of Model base class.
- 			obj.varList.monitored = {'discountFraction',...
+			obj.varList.monitored = {'discountFraction',...
 				'alpha','epsilon', 'varInc',...
 				'alpha_prior', 'epsilon_prior', 'varInc_prior',...
-                'Rpostpred', 'P'};
-
+				'Rpostpred', 'P'};
+			
 		end
-
+		
 		% Generate initial values of the leaf nodes
 		function setInitialParamValues(obj)
 

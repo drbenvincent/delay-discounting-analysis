@@ -8,15 +8,11 @@ classdef ModelGaussianRandomWalkComplex < Model
 
 	methods (Access = public)
 		% =================================================================
-		function obj = ModelGaussianRandomWalkComplex(samplerType, data, varargin)
-
-            samplerType = lower(samplerType);
-			modelType		= 'mixedGRWsimple';
-			modelPath = makeProbModelsPath(modelType, samplerType);
-
-            obj = obj@Model(data, samplerType, modelPath, varargin{:});
-
-			obj.discountFuncType = 'logk';
+		function obj = ModelGaussianRandomWalkComplex(data, varargin)
+            obj = obj@Model(data, varargin{:});
+			
+			obj.modelType		= 'mixedGRW';
+			obj.discountFuncType = 'nonparametric';
 
 			% 'Decorate' the object with appropriate plot functions
 			obj.plotFuncs.participantFigFunc = @figParticipantLOGK;

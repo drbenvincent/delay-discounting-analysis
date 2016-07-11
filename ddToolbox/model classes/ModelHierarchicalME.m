@@ -8,17 +8,11 @@ classdef ModelHierarchicalME < Model
 
 	methods (Access = public)
 
-		function obj = ModelHierarchicalME(samplerType, data, varargin)
-
-			samplerType     = lower(samplerType);
-			modelType		= 'hierarchicalME';
+		function obj = ModelHierarchicalME(data, varargin)
+			obj = obj@Model(data, varargin{:});
 			
-			modelPath = makeProbModelsPath(modelType, samplerType);
-
-			obj = obj@Model(data, samplerType, modelPath, varargin{:});
-
-			obj.discountFuncType = 'me';
-            
+			obj.modelType			= 'hierarchicalME';
+			obj.discountFuncType	= 'me';
 			obj.plotFuncs.participantFigFunc = @figParticipantME;
 			obj.plotFuncs.plotGroupLevel = @plotGroupLevelStuff;
 
@@ -38,25 +32,18 @@ classdef ModelHierarchicalME < Model
 
 		end
 
-
 		% Generate initial values of the leaf nodes
 		function setInitialParamValues(obj)
-
-% 			nTrials = size(obj.data.observedData.A,2);
-% 			nParticipants = obj.data.nParticipants;
-% 			nUniqueDelays = numel(obj.data.observedData.uniqueDelays);
-
 			for chain = 1:obj.sampler.mcmcparams.nchains
-				obj.initialParams(chain).groupMmu = normrnd(-0.243,10);
-				obj.initialParams(chain).groupMsigma = rand*10;
-				obj.initialParams(chain).groupCmu = normrnd(0,30);
-				obj.initialParams(chain).groupCsigma = rand*10;
-				obj.initialParams(chain).groupW = rand;
-				obj.initialParams(chain).groupALPHAmu		= rand*100;
-				obj.initialParams(chain).groupALPHAsigma	= rand*100;
+				obj.initialParams(chain).groupMmu		= normrnd(-0.243,10);
+				obj.initialParams(chain).groupMsigma	= rand*10;
+				obj.initialParams(chain).groupCmu		= normrnd(0,30);
+				obj.initialParams(chain).groupCsigma	= rand*10;
+				obj.initialParams(chain).groupW			= rand;
+				obj.initialParams(chain).groupALPHAmu	= rand*100;
+				obj.initialParams(chain).groupALPHAsigma= rand*100;
 			end
 		end
-
 
 
 		%% ******** SORT OUT WHERE THESE AND OTHER FUNCTIONS SHOULD BE *************

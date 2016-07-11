@@ -1,6 +1,6 @@
 %% Example use of the delay discounting analysis toolbox
 
-% Setup stuff
+% Setup ddAnalysis toolbox
 environment = ddAnalysisSetUp(...
 	'toolboxPath', '~/git-local/delay-discounting-analysis/ddToolbox',...
 	'projectPath', '~/git-local/delay-discounting-analysis/demo',...
@@ -10,13 +10,14 @@ environment = ddAnalysisSetUp(...
 myData = DataClass(environment.dataPath,...
 	'files', allFilesInFolder(environment.dataPath, 'txt'));
 
-% Run an analysis
-hModel = ModelHierarchicalME('jags', myData,... % <--- required
-	'saveFolder', 'analysis_with_hierarchical_magnitude_effect',...
-	'mcmcSamples', 10^5,... 
-	'chains', 4,...
-	'shouldPlot','all');
-hModel.conductInference();
+% Create an analysis model
+hModel = ModelHierarchicalME(myData,...
+	'saveFolder', 'analysis_with_hierarchical_magnitude_effect');
+
+% Call the model's conductInference method
+hModel.conductInference('jags',... % {'jags', 'stan'}
+	'shouldPlot','no'); % TODO: add mcmcparams over-ride
+% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 

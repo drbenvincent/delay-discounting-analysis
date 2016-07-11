@@ -1,7 +1,8 @@
 function testScript
 
-numberOfMCMCSamples = 10^4;
+numberOfMCMCSamples = 10^3;
 chains = 2;
+sampler = 'jags';
 
 %% Setup stuff
 environment = ddAnalysisSetUp(...
@@ -20,22 +21,17 @@ listOfModels = {'ModelHierarchicalME',...
 filesToAnalyse = allFilesInFolder(environment.dataPath, 'txt');
 %filesToAnalyse={'AC-kirby27-DAYS.txt', 'CS-kirby27-DAYS.txt'};
 %filesToAnalyse={'AC-kirby27-DAYS.txt'};
-myData = DataClass(environment.dataPath,...
-	'files', filesToAnalyse);
-
-
-
+myData = DataClass(environment.dataPath, 'files', filesToAnalyse);
 
 %% Do the analysis, loop over each of the models
 for modelName = listOfModels
 	makeModelFunction = str2func(modelName{:});
-	models.(modelName{:}) = makeModelFunction('JAGS', myData,...
+	models.(modelName{:}) = makeModelFunction(myData,...
 		'saveFolder', modelName{:},...
-		'pointEstimateType','mode',...
-		'mcmcSamples', numberOfMCMCSamples,...
-		'chains', chains,...
-		'shouldPlot','all');
-	models.(modelName{:}).conductInference();
+		'pointEstimateType','mode');
+	
+	models.(modelName{:}).conductInference('jags',... % {'jags', 'stan'}
+		'shouldPlot','no'); % TODO: add mcmcparams over-ride
 end
 
 
@@ -81,89 +77,11 @@ grw.conductInference();
 
 
 
-
-
-% --------------------------------------------------------
-%% INFERENCE WITH STAN
-% --------------------------------------------------------
-
-%% HIERARCHICAL ===========================================================
-
-%% Separate
-% sModel = ModelSeparateME('STAN', myData, 'separateME',...
-% 		'pointEstimateType','mean');
-% sModel.sampler.setStanHome('~/cmdstan-2.9.0')
-% sModel.conductInference();
-% sModel.exportParameterEstimates();
-% sModel.plot()
-
-%% Mixed
-% sModel = ModelMixedME('STAN', myData, 'mixedME',...
-% 		'pointEstimateType','mean');
-% sModel.sampler.setStanHome('~/cmdstan-2.9.0')
-% sModel.conductInference();
-% sModel.exportParameterEstimates();
-% sModel.plot()
-
-%% Hierarchical  **** MODEL NOT WORKING PROPERLY ****
-sModel = ModelHierarchicalME('STAN', myData, 'hierarchicalME',...
-		'pointEstimateType','mean');
-sModel.sampler.setStanHome('~/cmdstan-2.9.0')
-sModel.conductInference();
-sModel.plot()
-
-
-%% Hierarchical, updated  **** MODEL NOT WORKING PROPERLY ****
-sModel = ModelHierarchicalMEUpdated('STAN', myData, 'hierarchicalMEupdated',...
-		'pointEstimateType','mean',...
-		'shouldPlot','all');
-sModel.sampler.setStanHome('~/cmdstan-2.9.0')
-sModel.conductInference();
-
-
-
-
-
-
-%% LOG K ==================================================================
-
-%% Separate
-sModel = ModelSeparateLogK('STAN', myData, 'separateLogK',...
-		'pointEstimateType','mean',...
-		'shouldPlot','all');
-sModel.sampler.setStanHome('~/cmdstan-2.9.0')
-sModel.conductInference();
-
-
-%% Mixed
-sModel = ModelMixedLogK('STAN', myData, 'mixedLogK',...
-		'pointEstimateType','mean',...
-		'shouldPlot','all');
-sModel.sampler.setStanHome('~/cmdstan-2.9.0')
-sModel.conductInference();
-
-
-%% Hierarchical **** MODEL NOT WORKING PROPERLY ****
-sModel = ModelHierarchicalLogK('STAN', myData, 'hierarchicalLogK',...
-		'pointEstimateType','mean',...
-		'shouldPlot','all');
-sModel.sampler.setStanHome('~/cmdstan-2.9.0')
-sModel.conductInference();
-
-
-
-
-
-
-
 %% HOW TO GET STATS VALUES
 % can get summary by typing this into TERMINAL
 % bin/stansummary /Users/benvincent/git-local/delay-discounting-analysis/demo/output-1.csv
-
-sModel.sampler.stanFit.print()
-% 
-% 
-% 
+%
+% sModel.sampler.stanFit.print()
 % 
 % sModel.sampler.stanFit
 % clf
@@ -180,6 +98,4 @@ sModel.sampler.stanFit.print()
 % 
 % % EXTRACT ALL
 % all = sModel.sampler.stanFit.extract('permuted',true);
-
-
 %stanModel.sampler.stanFit.traceplot() % use with care

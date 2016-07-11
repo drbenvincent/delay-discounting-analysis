@@ -10,14 +10,10 @@ classdef ModelSeparateME < Model
 	methods (Access = public)
 
 		% CONSTRUCTOR =====================================================
-		function obj = ModelSeparateME(samplerType, data, varargin)
-
-            samplerType = lower(samplerType);
-            modelType		= 'separateME';
-            modelPath = makeProbModelsPath(modelType, samplerType);
-
-			obj = obj@Model(data, samplerType, modelPath, varargin{:});
-
+		function obj = ModelSeparateME(data, varargin)
+			obj = obj@Model(data, varargin{:});
+			
+			obj.modelType = 'separateME';
             obj.discountFuncType = 'me';
 
 			% 'Decorate' the object with appropriate plot functions

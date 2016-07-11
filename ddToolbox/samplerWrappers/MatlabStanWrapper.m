@@ -14,16 +14,17 @@ classdef MatlabStanWrapper < SamplerWrapper
 			obj = obj@SamplerWrapper();
 
 			obj.modelFilename = modelFilename;
+			obj.setMCMCparams();
 		end
 		% =================================================================
 		
-% 		function setMCMCparams(obj)
-% 			% Default parameters
-% 			obj.mcmcparams.warmup = 100;
-% 			obj.mcmcparams.iter = 5000;
-% 			obj.mcmcparams.chains = 4;
-% 			obj.mcmcparams.totalSamples = obj.mcmcparams.chains * obj.mcmcparams.iter;
-% 		end
+		function setMCMCparams(obj)
+			% Default parameters
+			obj.mcmcparams.warmup = 100;
+			obj.mcmcparams.iter = 500;
+			obj.mcmcparams.chains = 2;
+			obj.mcmcparams.totalSamples = obj.mcmcparams.chains * obj.mcmcparams.iter;
+		end
 		
 		function mcmcFitObject = conductInference(obj, model, data)
 			%% preparation for MCMC sampling

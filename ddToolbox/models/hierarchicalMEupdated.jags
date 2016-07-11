@@ -96,10 +96,8 @@ model{
   epsilon_group_prior  ~ dbeta(groupW_prior*(groupK_prior-2)+1 , (1-groupW_prior)*(groupK_prior-2)+1 )  T(,0.5)
 
 
-  for (p in participantIndexList){
-    for (t in 1:T[p]) {
+  for (t in 1:length(ID)) {
       # posterior predictive distribution of responses
       Rpostpred[t] ~ dbern(P[t])
     }
-  }
 }

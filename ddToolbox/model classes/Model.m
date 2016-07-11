@@ -2,7 +2,7 @@ classdef Model < handle
 	%Model Base class to provide basic functionality
 
 	properties (Access = public)
-		modelType % string
+		modelType % string (ie modelType.jags, or modelType.stan)
 		modelFile
 		data % handle to Data class
 		sampler % handle to SamplerWrapper class
@@ -32,50 +32,19 @@ classdef Model < handle
 
 	methods (Access = public)
 
-		function obj = Model(data, samplerType, modelFile, varargin)
+		function obj = Model(data, varargin)
 			p = inputParser;
 			p.FunctionName = mfilename;
 			p.addRequired('data', @(x) isa(x,'DataClass'));
 			p.addParameter('saveFolder','my_analysis', @isstr);
-			p.addRequired('samplerType', @isstr);
-			p.addRequired('modelFile', @isstr);
 			p.addParameter('pointEstimateType','mode',@(x) any(strcmp(x,{'mean','median','mode'})));
-			% additional user-supplied preferences
-			p.addParameter('mcmcSamples',[], @isscalar)
-			p.addParameter('chains',[], @isscalar)
-			p.addParameter('shouldPlot','no',@(x) any(strcmp(x,{'all','no'})));
-
-			p.parse(data, samplerType, modelFile, varargin{:});
+			p.parse(data, varargin{:});
 
 			% add p.Results fields into obj
 			fields = fieldnames(p.Results);
 			for n=1:numel(fields)
 				obj.(fields{n}) = p.Results.(fields{n});
 			end
-
-			%% Create sampler object
-			switch samplerType
-				case{'jags'}
-					obj.sampler = MatjagsWrapper(modelFile);
-					% override any user-defined prefs
-					if ~isempty( obj.mcmcSamples )
-						obj.sampler.setMCMCtotalSamples(obj.mcmcSamples)
-					end
-					if ~isempty( obj.chains )
-						obj.sampler.setMCMCnumberOfChains(obj.chains)
-					end
-				case{'stan'}
-					obj.sampler = MatlabStanWrapper(modelFile);
-					
-					obj.sampler.mcmcparams.warmup = 100;
-					obj.sampler.mcmcparams.iter = 5000;
-					obj.sampler.mcmcparams.chains = 4;
-					obj.sampler.mcmcparams.totalSamples = obj.sampler.mcmcparams.chains * obj.sampler.mcmcparams.iter;
-
-			end
-
-			[~,obj.modelType,~] = fileparts(obj.modelFile);
-
 		end
 
 		function varNames = extractLevelNVarNames(obj, N)
@@ -97,12 +66,57 @@ classdef Model < handle
 
 		% MIDDLE-MAN METHODS ================================================
 
-		function conductInference(obj)
+		function mcmcObject = conductInference(obj, samplerType, varargin)
 			% TODO: get the observed data from the raw group data here.
-
-			%% do the MCMC sampling
-			obj.mcmc = obj.sampler.conductInference( obj , obj.data );
-
+			samplerType     = lower(samplerType);
+			
+			obj.modelFile = makeProbModelsPath(obj.modelType, samplerType);
+			
+			p = inputParser;
+			p.FunctionName = mfilename;
+			p.addRequired('samplerType',@ischar);
+			% additional user-supplied preferences
+			p.addParameter('mcmcSamples',[], @isscalar)
+			p.addParameter('chains',[], @isscalar)
+			p.addParameter('shouldPlot','no',@(x) any(strcmp(x,{'all','no'})));
+			p.parse(samplerType, varargin{:});
+			
+			% add p.Results fields into obj
+			fields = fieldnames(p.Results);
+			for n=1:numel(fields)
+				obj.(fields{n}) = p.Results.(fields{n});
+			end
+			
+			%% Create sampler object
+			% TODO: This can happen on the fly, when we call model.conduct_inference()
+			switch obj.samplerType
+				case{'jags'}
+					% Create sampler object
+					obj.sampler = MatjagsWrapper(obj.modelFile);
+					
+					% *** update obj.sampler.mcmcparams here ***
+					
+% 					% override any user-defined prefs
+% 					if ~isempty( obj.mcmcSamples )
+% 						obj.sampler.setMCMCtotalSamples(obj.mcmcSamples)
+% 					end
+% 					if ~isempty( obj.chains )
+% 						obj.sampler.setMCMCnumberOfChains(obj.chains)
+% 					end
+				case{'stan'}
+					obj.sampler = MatlabStanWrapper(obj.modelFile);
+					obj.sampler.setStanHome('~/cmdstan-2.9.0') % TODO: sort this out
+					
+					% *** update obj.sampler.mcmcparams here ***
+			end
+			
+			
+			%% Ask the Sampler to do MCMC sampling, return an mcmcObject ~~~~~~~~~~~~~~~~~
+			%obj.mcmc = obj.sampler.conductInference( obj , obj.data );
+			mcmcObject = obj.sampler.conductInference( obj , obj.data );
+			obj.mcmc = mcmcObject;
+			% fix/check ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			
 			%% Post-sampling activities
 			obj.calcPosteriorPredictive()
 			obj.mcmc.convergenceSummary(obj.saveFolder, obj.data.IDname)
@@ -246,47 +260,11 @@ classdef Model < handle
 				% TODO: make judgements about whether model is good enough
 
 			end
-
-			% TODO: remove now that we have posterior predictive
-			% information being exported in the main parameter estimate
-			% .csv file
-			% But maybe keep this here for the moment in case we want to
-			% produce a narrative summary of what dataset exclusion, based
-			% on posterior predictive checks.
-
-% 			%% Write info to text file
-% 			% Set up text file to write information to
-% 			[fid, fname] = setupTextFile(obj.saveFolder, 'PosteriorPredictiveReport.txt');
-% 			for p=1:nParticipants
-%
-%                 myString = sprintf('%s: %3.2f\n', obj.data.IDname{p}, obj.postPred(p).score);
-%                 logInfo(fid,myString)
-% 			end
-%             % close text file
-%             fclose(fid);
-%             fprintf('Posterior predictive info saved in:\n\t%s\n\n',fname)
 		end
 
 		function RpostPred = getParticipantPredictedResponses(obj,p)
-
 			trialIndOfThisParicipant = obj.data.observedData.ID==p;
-			% get it
 			RpostPred = obj.mcmc.getParticipantPredictedResponses(trialIndOfThisParicipant);
-
-
-% 			% collapse over chains
-%
-% 			% Note that, because of the way how the data are
-% 			% represented (with ragged arrays, because not all
-% 			% participant did the same number of trials), we have to
-% 			% just get the posterior predicted values corresponding to
-% 			% the number of questions they actually did
-%
-% 			% get all their predicted responses
-% 			all = obj.mcmc.getParticipantPredictedResponses(p);
-% 			% trim any extra off, corresponding to the ragged array
-% 			nQuestionsThisParticipantDid = obj.data.participantLevel(p).trialsForThisParticant;
-% 			RpostPred = all([1:nQuestionsThisParticipantDid]);
 		end
 
 		%% Posterior predictive model checking #1
@@ -473,13 +451,9 @@ classdef Model < handle
 		end
 
 
-
-
-
-
-
-
-
+		% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		% POSTERIOR PREDICTION PLOTTING FUNCTIONS
+		% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 		function pp_plotGOFdistribution(obj,gofscores)
 			uni = mcmc.UnivariateDistribution(gofscores(:),...
@@ -489,7 +463,6 @@ classdef Model < handle
 		end
 
 		function pp_ploptPercentPredictedDistribution(obj,p)
-
 			nQuestions = obj.data.participantLevel(p).trialsForThisParticant;
 
 			uni = mcmc.UnivariateDistribution(obj.postPred(p).percentPredictedDistribution(:),...
@@ -535,7 +508,9 @@ classdef Model < handle
 
 
 
-
+		% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		% GENERAL PLOTTING FUNCTIONS
+		% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 
@@ -590,13 +565,6 @@ classdef Model < handle
 				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 				participantSamples = obj.mcmc.getSamplesAtIndex(n, pVariableNames);
 				pData = obj.data.getParticipantData(n);
-
-% 				if ~isempty(obj.postPred(n).score)
-% 					goodnessOfFitScore = obj.postPred(n).score;
-% 				else
-% 					warning('goodness of fit score (posterior prediction) not found')
-% 					goodnessOfFitScore = [];
-% 				end
 
 				% create a string describing goodness of fit
 				percentPredicted = obj.postPred(n).percentPredictedDistribution(:);
