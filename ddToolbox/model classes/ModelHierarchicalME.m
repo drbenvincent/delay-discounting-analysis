@@ -10,7 +10,7 @@ classdef ModelHierarchicalME < Model
 
 		function obj = ModelHierarchicalME(data, varargin)
 			obj = obj@Model(data, varargin{:});
-			
+
 			obj.modelType			= 'hierarchicalME';
 			obj.discountFuncType	= 'me';
 			obj.plotFuncs.participantFigFunc = @figParticipantME;
@@ -40,8 +40,8 @@ classdef ModelHierarchicalME < Model
 				obj.initialParams(chain).groupCmu		= normrnd(0,30);
 				obj.initialParams(chain).groupCsigma	= rand*10;
 				obj.initialParams(chain).groupW			= rand;
-				obj.initialParams(chain).groupALPHAmu	= rand*100;
-				obj.initialParams(chain).groupALPHAsigma= rand*100;
+				obj.initialParams(chain).groupALPHAmu	= rand*10;
+				obj.initialParams(chain).groupALPHAsigma= rand*10;
 			end
 		end
 

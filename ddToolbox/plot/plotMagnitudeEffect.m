@@ -25,5 +25,4 @@ set(gca,'XScale','log')
 set(gca,'YScale','log')
 set(gca,'XTick',logspace(1,6,6))
 set(gca,'YTick',logspace(-4,0,5))
-%forceNonExponentialTick
 return

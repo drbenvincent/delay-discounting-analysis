@@ -74,9 +74,6 @@ classdef mcmcContainer < handle
 				paramEstimateTable = [paramEstimateTable ; group_level];
 			end
 
-			%% display to command window
-			%display(paramEstimateTable)
-
 			function colHeaderNames = createColumnHeaders(varNames,getCI, pointEstimateType)
 				colHeaderNames = {};
 				for var = each(varNames)

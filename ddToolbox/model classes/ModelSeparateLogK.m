@@ -7,10 +7,10 @@ classdef ModelSeparateLogK < Model
 
 
 	methods (Access = public)
-		
+
 		function obj = ModelSeparateLogK(data, varargin)
 			obj = obj@Model(data, varargin{:});
-			
+
 			obj.modelType = 'separateLogK';
 			obj.discountFuncType = 'logk';
 
@@ -28,12 +28,8 @@ classdef ModelSeparateLogK < Model
 		end
 
 		% Generate initial values of the leaf nodes
-		function setInitialParamValues(obj)
-
-			%nTrials = size(obj.data.observedData.A,2);
+		function obj = setInitialParamValues(obj)
 			nParticipants = obj.data.nParticipants;
-			%nUniqueDelays = numel(obj.data.observedData.uniqueDelays);
-
 			for chain = 1:obj.sampler.mcmcparams.nchains
 				obj.initialParams(chain).logk = normrnd(log(1/365),10, [nParticipants,1]);
 				obj.initialParams(chain).epsilon = 0.1 + rand([nParticipants,1])/10;

@@ -25,11 +25,11 @@ classdef JAGSmcmc < mcmcContainer
 			assert(islogical(getCI))
 			data=[];
 			for n=1:numel(varNames)
-				data = [data obj.getStats(pointEstimateType,varNames{n})]; % <----- TODO: POINT ESTIMATE TYPE
+				data = [data obj.getStats(pointEstimateType,varNames{n})];
 				if getCI
 					data = [data obj.getStats('hdi_low',varNames{n})];
 					data = [data obj.getStats('hdi_high',varNames{n})];
-				end 
+				end
 			end
 		end
 
@@ -97,33 +97,14 @@ classdef JAGSmcmc < mcmcContainer
 
 
 		function [predicted] = getParticipantPredictedResponses(obj, ind)
-			
 			RpostPred = obj.samples.Rpostpred(:,:,ind);
 			% collapse over chains
 			s = size(RpostPred);
 			participantRpostpredSamples = reshape(RpostPred, s(1)*s(2), s(3));
-			
+            % Calculate predicted response probability
 			predicted = sum(participantRpostpredSamples,1) ./ size(participantRpostpredSamples,1);
-			
-% 			% calculate the probability of choosing the delayed reward, for
-% 			% all trials, for a particular participant.
-% 			
-% % 			% extract samples from the participant
-% % 			Rpostpred = squeeze(obj.samples.Rpostpred(:,:,participant));
-% % 			% flatten over chains
-% % 			s = size(Rpostpred);
-% % 			participantRpostpredSamples = reshape(Rpostpred, s(1)*s(2), s(3));
-% 
-% % get trials corresponding to this participant
-% 
-% 			participantRpostpredSamples = vec(obj.samples.Rpostpred(:,:,participant));
-% 			
-% 			% predicted probability of choosing delayed (response = 1)
-% % 			[nSamples,~] = size(participantRpostpredSamples);
-% % 			predicted = sum(participantRpostpredSamples,1)./nSamples;
-% 			predicted = sum(participantRpostpredSamples)./numel(participantRpostpredSamples);
 		end
-		
+
 		function [P] = getPChooseDelayed(obj, pInd)
 			% get samples for participant
 			P = obj.samples.P(:,:,pInd);

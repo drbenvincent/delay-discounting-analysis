@@ -7,11 +7,11 @@ classdef ModelMixedLogK < Model
 
 
 	methods (Access = public)
-		
+
     		function obj = ModelMixedLogK(data, varargin)
 
             obj = obj@Model(data, varargin{:});
-			
+
 			obj.modelType = 'mixedLogK';
 			obj.discountFuncType = 'logk';
 
@@ -32,14 +32,10 @@ classdef ModelMixedLogK < Model
 		end
 
 		% Generate initial values of the leaf nodes
-		function setInitialParamValues(obj)
-
-			%nTrials = size(obj.data.observedData.A,2);
+		function obj = setInitialParamValues(obj)
 			nParticipants = obj.data.nParticipants;
-			%nUniqueDelays = numel(obj.data.observedData.uniqueDelays);
-
 			for chain = 1:obj.sampler.mcmcparams.nchains
-				obj.initialParams(chain).groupW = rand;
+				obj.initialParams(chain).groupW             = rand;
 				obj.initialParams(chain).groupALPHAmu		= rand*100;
 				obj.initialParams(chain).groupALPHAsigma	= rand*100;
 			end

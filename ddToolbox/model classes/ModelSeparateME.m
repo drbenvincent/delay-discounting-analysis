@@ -12,7 +12,7 @@ classdef ModelSeparateME < Model
 		% CONSTRUCTOR =====================================================
 		function obj = ModelSeparateME(data, varargin)
 			obj = obj@Model(data, varargin{:});
-			
+
 			obj.modelType = 'separateME';
             obj.discountFuncType = 'me';
 
@@ -31,12 +31,8 @@ classdef ModelSeparateME < Model
 		% ================================================================
 
 		% Generate initial values of the leaf nodes
-		function setInitialParamValues(obj)
-
-			% nTrials = size(obj.data.observedData.A,2);
+		function obj = setInitialParamValues(obj)
 			nParticipants = obj.data.nParticipants;
-			% nUniqueDelays = numel(obj.data.observedData.uniqueDelays);
-
 			for chain = 1:obj.sampler.mcmcparams.nchains
 				obj.initialParams(chain).m = normrnd(-0.243,2, [nParticipants,1]);
 				obj.initialParams(chain).c = normrnd(0,10, [nParticipants,1]);

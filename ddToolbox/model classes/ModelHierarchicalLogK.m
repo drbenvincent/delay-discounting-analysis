@@ -10,7 +10,7 @@ classdef ModelHierarchicalLogK < Model
 
 		function obj = ModelHierarchicalLogK(data, varargin)
             obj = obj@Model(data, varargin{:});
-			
+
 			obj.modelType		= 'hierarchicalLogK';
 			obj.discountFuncType = 'logk';
 
@@ -36,12 +36,7 @@ classdef ModelHierarchicalLogK < Model
 		end
 
 		% Generate initial values of the leaf nodes
-		function setInitialParamValues(obj)
-
-			% nTrials = size(obj.data.observedData.A,2);
-			% nParticipants = obj.data.nParticipants;
-			% nUniqueDelays = numel(obj.data.observedData.uniqueDelays);
-
+		function obj = setInitialParamValues(obj)
 			for chain = 1:obj.sampler.mcmcparams.nchains
 				obj.initialParams(chain).groupLogKmu		= normrnd(log(1/50),1);
 				obj.initialParams(chain).groupLogKsigma		= rand*5;

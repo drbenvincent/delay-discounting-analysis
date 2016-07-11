@@ -30,7 +30,8 @@ for modelName = listOfModels
 		'saveFolder', modelName{:},...
 		'pointEstimateType','mode');
 	
-	models.(modelName{:}) = models.(modelName{:}).conductInference('jags',... % {'jags', 'stan'}
+	models.(modelName{:}) = models.(modelName{:}).conductInference(...
+		sampler,... % {'jags', 'stan'}
 		'shouldPlot','no'); % TODO: add mcmcparams over-ride
 end
 

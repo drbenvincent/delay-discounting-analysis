@@ -18,14 +18,8 @@ classdef STANmcmc < mcmcContainer
 			obj = obj@mcmcContainer(); % create instance of base class
 
 			obj.stanFit = stanFit;
-
 			obj.samples = obj.stanFit.extract('permuted',true);
-			%obj.stats = stats;
-			%obj.mcmcparams = mcmcparams;
-			
-			%% Calculate a variety of stats here
 			obj.calcStatsFromSamples()
-
 		end
 
 		function calcStatsFromSamples(obj)
@@ -33,7 +27,7 @@ classdef STANmcmc < mcmcContainer
 			for n=1:numel(f)
 				obj.stats.mean.(f{n}) = mean(obj.samples.(f{n}));
 				obj.stats.median.(f{n}) = median(obj.samples.(f{n}));
-				obj.stats.mode.(f{n}) = mode(obj.samples.(f{n}));
+				obj.stats.mode.(f{n}) = mode(obj.samples.(f{n})); % TODO: do this by kernel density estimation
 				obj.stats.std.(f{n}) = std(obj.samples.(f{n}));
 				% get HDI
 				tempSamples = obj.samples.(f{n});
@@ -61,8 +55,6 @@ classdef STANmcmc < mcmcContainer
 			% 2. mcmc sample number
 			% 3. index of variable, meaning depends upon context of the
 			% model
-			
-			% % [flatSamples] = obj.flattenChains(obj.samples, fieldsToGet);
 			for field = each(fieldsToGet)
 				samples.(field) = obj.samples.(field)(:,index);
 			end
@@ -101,7 +93,7 @@ classdef STANmcmc < mcmcContainer
 
 		function [output] = getAllStats(obj)
 			beep
-			% warning('Try to remove this method')
+			error('Is this method being called any more?')
 			% output = obj.stats;
 		end
 
@@ -109,26 +101,25 @@ classdef STANmcmc < mcmcContainer
 			RpostPred = obj.samples.Rpostpred(:,ind);
 			predicted = sum(RpostPred,1) ./ size(RpostPred,1);
 		end
-		
+
 		function [P] = getPChooseDelayed(obj, ind)
 			% get samples for participant
 			P = obj.samples.P(:,ind);
 			P=P';
 		end
-		
 
 		function data = grabParamEstimates(obj, varNames, getCI, pointEstimateType)
 			assert(islogical(getCI))
 			data=[];
 			for n=1:numel(varNames)
-				data = [data obj.getStats(pointEstimateType,varNames{n})]; % <----- TODO: POINT ESTIMATE TYPE
+				data = [data obj.getStats(pointEstimateType,varNames{n})];
 				if getCI
 					data = [data obj.getStats('hdi_low',varNames{n})];
 					data = [data obj.getStats('hdi_high',varNames{n})];
 				end
 			end
 		end
-		
+
 	end
 
 end
