@@ -8,13 +8,13 @@ classdef ModelGaussianRandomWalkComplex < Model
 
 	methods (Access = public)
 		% =================================================================
-		function obj = ModelGaussianRandomWalkComplex(samplerType, data, saveFolder, varargin)
+		function obj = ModelGaussianRandomWalkComplex(samplerType, data, varargin)
 
             samplerType = lower(samplerType);
 			modelType		= 'mixedGRWsimple';
 			modelPath = makeProbModelsPath(modelType, samplerType);
 
-            obj = obj@Model(data, saveFolder, samplerType, modelPath, varargin{:});
+            obj = obj@Model(data, samplerType, modelPath, varargin{:});
 
 			obj.discountFuncType = 'logk';
 

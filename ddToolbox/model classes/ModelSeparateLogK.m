@@ -7,13 +7,13 @@ classdef ModelSeparateLogK < Model
 
 
 	methods (Access = public)
-		function obj = ModelSeparateLogK(samplerType, data, saveFolder, varargin)
+		function obj = ModelSeparateLogK(samplerType, data, varargin)
 
 			samplerType = lower(samplerType);
 			modelType		= 'separateLogK';
 			modelPath = makeProbModelsPath(modelType, samplerType);
 
-			obj = obj@Model(data, saveFolder, samplerType, modelPath, varargin{:});
+			obj = obj@Model(data, samplerType, modelPath, varargin{:});
 
 			obj.discountFuncType = 'logk';
 

@@ -8,13 +8,13 @@ classdef ModelHierarchicalLogK < Model
 
 	methods (Access = public)
 
-		function obj = ModelHierarchicalLogK(samplerType, data, saveFolder, varargin)
+		function obj = ModelHierarchicalLogK(samplerType, data, varargin)
 
             samplerType     = lower(samplerType);
 			modelType		= 'hierarchicalLogK';
 			modelPath = makeProbModelsPath(modelType, samplerType);
 
-            obj = obj@Model(data, saveFolder, samplerType, modelPath, varargin{:});
+            obj = obj@Model(data, samplerType, modelPath, varargin{:});
 
 			obj.discountFuncType = 'logk';
 

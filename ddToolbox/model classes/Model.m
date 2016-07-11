@@ -32,11 +32,11 @@ classdef Model < handle
 
 	methods (Access = public)
 
-		function obj = Model(data, saveFolder, samplerType, modelFile, varargin)
+		function obj = Model(data, samplerType, modelFile, varargin)
 			p = inputParser;
 			p.FunctionName = mfilename;
 			p.addRequired('data', @(x) isa(x,'DataClass'));
-			p.addRequired('saveFolder', @isstr);
+			p.addParameter('saveFolder','my_analysis', @isstr);
 			p.addRequired('samplerType', @isstr);
 			p.addRequired('modelFile', @isstr);
 			p.addParameter('pointEstimateType','mode',@(x) any(strcmp(x,{'mean','median','mode'})));
@@ -45,7 +45,7 @@ classdef Model < handle
 			p.addParameter('chains',[], @isscalar)
 			p.addParameter('shouldPlot','no',@(x) any(strcmp(x,{'all','no'})));
 
-			p.parse(data, saveFolder, samplerType, modelFile, varargin{:});
+			p.parse(data, samplerType, modelFile, varargin{:});
 
 			% add p.Results fields into obj
 			fields = fieldnames(p.Results);
@@ -53,7 +53,7 @@ classdef Model < handle
 				obj.(fields{n}) = p.Results.(fields{n});
 			end
 
-			% Create sampler object
+			%% Create sampler object
 			switch samplerType
 				case{'jags'}
 					obj.sampler = MatjagsWrapper(modelFile);
@@ -100,13 +100,7 @@ classdef Model < handle
 		function conductInference(obj)
 			% TODO: get the observed data from the raw group data here.
 
-% 			% ~~~~~ONLY NEEDED FOR JAGS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-% 			% prep for MCMC
-% 			obj.setInitialParamValues();
-% 			obj.sampler.initialParameters = obj.initialParams;
-% 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-			% do the MCMC sampling
+			%% do the MCMC sampling
 			obj.mcmc = obj.sampler.conductInference( obj , obj.data );
 
 			%% Post-sampling activities

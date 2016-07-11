@@ -8,14 +8,14 @@ classdef ModelHierarchicalME < Model
 
 	methods (Access = public)
 
-		function obj = ModelHierarchicalME(samplerType, data, saveFolder, varargin)
+		function obj = ModelHierarchicalME(samplerType, data, varargin)
 
 			samplerType     = lower(samplerType);
 			modelType		= 'hierarchicalME';
 			
 			modelPath = makeProbModelsPath(modelType, samplerType);
 
-			obj = obj@Model(data, saveFolder, samplerType, modelPath, varargin{:});
+			obj = obj@Model(data, samplerType, modelPath, varargin{:});
 
 			obj.discountFuncType = 'me';
             

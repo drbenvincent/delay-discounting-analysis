@@ -12,13 +12,13 @@ classdef ModelGaussianRandomWalkSimple < Model
 
 	methods (Access = public)
 
-    		function obj = ModelGaussianRandomWalkSimple(samplerType, data, saveFolder, varargin)
+    		function obj = ModelGaussianRandomWalkSimple(samplerType, data, varargin)
 
             samplerType = lower(samplerType);
 			modelType		= 'mixedGRWsimple';
 			modelPath = makeProbModelsPath(modelType, samplerType);
 
-            obj = obj@Model(data, saveFolder, samplerType, modelPath, varargin{:});
+            obj = obj@Model(data, samplerType, modelPath, varargin{:});
 
 			obj.discountFuncType = 'nonparametric';
 
