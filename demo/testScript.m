@@ -33,7 +33,6 @@ for modelName = listOfModels
 		'mcmcSamples', numberOfMCMCSamples,...
 		'chains', chains);
 	models.(modelName{:}).conductInference();
-	models.(modelName{:}).exportParameterEstimates();
 	models.(modelName{:}).plot()
 end
 
@@ -108,7 +107,6 @@ sModel = ModelHierarchicalME('STAN', myData, 'hierarchicalME',...
 		'pointEstimateType','mean');
 sModel.sampler.setStanHome('~/cmdstan-2.9.0')
 sModel.conductInference();
-sModel.exportParameterEstimates();
 sModel.plot()
 
 
@@ -117,7 +115,6 @@ sModel = ModelHierarchicalMEUpdated('STAN', myData, 'hierarchicalMEupdated',...
 		'pointEstimateType','mean');
 sModel.sampler.setStanHome('~/cmdstan-2.9.0')
 sModel.conductInference();
-sModel.exportParameterEstimates();
 sModel.plot()
 
 
@@ -131,7 +128,6 @@ sModel = ModelSeparateLogK('STAN', myData, 'separateLogK',...
 		'pointEstimateType','mean');
 sModel.sampler.setStanHome('~/cmdstan-2.9.0')
 sModel.conductInference();
-sModel.exportParameterEstimates();
 sModel.plot()
 
 %% Mixed
@@ -139,7 +135,6 @@ sModel = ModelMixedLogK('STAN', myData, 'mixedLogK',...
 		'pointEstimateType','mean');
 sModel.sampler.setStanHome('~/cmdstan-2.9.0')
 sModel.conductInference();
-sModel.exportParameterEstimates();
 sModel.plot()
 
 %% Hierarchical **** MODEL NOT WORKING PROPERLY ****
@@ -147,7 +142,6 @@ sModel = ModelHierarchicalLogK('STAN', myData, 'hierarchicalLogK',...
 		'pointEstimateType','mean');
 sModel.sampler.setStanHome('~/cmdstan-2.9.0')
 sModel.conductInference();
-sModel.exportParameterEstimates();
 sModel.plot()
 
 

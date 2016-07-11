@@ -51,8 +51,9 @@ classdef MatjagsWrapper < SamplerWrapper
 
 			speak('sampling complete')
 
-			%% Post-sampling activities
-			mcmc.convergenceSummary(saveFolder,IDnames)
+% 			%% Post-sampling activities
+% 			mcmc.convergenceSummary(saveFolder,IDnames)
+% 			model.exportParameterEstimates();
 		end
 
 

@@ -107,8 +107,11 @@ classdef Model < handle
 			% do the MCMC sampling
 			obj.mcmc = obj.sampler.conductInference( obj , obj.data );
 
-			% post MCMC activities
+			%% Post-sampling activities
 			obj.calcPosteriorPredictive()
+			obj.mcmc.convergenceSummary(obj.saveFolder, obj.data.IDname)
+			obj.exportParameterEstimates();
+			
 		end
 
 		function setBurnIn(obj, nburnin)

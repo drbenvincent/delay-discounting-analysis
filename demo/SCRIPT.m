@@ -16,9 +16,8 @@ saveFolder = 'methodspaper-kirby27';
 hModel = ModelHierarchicalME('jags', myData, saveFolder,...
 	'mcmcSamples', 10^5,... % set to 10^3 or 10^4 for faster testing
 	'chains', 4); % optional
-
 hModel.conductInference();
-hModel.exportParameterEstimates();
+
 hModel.plot()
 
 
