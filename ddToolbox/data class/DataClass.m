@@ -1,4 +1,4 @@
-classdef DataClass < handle
+classdef DataClass
 	%data A class to load and handle data
 
 	properties (GetAccess = public, SetAccess = private)
@@ -35,7 +35,7 @@ classdef DataClass < handle
 			
 			% Load data files if they have beeb provided
 			if ~isempty(p.Results.files)
-				obj.loadDataFiles(p.Results.files);
+				obj = obj.loadDataFiles(p.Results.files);
 			end
 			
 			
@@ -89,16 +89,16 @@ classdef DataClass < handle
  				obj.participantLevel(n).trialsForThisParticant = height(participantTable);
 			end
 
-			obj.constructObservedDataForMCMC()
-			obj.exportGroupDataFile()
+			obj = obj.constructObservedDataForMCMC();
+			obj = obj.exportGroupDataFile();
 			obj.totalTrials = height(obj.groupTable);
 
 			display('The following participant-level data files were imported:')
 			display(fnames')
 		end
 
-		function exportGroupDataFile(obj)
-			obj.buildGroupDataTable();
+		function obj = exportGroupDataFile(obj)
+			obj = obj.buildGroupDataTable();
 			saveLocation = fullfile(obj.dataFolder,'groupLevelData');
 			if ~exist(saveLocation, 'dir'), mkdir(saveLocation), end
 			writetable(obj.groupTable,...
@@ -108,7 +108,7 @@ classdef DataClass < handle
 				fullfile(saveLocation,'COMBINED_DATA.txt'));
 		end
 
-		function buildGroupDataTable(obj)
+		function obj = buildGroupDataTable(obj)
 			obj.groupTable = table();
 			for n=1:obj.nParticipants
 				obj.groupTable = [obj.groupTable; obj.participantLevel(n).table];
@@ -129,7 +129,7 @@ classdef DataClass < handle
 				obj.participantLevel(participant).trialsForThisParticant;
 		end
 
-		function constructObservedDataForMCMC(obj)
+		function obj = constructObservedDataForMCMC(obj)
 			% construct a structure of ObservedData which will provide input to
 			% the MCMC process.
 			
