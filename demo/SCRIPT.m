@@ -8,16 +8,13 @@ environment = ddAnalysisSetUp(...
 
 %% Load data
 filesToAnalyse = allFilesInFolder(environment.dataPath, 'txt');
-myData = DataClass(environment.dataPath);
-myData.loadDataFiles(filesToAnalyse);
-
+myData = DataClass(environment.dataPath, 'files', filesToAnalyse);
 
 %% Run an analysis
-numberOfMCMCSamples = 10^5; % set to 10^4 for faster, but less accurate inferences
 saveFolder = 'methodspaper-kirby27';
 
 hModel = ModelHierarchicalME('jags', myData, saveFolder,...
-	'mcmcSamples', numberOfMCMCSamples,... % optional
+	'mcmcSamples', 10^5,... % set to 10^3 or 10^4 for faster testing
 	'chains', 4); % optional
 
 hModel.conductInference();

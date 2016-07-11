@@ -20,8 +20,7 @@ listOfModels = {'ModelHierarchicalME',...
 filesToAnalyse = allFilesInFolder(environment.dataPath, 'txt');
 %filesToAnalyse={'AC-kirby27-DAYS.txt', 'CS-kirby27-DAYS.txt'};
 %filesToAnalyse={'AC-kirby27-DAYS.txt'};
-myData = DataClass(environment.dataPath);
-myData.loadDataFiles(filesToAnalyse);
+myData = DataClass(environment.dataPath, 'files', filesToAnalyse);
 
 
 

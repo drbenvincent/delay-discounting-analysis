@@ -16,7 +16,14 @@ classdef DataClass < handle
 	methods (Access = public)
 
 		% =================================================================
-		function obj=DataClass(dataFolder)
+		function obj=DataClass(dataFolder, varargin)
+			p = inputParser;
+			p.addRequired('dataFolder',@isstr);
+			p.FunctionName = mfilename;
+			p.addParameter('files',{''},@iscellstr);
+		
+			p.parse(dataFolder, varargin{:});
+			
 			try
 				table();
 			catch
@@ -25,6 +32,15 @@ classdef DataClass < handle
 			end
 			obj.dataFolder = dataFolder;
 			display('You have created a Data object')
+			
+			% Load data files if they have beeb provided
+			if ~isempty(p.Results.files)
+				obj.loadDataFiles(p.Results.files)
+			end
+			
+			
+			
+			
 		end
 		% =================================================================
 
