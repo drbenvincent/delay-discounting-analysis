@@ -4,5 +4,5 @@ function prefix = getPrefixOfString(string,seperator)
   % prefix = getPrefixOfString('bv-kirby27.txt','-')
   % will return 'bv'
 
-  prefix = strtok(string, '-');
+  prefix = strtok(string, seperator);
 end

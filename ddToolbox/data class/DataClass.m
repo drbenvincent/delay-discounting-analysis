@@ -7,8 +7,8 @@ classdef DataClass
 		nParticipants
 		totalTrials
 		IDname
-		participantLevel
-		groupTable % table of A, DA, B, DB, R, ID, PA, PB
+		participantLevel  % structure containing a table for each participant
+		groupTable        % table of A, DA, B, DB, R, ID, PA, PB
 		observedData % TODO make this  in model?
 	end
 
@@ -149,7 +149,7 @@ classdef DataClass
 			end
 
 			obj.observedData.participantIndexList = unique(all_data.ID);
-			
+
 		end
 
 % 		function constructObservedDataForMCMC(obj)

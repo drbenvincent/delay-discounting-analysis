@@ -1,20 +1,21 @@
-function Z = calculateAUC(delays,dfSamples, shouldPlot)
+function Z = calculateAUC(x,y, shouldPlot)
+% Calculate the trapezoidal area under curve. NOTE: Normalized x-axis.
 
-assert(isrow(delays), 'delays must be a row vector, ie [1, N]')
-assert(size(dfSamples,2)==numel(delays),'dfSamples must have same number of columns as delays')
+assert(isrow(x), 'x must be a row vector, ie [1, N]')
+assert(size(y,2)==numel(x),'y must have same number of columns as x')
 
 %% Add new column representing delay=0
-nSamples = size(dfSamples,1);
-delays = [0 delays];
-dfSamples = [ones(nSamples,1) , dfSamples];
+nCols = size(y,1);
+x = [0 x];
+y = [ones(nCols,1) , y];
 
-%% Normalise delays
-delays = delays ./ max(delays);
+%% Normalise x
+x = x ./ max(x);
 
 %% Calculate trapezoidal AUC
-Z = zeros(nSamples,1);
-for s=1:nSamples
-	Z(s) = trapz(delays,dfSamples(s,:));
+Z = zeros(nCols,1);
+for s=1:nCols
+	Z(s) = trapz(x,y(s,:));
 end
 
 %% Plot
@@ -25,3 +26,4 @@ if shouldPlot
 		'box','off')
 	xlabel('Area Under Curve')
 end
+return

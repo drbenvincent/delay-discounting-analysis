@@ -6,7 +6,7 @@ function [HDI] = HDIofSamples(samples, credibilityMass)
 % Kruschke, J. K. (2015). Doing Bayesian Data Analysis: A Tutorial with R,
 % JAGS, and Stan. Academic Press.
 
-assert(credibilityMass<1,'credibilityMass must be a <1')
+assert(credibilityMass<1,'credibilityMass must be a between 0-1.')
 
 samples = sort(samples(:));
 ciIdxInc = floor( credibilityMass * numel( samples ) );

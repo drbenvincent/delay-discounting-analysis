@@ -102,7 +102,12 @@ classdef Model
 
 			%% Post-sampling activities
 			obj = obj.calcPosteriorPredictive();
-			obj.mcmc.convergenceSummary(obj.saveFolder, obj.data.IDname)
+			try
+				obj.mcmc.convergenceSummary(obj.saveFolder, obj.data.IDname)
+			catch
+				beep
+				warning('**** convergenceSummary FAILED ****.\nProbably because things are not finished for STAN.')
+			end
 			obj.exportParameterEstimates();
 
 			% Deal with plotting options

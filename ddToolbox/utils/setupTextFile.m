@@ -3,4 +3,4 @@ function [fid, fname] = setupTextFile(saveFolder, filename)
     fname = fullfile('figs',saveFolder,filename);
     fid=fopen(fname,'w');
     assert(fid~=-1)
-end
+return

@@ -2,7 +2,6 @@ function testScript
 
 numberOfMCMCSamples = 10^2;
 chains = 2;
-sampler = 'jags';
 
 %% Setup stuff
 environment = ddAnalysisSetUp(...
@@ -10,40 +9,70 @@ environment = ddAnalysisSetUp(...
 	'projectPath', '~/git-local/delay-discounting-analysis/demo',...
 	'dataPath', '~/git-local/delay-discounting-analysis/demo/data');
 
-listOfModels = {'ModelHierarchicalME',...
-	'ModelHierarchicalMEUpdated',...
-	'ModelHierarchicalLogK',...
-	'ModelSeparateME',...
-	'ModelMixedLogK',...
-	'ModelSeparateLogK'};
-
 %% Load data
-filesToAnalyse = allFilesInFolder(environment.dataPath, 'txt');
-%filesToAnalyse={'AC-kirby27-DAYS.txt', 'CS-kirby27-DAYS.txt'};
+%filesToAnalyse = allFilesInFolder(environment.dataPath, 'txt');
+filesToAnalyse={'AC-kirby27-DAYS.txt', 'CS-kirby27-DAYS.txt'};
 %filesToAnalyse={'AC-kirby27-DAYS.txt'};
 myData = DataClass(environment.dataPath, 'files', filesToAnalyse);
 
+
 %% Do the analysis, loop over each of the models
-for modelName = listOfModels
-	makeModelFunction = str2func(modelName{:});
-	models.(modelName{:}) = makeModelFunction(myData,...
-		'saveFolder', modelName{:},...
+sampler = 'jags';
+listOfModels = {'ModelHierarchicalME',...
+	'ModelHierarchicalMEUpdated',...
+	'ModelSeparateME',...
+	'ModelMixedLogK',...
+	'ModelSeparateLogK',...
+	'ModelHierarchicalLogK'};
+
+for n = 1:numel(listOfModels)
+	modelName = listOfModels{n};
+	makeModelFunction = str2func(modelName);
+	
+	all_models(n).model = makeModelFunction(myData,...
+		'saveFolder', modelName,...
 		'pointEstimateType','mode');
 	
-	models.(modelName{:}) = models.(modelName{:}).conductInference(...
+	all_models(n).model = all_models(n).model.conductInference(...
 		sampler,... % {'jags', 'stan'}
 		'shouldPlot','no'); % TODO: add mcmcparams over-ride
 end
 
 
+%% Do the analysis, loop over each of the models
+sampler = 'stan';
+listOfModels = {'ModelSeparateLogK','ModelMixedLogK','ModelHierarchicalLogK'};
+
+for n = 1:numel(listOfModels)
+	modelName = listOfModels{n};
+	makeModelFunction = str2func(modelName);
+	
+	all_models(n).model = makeModelFunction(myData,...
+		'saveFolder', modelName,...
+		'pointEstimateType','mode');
+	
+	all_models(n).model = all_models(n).model.conductInference(...
+		sampler,... % {'jags', 'stan'}
+		'shouldPlot','no'); % TODO: add mcmcparams over-ride
+end
+
+
+
+
+
+
+
+
+
+
 %% Compare hierarchical and non-hierarchical inferences for log(k) models
 figure
 subplot(2,1,1)
-plotLOGKclusters(models.(ModelSeparateLogK).mcmc, models.(ModelSeparateLogK).data, [0.7 0 0], 'mode')
+plotLOGKclusters(all_models.(ModelSeparateLogK).mcmc, all_models.(ModelSeparateLogK).data, [0.7 0 0], 'mode')
 title('non-hierarchical')
 
 subplot(2,1,2)
-plotLOGKclusters(models.(ModelHierarchicalLogK).mcmc, models.(ModelHierarchicalLogK).data, [0.7 0 0], 'mode')
+plotLOGKclusters(all_models.(ModelHierarchicalLogK).mcmc, all_models.(ModelHierarchicalLogK).data, [0.7 0 0], 'mode')
 title('hierarchical')
 
 subplot(2,1,2), a=axis; subplot(2,1,1), axis(a);
