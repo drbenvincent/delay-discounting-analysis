@@ -46,9 +46,6 @@ classdef Model
 		end
 
 
-
-		% MIDDLE-MAN METHODS ================================================
-
 		function obj = conductInference(obj, samplerType, varargin)
 			% TODO: get the observed data from the raw group data here.
 			samplerType     = lower(samplerType);
@@ -118,23 +115,6 @@ classdef Model
 			obj.tellUserAboutPublicMethods()
 		end
 
-        % TODO: remove these ^^^^^^^^^^^^^^^^^^^^^^^^^^
-		function obj = setBurnIn(obj, nburnin)
-			obj.sampler.setBurnIn(nburnin)
-		end
-
-		function obj = setMCMCtotalSamples(obj, totalSamples)
-			obj.sampler.setMCMCtotalSamples(totalSamples)
-		end
-
-		function obj = setMCMCnumberOfChains(obj, nchains)
-			obj.sampler.setMCMCnumberOfChains(nchains)
-		end
-        % ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-		function obj = plotMCMCchains(obj,vars)
-			obj.mcmc.plotMCMCchains(vars);
-		end
 
 		function finalTable = exportParameterEstimates(obj, varargin)
 			%% Create table of parameter estimates
@@ -188,9 +168,6 @@ classdef Model
 		end
 
 
-
-
-
 		function obj = conditionalDiscountRates(obj, reward, plotFlag)
 			% Extract and plot P( log(k) | reward)
 			warning('THIS METHOD IS A TOTAL MESS - PLAN THIS AGAIN FROM SCRATCH')
@@ -205,37 +182,109 @@ classdef Model
 		end
 
 
+        % MIDDLE-MAN METHODS ================================================
+
+        % % TODO: remove these ^^^^^^^^^^^^^^^^^^^^^^^^^^
+        % function obj = setBurnIn(obj, nburnin)
+        % 	obj.sampler.setBurnIn(nburnin)
+        % end
+        %
+        % function obj = setMCMCtotalSamples(obj, totalSamples)
+        % 	obj.sampler.setMCMCtotalSamples(totalSamples)
+        % end
+        %
+        % function obj = setMCMCnumberOfChains(obj, nchains)
+        % 	obj.sampler.setMCMCnumberOfChains(nchains)
+        % end
+        % % ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+        function obj = plotMCMCchains(obj,vars)
+            obj.mcmc.plotMCMCchains(vars);
+        end
+
+
+    end
 
 
 
-		% **********************************************************************
-		% **********************************************************************
-		% PLOTTING *************************************************************
-		% **********************************************************************
-		% **********************************************************************
-		% This plot method is highly unsatisfactory. We have a whole bunch of logic
-		% which decides on the properties of the model (hierachical or not) and
-		% (logk vs magnitude effect). It then uses a bunch of get methods in order
-		% to grab the data in the appropriate format. We then pass this data to plot
-		% functions/classes.
-		%
-		% Thinking needs to be done about the best way to refactor all this mess.
+    methods (Access = private)
+
+        function varNames = extractLevelNVarNames(obj, N)
+            varNames={};
+            for var = each(fieldnames(obj.variables))
+                if obj.variables.(var).analysisFlag == N
+                    varNames{end+1} = var;
+                end
+            end
+        end
+
+        function bool = isGroupLevelModel(obj)
+            % we determine if the model has group level parameters by checking if
+            % we have a 'groupLevel' subfield in the varList.
+            if isfield(obj.varList,'groupLevel')
+                bool = ~isempty(obj.varList.groupLevel);
+            end
+        end
+
+        function tellUserAboutPublicMethods(obj)
+            methods(obj)
+        end
+
+
+        function conditionalDiscountRates_ParticipantLevel(obj, reward, plotFlag)
+            nParticipants = obj.data.nParticipants;
+            %count=1;
+            for p = 1:nParticipants
+                params(:,1) = obj.mcmc.getSamplesFromParticipantAsMatrix(p, {'m'});
+                params(:,2) = obj.mcmc.getSamplesFromParticipantAsMatrix(p, {'c'});
+                % ==============================================
+                [posteriorMean(p), lh(p)] =...
+                    calculateLogK_ConditionOnReward(reward, params, plotFlag);
+                %lh(count).DisplayName=sprintf('participant %d', p);
+                %row(count) = {sprintf('participant %d', p)};
+                % ==============================================
+                %count=count+1;
+            end
+            warning('GET THESE NUMBERS PRINTED TO SCREEN')
+            % 			logkCondition = array2table([posteriorMode'],...
+            % 				'VariableNames',{'logK_posteriorMode'},...)
+            % 				'RowNames', num2cell([1:nParticipants]) )
+        end
+
+    end
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+    % **********************************************************************
+    % **********************************************************************
+    % PLOTTING *************************************************************
+    % **********************************************************************
+    % **********************************************************************
+
+    % This plot method is highly unsatisfactory. We have a whole bunch of logic
+    % which decides on the properties of the model (hierachical or not) and
+    % (logk vs magnitude effect). It then uses a bunch of get methods in order
+    % to grab the data in the appropriate format. We then pass this data to plot
+    % functions/classes.
+    %
+    % Thinking needs to be done about the best way to refactor all this mess.
+
+
+    methods (Access = public)
 
 		function plot(obj)
 			close all
-
-			% IDEAS:
-			% - Loop over participants (and group if there is one) and
-			% create an array of objects of a new participant class. This
-			% class will contain all the data for that person, as well as
-			% the plotting functions.
-			%
-			% - Or....
-
 
 			%% PARTICIPANT LEVEL  =========================================
 			% We will ALWAYS have participants.
@@ -248,98 +297,85 @@ classdef Model
 
 
 			%% POSTERIOR PREDICTION PLOTS =================================
-			for p=1:obj.data.nParticipants
+            nParticipants = obj.data.nParticipants;
+            for p=1:nParticipants
 
-				% 				% Calc goodness of fit and % responses predicted,
-				% 				% distributions
-				% 				[GOFdistribution, percentPredictedDistribution] = calcGoodnessOfFitDistribution(p);
+                % GATHER DATA FOR THIS PARTICIPANT
+                trialsForThisParticant = obj.data.participantLevel(p).trialsForThisParticant;
+                percentPredictedDistribution = obj.postPred(p).percentPredictedDistribution(:);
+                participantPredictedResponses = obj.getParticipantPredictedResponses(p);
+                R = obj.data.participantLevel(p).table.R;
+                titleString = sprintf('%s', obj.data.IDname{p});
+                pointEstimateType = obj.pointEstimateType;
+                GOF_distribtion = obj.postPred(p).GOF_distribtion;
 
-				figure(1), colormap(gray), clf
+                % PLOT
+                figPosteriorPrediction(trialsForThisParticant, percentPredictedDistribution, participantPredictedResponses, R, titleString, pointEstimateType, GOF_distribtion)
 
-				subplot(2,2,1)
-				obj.pp_plotTrials(p)
-
-				subplot(2,2,2)
-				obj.pp_plotGOFdistribution(obj.postPred(p).GOF_distribtion)
-
-				subplot(2,2,3)
-				obj.pp_plotPredictionAndResponse(p)
-
-				subplot(2,2,4)
-				obj.pp_ploptPercentPredictedDistribution(p)
-
-
-				%% Export figure
-				drawnow
-				latex_fig(16, 9, 6)
-				myExport('PosteriorPredictive',...
-					'saveFolder',obj.saveFolder,...
-					'prefix', obj.data.IDname{p},...
-					'suffix', obj.modelType)
-			end
-
+                %% Export figure
+                drawnow
+                latex_fig(16, 9, 6)
+                myExport('PosteriorPredictive',...
+                    'saveFolder',obj.saveFolder,...
+                    'prefix', obj.data.IDname{p},...
+                    'suffix', obj.modelType)
+            end
 		end
-
-
-
-
-
-
-
-
-
-
 
 	end
 
-	methods (Access = private)
-
-		function varNames = extractLevelNVarNames(obj, N)
-			varNames={};
-			for var = each(fieldnames(obj.variables))
-				if obj.variables.(var).analysisFlag == N
-					varNames{end+1} = var;
-				end
-			end
-		end
-
-		function bool = isGroupLevelModel(obj)
-			% we determine if the model has group level parameters by checking if
-			% we have a 'groupLevel' subfield in the varList.
-			if isfield(obj.varList,'groupLevel')
-				bool = ~isempty(obj.varList.groupLevel);
-			end
-		end
-
-		function tellUserAboutPublicMethods(obj)
-			methods(obj)
-		end
-
-
-		function conditionalDiscountRates_ParticipantLevel(obj, reward, plotFlag)
-			nParticipants = obj.data.nParticipants;
-			%count=1;
-			for p = 1:nParticipants
-				params(:,1) = obj.mcmc.getSamplesFromParticipantAsMatrix(p, {'m'});
-				params(:,2) = obj.mcmc.getSamplesFromParticipantAsMatrix(p, {'c'});
-				% ==============================================
-				[posteriorMean(p), lh(p)] =...
-					calculateLogK_ConditionOnReward(reward, params, plotFlag);
-				%lh(count).DisplayName=sprintf('participant %d', p);
-				%row(count) = {sprintf('participant %d', p)};
-				% ==============================================
-				%count=count+1;
-			end
-			warning('GET THESE NUMBERS PRINTED TO SCREEN')
-			% 			logkCondition = array2table([posteriorMode'],...
-			% 				'VariableNames',{'logK_posteriorMode'},...)
-			% 				'RowNames', num2cell([1:nParticipants]) )
-		end
 
 
 
 
-		%% POSTERIOR PREDICTION ===========================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    % **********************************************************************
+    % **********************************************************************
+    % POSTERIOR PREDICTION *************************************************
+    % **********************************************************************
+    % **********************************************************************
+
+
+    methods (Access = private)
+
 
 		function obj = calcPosteriorPredictive(obj)
 			display('Calculating posterior predictive measures...')
@@ -451,54 +487,31 @@ classdef Model
 
 
 
-		function pp_plotGOFdistribution(obj,gofscores)
-			uni = mcmc.UnivariateDistribution(gofscores(:),...
-				'xLabel', 'goodness of fit score',...
-				'plotStyle','hist',...
-				'pointEstimateType',obj.pointEstimateType);
-		end
 
-		function pp_ploptPercentPredictedDistribution(obj,p)
-			nQuestions = obj.data.participantLevel(p).trialsForThisParticant;
 
-			uni = mcmc.UnivariateDistribution(obj.postPred(p).percentPredictedDistribution(:),...
-				'xLabel', '$\%$ proportion responses accounted for',...
-				'plotStyle','hist',...
-				'pointEstimateType',obj.pointEstimateType);
 
-			axis tight
-			vline(0.5)
-			set(gca,'XLim',[0 1])
-		end
 
-		function pp_plotTrials(obj,p)
-			% plot predicted probability of choosing delayed
-			bar(obj.getParticipantPredictedResponses(p),'BarWidth',1)
-			if p<obj.data.nParticipants, set(gca,'XTick',[]), end
-			box off
-			axis tight
-			% plot response data
-			hold on
-			plot([1:obj.data.participantLevel(p).trialsForThisParticant],... % <-- replace with a get method
-				obj.data.participantLevel(p).table.R,... % <-- replace with a get method
-				'+')
-			myString = sprintf('%s', obj.data.IDname{p});
-			title(myString)
 
-			xlabel('trial')
-			ylabel('response')
-			legend('prediction','response', 'Location','East')
-		end
 
-		function pp_plotPredictionAndResponse(obj, p)
-			h(1) = plot(obj.getParticipantPredictedResponses(p),...
-				obj.data.participantLevel(p).table.R,...
-				'+');
-			xlabel('P(choose delayed)')
-			ylabel('Response')
-			legend(h, 'data')
-			box off
-		end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -548,56 +561,42 @@ classdef Model
 				fh.Name=['participant: ' obj.data.IDname{n}];
 
 				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-				participantSamples = obj.mcmc.getSamplesAtIndex(n, pVariableNames);
-				pData = obj.data.getParticipantData(n);
-
-				% create a string describing goodness of fit
-				percentPredicted = obj.postPred(n).percentPredictedDistribution(:);
-				pp = mcmc.UnivariateDistribution(percentPredicted, 'shouldPlot', false);
-				goodnessStr = sprintf('%% predicted: %3.1f (%3.1f - %3.1f)',...
-					pp.(obj.pointEstimateType)*100,...
-					pp.HDI(1)*100,...
-					pp.HDI(2)*100);
-
-				obj.plotFuncs.participantFigFunc(participantSamples,...
+				obj.plotFuncs.participantFigFunc(obj.mcmc.getSamplesAtIndex(n, pVariableNames),...
 					obj.pointEstimateType,...
-					'pData', pData,...
+					'pData', obj.data.getParticipantData(n),...
 					'opts',opts,...
-					'goodnessStr',goodnessStr);
+					'goodnessStr',makeGoodnessStr());
 				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 				latex_fig(16, 18, 4)
-				% 				myExport(obj.data.IDname{n},...
-				% 					'saveFolder', obj.saveFolder,...
-				% 					'prefix', obj.modelType);
 				myExport('fig',...
 					'saveFolder', obj.saveFolder,...
 					'prefix', obj.data.IDname{n},...
 					'suffix', obj.modelType);
 				close(fh)
+
+                function goodnessStr = makeGoodnessStr()
+                    percentPredicted = obj.postPred(n).percentPredictedDistribution(:);
+    				pp = mcmc.UnivariateDistribution(percentPredicted, 'shouldPlot', false);
+    				goodnessStr = sprintf('%% predicted: %3.1f (%3.1f - %3.1f)',...
+    					pp.(obj.pointEstimateType)*100,...
+    					pp.HDI(1)*100,...
+    					pp.HDI(2)*100);
+                end
 			end
 
 			function participantTriPlot()
 				figure(87)
 
-				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-				participantSamples = obj.mcmc.getSamplesFromParticipantAsMatrix(n, pVariableNames);
-				priorSamples = obj.mcmc.getSamplesAsMatrix(obj.varList.participantLevelPriors);
-
-				mcmc.TriPlotSamples(participantSamples,...
+				mcmc.TriPlotSamples(obj.mcmc.getSamplesFromParticipantAsMatrix(n, pVariableNames),...
 					pVariableNames,...
-					'PRIOR',priorSamples,...
+					'PRIOR',obj.mcmc.getSamplesAsMatrix(obj.varList.participantLevelPriors),...
 					'pointEstimateType',obj.pointEstimateType);
-				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 				myExport('triplot',...
 					'saveFolder', obj.saveFolder,...
 					'prefix', obj.data.IDname{n},...
 					'suffix', obj.modelType);
-
-				% 				myExport([obj.data.IDname{n} '-triplot'],...
-				% 					'saveFolder', obj.saveFolder,...
-				% 					'prefix', obj.modelType);
 			end
 
 
