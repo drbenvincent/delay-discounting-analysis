@@ -1,66 +1,61 @@
-function figPosteriorPrediction(nQuestions, percentPredictedDistribution, participantPredictedResponses, R, titleString, pointEstimateType, GOF_distribtion)
+function figPosteriorPrediction(data)
     % MAIN FUNCTION TO PRODUCE MUTLI-PANEL FIGURE
 
     figure(1), colormap(gray), clf
 
     subplot(2,2,1)
-    pp_plotTrials(nQuestions, participantPredictedResponses, R, titleString)
+    pp_plotTrials()
     %if p<obj.data.nParticipants, set(gca,'XTick',[]), end
 
     subplot(2,2,2)
-    pp_plotGOFdistribution(GOF_distribtion, pointEstimateType)
+    pp_plotGOFdistribution()
 
     subplot(2,2,3)
-    pp_plotPredictionAndResponse(participantPredictedResponses, R)
+    pp_plotPredictionAndResponse()
 
     subplot(2,2,4)
+    pp_ploptPercentPredictedDistribution()
 
-    pp_ploptPercentPredictedDistribution(percentPredictedDistribution, pointEstimateType)
+    function pp_plotGOFdistribution()
+        uni = mcmc.UnivariateDistribution(data.GOF_distribtion(:),...
+            'xLabel', 'goodness of fit score',...
+            'plotStyle','hist',...
+            'pointEstimateType',data.pointEstimateType);
+    end
 
-end
+    function pp_ploptPercentPredictedDistribution()
+        uni = mcmc.UnivariateDistribution(data.percentPredictedDistribution,...
+            'xLabel', '$\%$ proportion responses accounted for',...
+            'plotStyle','hist',...
+            'pointEstimateType',data.pointEstimateType);
 
+        axis tight
+        vline(0.5)
+        set(gca,'XLim',[0 1])
+	end
 
-function pp_plotGOFdistribution(gofscores, pointEstimateType)
-    uni = mcmc.UnivariateDistribution(gofscores(:),...
-        'xLabel', 'goodness of fit score',...
-        'plotStyle','hist',...
-        'pointEstimateType',pointEstimateType);
-end
+    function pp_plotTrials()
+        % plot predicted probability of choosing delayed
+        bar(data.participantPredictedResponses,'BarWidth',1)
 
+        box off
+        axis tight
+        % plot response data
+        hold on
+        plot([1:data.trialsForThisParticant], data.R, '+')
+        title(data.titleString)
 
-function pp_ploptPercentPredictedDistribution(percentPredictedDistribution, pointEstimateType)
-    uni = mcmc.UnivariateDistribution(percentPredictedDistribution,...
-        'xLabel', '$\%$ proportion responses accounted for',...
-        'plotStyle','hist',...
-        'pointEstimateType',pointEstimateType);
+        xlabel('trial')
+        ylabel('response')
+        legend('prediction','response', 'Location','East')
+    end
 
-    axis tight
-    vline(0.5)
-    set(gca,'XLim',[0 1])
-end
+    function pp_plotPredictionAndResponse()
+        h(1) = plot(data.participantPredictedResponses, data.R, '+');
+        xlabel('P(choose delayed)')
+        ylabel('Response')
+        legend(h, 'data')
+        box off
+    end
 
-
-function pp_plotTrials(nQuestions, participantPredictedResponses, R, titleString)
-    % plot predicted probability of choosing delayed
-    bar(participantPredictedResponses,'BarWidth',1)
-
-    box off
-    axis tight
-    % plot response data
-    hold on
-    plot([1:nQuestions], R, '+')
-    title(titleString)
-
-    xlabel('trial')
-    ylabel('response')
-    legend('prediction','response', 'Location','East')
-end
-
-
-function pp_plotPredictionAndResponse(participantPredictedResponses, R)
-    h(1) = plot(participantPredictedResponses, R, '+');
-    xlabel('P(choose delayed)')
-    ylabel('Response')
-    legend(h, 'data')
-    box off
 end
