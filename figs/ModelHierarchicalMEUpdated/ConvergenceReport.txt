@@ -1,0 +1,49 @@
+MCMC inference was conducted with 2 chains. The first 5000 samples were discarded from each chain, resulting in a total of 1000 samples to approximate the posterior distribution. 
+
+
+
+Rhat for: m
+AC-kirby27-DAYS:	1.05165	(WARNING: poor convergence)
+CS-kirby27-DAYS:	1.03883	(WARNING: poor convergence)
+
+Rhat for: c
+AC-kirby27-DAYS:	1.04382	(WARNING: poor convergence)
+CS-kirby27-DAYS:	1.03781	(WARNING: poor convergence)
+
+Rhat for: alpha
+AC-kirby27-DAYS:	1.00494	
+CS-kirby27-DAYS:	1.01667	(WARNING: poor convergence)
+
+Rhat for: epsilon
+AC-kirby27-DAYS:	1.00043	
+CS-kirby27-DAYS:	0.99925	
+
+Rhat for: m_group	1.01490
+Rhat for: c_group	1.00040
+Rhat for: alpha_group	1.00377
+Rhat for: epsilon_group	0.99965
+Rhat for: m_group_prior	0.99902
+Rhat for: c_group_prior	0.99900
+Rhat for: epsilon_group_prior	0.99983
+Rhat for: alpha_group_prior	0.99956
+Rhat for: groupMmu	1.04265
+Rhat for: groupMsigma	1.00355
+Rhat for: groupCmu	1.00287
+Rhat for: groupCsigma	1.00004
+Rhat for: groupW	1.00270
+Rhat for: groupK	0.99990
+Rhat for: groupALPHAmu	1.00773
+Rhat for: groupALPHAsigma	1.00396
+Rhat for: groupMmu_prior	0.99903
+Rhat for: groupMsigma_prior	0.99965
+Rhat for: groupCmu_prior	0.99900
+Rhat for: groupCsigma_prior	0.99939
+Rhat for: groupW_prior	0.99902
+Rhat for: groupK_prior	0.99991
+Rhat for: groupALPHAmu_prior	0.99943
+Rhat for: groupALPHAsigma_prior	0.99942
+
+
+**** WARNING: convergence issues :( ****
+
+

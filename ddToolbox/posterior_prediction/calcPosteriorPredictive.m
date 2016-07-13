@@ -12,19 +12,19 @@ nParticipants = obj.data.nParticipants;
 for p=1:nParticipants
 	% get data ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	trialIndOfThisParicipant	= obj.data.observedData.ID==p;
-	participantPredictedResponsesMCMC	= obj.mcmc.getPChooseDelayed(trialIndOfThisParicipant);
+	responses_predictedMCMC		= obj.mcmc.getPChooseDelayed(trialIndOfThisParicipant);
 	responses_actual			= obj.data.participantLevel(p).table.R;
-	participantPredictedResponses = obj.mcmc.getParticipantPredictedResponses(trialIndOfThisParicipant);
+	responses_predicted			= obj.mcmc.getParticipantPredictedResponses(trialIndOfThisParicipant);
 	% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	
 	% Calculate metrics
-	postPred(p).score = calcPostPredOverallScore(participantPredictedResponses, responses_actual);
+	postPred(p).score = calcPostPredOverallScore(responses_predicted, responses_actual);
 	
-	postPred(p).GOF_distribtion = calcGoodnessOfFitDistribution(participantPredictedResponsesMCMC, responses_actual);
+	postPred(p).GOF_distribtion = calcGoodnessOfFitDistribution(responses_predictedMCMC, responses_actual);
 	
-	postPred(p).percentPredictedDistribution = calcPercentResponsesCorrectlyPredicted(participantPredictedResponsesMCMC, responses_actual);
+	postPred(p).percentPredictedDistribution = calcPercentResponsesCorrectlyPredicted(responses_predictedMCMC, responses_actual);
 	
-	% TODO: make judgements about whether model is good enough
+	% TODO: make judgements about whether model is good enough here
 end
 end
 
@@ -38,22 +38,23 @@ score = calcLogOdds(...
 	calcDataLikelihood(responses_actual, responses_control_model'));
 end
 
-function [score] = calcGoodnessOfFitDistribution(participantPredictedResponsesMCMC, responses_actual)
+function [score] = calcGoodnessOfFitDistribution(responses_predictedMCMC, responses_actual)
 % Expand the participant responses so we can do vectorised calculations below
-totalSamples			= size(participantPredictedResponsesMCMC,2);
+totalSamples			= size(responses_predictedMCMC,2);
 responses_actual		= repmat(responses_actual, [1,totalSamples]);
 responses_control_model = ones(size(responses_actual)) .* 0.5;
 
 score = calcLogOdds(...
-	calcDataLikelihood(responses_actual, participantPredictedResponsesMCMC),...
+	calcDataLikelihood(responses_actual, responses_predictedMCMC),...
 	calcDataLikelihood(responses_actual, responses_control_model));
 end
 
-function percentResponsesPredicted = calcPercentResponsesCorrectlyPredicted(participantPredictedResponsesMCMC, responses_actual)
+function percentResponsesPredicted = calcPercentResponsesCorrectlyPredicted(responses_predictedMCMC, responses_actual)
 %% Calculate % responses predicted by the model
+totalSamples				= size(responses_predictedMCMC,2);
 nQuestions					= numel(responses_actual);
-modelPrediction				= zeros(size(participantPredictedResponsesMCMC));
-modelPrediction(participantPredictedResponsesMCMC>=0.5)=1;
+modelPrediction				= zeros(size(responses_predictedMCMC));
+modelPrediction(responses_predictedMCMC>=0.5)=1;
 responses_actual			= repmat(responses_actual, [1,totalSamples]);
 isCorrectPrediction			= modelPrediction == responses_actual;
 percentResponsesPredicted	= sum(isCorrectPrediction,1)./nQuestions;

@@ -1,0 +1,29 @@
+MCMC inference was conducted with 2 chains. The first 5000 samples were discarded from each chain, resulting in a total of 1000 samples to approximate the posterior distribution. 
+
+
+
+Rhat for: m
+AC-kirby27-DAYS:	1.00090	
+CS-kirby27-DAYS:	0.99926	
+
+Rhat for: c
+AC-kirby27-DAYS:	0.99933	
+CS-kirby27-DAYS:	0.99918	
+
+Rhat for: alpha
+AC-kirby27-DAYS:	1.00023	
+CS-kirby27-DAYS:	0.99997	
+
+Rhat for: epsilon
+AC-kirby27-DAYS:	0.99959	
+CS-kirby27-DAYS:	1.00407	
+
+Rhat for: m_prior	0.99921
+Rhat for: c_prior	0.99911
+Rhat for: alpha_prior	1.00168
+Rhat for: epsilon_prior	1.00051
+
+
+**** No convergence issues :) ****
+
+
