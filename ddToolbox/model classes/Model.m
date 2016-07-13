@@ -101,7 +101,7 @@ classdef Model
 			% fix/check ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 			%% Post-sampling activities
-			obj.postPred = calcPosteriorPredictive(obj);
+			obj.postPred = calcPosteriorPredictive( obj );
 			try
 				obj.mcmc.convergenceSummary(obj.saveFolder, obj.data.IDname)
 			catch
