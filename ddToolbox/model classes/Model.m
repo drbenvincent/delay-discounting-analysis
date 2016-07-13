@@ -18,7 +18,7 @@ classdef Model
 		chains
 		modelType % string (ie modelType.jags, or modelType.stan)
 		sampler % handle to SamplerWrapper class
-		data % handle to Data class
+		data % handle to Data class (dependency is injected from outside)
 		varList
 		plotFuncs % structure of function handles
 		initialParams
@@ -47,6 +47,9 @@ classdef Model
 
 
 		function obj = conductInference(obj, samplerType, varargin)
+			% conductInference  Runs inference
+			%   conductInference(samplerType, varargin)
+
 			% TODO: get the observed data from the raw group data here.
 			samplerType     = lower(samplerType);
 
@@ -98,7 +101,7 @@ classdef Model
 			% fix/check ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 			%% Post-sampling activities
-			obj = obj.calcPosteriorPredictive();
+			obj.postPred = calcPosteriorPredictive(obj);
 			try
 				obj.mcmc.convergenceSummary(obj.saveFolder, obj.data.IDname)
 			catch
@@ -278,179 +281,6 @@ classdef Model
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	% **********************************************************************
-	% **********************************************************************
-	% POSTERIOR PREDICTION *************************************************
-	% **********************************************************************
-	% **********************************************************************
-
-
-	methods (Access = private)
-
-
-		function obj = calcPosteriorPredictive(obj)
-			display('Calculating posterior predictive measures...')
-			nParticipants = obj.data.nParticipants;
-
-			%% Calculate various posterior predictive measures
-			% data saved to obj.postPred(p).xxx
-
-			for p=1:nParticipants
-
-				% Calculate overall log prob of model, compared to random
-				obj.postPred(p).score = obj.postPredOverallScore(p);
-
-				% Calculate:
-				% - distribution of log ratio scores
-				% - distribution of percent of responses predicted
-				[obj.postPred(p).GOF_distribtion,...
-					obj.postPred(p).percentPredictedDistribution] ...
-					= obj.calcGoodnessOfFitDistribution(p);
-
-				% TODO: make judgements about whether model is good enough
-
-			end
-		end
-
-		function RpostPred = getParticipantPredictedResponses(obj,p)
-			trialIndOfThisParicipant = obj.data.observedData.ID==p;
-			RpostPred = obj.mcmc.getParticipantPredictedResponses(trialIndOfThisParicipant);
-		end
-
-		%% Posterior predictive model checking #1
-		% This approach comes up with a single goodness of fit score.
-		% It is the log ratio between the posterior predicted responses
-		% of the model and the predicted responses of a control model
-		% (which responses randomly).
-		% NOTE: That this is based upon Rpostpred.
-
-		function score = postPredOverallScore(obj, p)
-			% Calculate log posterior odds of data under the model and a
-			% control model where prob of responding is 0.5.
-			% Responses are Bernoulli distributed, which is a special case
-			% of the Binomial with 1 event.
-			prob = @(responses, predicted) prod(binopdf(responses, ...
-				ones(size(responses)),...
-				predicted));
-			% Calculate fit between posterior predictive responses and actual
-			participant(p).predicted = obj.getParticipantPredictedResponses(p);
-			participantResponses = obj.data.participantLevel(p).table.R;
-			pModel = prob(participantResponses, participant(p).predicted');
-
-			% calculate fit between control (random) model and actual
-			% responses
-			controlPredictions = ones(size(participantResponses)) .* 0.5;
-			pRandom = prob(participantResponses, controlPredictions);
-
-			score = log( pModel ./ pRandom);
-		end
-
-		%% Posterior predictive model checking #2
-		% This takes a different approach. Because we calculate
-		% P(choose delayed) directly (variable P in the model) then we
-		% haev these predicted probabilities for every MCMC sample.
-		% This means we can compute a distribution of model fits
-		% compared to the control model.
-		% We can then examine whether the 95% CI overlaps with 1, which
-		% we can take as indicating the model does not predict people's
-		% responases better than chance.
-		function [GOF_distribtion, percentPredictedDistribution] = calcGoodnessOfFitDistribution(obj,p)
-			% return a distribution of goodness of fit scores. One
-			% value for each MCMC sample.
-			% This is quite memory-intensive, so we are calculating it
-			% on demand and not storing it.
-
-			% get predicted P(choose delayed)
-			trialIndOfThisParicipant = obj.data.observedData.ID==p;
-			P = obj.mcmc.getPChooseDelayed(trialIndOfThisParicipant);
-			% 			% trim off any empty data from the ragged array approach
-			% 			P = P([1:obj.data.participantLevel(p).trialsForThisParticant],:);
-
-			nQuestions = size(P,1);
-			totalSamples = size(P,2);
-			% get participant responses
-			participantResponses = obj.data.participantLevel(p).table.R;
-			%totalSamples = obj.sampler.mcmcparams.totalSamples;
-
-			% Expand the participant responses so we can do vectorised
-			% calculations below
-			participantResponsesREP = repmat(participantResponses, [1,totalSamples]);
-
-			%% Calculate % responses predicted by the model
-			%modelPrediction(P<0.5)=0;
-			modelPrediction = zeros(size(P));
-			modelPrediction(P>=0.5)=1;
-			isCorrectPrediction = modelPrediction == participantResponsesREP;
-			percentPredictedDistribution = sum(isCorrectPrediction,1)./nQuestions;
-
-			%% Calculate goodness of fit
-			% P(responses | model)
-			% product is over trials
-			pModel = prod(binopdf(participantResponsesREP, ones(size(participantResponsesREP)), P));
-
-			% P(responses | control model)
-			controlP = ones(size(P)).*0.5;
-			pControl = prod(binopdf(participantResponsesREP, ones(size(participantResponsesREP)), controlP));
-
-			% Calculate log goodness of fit ratio
-			GOF_distribtion = log(pModel./pControl);
-		end
-
-
-	end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	% **********************************************************************
 	% **********************************************************************
 	% PLOTTING *************************************************************
@@ -510,12 +340,13 @@ classdef Model
 			for p=1:nParticipants
 
 				% GATHER DATA FOR THIS PARTICIPANT
+				data.titleString = sprintf('%s', obj.data.IDname{p});
 				data.trialsForThisParticant = obj.data.participantLevel(p).trialsForThisParticant;
+				data.pointEstimateType = obj.pointEstimateType;
+
 				data.percentPredictedDistribution = obj.postPred(p).percentPredictedDistribution(:);
 				data.participantPredictedResponses = obj.getParticipantPredictedResponses(p);
-				data.R = obj.data.participantLevel(p).table.R;
-				data.titleString = sprintf('%s', obj.data.IDname{p});
-				data.pointEstimateType = obj.pointEstimateType;
+				data.participantResponses = obj.data.participantLevel(p).table.R;
 				data.GOF_distribtion = obj.postPred(p).GOF_distribtion;
 
 				% PLOT

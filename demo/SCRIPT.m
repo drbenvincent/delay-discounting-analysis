@@ -11,14 +11,18 @@ myData = DataClass(environment.dataPath,...
 	'files', allFilesInFolder(environment.dataPath, 'txt'),...
 	'pointEstimateType', 'mean');
 
+% TODO: dependency injection for SAMPLER
+
+% TODO: dependency injection for MCMC fit object
+
 % Create an analysis model
 hModel = ModelHierarchicalME(myData,...
 	'saveFolder', 'analysis_with_hierarchical_magnitude_effect');
 
 % Do some Bayesian inference with JAGS or STAN
 hModel = hModel.conductInference('jags',... % {'jags', 'stan'}
-	'shouldPlot','no',...
-	'mcmcSamples',10^4); % TODO: add mcmcparams over-ride
+	'shouldPlot', 'no',...
+	'mcmcSamples', 10^4); % TODO: add mcmcparams over-ride
 
 
 
