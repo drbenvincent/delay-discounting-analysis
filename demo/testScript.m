@@ -3,17 +3,16 @@ function testScript
 numberOfMCMCSamples = 10^3;
 chains = 2;
 
-%% Setup stuff
-environment = ddAnalysisSetUp(...
-	'toolboxPath', '~/git-local/delay-discounting-analysis/ddToolbox',...
-	'projectPath', '~/git-local/delay-discounting-analysis/demo',...
-	'dataPath', '~/git-local/delay-discounting-analysis/demo/data');
+%% Setup
+addpath('~/git-local/delay-discounting-analysis/ddToolbox')
+ddAnalysisSetUp();
 
 %% Load data
+datapath = '~/git-local/delay-discounting-analysis/demo/data';
 %filesToAnalyse = allFilesInFolder(environment.dataPath, 'txt');
 filesToAnalyse={'AC-kirby27-DAYS.txt', 'CS-kirby27-DAYS.txt'};
 %filesToAnalyse={'AC-kirby27-DAYS.txt'};
-myData = DataClass(environment.dataPath, 'files', filesToAnalyse);
+myData = DataClass(datapath, 'files', filesToAnalyse);
 
 
 %% Do the analysis, loop over each of the models
@@ -35,6 +34,8 @@ for n = 1:numel(listOfModels)
 	
 	all_models(n).model = all_models(n).model.conductInference(...
 		sampler,... % {'jags', 'stan'}
+		'mcmcSamples',numberOfMCMCSamples,...
+		'chains',chains,...
 		'shouldPlot','all'); % TODO: add mcmcparams over-ride
 end
 
@@ -56,6 +57,7 @@ for n = 1:numel(listOfModels)
 	
 	all_models(n).model = all_models(n).model.conductInference(...
 		sampler,... % {'jags', 'stan'}
+		'mcmcSamples',10^3,...
 		'shouldPlot','no'); % TODO: add mcmcparams over-ride
 end
 

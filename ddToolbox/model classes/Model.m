@@ -1,17 +1,17 @@
 classdef Model
 	%Model Base class to provide basic functionality
 
-	% TODO: dependency injection for SAMPLER
-
-	% TODO: dependency injection for MCMC fit object
-
 	properties (Access = public)
-		modelFile
 		samplerType
 		saveFolder
-		mcmc % handle to mcmc fit object
 		discountFuncType
 		pointEstimateType
+	end
+	
+	properties (SetAccess = protected, GetAccess = public)
+		modelFile
+		mcmc % handle to mcmc fit object  % TODO: dependency injection for MCMC fit object
+		sampler % handle to SamplerWrapper class % TODO: dependency injection for SAMPLER
 		postPred
 		parameterEstimateTable
 	end
@@ -21,7 +21,6 @@ classdef Model
 		mcmcSamples
 		chains
 		modelType % string (ie modelType.jags, or modelType.stan)
-		sampler % handle to SamplerWrapper class
 		data % handle to Data class (dependency is injected from outside)
 		varList
 		plotFuncs % structure of function handles
@@ -82,20 +81,26 @@ classdef Model
 					% Create sampler object
 					obj.sampler = MatjagsWrapper(obj.modelFile);
 
-					% *** update obj.sampler.mcmcparams here ***
-
-					% 					% override any user-defined prefs
-					% 					if ~isempty( obj.mcmcSamples )
-					% 						obj.sampler.setMCMCtotalSamples(obj.mcmcSamples)
-					% 					end
-					% 					if ~isempty( obj.chains )
-					% 						obj.sampler.setMCMCnumberOfChains(obj.chains)
-					% 					end
+					% override any user-defined prefs
+					if ~isempty( p.Results.mcmcSamples )
+						obj.sampler.mcmcparams.nsamples = p.Results.mcmcSamples;
+					end
+					if ~isempty( p.Results.chains )
+						obj.sampler.mcmcparams.chains = p.Results.chains;
+					end
+					
 				case{'stan'}
 					obj.sampler = MatlabStanWrapper(obj.modelFile);
 					%obj.sampler.setStanHome('~/cmdstan-2.9.0') % TODO: sort this out
 
-					% *** update obj.sampler.mcmcparams here ***
+					% override any user-defined prefs
+					if ~isempty( p.Results.mcmcSamples )
+						obj.sampler.mcmcparams.iter = p.Results.mcmcSamples;
+					end
+					if ~isempty( p.Results.chains )
+						obj.sampler.mcmcparams.chains = p.Results.chains;
+					end
+					
 			end
 
 
@@ -202,20 +207,6 @@ classdef Model
 
 		% MIDDLE-MAN METHODS ================================================
 
-		% % TODO: remove these ^^^^^^^^^^^^^^^^^^^^^^^^^^
-		% function obj = setBurnIn(obj, nburnin)
-		% 	obj.sampler.setBurnIn(nburnin)
-		% end
-		%
-		% function obj = setMCMCtotalSamples(obj, totalSamples)
-		% 	obj.sampler.setMCMCtotalSamples(totalSamples)
-		% end
-		%
-		% function obj = setMCMCnumberOfChains(obj, nchains)
-		% 	obj.sampler.setMCMCnumberOfChains(nchains)
-		% end
-		% % ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
 		function obj = plotMCMCchains(obj,vars)
 			obj.mcmc.plotMCMCchains(vars);
 		end
@@ -230,8 +221,6 @@ classdef Model
 
 	methods (Access = private)
 		
-
-
 		function varNames = extractLevelNVarNames(obj, N)
 			varNames={};
 			for var = each(fieldnames(obj.variables))

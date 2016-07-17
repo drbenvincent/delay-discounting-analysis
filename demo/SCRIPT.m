@@ -23,6 +23,9 @@ hModel = hModel.conductInference('jags',... % {'jags', 'stan'}
 
 %% Example things you can now do ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+% If you did not opt to plot the outputs following inference, you can call:
+hModel.plot()
+
 % Plot MCMC chains for diagnosic purposes
 hModel.plotMCMCchains({'m','c'})
 hModel.plotMCMCchains({'m_group','c_group', 'alpha_group', 'epsilon_group'})
