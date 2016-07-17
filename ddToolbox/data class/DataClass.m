@@ -150,6 +150,19 @@ classdef DataClass
 
 			obj.observedData.participantIndexList = unique(all_data.ID);
 
+			
+			% **** Observed variables below are for the Gaussian Random Walk model ****
+			obj.observedData.uniqueDelays = sort(unique(obj.observedData.DB))';
+			obj.observedData.delayLookUp = obj.calcDelayLookup();
+			
+		end
+		
+		function delayLookUp = calcDelayLookup(obj)
+			delayLookUp = obj.observedData.DB;
+			for n=1: numel(obj.observedData.uniqueDelays)
+				delay = obj.observedData.uniqueDelays(n);
+				delayLookUp(obj.observedData.DB==delay) = n;
+			end
 		end
 
 % 		function constructObservedDataForMCMC(obj)

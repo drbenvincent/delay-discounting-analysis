@@ -39,6 +39,9 @@ for n = 1:numel(listOfModels)
 end
 
 
+
+
+
 %% Do the analysis, loop over each of the models
 sampler = 'stan';
 listOfModels = {'ModelSeparateLogK','ModelMixedLogK','ModelHierarchicalLogK'};

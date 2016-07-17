@@ -9,10 +9,10 @@ plotData()
 
 
     function plotData()
-      [x,y,z,markerCol,markerSize] = convertDataIntoMarkers();
+      [x,y,~,markerCol,markerSize] = convertDataIntoMarkers();
 
       hold on
-      for i=1:max(ic)
+      for i=1:numel(x)
       	h = plot(x(i), y(i),'o');
       	h.Color='k';
       	h.MarkerFaceColor=[1 1 1] .* (1-markerCol(i));
@@ -22,7 +22,7 @@ plotData()
     end
 
 
-    function [x,y,markerCol,markerSize] = convertDataIntoMarkers()
+    function [x,y,z,markerCol,markerSize] = convertDataIntoMarkers() % TODO: make this a method of Data class?
         % find unique experimental designs
         D=[abs(data.A), abs(data.B), data.DA, data.DB];
         [C, ia, ic] = unique(D,'rows');
@@ -39,7 +39,8 @@ plotData()
         	%x(n) = abs(p.Results.data.B( ia(n) )); % £B
         	x(n) = data.DB( ia(n) ); % delay to get £B
         	y(n) = abs(data.A( ia(n) )) ./ abs(data.B( ia(n) ));
-        end
+		end
+		z=[];
     end
 
 

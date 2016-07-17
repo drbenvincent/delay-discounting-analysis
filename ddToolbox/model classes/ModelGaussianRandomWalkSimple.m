@@ -22,16 +22,20 @@ classdef ModelGaussianRandomWalkSimple < Model
 			obj.plotFuncs.participantFigFunc = @figParticipantLOGK;
 			obj.plotFuncs.plotGroupLevel = @plotGroupLevelStuff;
 			
+			
+			obj.varList.participantLevel = {'discountFraction'};
+			obj.varList.groupLevel = {'alpha_group','epsilon_group','varInc_group'};
+			obj.varList.groupLevelPriors = {'alpha_group_prior','epsilon_group_prior','varInc_group_prior'};
 			% TODO: remove varList as a property of Model base class.
 			obj.varList.monitored = {'discountFraction',...
-				'alpha','epsilon', 'varInc',...
-				'alpha_prior', 'epsilon_prior', 'varInc_prior',...
+				'alpha_group','epsilon_group', 'varInc_group',...
+				'alpha_group_prior', 'epsilon_group_prior', 'varInc_group_prior',...
 				'Rpostpred', 'P'};
 			
 		end
 		
 		% Generate initial values of the leaf nodes
-		function setInitialParamValues(obj)
+		function obj = setInitialParamValues(obj)
 
 			%nTrials = size(obj.data.observedData.A,2);
 			nParticipants = obj.data.nParticipants;
@@ -62,9 +66,9 @@ classdef ModelGaussianRandomWalkSimple < Model
 			close all
 
 			%% Corner plot of group-level params
-			posteriorSamples = obj.mcmc.getSamplesAsMatrix({'varInc','alpha','epsilon'});
-			priorSamples = obj.mcmc.getSamplesAsMatrix({'varInc_prior','alpha_prior','epsilon_prior'});
-			varLabals = {'varInc','alpha','epsilon'};
+			posteriorSamples = obj.mcmc.getSamplesAsMatrix({'varInc_group','alpha_group','epsilon_group'});
+			priorSamples = obj.mcmc.getSamplesAsMatrix({'varInc_group_prior','alpha_group_prior','epsilon_group_prior'});
+			varLabals = {'varInc_group','alpha_group','epsilon_group'};
 
 			figure(87)
 			import mcmc.*
@@ -106,23 +110,13 @@ classdef ModelGaussianRandomWalkSimple < Model
 		end
 
 
-		function calcAUCscores(obj)
-			%% Analyse AUC scores
-			% TODO: Put this is a "generated quantities" function which is
-			% auto-called after JAGS?
-			delays = obj.data.observedData.uniqueDelays;
-			for p=1:obj.data.nParticipants
-				dfSamples = obj.extractDiscountFunctionSamples(p);
 
-				obj.AUC_DATA(p).AUCsamples = calculateAUC(delays,dfSamples, false);
-
-				obj.AUC_DATA(p).name  = obj.data.participantFilenames{p};
-				%obj.AUC_DATA(p).name = participantName;
-			end
-		end
 
 
 		function personStruct = getParticipantData(obj, p)
+			
+			obj = calcAUCscores(obj); % TODO: This is put here as a quick fix.
+			
 			% Create a structure with all the useful info about a person
 			% p = person number
 			participantName = obj.data.IDname{p};
@@ -148,8 +142,26 @@ classdef ModelGaussianRandomWalkSimple < Model
 			end
 		end
 
-
+		
 	end
-
-
+	
+	
+	methods (Access = protected)
+		
+		function obj = calcDerivedMeasures(obj)
+			obj = obj.calcAUCscores();
+		end
+		
+		function obj = calcAUCscores(obj)
+			delays = obj.data.observedData.uniqueDelays;
+			for p=1:obj.data.nParticipants
+				dfSamples = obj.extractDiscountFunctionSamples(p);
+				obj.AUC_DATA(p).AUCsamples = calculateAUC(delays,dfSamples, false);
+				obj.AUC_DATA(p).name  = obj.data.participantFilenames{p};
+			end
+		end
+		
+	end
+	
+	
 end

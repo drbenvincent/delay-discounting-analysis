@@ -43,5 +43,12 @@ classdef ModelSeparateME < Model
 		end
 
 	end
+	
+	methods (Access = protected)
+	
+		function obj = calcDerivedMeasures(obj)
+		end
+		
+	end
 
 end

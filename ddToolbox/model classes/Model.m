@@ -29,7 +29,8 @@ classdef Model
 		shouldPlot
 	end
 
-	methods(Abstract, Access = public)
+	methods(Abstract, Access = protected)
+		calcDerivedMeasures(obj)
 	end
 
 	methods (Access = public)
@@ -104,7 +105,13 @@ classdef Model
 			%obj.mcmc = mcmcObject;
 			% fix/check ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-			%% Post-sampling activities
+			%% Post-sampling activities (unique to a given model sub-class)
+			% If a model has additional measures that need to be calculated
+			% from the MCMC samples, then we can do by overriding this
+			% method in the model sub-classes
+			obj = obj.calcDerivedMeasures();
+			
+			%% Post-sampling activities (common to all models)
 			obj.postPred = calcPosteriorPredictive( obj );
 			try
 				obj.mcmc.convergenceSummary(obj.saveFolder, obj.data.IDname)
@@ -112,8 +119,12 @@ classdef Model
 				beep
 				warning('**** convergenceSummary FAILED ****.\nProbably because things are not finished for STAN.')
 			end
-			obj.exportParameterEstimates();
-
+			try
+				obj.exportParameterEstimates();
+			catch
+				warning('*** exportParameterEstimates() FAILED ***')
+				beep
+			end
 			% Deal with plotting options
 			if ~strcmp(obj.shouldPlot,'no')
 				obj.plot()
@@ -218,6 +229,8 @@ classdef Model
 
 
 	methods (Access = private)
+		
+
 
 		function varNames = extractLevelNVarNames(obj, N)
 			varNames={};

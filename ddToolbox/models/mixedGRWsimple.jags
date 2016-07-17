@@ -21,30 +21,30 @@
 model{
 
   # group-level priors
-  alpha   ~ dexp(0.01)
-  epsilon ~ dbeta(1.1 , 10.9)
+  alpha_group   ~ dexp(0.01)
+  epsilon_group ~ dbeta(1.1 , 10.9)
 
-  # varInc: This is the variance of the Gaussian Random Walk per unit of time.
+  # varInc_group: This is the variance of the Gaussian Random Walk per unit of time.
   # We can set this to a particular value, but we have no a priori knowledge of what this should be. So instead we infer a distribution over it. We specify a prior over precision, then take the reciprocal to have our variance.
   precision ~ dgamma(0.001, 0.001)
-  varInc <- 1 / precision
+  varInc_group <- 1 / precision
 
   # GAUSSIAN RANDOM WALK PRIORS
   for (p in participantIndexList){
     # Special treatment for the first delay
-    discountFraction[p,1] ~ dnorm(1, 1/(uniqueDelays[1]*varInc)) T(0,)
+    discountFraction[p,1] ~ dnorm(1, 1/(uniqueDelays[1]*varInc_group)) T(0,)
 
     # subsequent priors are centered on previous discount fraction, and variance is a function of duration since last delay
     for (d in 2:length(uniqueDelays)) {
-      discountFraction[p,d] ~ dnorm( discountFraction[p,d-1], 1/ (varInc * (uniqueDelays[d]-uniqueDelays[d-1]))) T(0,)
+      discountFraction[p,d] ~ dnorm( discountFraction[p,d-1], 1/ (varInc_group * (uniqueDelays[d]-uniqueDelays[d-1]))) T(0,)
     }
 
   }
 
   for (t in 1:length(ID)) {
       VA[t] <- A[t] # NO DELAY FOR A
-      VB[t] <- (B[t]) * discountFraction[p, delayLookUp[t] ]
-      P[t] <- epsilon + (1-2*epsilon) * phi( (VB[t]-VA[t]) / alpha )
+      VB[t] <- (B[t]) * discountFraction[ID[t], delayLookUp[t] ]
+      P[t] <- epsilon_group + (1-2*epsilon_group) * phi( (VB[t]-VA[t]) / alpha_group )
 
       # response likelihood
       R[t]         ~ dbern(P[t]) # likelihood of actual response
@@ -57,11 +57,11 @@ model{
 
 
   # GENERATED QUANTITIES ########################
-  alpha_prior   ~ dexp(0.01)
-  epsilon_prior ~ dbeta(1.1 , 10.9)
+  alpha_group_prior   ~ dexp(0.01)
+  epsilon_group_prior ~ dbeta(1.1 , 10.9)
 
   precision_prior ~ dgamma(0.001, 0.001)
   # avoid divide by zero errors?
-  varInc_prior  <- 1 / (precision_prior+0.00000000001)
+  varInc_group_prior  <- 1 / (precision_prior+0.00000000001)
 
 }
