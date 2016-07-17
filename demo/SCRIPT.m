@@ -8,16 +8,12 @@ environment = ddAnalysisSetUp(...
 
 % Load data
 myData = DataClass(environment.dataPath,...
-	'files', allFilesInFolder(environment.dataPath, 'txt'),...
-	'pointEstimateType', 'mean');
-
-% TODO: dependency injection for SAMPLER
-
-% TODO: dependency injection for MCMC fit object
+	'files', allFilesInFolder(environment.dataPath, 'txt'));
 
 % Create an analysis model
 hModel = ModelHierarchicalME(myData,...
-	'saveFolder', 'analysis_with_hierarchical_magnitude_effect');
+	'saveFolder', 'analysis_with_hierarchical_magnitude_effect',...
+	'pointEstimateType','median');
 
 % Do some Bayesian inference with JAGS or STAN
 hModel = hModel.conductInference('jags',... % {'jags', 'stan'}

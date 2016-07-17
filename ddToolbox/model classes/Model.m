@@ -1,6 +1,10 @@
 classdef Model
 	%Model Base class to provide basic functionality
 
+	% TODO: dependency injection for SAMPLER
+
+	% TODO: dependency injection for MCMC fit object
+
 	properties (Access = public)
 		modelFile
 		samplerType
