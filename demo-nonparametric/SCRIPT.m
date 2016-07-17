@@ -5,8 +5,9 @@
 % because all delays are unique.
 
 %% Setup stuff
+addpath('~/git-local/delay-discounting-analysis/ddToolbox')
+
 environment = ddAnalysisSetUp(...
-	'toolboxPath', '~/git-local/delay-discounting-analysis/ddToolbox',...
 	'projectPath', '~/git-local/delay-discounting-analysis/demo-nonparametric',...
 	'dataPath', '~/git-local/delay-discounting-analysis/demo-nonparametric/data');
 

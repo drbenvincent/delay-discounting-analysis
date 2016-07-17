@@ -1,8 +1,10 @@
 %% Example use of the delay discounting analysis toolbox
 
+% Add toolbox path
+addpath('~/git-local/delay-discounting-analysis/ddToolbox')
+
 % Setup ddAnalysis toolbox
 environment = ddAnalysisSetUp(...
-	'toolboxPath', '~/git-local/delay-discounting-analysis/ddToolbox',...
 	'projectPath', '~/git-local/delay-discounting-analysis/demo',...
 	'dataPath', '~/git-local/delay-discounting-analysis/demo/data');
 

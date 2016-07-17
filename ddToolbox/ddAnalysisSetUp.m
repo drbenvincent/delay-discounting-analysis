@@ -1,9 +1,13 @@
 function [env] = ddAnalysisSetUp(varargin)
 
+
+full = mfilename('fullpath');
+[toolboxPath, ~] = fileparts(full);
+
 p = inputParser;
 p.FunctionName = mfilename;
 
-p.addParameter('toolboxPath','',@isstr);
+%p.addParameter('toolboxPath','',@isstr);
 p.addParameter('projectPath','',@isstr);
 p.addParameter('dataPath','', @isstr)
 
@@ -19,16 +23,17 @@ p.parse(varargin{:});
 cd(p.Results.projectPath)
 
 %% Add toolboxPath to Matlab path
-% expand home dir (~) to absolute path
-if strncmp(p.Results.toolboxPath, '~', 1)
-	toolboxPath = [getenv('HOME') p.Results.toolboxPath(2:end)];
-end
+% % expand home dir (~) to absolute path
+% if strncmp(p.Results.toolboxPath, '~', 1)
+% 	toolboxPath = [getenv('HOME') p.Results.toolboxPath(2:end)];
+% end
 
-if exist(p.Results.toolboxPath,'dir') == 7
-	addpath(p.Results.toolboxPath)
-else
-	error('change the toolboxPath to point to the folder /ddToolbox')
-end
+% TODO: this is now redundant ?
+% if exist(toolboxPath,'dir') == 7
+% 	addpath(p.Results.toolboxPath)
+% else
+% 	error('change the toolboxPath to point to the folder /ddToolbox')
+% end
 
 %% Add subdirectories to Matlab path
 try
@@ -53,7 +58,7 @@ mcmc.setPlotTheme('fontsize',16, 'linewidth',1)
 
 
 % outputs
-env.toolboxPath = p.Results.toolboxPath;
+env.toolboxPath = toolboxPath;
 env.projectPath = p.Results.projectPath;
 env.dataPath	= p.Results.dataPath;
 
