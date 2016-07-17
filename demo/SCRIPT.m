@@ -1,16 +1,13 @@
 %% Example use of the delay discounting analysis toolbox
 
-% Add toolbox path
+% Add toolbox path and run setup routine
 addpath('~/git-local/delay-discounting-analysis/ddToolbox')
-
-% Setup ddAnalysis toolbox
-environment = ddAnalysisSetUp(...
-	'projectPath', '~/git-local/delay-discounting-analysis/demo',...
-	'dataPath', '~/git-local/delay-discounting-analysis/demo/data');
+ddAnalysisSetUp();
 
 % Load data
-myData = DataClass(environment.dataPath,...
-	'files', allFilesInFolder(environment.dataPath, 'txt'));
+datapath = '~/git-local/delay-discounting-analysis/demo/data';
+myData = DataClass(datapath,...
+	'files', allFilesInFolder(datapath, 'txt'));
 
 % Create an analysis model
 hModel = ModelHierarchicalME(myData,...
