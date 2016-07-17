@@ -97,10 +97,18 @@ classdef JAGSmcmc < mcmcContainer
 
 
 		function [predicted] = getParticipantPredictedResponses(obj, ind)
+			% ind is a binary valued vector indicating the trials
+			% corresponding to a particular participant
+			assert(isvector(ind))
 			RpostPred = obj.samples.Rpostpred(:,:,ind);
 			% collapse over chains
 			s = size(RpostPred);
-			participantRpostpredSamples = reshape(RpostPred, s(1)*s(2), s(3));
+			%if ndims(RpostPred) == 2
+			%	participantRpostpredSamples = RpostPred(:);
+			%else
+			%	warning('IS THIS LINE EVER REACHED?')
+				participantRpostpredSamples = reshape(RpostPred, s(1)*s(2), s(3));
+			%end
             % Calculate predicted response probability
 			predicted = sum(participantRpostpredSamples,1) ./ size(participantRpostpredSamples,1);
 		end

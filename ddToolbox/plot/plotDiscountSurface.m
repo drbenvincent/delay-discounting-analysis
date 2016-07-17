@@ -2,8 +2,8 @@ function [logB,D,AB] = plotDiscountSurface(mSamples,cSamples, opts, varargin)
 
 p = inputParser;
 p.FunctionName = mfilename;
-p.addRequired('mSamples',@isvector); 
-p.addRequired('cSamples',@isvector); 
+p.addRequired('mSamples',@isvector);
+p.addRequired('cSamples',@isvector);
 p.addRequired('opts',@isstruct);
 % p.addParameter('xScale','linear',@isstr);
 p.addParameter('pointEstimateType','mean',@isstr);
@@ -20,10 +20,9 @@ c = mc(2);
 
 global pow
 
+% PLOT LOGIC
 plotSurface()
-if ~isempty(p.Results.data)
-  plotData()
-end
+if ~isempty(p.Results.data), plotData(); end
 formatAxes()
 
 
@@ -59,7 +58,7 @@ formatAxes()
     opts.maxlogB	= max( abs(p.Results.data.B) );
     opts.maxD		= max( p.Results.data.DB );
 
-    [x,y,z,markerCol,markerSize] = convertDataIntoMarkers();
+    [x,y,z,markerCol,markerSize] = convertDataIntoMarkers(p.Results.data);
 
     % plot
     for i=1:numel(x)
@@ -68,25 +67,6 @@ formatAxes()
     	h.MarkerFaceColor=[1 1 1] .* (1-markerCol(i));
     	h.MarkerSize = markerSize(i)+4;
     	hold on
-    end
-  end
-
-  function [x,y,z,markerCol,markerSize] = convertDataIntoMarkers()
-    % find unique experimental designs
-    D=[abs(p.Results.data.A), abs(p.Results.data.B), p.Results.data.DA, p.Results.data.DB];
-    [C, ia, ic] = unique(D,'rows');
-    % loop over unique designs (ic)
-    for n=1:max(ic)
-      % binary set of which trials this design was used on
-      myset=ic==n;
-      % markerSize = number of times this design has been run
-      markerSize(n) = sum(myset);
-      % Colour = proportion of times participant chose immediate for that design
-      markerCol(n) = sum(p.Results.data.R(myset)==0) ./ markerSize(n);
-
-      x(n) = abs(p.Results.data.B( ia(n) )); % £B
-      y(n) = p.Results.data.DB( ia(n) ); % delay to get £B
-      z(n) = abs(p.Results.data.A( ia(n) )) ./ abs(p.Results.data.B( ia(n) ));
     end
   end
 

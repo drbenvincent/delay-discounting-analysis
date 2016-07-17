@@ -1,6 +1,6 @@
 function testScript
 
-numberOfMCMCSamples = 10^2;
+numberOfMCMCSamples = 10^3;
 chains = 2;
 
 %% Setup stuff
@@ -35,7 +35,7 @@ for n = 1:numel(listOfModels)
 	
 	all_models(n).model = all_models(n).model.conductInference(...
 		sampler,... % {'jags', 'stan'}
-		'shouldPlot','no'); % TODO: add mcmcparams over-ride
+		'shouldPlot','all'); % TODO: add mcmcparams over-ride
 end
 
 

@@ -29,7 +29,6 @@ classdef ModelHierarchicalME < Model
 				'groupMmu', 'groupMsigma', 'groupCmu','groupCsigma','groupW','groupK','groupALPHAmu','groupALPHAsigma',...
 				'groupMmu_prior', 'groupMsigma_prior', 'groupCmu_prior','groupCsigma_prior','groupW_prior','groupK_prior','groupALPHAmu_prior','groupALPHAsigma_prior',...
 				'Rpostpred', 'P'};
-			
 		end
 		
 		% Generate initial values of the leaf nodes

@@ -341,14 +341,19 @@ classdef Model
 
 				% GATHER DATA FOR THIS PARTICIPANT
 				data.titleString = sprintf('%s', obj.data.IDname{p});
-				data.trialsForThisParticant = obj.data.participantLevel(p).trialsForThisParticant;
+				%data.trialsForThisParticant = obj.data.participantLevel(p).trialsForThisParticant;
+				pTrialVec = obj.data.groupTable.ID==p;
+				data.trialsForThisParticant = sum(pTrialVec);
+				
 				data.pointEstimateType = obj.pointEstimateType;
 
 				data.percentPredictedDistribution = obj.postPred(p).percentPredictedDistribution(:);
-				data.participantPredictedResponses = obj.getParticipantPredictedResponses(p);
+				data.participantPredictedResponses = obj.mcmc.getParticipantPredictedResponses(pTrialVec);
 				data.participantResponses = obj.data.participantLevel(p).table.R;
 				data.GOF_distribtion = obj.postPred(p).GOF_distribtion;
 
+				%assert(numel(data.participantPredictedResponses)==data.trialsForThisParticant)
+				
 				% PLOT
 				figPosteriorPrediction(data)
 

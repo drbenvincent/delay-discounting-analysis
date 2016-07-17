@@ -7,8 +7,6 @@ function postPred = calcPosteriorPredictive(obj)
 display('Calculating posterior predictive measures...')
 nParticipants = obj.data.nParticipants;
 
-%% Calculate various posterior predictive measures
-
 for p=1:nParticipants
 	% get data ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	trialIndOfThisParicipant	= obj.data.observedData.ID==p;
@@ -16,15 +14,11 @@ for p=1:nParticipants
 	responses_actual			= obj.data.participantLevel(p).table.R;
 	responses_predicted			= obj.mcmc.getParticipantPredictedResponses(trialIndOfThisParicipant);
 	% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	
+
 	% Calculate metrics
 	postPred(p).score = calcPostPredOverallScore(responses_predicted, responses_actual);
-	
 	postPred(p).GOF_distribtion = calcGoodnessOfFitDistribution(responses_predictedMCMC, responses_actual);
-	
 	postPred(p).percentPredictedDistribution = calcPercentResponsesCorrectlyPredicted(responses_predictedMCMC, responses_actual);
-	
-	% TODO: make judgements about whether model is good enough here
 end
 end
 
