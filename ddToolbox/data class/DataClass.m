@@ -33,7 +33,7 @@ classdef DataClass
 			obj.dataFolder = dataFolder;
 			display('You have created a Data object')
 
-			% Load data files if they have beeb provided
+			% Load data files if they have been provided
 			if ~isempty(p.Results.files)
 				obj = obj.loadDataFiles(p.Results.files);
 			end
@@ -61,7 +61,7 @@ classdef DataClass
 				participantTable = obj.appendParticipantIDcolumn(participantTable, n);
 				% Ensure columns PA and PB exist, assuming P=1 if they do not. This
 				% could be the case if we've done a pure delay discounting
-				% experiment and not bothered to sotre the fact that rewards have
+				% experiment and not bothered to store the fact that rewards have
 				% 100% of delivery. If they did not, then we would have stored the
 				% vales of PA and PB.
 				if ~obj.isColumnPresent(participantTable, 'PA')
@@ -150,13 +150,13 @@ classdef DataClass
 
 			obj.observedData.participantIndexList = unique(all_data.ID);
 
-			
+
 			% **** Observed variables below are for the Gaussian Random Walk model ****
 			obj.observedData.uniqueDelays = sort(unique(obj.observedData.DB))';
 			obj.observedData.delayLookUp = obj.calcDelayLookup();
-			
+
 		end
-		
+
 		function delayLookUp = calcDelayLookup(obj)
 			delayLookUp = obj.observedData.DB;
 			for n=1: numel(obj.observedData.uniqueDelays)
