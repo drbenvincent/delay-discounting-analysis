@@ -1,52 +1,48 @@
-function figParticipantME(pSamples, pointEstimateType, varargin)
+function figParticipantME(plotdata)
 
-p = inputParser;
-p.FunctionName = mfilename;
-p.addRequired('pSamples',@isstruct);
-p.addRequired('pointEstimateType', @(x) any(strcmp(x,{'mean','median','mode'})));
-p.addParameter('pData',[], @isstruct);
-p.addParameter('opts',[], @isstruct);
-p.addParameter('goodnessStr',[], @isstr);
-p.parse(pSamples, pointEstimateType, varargin{:});
-
-
-rows=1; cols=5;
+fh = figure;
+fh.Name = ['participant: ' plotdata.IDname];
+rows = 1; 
+cols = 5;
 
 subplot(rows, cols, 1)
-epsilon_alpha = mcmc.BivariateDistribution(pSamples.epsilon(:), pSamples.alpha(:),...
+epsilon_alpha = mcmc.BivariateDistribution(plotdata.samples.posterior.epsilon(:), plotdata.samples.posterior.alpha(:),...
 	'xLabel','error rate, $\epsilon$',...
 	'ylabel','comparison accuity, $\alpha$',...
-	'pointEstimateType',p.Results.pointEstimateType);
+	'pointEstimateType',plotdata.pointEstimateType);
 
 subplot(rows, cols, 2)
-plotPsychometricFunc(pSamples, p.Results.pointEstimateType);
+plotPsychometricFunc(plotdata.samples, plotdata.pointEstimateType);
 
 subplot(rows, cols, 3)
-m_c = mcmc.BivariateDistribution(pSamples.m(:), pSamples.c(:),...
+m_c = mcmc.BivariateDistribution(plotdata.samples.posterior.m(:), plotdata.samples.posterior.c(:),...
 	'xLabel','slope, $m$',...
 	'ylabel','intercept, $c$',...
-	'pointEstimateType',p.Results.pointEstimateType);
+	'pointEstimateType',plotdata.pointEstimateType);
 
 subplot(rows, cols, 4)
-plotMagnitudeEffect(pSamples, p.Results.pointEstimateType);
+plotMagnitudeEffect(plotdata.samples, plotdata.pointEstimateType);
 
 % Plot in 3D data space
 subplot(rows, cols, 5)
-if ~isempty(p.Results.pData)
-	% participant, we have data
-	plotDiscountSurface(pSamples.m(:), pSamples.c(:),...
-		p.Results.opts,...
-		'data', p.Results.pData,...
-		'pointEstimateType',p.Results.pointEstimateType);
-	
-	title(p.Results.goodnessStr)
-else
-	% no data for group level
-	plotDiscountSurface(pSamples.m(:), pSamples.c(:),...
-		p.Results.opts,...
-		'pointEstimateType',p.Results.pointEstimateType);
-end
-% 			set(gca,'XTick',[10 100])
-% 			set(gca,'XTickLabel',[10 100])
-% 			set(gca,'XLim',[10 100])
+plotDiscountSurface(plotdata);
+
+latex_fig(16, 18, 4)
+myExport('fig',...
+	'saveFolder', plotdata.saveFolder,...
+	'prefix', plotdata.IDname,...
+	'suffix', plotdata.modelType);
+
+close(fh)
+
+	function goodnessStr = makeGoodnessStr()
+		percentPredicted = plotdata.postPred.percentPredictedDistribution(:);
+		pp = mcmc.UnivariateDistribution(percentPredicted, 'shouldPlot', false);
+		goodnessStr = sprintf('%% predicted: %3.1f (%3.1f - %3.1f)',...
+			pp.(plotdata.pointEstimateType)*100,...
+			pp.HDI(1)*100,...
+			pp.HDI(2)*100);
+		
+	end
+
 end

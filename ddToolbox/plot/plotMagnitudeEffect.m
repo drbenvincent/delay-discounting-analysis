@@ -10,8 +10,8 @@ fh = @(x,params) exp( bsxfun(@plus, ...
 	params(:,2)));
 % -----------------------------------------------------------
 
-samples(:,1) = mcmcsamples.m(:);
-samples(:,2) = mcmcsamples.c(:);
+samples(:,1) = mcmcsamples.posterior.m(:);
+samples(:,2) = mcmcsamples.posterior.c(:);
 
 mcmc.PosteriorPrediction1D(fh,...
     'xInterp',logspace(0,4,50),...

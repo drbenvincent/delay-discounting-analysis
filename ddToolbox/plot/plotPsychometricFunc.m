@@ -11,8 +11,8 @@ fh = @(x,params) bsxfun(@plus,...
 	normcdf( bsxfun(@rdivide, x, params(:,2) ) , 0, 1)) );
 % -------------------------------------------------------------------------
 
-samples(:,1) = pSamples.epsilon;
-samples(:,2) = pSamples.alpha;
+samples(:,1) = pSamples.posterior.epsilon;
+samples(:,2) = pSamples.posterior.alpha;
 
 mcmc.PosteriorPrediction1D(fh,...
     'xInterp',linspace(-200,200,200),... % TODO: make this a function of alpha?

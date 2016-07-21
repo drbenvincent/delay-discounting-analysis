@@ -14,6 +14,7 @@ classdef Model
 		sampler % handle to SamplerWrapper class % TODO: dependency injection for SAMPLER
 		postPred
 		parameterEstimateTable
+		pdata
 	end
 
 	properties (Hidden)
@@ -103,7 +104,6 @@ classdef Model
 					
 			end
 
-
 			%% Ask the Sampler to do MCMC sampling, return an mcmcObject ~~~~~~~~~~~~~~~~~
 			%obj.mcmc = obj.sampler.conductInference( obj , obj.data );
 			obj.mcmc = obj.sampler.conductInference( obj , obj.data );
@@ -130,6 +130,9 @@ classdef Model
 				warning('*** exportParameterEstimates() FAILED ***')
 				beep
 			end
+			
+			obj = obj.packageUpDataForPlotting();
+			
 			% Deal with plotting options
 			if ~strcmp(obj.shouldPlot,'no')
 				obj.plot()
@@ -190,6 +193,74 @@ classdef Model
 
 		end
 
+		function obj = packageUpDataForPlotting(obj)
+			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			% Package up all information into data structures to be sent
+			% off to plotting functions.
+			% The idea being we can just pass pdata(n) to a plot function
+			% and it has all the information it needs
+			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			for p = 1:obj.data.nParticipants
+				% gather data from this experiment
+				obj.pdata(p).data.totalTrials = obj.data.totalTrials;
+				obj.pdata(p).IDname = obj.data.IDname{p};
+				obj.pdata(p).data.trialsForThisParticant = obj.data.participantLevel(p).trialsForThisParticant;
+				obj.pdata(p).data.rawdata = obj.data.participantLevel(p).table;
+				% gather posterior prediction info
+				obj.pdata(p).postPred = obj.postPred(p);
+				% gather mcmc samples
+				obj.pdata(p).samples.posterior	= obj.mcmc.getSamplesAtIndex(p, obj.varList.participantLevel);
+				obj.pdata(p).samples.prior		= obj.mcmc.getSamples(obj.varList.participantLevelPriors);
+				% other misc info
+				obj.pdata(p).pointEstimateType = obj.pointEstimateType;
+				obj.pdata(p).discountFuncType = obj.discountFuncType;
+				obj.pdata(p).saveFolder = obj.saveFolder;
+				obj.pdata(p).modelType = obj.modelType;
+			end
+			
+			% CREATE GROUP LEVEL ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			if ~isempty (obj.varList.groupLevel)
+				p=numel(obj.pdata)+1;
+				
+				group_level_prior_variables = cellfun(...
+					@getPriorOfVariable,...
+					obj.varList.groupLevel,...
+					'UniformOutput',false );
+				
+				% strip the '_group' off of variablenames
+				for n=1:numel(obj.varList.groupLevel)
+					temp=regexp(obj.varList.groupLevel{n},'_','split');
+					groupLevelVarName{n} = temp{1};
+				end
+				[pSamples] = obj.mcmc.getSamples(obj.varList.groupLevel);
+				% flatten
+				for n=1:numel(obj.varList.groupLevel)
+					pSamples.(obj.varList.groupLevel{n}) = vec(pSamples.(obj.varList.groupLevel{n}));
+				end
+				% rename
+				pSamples = renameFields(...
+					pSamples,...
+					obj.varList.groupLevel,...
+					groupLevelVarName);
+				
+				% gather data from this experiment
+				obj.pdata(p).data.totalTrials = obj.data.totalTrials;
+				obj.pdata(p).IDname = 'GROUP';
+				obj.pdata(p).data.trialsForThisParticant = 0;
+				obj.pdata(p).data.rawdata = [];
+				% gather posterior prediction info
+				obj.pdata(p).postPred = [];
+				% gather mcmc samples
+				obj.pdata(p).samples.posterior	= pSamples;
+				obj.pdata(p).samples.prior		= obj.mcmc.getSamples(obj.varList.participantLevelPriors);
+				% other misc info
+				obj.pdata(p).pointEstimateType = obj.pointEstimateType;
+				obj.pdata(p).discountFuncType = obj.discountFuncType;
+				obj.pdata(p).saveFolder = obj.saveFolder;
+				obj.pdata(p).modelType = obj.modelType;
+			end
+			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		end
 
 		function obj = conditionalDiscountRates(obj, reward, plotFlag)
 			% Extract and plot P( log(k) | reward)
@@ -204,19 +275,13 @@ classdef Model
 			end
 		end
 
-
 		% MIDDLE-MAN METHODS ================================================
 
 		function obj = plotMCMCchains(obj,vars)
 			obj.mcmc.plotMCMCchains(vars);
 		end
 
-
 	end
-
-
-
-
 
 
 	methods (Access = private)
@@ -242,7 +307,6 @@ classdef Model
 			methods(obj)
 		end
 
-
 		function conditionalDiscountRates_ParticipantLevel(obj, reward, plotFlag)
 			nParticipants = obj.data.nParticipants;
 			%count=1;
@@ -264,28 +328,7 @@ classdef Model
 		end
 
 	end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	
 
 	% **********************************************************************
 	% **********************************************************************
@@ -293,22 +336,25 @@ classdef Model
 	% **********************************************************************
 	% **********************************************************************
 
-	% This plot method is highly unsatisfactory. We have a whole bunch of logic
-	% which decides on the properties of the model (hierachical or not) and
-	% (logk vs magnitude effect). It then uses a bunch of get methods in order
-	% to grab the data in the appropriate format. We then pass this data to plot
-	% functions/classes.
-	%
-	% Thinking needs to be done about the best way to refactor all this mess.
-
-
 	methods (Access = public)
 
 		function plot(obj)
+			
+			%% Plot experiment-level + group-level (if applicable) figures.
+			for n = 1:numel(obj.pdata)
+				obj.plotFuncs.participantFigFunc( obj.pdata(n) );
+				plotTriPlotWrapper( obj.pdata(n) )
+			end
+			
+			
+			% +++++++++++++++++++++++++++++++++++++++++++
+			% TODO: FURTHER SIMPLIFICATION OF CODE BELOW
+			% +++++++++++++++++++++++++++++++++++++++++++
+			
 			close all
 
 
-			% UNIVARIATE SUMMARY STATISTICS ---------------------------------
+			%% UNIVARIATE SUMMARY STATISTICS ------------------------------
 			% We are going to add on group level inferences to the end of the
 			% list. This is because the group-level inferences an be
 			% seen as inferences we can make about an as yet unobserved
@@ -325,20 +371,8 @@ classdef Model
 			myExport('UnivariateSummary',...
 				'saveFolder',obj.saveFolder,...
 				'prefix', obj.modelType)
-			% --------------------------------------------------------------------
+			% -------------------------------------------------------------
 
-
-
-			%% PARTICIPANT LEVEL  =========================================
-			% We will ALWAYS have participants.
-			obj.plotParticiantStuff( )
-
-
-
-
-			%% GROUP LEVEL ================================================
-			% We are going to call this function, but it will be a 'null function' for models not doing hierachical inference. This is set in the concrete model class constructors.
-			obj.plotFuncs.plotGroupLevel( obj )
 
 
 			%% POSTERIOR PREDICTION PLOTS =================================
@@ -374,85 +408,10 @@ classdef Model
 		end
 
 	end
-
-
-
-
-
-
-
-
-
+	
 	methods (Access = private)
 
-
-		function plotParticiantStuff(obj)
-
-
-
-
-
-
-			pVariableNames = obj.varList.participantLevel;
-
-
-			% LOOP OVER PARTICIPANTS
-			for n = 1:obj.data.nParticipants
-				participantFigFunc()
-				participantTriPlot()
-			end
-
-
-			function participantFigFunc()
-				% TODO ??????????????????
-				opts.maxlogB	= max(abs(obj.data.observedData.B(:)));
-				opts.maxD		= max(obj.data.observedData.DB(:));
-				% ??????????????????
-
-				fh = figure;
-				fh.Name=['participant: ' obj.data.IDname{n}];
-
-				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-				obj.plotFuncs.participantFigFunc(obj.mcmc.getSamplesAtIndex(n, pVariableNames),...
-					obj.pointEstimateType,...
-					'pData', obj.data.getParticipantData(n),...
-					'opts',opts,...
-					'goodnessStr',makeGoodnessStr());
-				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-				latex_fig(16, 18, 4)
-				myExport('fig',...
-					'saveFolder', obj.saveFolder,...
-					'prefix', obj.data.IDname{n},...
-					'suffix', obj.modelType);
-				close(fh)
-
-				function goodnessStr = makeGoodnessStr()
-					percentPredicted = obj.postPred(n).percentPredictedDistribution(:);
-					pp = mcmc.UnivariateDistribution(percentPredicted, 'shouldPlot', false);
-					goodnessStr = sprintf('%% predicted: %3.1f (%3.1f - %3.1f)',...
-						pp.(obj.pointEstimateType)*100,...
-						pp.HDI(1)*100,...
-						pp.HDI(2)*100);
-				end
-			end
-
-			function participantTriPlot()
-				figure(87)
-
-				mcmc.TriPlotSamples(obj.mcmc.getSamplesFromParticipantAsMatrix(n, pVariableNames),...
-					pVariableNames,...
-					'PRIOR',obj.mcmc.getSamplesAsMatrix(obj.varList.participantLevelPriors),...
-					'pointEstimateType',obj.pointEstimateType);
-
-				myExport('triplot',...
-					'saveFolder', obj.saveFolder,...
-					'prefix', obj.data.IDname{n},...
-					'suffix', obj.modelType);
-			end
-
-
-
+		function summary_plot(obj)
 			%% SUMMARY PLOTS
 			switch obj.discountFuncType
 				case{'me'} % code smell
@@ -468,7 +427,7 @@ classdef Model
 					myExport('MC_summary',...
 						'saveFolder', obj.saveFolder,...
 						'prefix', obj.modelType)
-
+					
 				case{'logk'}
 					% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 					figure(12)
@@ -478,9 +437,8 @@ classdef Model
 						'saveFolder', obj.saveFolder,...
 						'prefix', obj.modelType)
 			end
-
 		end
 
-
 	end
+	
 end

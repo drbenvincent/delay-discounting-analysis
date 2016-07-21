@@ -1,40 +1,39 @@
-function [logB,D,AB] = plotDiscountSurface(mSamples,cSamples, opts, varargin)
-
-p = inputParser;
-p.FunctionName = mfilename;
-p.addRequired('mSamples',@isvector);
-p.addRequired('cSamples',@isvector);
-p.addRequired('opts',@isstruct);
-% p.addParameter('xScale','linear',@isstr);
-p.addParameter('pointEstimateType','mean',@isstr);
-p.addParameter('data',[],@isstruct)
-p.parse(mSamples, cSamples, opts, varargin{:});
+function [logB,D,AB] = plotDiscountSurface(plotdata)
 
 %% Calculate point estimates
-mcBivariate = mcmc.BivariateDistribution(mSamples,cSamples,...
+mcBivariate = mcmc.BivariateDistribution(plotdata.samples.posterior.m, plotdata.samples.posterior.c,...
 	'shouldPlot',false,...
-	'pointEstimateType', p.Results.pointEstimateType);
-mc = mcBivariate.(p.Results.pointEstimateType);
+	'pointEstimateType', plotdata.pointEstimateType);
+mc = mcBivariate.(plotdata.pointEstimateType);
 m = mc(1);
 c = mc(2);
 
 global pow
 
-% PLOT LOGIC
+%% High level plot logic
 plotSurface()
-if ~isempty(p.Results.data), plotData(); end
+if ~isempty(plotdata.data.rawdata), plotData(); end
 formatAxes()
 
 
   function plotSurface()
+	  
+	  try
+		  maxlogB = max( abs( plotdata.data.rawdata.B) );
+		  maxD = max(plotdata.data.rawdata.DB);
+	  catch
+		  maxlogB = 100;
+		  maxD = 365;
+	  end
+		  
     %% x-axis = b
     % *** TODO: DOCUMENT WHAT THIS DOES ***
     nIndifferenceLines = 10;
-    pow=1; while opts.maxlogB > 10^pow; pow=pow+1; end
-    logbvec=log(logspace(1,pow,nIndifferenceLines));
+    pow=1; while maxlogB > 10^pow; pow=pow+1; end
+    logbvec=log(logspace(1, pow, nIndifferenceLines));
 
     %% y-axis = d
-    dvec=linspace(0,opts.maxD,100);
+    dvec=linspace(0, maxD, 100);
 
     %% z-axis (AB)
     [logB,D] = meshgrid(logbvec,dvec); % create x,y (b,d) grid values
@@ -55,10 +54,10 @@ formatAxes()
 
   function plotData()
     hold on
-    opts.maxlogB	= max( abs(p.Results.data.B) );
-    opts.maxD		= max( p.Results.data.DB );
+    %maxlogB = max( abs( plotdata.data.rawdata.B) );
+    %maxD = max(plotdata.data.rawdata.DB);
 
-    [x,y,z,markerCol,markerSize] = convertDataIntoMarkers(p.Results.data);
+    [x,y,z,markerCol,markerSize] = convertDataIntoMarkers(plotdata.data.rawdata);
 
     % plot
     for i=1:numel(x)
