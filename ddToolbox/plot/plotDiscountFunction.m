@@ -1,15 +1,5 @@
 function plotDiscountFunction(plotdata)
 
-% % TODO clean up this function
-%
-% p = inputParser;
-% p.FunctionName = mfilename;
-% p.addRequired('logksamples',@isvector);
-% p.addParameter('xScale','linear',@(x)any(strcmp(x,{'linear','log'})));
-% p.addParameter('data',[],@isstruct);
-% p.addParameter('pointEstimateType','mean',@isstr);
-% p.parse(logksamples, varargin{:});
-
 % TODO: This should be an indepedent function, provided as an input
 discountFraction = @(k,D) bsxfun(@rdivide, 1, 1 + (bsxfun(@times, k, D) ) );
 
@@ -88,8 +78,3 @@ formatAxes()
 	end
 
 end
-
-%end
-
-
-

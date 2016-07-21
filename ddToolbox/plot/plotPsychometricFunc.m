@@ -1,6 +1,5 @@
 function plotPsychometricFunc(pSamples, pointEstimateType)
 
-
 % Psychometric function ---------------------------------------------------
 %fh = @(x,params) params(:,1) + (1-2*params(:,1)) * normcdf( (x ./ params(:,2)) , 0, 1);
 % Fast verion -------------------------------------------------------------

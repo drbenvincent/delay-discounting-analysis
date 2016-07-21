@@ -1,12 +1,9 @@
-
 function plotDiscountingData(data)
 
 opts.maxlogB	= max( abs(data.B) );
 opts.maxD		= max( data.DB );
 
-
 plotData()
-
 
     function plotData()
       [x,y,~,markerCol,markerSize] = convertDataIntoMarkers();
@@ -20,7 +17,6 @@ plotData()
       	hold on
       end
     end
-
 
     function [x,y,z,markerCol,markerSize] = convertDataIntoMarkers() % TODO: make this a method of Data class?
         % find unique experimental designs
@@ -42,7 +38,6 @@ plotData()
 		end
 		z=[];
     end
-
 
     function formatAxes()
       xlabel('delay, $D^B$', 'interpreter','Latex')
