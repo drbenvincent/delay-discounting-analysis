@@ -36,8 +36,10 @@ classdef ModelHierarchicalLogK < Model
 
 		end
 
-		% Generate initial values of the leaf nodes
+		
 		function obj = setInitialParamValues(obj)
+			%setInitialParamValues
+			% Generate initial values of the leaf nodes
 			for chain = 1:obj.sampler.mcmcparams.nchains
 				obj.initialParams(chain).groupLogKmu		= normrnd(log(1/50),1);
 				obj.initialParams(chain).groupLogKsigma		= rand*5;

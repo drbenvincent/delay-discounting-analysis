@@ -76,37 +76,25 @@ classdef Model
 				obj.(fields{n}) = p.Results.(fields{n});
 			end
 			
-			%% Create sampler object
-			% TODO: This can happen on the fly, when we call model.conduct_inference()
-			switch obj.samplerType
-				case{'jags'}
-					% Create sampler object
-					obj.sampler = MatjagsWrapper(obj.modelFile);
-					
-					% override any user-defined prefs
-					if ~isempty( p.Results.mcmcSamples )
-						obj.sampler.mcmcparams.nsamples = p.Results.mcmcSamples;
-					end
-					if ~isempty( p.Results.chains )
-						obj.sampler.mcmcparams.chains = p.Results.chains;
-					end
-					
-				case{'stan'}
-					obj.sampler = MatlabStanWrapper(obj.modelFile);
-					%obj.sampler.setStanHome('~/cmdstan-2.9.0') % TODO: sort this out
-					
-					% override any user-defined prefs
-					if ~isempty( p.Results.mcmcSamples )
-						obj.sampler.mcmcparams.iter = p.Results.mcmcSamples;
-					end
-					if ~isempty( p.Results.chains )
-						obj.sampler.mcmcparams.chains = p.Results.chains;
-					end
-					
+			%% Create sampler object --------------------------------------
+			% Use of external function "samplerFactory" means this class is
+			% closed for modification, but open to extension. 
+			% We can just add new concerete sampler wrappers to the
+			% "samplerFactory" function.
+			% If we passed in "samplerFactory" as a function then we could
+			% make it easier to completely swap out types of samplers.
+			obj.sampler = samplerFactory(p.Results.samplerType, obj.modelFile);
+			
+			% update with user-provided params
+			if ~isempty(p.Results.mcmcSamples)
+				obj.sampler.mcmcparams.nsamples = p.Results.mcmcSamples;
 			end
+			if ~isempty(p.Results.chains)
+				obj.sampler.mcmcparams.nchains = p.Results.chains;
+			end
+
 			
 			%% Ask the Sampler to do MCMC sampling, return an mcmcObject ~~~~~~~~~~~~~~~~~
-			%obj.mcmc = obj.sampler.conductInference( obj , obj.data );
 			obj.mcmc = obj.sampler.conductInference( obj , obj.data );
 			%obj.mcmc = mcmcObject;
 			% fix/check ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

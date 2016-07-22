@@ -14,14 +14,17 @@ classdef (Abstract) SamplerWrapper
 
 	methods(Abstract, Access = public)
 		conductInference(obj)
+		setDefaultMCMCparams(obj)
 	end
 
 	methods (Access = public)
-
-		% CONSTRUCTOR =====================================================
-		function obj = SamplerWrapper()
+		function obj = SamplerWrapper() % constructor
 		end
-		% =================================================================
-
+	end
+	
+	methods (Access = protected)
+		function n = samplesPerChain(obj)
+			n = ceil( obj.mcmcparams.nsamples / obj.mcmcparams.nchains);
+		end
 	end
 end

@@ -9,29 +9,18 @@ classdef MatlabStanWrapper < SamplerWrapper
 
 	methods (Access = public)
 
-		% CONSTRUCTOR =====================================================
 		function obj = MatlabStanWrapper(modelFilename)
 			obj = obj@SamplerWrapper();
-
 			obj.stanHome = '~/cmdstan-2.9.0';
-			
 			obj.modelFilename = modelFilename;
-			obj = obj.setMCMCparams();
-		end
-		% =================================================================
-		
-		function obj = setMCMCparams(obj)
-			% Default parameters
-			obj.mcmcparams.warmup = 1000;
-			obj.mcmcparams.iter = 10^4;
-			obj.mcmcparams.chains = 2;
-			obj.mcmcparams.totalSamples = obj.mcmcparams.chains * obj.mcmcparams.iter;
+			obj = obj.setDefaultMCMCparams();
 		end
 		
-		function mcmcFitObject = conductInference(obj, model, data)
+
+		function mcmcFitObject = conductInference(obj, ~, data)
 			%% preparation for MCMC sampling
 			% Prepare data
-			obj = obj.setObservedValues(data);
+			obj = obj.setObservedValues(data); %<---- TODO: remove
 			% create Stan Model
 			stan_model = StanModel('file',obj.modelFilename,...
 				'stan_home', obj.stanHome);
@@ -40,14 +29,14 @@ classdef MatlabStanWrapper < SamplerWrapper
 			tic
 			stan_model.compile();
 			toc
-			% Do sampling
+			%% Get our sampler to sample
 			display('SAMPLING STAN MODEL...')
 			tic
 			obj.stanFit = stan_model.sampling(...
 				'data', obj.observed,...
-				'warmup', obj.mcmcparams.warmup,...
-				'iter', obj.mcmcparams.iter,...
-				'chains', obj.mcmcparams.chains,... 
+				'warmup', obj.mcmcparams.nburnin,...	% warmup = burn-in
+				'iter', obj.samplesPerChain(),...		% iter = number of MCMC samples
+				'chains', obj.mcmcparams.nchains,... 
 				'verbose', true,...
 				'stan_home', obj.stanHome);
 			% block command window access until sampling finished
@@ -63,14 +52,23 @@ classdef MatlabStanWrapper < SamplerWrapper
 			% calculates stats about samples
 			mcmcFitObject =  STANmcmc(obj.stanFit);
 						
-			
+			speak('sampling complete')
 			% % grab all samples into a structure
 			% obj.samples = obj.stanFit.extract('permuted',true);
 			% %obj.samples = obj.stanFit.extract('permuted',false); % chains separate
 			%
 			% % display('***** SAVE THE MODEL OBJECT HERE *****')
 		end
-
+		
+		%% SET METHODS ----------------------------------------------------
+		function obj = setDefaultMCMCparams(obj)
+			% Default parameters
+			obj.mcmcparams.nburnin		= 1000;	% (warmup)
+			obj.mcmcparams.nsamples		= 10^4;	% represents TOTAL number of samples we want
+			obj.mcmcparams.nchains		= 2;
+			%obj.mcmcparams.totalSamples = obj.mcmcparams.chains * obj.mcmcparams.iter;
+		end
+		
 		function obj = setObservedValues(obj, data)
 			obj.observed = data.observedData;
 			obj.observed.nParticipants	= data.nParticipants;
@@ -116,11 +114,11 @@ classdef MatlabStanWrapper < SamplerWrapper
 			obj.stanHome = stanHome;
 		end
 		
-		function convergenceSummary(obj,saveFolder,IDnames)
-		end
-
-		function figUnivariateSummary(obj, participantIDlist, variables)
-		end
+% 		function convergenceSummary(obj,saveFolder,IDnames)
+% 		end
+% 
+% 		function figUnivariateSummary(obj, participantIDlist, variables)
+% 		end
 
 	end
 
