@@ -202,20 +202,20 @@ classdef Model
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			for p = 1:obj.data.nParticipants
 				% gather data from this experiment
-				obj.pdata(p).data.totalTrials = obj.data.totalTrials;
-				obj.pdata(p).IDname = obj.data.IDname{p};
-				obj.pdata(p).data.trialsForThisParticant = obj.data.participantLevel(p).trialsForThisParticant;
-				obj.pdata(p).data.rawdata = obj.data.participantLevel(p).table;
+				obj.pdata(p).data.totalTrials				= obj.data.totalTrials;
+				obj.pdata(p).IDname							= obj.data.IDname{p};
+				obj.pdata(p).data.trialsForThisParticant	= obj.data.participantLevel(p).trialsForThisParticant;
+				obj.pdata(p).data.rawdata					= obj.data.participantLevel(p).table;
 				% gather posterior prediction info
-				obj.pdata(p).postPred = obj.postPred(p);
+				obj.pdata(p).postPred						= obj.postPred(p);
 				% gather mcmc samples
 				obj.pdata(p).samples.posterior	= obj.mcmc.getSamplesAtIndex(p, obj.varList.participantLevel);
 				obj.pdata(p).samples.prior		= obj.mcmc.getSamples(obj.varList.participantLevelPriors);
 				% other misc info
-				obj.pdata(p).pointEstimateType = obj.pointEstimateType;
-				obj.pdata(p).discountFuncType = obj.discountFuncType;
-				obj.pdata(p).saveFolder = obj.saveFolder;
-				obj.pdata(p).modelType = obj.modelType;
+				obj.pdata(p).pointEstimateType	= obj.pointEstimateType;
+				obj.pdata(p).discountFuncType	= obj.discountFuncType;
+				obj.pdata(p).saveFolder			= obj.saveFolder;
+				obj.pdata(p).modelType			= obj.modelType;
 			end
 			
 			% CREATE GROUP LEVEL ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -342,17 +342,21 @@ classdef Model
 			
 			%% Plot experiment-level + group-level (if applicable) figures.
 			for n = 1:numel(obj.pdata)
+				% multi-panel fig
 				obj.plotFuncs.participantFigFunc( obj.pdata(n) );
+				
+				% corner plot of posterior
 				plotTriPlotWrapper( obj.pdata(n) )
+				
+				% posterior prediction plot
+				figPosteriorPrediction( obj.pdata(n) )
 			end
-			
 			
 			% +++++++++++++++++++++++++++++++++++++++++++
 			% TODO: FURTHER SIMPLIFICATION OF CODE BELOW
 			% +++++++++++++++++++++++++++++++++++++++++++
 			
 			close all
-
 
 			%% UNIVARIATE SUMMARY STATISTICS ------------------------------
 			% We are going to add on group level inferences to the end of the
@@ -373,38 +377,6 @@ classdef Model
 				'prefix', obj.modelType)
 			% -------------------------------------------------------------
 
-
-
-			%% POSTERIOR PREDICTION PLOTS =================================
-			nParticipants = obj.data.nParticipants;
-			for p=1:nParticipants
-
-				% GATHER DATA FOR THIS PARTICIPANT
-				data.titleString = sprintf('%s', obj.data.IDname{p});
-				%data.trialsForThisParticant = obj.data.participantLevel(p).trialsForThisParticant;
-				pTrialVec = obj.data.groupTable.ID==p;
-				data.trialsForThisParticant = sum(pTrialVec);
-				
-				data.pointEstimateType = obj.pointEstimateType;
-
-				data.percentPredictedDistribution = obj.postPred(p).percentPredictedDistribution(:);
-				data.participantPredictedResponses = obj.mcmc.getParticipantPredictedResponses(pTrialVec);
-				data.participantResponses = obj.data.participantLevel(p).table.R;
-				data.GOF_distribtion = obj.postPred(p).GOF_distribtion;
-
-				%assert(numel(data.participantPredictedResponses)==data.trialsForThisParticant)
-				
-				% PLOT
-				figPosteriorPrediction(data)
-
-				%% Export figure
-				drawnow
-				latex_fig(16, 9, 6)
-				myExport('PosteriorPredictive',...
-					'saveFolder',obj.saveFolder,...
-					'prefix', obj.data.IDname{p},...
-					'suffix', obj.modelType)
-			end
 		end
 
 	end

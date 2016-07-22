@@ -16,9 +16,11 @@ for p=1:nParticipants
 	% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	% Calculate metrics
-	postPred(p).score = calcPostPredOverallScore(responses_predicted, responses_actual);
-	postPred(p).GOF_distribtion = calcGoodnessOfFitDistribution(responses_predictedMCMC, responses_actual);
-	postPred(p).percentPredictedDistribution = calcPercentResponsesCorrectlyPredicted(responses_predictedMCMC, responses_actual);
+	postPred(p).score							= calcPostPredOverallScore(responses_predicted, responses_actual);
+	postPred(p).GOF_distribtion					= calcGoodnessOfFitDistribution(responses_predictedMCMC, responses_actual);
+	postPred(p).percentPredictedDistribution	= calcPercentResponsesCorrectlyPredicted(responses_predictedMCMC, responses_actual);
+	postPred(p).responses_actual	= responses_actual;
+	postPred(p).responses_predicted = responses_predicted;
 end
 end
 

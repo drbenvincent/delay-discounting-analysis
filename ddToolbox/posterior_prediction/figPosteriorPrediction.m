@@ -3,6 +3,11 @@ function figPosteriorPrediction(data)
 % and plots to a multi-panelled figure.
 %   figPosteriorPrediction(data) 
 
+% skip if there are no trials (eg if we are dealing with group-level
+% inferences)
+if data.data.trialsForThisParticant==0
+	return
+end
 
 % MAIN FUNCTION TO PRODUCE MUTLI-PANEL FIGURE
 
@@ -20,6 +25,15 @@ pp_plotPredictionAndResponse()
 
 subplot(2,2,4)
 pp_ploptPercentPredictedDistribution()
+
+% Export figure
+drawnow
+latex_fig(16, 9, 6)
+myExport('PosteriorPredictive',...
+	'saveFolder',data.saveFolder,...
+	'prefix', data.IDname,...
+	'suffix', data.modelType)
+
 
 	function pp_plotGOFdistribution()
 		uni = mcmc.UnivariateDistribution(data.GOF_distribtion(:),...
@@ -47,8 +61,8 @@ pp_ploptPercentPredictedDistribution()
 		axis tight
 		% plot response data
 		hold on
-		plot([1:data.trialsForThisParticant], data.participantResponses, '+')
-		title(data.titleString)
+		plot([1:data.data.trialsForThisParticant], data.participantResponses, '+')
+		%title(data.titleString)
 		
 		xlabel('trial')
 		ylabel('response')
