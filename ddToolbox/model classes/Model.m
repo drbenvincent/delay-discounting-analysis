@@ -1,6 +1,6 @@
 classdef Model
 	%Model Base class to provide basic functionality
-
+	
 	properties (Access = public)
 		samplerType
 		saveFolder
@@ -14,9 +14,10 @@ classdef Model
 		sampler % handle to SamplerWrapper class % TODO: dependency injection for SAMPLER
 		postPred
 		parameterEstimateTable
-		pdata
+		pdata		% experiment level data for plotting
+		alldata		% cross-experiment level data for plotting
 	end
-
+	
 	properties (Hidden)
 		% User supplied preferences
 		mcmcSamples
@@ -28,13 +29,13 @@ classdef Model
 		initialParams
 		shouldPlot
 	end
-
+	
 	methods(Abstract, Access = protected)
 		calcDerivedMeasures(obj)
 	end
-
+	
 	methods (Access = public)
-
+		
 		function obj = Model(data, varargin)
 			p = inputParser;
 			p.FunctionName = mfilename;
@@ -42,46 +43,46 @@ classdef Model
 			p.addParameter('saveFolder','my_analysis', @isstr);
 			p.addParameter('pointEstimateType','mode',@(x) any(strcmp(x,{'mean','median','mode'})));
 			p.parse(data, varargin{:});
-
+			
 			% add p.Results fields into obj
 			fields = fieldnames(p.Results);
 			for n=1:numel(fields)
 				obj.(fields{n}) = p.Results.(fields{n});
 			end
 		end
-
-
+		
+		
 		function obj = conductInference(obj, samplerType, varargin)
 			% conductInference  Runs inference
 			%   conductInference(samplerType, varargin)
-
+			
 			% TODO: get the observed data from the raw group data here.
 			samplerType     = lower(samplerType);
-
+			
 			obj.modelFile = makeProbModelsPath(obj.modelType, samplerType);
-
+			
 			p = inputParser;
 			p.FunctionName = mfilename;
 			p.addRequired('samplerType',@ischar);
 			% additional user-supplied preferences
 			p.addParameter('mcmcSamples',[], @isscalar)
 			p.addParameter('chains',[], @isscalar)
-			p.addParameter('shouldPlot','no',@(x) any(strcmp(x,{'all','no'})));
+			p.addParameter('shouldPlot','no',@(x) any(strcmp(x,{'yes','no'})));
 			p.parse(samplerType, varargin{:});
-
+			
 			% add p.Results fields into obj
 			fields = fieldnames(p.Results);
 			for n=1:numel(fields)
 				obj.(fields{n}) = p.Results.(fields{n});
 			end
-
+			
 			%% Create sampler object
 			% TODO: This can happen on the fly, when we call model.conduct_inference()
 			switch obj.samplerType
 				case{'jags'}
 					% Create sampler object
 					obj.sampler = MatjagsWrapper(obj.modelFile);
-
+					
 					% override any user-defined prefs
 					if ~isempty( p.Results.mcmcSamples )
 						obj.sampler.mcmcparams.nsamples = p.Results.mcmcSamples;
@@ -93,7 +94,7 @@ classdef Model
 				case{'stan'}
 					obj.sampler = MatlabStanWrapper(obj.modelFile);
 					%obj.sampler.setStanHome('~/cmdstan-2.9.0') % TODO: sort this out
-
+					
 					% override any user-defined prefs
 					if ~isempty( p.Results.mcmcSamples )
 						obj.sampler.mcmcparams.iter = p.Results.mcmcSamples;
@@ -103,13 +104,13 @@ classdef Model
 					end
 					
 			end
-
+			
 			%% Ask the Sampler to do MCMC sampling, return an mcmcObject ~~~~~~~~~~~~~~~~~
 			%obj.mcmc = obj.sampler.conductInference( obj , obj.data );
 			obj.mcmc = obj.sampler.conductInference( obj , obj.data );
 			%obj.mcmc = mcmcObject;
 			% fix/check ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
+			
 			%% Post-sampling activities (unique to a given model sub-class)
 			% If a model has additional measures that need to be calculated
 			% from the MCMC samples, then we can do by overriding this
@@ -137,11 +138,11 @@ classdef Model
 			if ~strcmp(obj.shouldPlot,'no')
 				obj.plot()
 			end
-
+			
 			obj.tellUserAboutPublicMethods()
 		end
-
-
+		
+		
 		function finalTable = exportParameterEstimates(obj, varargin)
 			%% Create table of parameter estimates
 			paramEstimateTable = obj.mcmc.exportParameterEstimates(...
@@ -177,22 +178,22 @@ classdef Model
 				percentPredicted,...
 				warning_percent_predicted,...
 				'RowNames',obj.data.IDname);
-
+			
 			%% Combine the tables
 			finalTable = join(paramEstimateTable, postPredTable,...
 				'Keys','RowNames');
 			display(finalTable)
-
+			
 			%% Export table to textfile
 			fname = ['parameterEstimates_Posterior_' obj.pointEstimateType '.csv'];
 			savePath = fullfile('figs',obj.saveFolder,fname);
 			exportTable(finalTable, savePath);
-
+			
 			%% Store the table
 			obj.parameterEstimateTable = finalTable;
-
+			
 		end
-
+		
 		function obj = packageUpDataForPlotting(obj)
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			% Package up all information into data structures to be sent
@@ -217,6 +218,19 @@ classdef Model
 				obj.pdata(p).saveFolder			= obj.saveFolder;
 				obj.pdata(p).modelType			= obj.modelType;
 			end
+			% gather cross-experiment data for univariate stats
+			obj.alldata.variables	= obj.varList.participantLevel;
+			obj.alldata.IDnames		= obj.data.IDname;
+			obj.alldata.saveFolder	= obj.saveFolder;
+			obj.alldata.modelType	= obj.modelType;
+			for var = obj.alldata.variables
+				templow		= obj.mcmc.getStats('hdi_low',var{:});
+				temphigh	= obj.mcmc.getStats('hdi_high',var{:});
+				tempPE		= obj.mcmc.getStats(obj.pointEstimateType, var{:});
+				obj.alldata.(var{:}).hdi			= [templow, temphigh];
+				obj.alldata.(var{:}).pointEstVal	= tempPE;
+			end
+			% TODO: Do we have group info in obj.alldata?
 			
 			% CREATE GROUP LEVEL ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			if ~isempty (obj.varList.groupLevel)
@@ -261,12 +275,12 @@ classdef Model
 			end
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		end
-
+		
 		function obj = conditionalDiscountRates(obj, reward, plotFlag)
 			% Extract and plot P( log(k) | reward)
 			warning('THIS METHOD IS A TOTAL MESS - PLAN THIS AGAIN FROM SCRATCH')
 			obj.conditionalDiscountRates_ParticipantLevel(reward, plotFlag)
-
+			
 			if plotFlag
 				removeYaxis
 				title(sprintf('$P(\\log(k)|$reward=$\\pounds$%d$)$', reward),'Interpreter','latex')
@@ -274,16 +288,16 @@ classdef Model
 				axis square
 			end
 		end
-
+		
 		% MIDDLE-MAN METHODS ================================================
-
+		
 		function obj = plotMCMCchains(obj,vars)
 			obj.mcmc.plotMCMCchains(vars);
 		end
-
+		
 	end
-
-
+	
+	
 	methods (Access = private)
 		
 		function varNames = extractLevelNVarNames(obj, N)
@@ -294,7 +308,7 @@ classdef Model
 				end
 			end
 		end
-
+		
 		function bool = isGroupLevelModel(obj)
 			% we determine if the model has group level parameters by checking if
 			% we have a 'groupLevel' subfield in the varList.
@@ -302,11 +316,11 @@ classdef Model
 				bool = ~isempty(obj.varList.groupLevel);
 			end
 		end
-
+		
 		function tellUserAboutPublicMethods(obj)
 			methods(obj)
 		end
-
+		
 		function conditionalDiscountRates_ParticipantLevel(obj, reward, plotFlag)
 			nParticipants = obj.data.nParticipants;
 			%count=1;
@@ -326,21 +340,21 @@ classdef Model
 			% 				'VariableNames',{'logK_posteriorMode'},...)
 			% 				'RowNames', num2cell([1:nParticipants]) )
 		end
-
+		
 	end
 	
-
+	
 	% **********************************************************************
 	% **********************************************************************
 	% PLOTTING *************************************************************
 	% **********************************************************************
 	% **********************************************************************
-
+	
 	methods (Access = public)
-
+		
 		function plot(obj)
-			
-			%% Plot experiment-level + group-level (if applicable) figures.
+			% plot
+			% Plot experiment-level + group-level (if applicable) figures.
 			for n = 1:numel(obj.pdata)
 				% multi-panel fig
 				obj.plotFuncs.participantFigFunc( obj.pdata(n) );
@@ -352,37 +366,20 @@ classdef Model
 				figPosteriorPrediction( obj.pdata(n) )
 			end
 			
-			% +++++++++++++++++++++++++++++++++++++++++++
-			% TODO: FURTHER SIMPLIFICATION OF CODE BELOW
-			% +++++++++++++++++++++++++++++++++++++++++++
+			% Plot functions that use data from all participants
+			figUnivariateSummary( obj.alldata )
 			
-			close all
-
-			%% UNIVARIATE SUMMARY STATISTICS ------------------------------
-			% We are going to add on group level inferences to the end of the
-			% list. This is because the group-level inferences an be
-			% seen as inferences we can make about an as yet unobserved
-			% participant, in the light of the participant data available thus
-			% far.
-			IDnames = obj.data.IDname;
-			if obj.isGroupLevelModel()
-				IDnames{end+1}='GROUP';
-			end
-			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			obj.mcmc.figUnivariateSummary(IDnames, obj.varList.participantLevel, obj.pointEstimateType)
-			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			latex_fig(16, 5, 5)
-			myExport('UnivariateSummary',...
-				'saveFolder',obj.saveFolder,...
-				'prefix', obj.modelType)
-			% -------------------------------------------------------------
-
 		end
-
+		
 	end
 	
 	methods (Access = private)
-
+		
+		% +++++++++++++++++++++++++++++++++++++++++++
+		% TODO: IS THIS BEING CALLED?
+		% +++++++++++++++++++++++++++++++++++++++++++
+		
+		
 		function summary_plot(obj)
 			%% SUMMARY PLOTS
 			switch obj.discountFuncType
@@ -410,7 +407,7 @@ classdef Model
 						'prefix', obj.modelType)
 			end
 		end
-
+		
 	end
 	
 end

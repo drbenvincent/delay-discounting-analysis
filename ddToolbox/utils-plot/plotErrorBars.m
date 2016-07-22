@@ -4,7 +4,7 @@ N = numel(xLabels);
 hold on
 % plot credibility intervals
 for n=1:N
-	plot([n n], ci(:,n) , 'k-')
+	plot([n n], ci(n,:) , 'k-')
 end
 % plot points
 h=plot([1:N],modeVal(:), 'ko');

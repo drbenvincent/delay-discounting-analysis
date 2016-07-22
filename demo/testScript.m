@@ -36,7 +36,7 @@ for n = 1:numel(listOfModels)
 		sampler,... % {'jags', 'stan'}
 		'mcmcSamples',numberOfMCMCSamples,...
 		'chains',chains,...
-		'shouldPlot','all'); % TODO: add mcmcparams over-ride
+		'shouldPlot','yes'); % TODO: add mcmcparams over-ride
 end
 
 
