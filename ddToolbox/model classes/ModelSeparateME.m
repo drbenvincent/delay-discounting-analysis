@@ -9,7 +9,6 @@ classdef ModelSeparateME < Model
 
 	methods (Access = public)
 
-		% CONSTRUCTOR =====================================================
 		function obj = ModelSeparateME(data, varargin)
 			obj = obj@Model(data, varargin{:});
 
@@ -29,10 +28,9 @@ classdef ModelSeparateME < Model
 				'm_prior', 'c_prior','alpha_prior','epsilon_prior',...
 				'Rpostpred', 'P'};
 		end
-		% ================================================================
 
-		% Generate initial values of the leaf nodes
 		function obj = setInitialParamValues(obj)
+            % Generate initial values of the leaf nodes
 			nParticipants = obj.data.nParticipants;
 			for chain = 1:obj.sampler.mcmcparams.nchains
 				obj.initialParams(chain).m = normrnd(-0.243,2, [nParticipants,1]);
@@ -44,12 +42,12 @@ classdef ModelSeparateME < Model
 		end
 
 	end
-	
+
 	methods (Access = protected)
-	
+
 		function obj = calcDerivedMeasures(obj)
 		end
-		
+
 	end
 
 end

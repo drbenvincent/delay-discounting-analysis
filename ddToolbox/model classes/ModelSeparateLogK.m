@@ -28,8 +28,8 @@ classdef ModelSeparateLogK < Model
 				'Rpostpred', 'P'};
 		end
 
-		% Generate initial values of the leaf nodes
 		function obj = setInitialParamValues(obj)
+            % Generate initial values of the leaf nodes
 			nParticipants = obj.data.nParticipants;
 			for chain = 1:obj.sampler.mcmcparams.nchains
 				obj.initialParams(chain).logk = normrnd(log(1/365),10, [nParticipants,1]);
@@ -49,10 +49,10 @@ classdef ModelSeparateLogK < Model
 	end
 
 	methods (Access = protected)
-		
+
 		function obj = calcDerivedMeasures(obj)
 		end
-		
+
 	end
-	
+
 end

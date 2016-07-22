@@ -15,11 +15,11 @@ classdef ModelMixedLogK < Model
 			obj.modelType = 'mixedLogK';
 			obj.discountFuncType = 'logk';
 
-			% 'Decorate' the object with appropriate plot functions
+			% Decorate the object with appropriate plot functions
 			obj.plotFuncs.participantFigFunc = @figParticipantLOGK;
 			obj.plotFuncs.plotGroupLevel = @plotGroupLevelStuff;
 			obj.plotFuncs.clusterPlotFunc = @plotLOGKclusters;
-			
+
 			%% Create variables
 			obj.varList.participantLevel = {'logk','alpha','epsilon'};
             obj.varList.participantLevelPriors = {'logk_group_prior','alpha_group_prior','epsilon_group_prior'};
@@ -32,8 +32,9 @@ classdef ModelMixedLogK < Model
 				'Rpostpred', 'P'};
 		end
 
-		% Generate initial values of the leaf nodes
+
 		function obj = setInitialParamValues(obj)
+            % Generate initial values of the leaf nodes
 			nParticipants = obj.data.nParticipants;
 			for chain = 1:obj.sampler.mcmcparams.nchains
 				obj.initialParams(chain).groupW             = rand;
@@ -54,10 +55,10 @@ classdef ModelMixedLogK < Model
 	end
 
 	methods (Access = protected)
-		
+
 		function obj = calcDerivedMeasures(obj)
 		end
-		
+
 	end
-	
+
 end

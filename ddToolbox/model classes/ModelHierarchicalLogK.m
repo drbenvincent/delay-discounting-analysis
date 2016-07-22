@@ -33,10 +33,9 @@ classdef ModelHierarchicalLogK < Model
 				'groupW_prior','groupK_prior',...
 				'groupALPHAmu_prior','groupALPHAsigma_prior',...
 				'Rpostpred', 'P'};
-
 		end
 
-		
+
 		function obj = setInitialParamValues(obj)
 			%setInitialParamValues
 			% Generate initial values of the leaf nodes
@@ -57,14 +56,13 @@ classdef ModelHierarchicalLogK < Model
 			error('Not applicable to this model that calculates log(k)')
 		end
 
-
 	end
-	
+
 	methods (Access = protected)
-		
+
 		function obj = calcDerivedMeasures(obj)
 		end
-		
+
 	end
 
 end

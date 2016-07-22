@@ -15,7 +15,7 @@ classdef Dataset
 
 	methods (Access = public)
 
-		function obj=Dataset(dataFolder, varargin)
+		function obj = Dataset(dataFolder, varargin)
 			p = inputParser;
 			p.addRequired('dataFolder',@isstr);
 			p.FunctionName = mfilename;
@@ -31,23 +31,20 @@ classdef Dataset
 			obj.dataFolder = dataFolder;
 			display('You have created a Data object')
 
-			% Load data files if they have been provided
 			if ~isempty(p.Results.files)
 				obj = obj.loadDataFiles(p.Results.files);
 			end
-
 		end
 
-
-		function [obj] = loadDataFiles(obj,fnames)
+		function obj = loadDataFiles(obj,fnames)
 			assert( iscellstr(fnames), 'fnames should be a cell array of filenames')
 
 			obj.nExperiments = numel(fnames);
 			obj.participantFilenames = fnames;
 
-            % create array of ExperimentResults
+            % create array of DiscountingExperimentResults
 			for n=1:numel(fnames)
-                experiment(n) = ExperimentResults( fullfile(obj.dataFolder, fnames{n}));
+                experiment(n) = DiscountingExperimentResults( fullfile(obj.dataFolder, fnames{n}));
 			end
 
 			obj = obj.constructObservedDataForMCMC();
@@ -76,7 +73,7 @@ classdef Dataset
 			end
 		end
 
-		function [dataStruct] = getParticipantData(obj,participant)
+		function dataStruct = getParticipantData(obj, participant)
 			% grabs data just from one participant.
 			% OUTPUTS:
 			% a structure with fields
@@ -111,11 +108,9 @@ classdef Dataset
 
 			obj.observedData.participantIndexList = unique(all_data.ID);
 
-
 			% **** Observed variables below are for the Gaussian Random Walk model ****
 			obj.observedData.uniqueDelays = sort(unique(obj.observedData.DB))';
 			obj.observedData.delayLookUp = obj.calcDelayLookup();
-
 		end
 
 		function delayLookUp = calcDelayLookup(obj)

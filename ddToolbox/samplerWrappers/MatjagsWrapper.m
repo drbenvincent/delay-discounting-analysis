@@ -13,19 +13,16 @@ classdef MatjagsWrapper < SamplerWrapper
 			obj = obj.setDefaultMCMCparams();
 		end
 
-		
+
 		function mcmcFitObject = conductInference(obj, model, data)
-			
+
 			% TODO: pass in model.setInitialParamValues as a function
 			% instead of passing in all of model
-			
-			% &&&&&& TODO: If this stuff below is sampler-indepdent, then
-			% move it to model.conductInference()
-			
+
 			%% preparation for MCMC sampling
 			model = model.setInitialParamValues(); % mcmc chain values NOT mcmc parameters
 			obj.initialParameters = model.initialParams;
-		
+
 			assert(obj.mcmcparams.nchains>=2, 'Use a minimum of 2 MCMC chains')
 			startParallelPool()
 
@@ -34,7 +31,7 @@ classdef MatjagsWrapper < SamplerWrapper
 			obj.observed = data.observedData; %<---- TODO: remove
 
 			obj.monitorparams = model.varList.monitored;
-			
+
 			%% Get our sampler to sample
 			fprintf('\nRunning JAGS (%d chains, %d samples each)\n',...
 				obj.mcmcparams.nchains,...
@@ -58,7 +55,7 @@ classdef MatjagsWrapper < SamplerWrapper
 			% Create an MCMC object. This is basically a wrapper around the
 			% outputs of MatJAGS which has useful getter functions.
 			mcmcFitObject = JAGSmcmc(samples, stats, obj.mcmcparams);
-			
+
 			speak('sampling complete')
 		end
 

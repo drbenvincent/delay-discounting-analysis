@@ -15,13 +15,11 @@ classdef DataClass
 
 	methods (Access = public)
 
-		% =================================================================
-		function obj=DataClass(dataFolder, varargin)
+		function obj = DataClass(dataFolder, varargin)
 			p = inputParser;
 			p.addRequired('dataFolder',@isstr);
 			p.FunctionName = mfilename;
 			p.addParameter('files',{''},@iscellstr);
-
 			p.parse(dataFolder, varargin{:});
 
 			try
@@ -33,19 +31,13 @@ classdef DataClass
 			obj.dataFolder = dataFolder;
 			display('You have created a Data object')
 
-			% Load data files if they have been provided
 			if ~isempty(p.Results.files)
 				obj = obj.loadDataFiles(p.Results.files);
 			end
-
-
-
-
 		end
-		% =================================================================
 
 
-		function [obj] = loadDataFiles(obj,fnames)
+		function obj = loadDataFiles(obj, fnames)
 			assert( iscellstr(fnames), 'fnames should be a cell array of filenames')
 
 			obj.nParticipants = numel(fnames);
@@ -115,7 +107,7 @@ classdef DataClass
 			end
 		end
 
-		function [dataStruct] = getParticipantData(obj,participant)
+		function dataStruct = getParticipantData(obj,participant)
 			% grabs data just from one participant.
 			% OUTPUTS:
 			% a structure with fields
@@ -150,11 +142,9 @@ classdef DataClass
 
 			obj.observedData.participantIndexList = unique(all_data.ID);
 
-
 			% **** Observed variables below are for the Gaussian Random Walk model ****
 			obj.observedData.uniqueDelays = sort(unique(obj.observedData.DB))';
 			obj.observedData.delayLookUp = obj.calcDelayLookup();
-
 		end
 
 		function delayLookUp = calcDelayLookup(obj)

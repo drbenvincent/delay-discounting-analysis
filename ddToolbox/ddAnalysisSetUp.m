@@ -5,17 +5,7 @@ initialDir = cd;
 full = mfilename('fullpath');
 [toolboxPath, ~] = fileparts(full);
 
-% p = inputParser;
-% p.FunctionName = mfilename;
-% 
-% p.addParameter('projectPath','',@isstr);
-% p.addParameter('dataPath','', @isstr)
-% 
-% 
-% p.parse(varargin{:});
-
-
-%% Do the setup ==================================
+%% Do the setup
 cd(toolboxPath)
 
 % Add subdirectories to Matlab path
@@ -37,11 +27,6 @@ checkGitHubDependencies(dependencies);
 % Import mcmc-utils-matlab package
 import mcmc.*
 mcmc.setPlotTheme('fontsize',16, 'linewidth',1)
-
-% % outputs
-% env.toolboxPath = toolboxPath;
-% env.projectPath = p.Results.projectPath;
-% env.dataPath	= p.Results.dataPath;
 
 cd(initialDir)
 

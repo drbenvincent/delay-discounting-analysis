@@ -162,22 +162,17 @@ classdef mcmcContainer < handle
 		function plotMCMCchains(obj, variablesToPlot)
 
 			for varName = each(variablesToPlot)
-
 				figure
-				latex_fig(16, 12,10)
-
+	            latex_fig(16, 12,10)
 				mcmcsamples = obj.getSamples({varName});
 				mcmcsamples = mcmcsamples.(varName);
 				[chains,Nsamples,rows] = size(mcmcsamples);
 				hChain=[];
 				rhat_all = obj.getStats('Rhat', varName);
 				for row=1:rows
-					% plot MCMC chains --------------
 					hChain(row) = intPlotChain(mcmcsamples(:,:,row), row, rows, varName, rhat_all(row));
-					% plot distributions ------------
 					intPlotDistribution(mcmcsamples(:,:,row), row, rows)
 				end
-
 				linkaxes(hChain,'x')
 			end
 

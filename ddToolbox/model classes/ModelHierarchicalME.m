@@ -1,29 +1,29 @@
 classdef ModelHierarchicalME < Model
 	%ModelHierarchicalME A model to estimate the magnitide effect
 	%   Detailed explanation goes here
-	
+
 	properties
 	end
-	
-	
+
+
 	methods (Access = public)
-		
+
 		function obj = ModelHierarchicalME(data, varargin)
 			obj = obj@Model(data, varargin{:});
-			
+
 			obj.modelType			= 'hierarchicalME';
 			obj.discountFuncType	= 'me';
-			
+
 			obj.plotFuncs.participantFigFunc = @figParticipantME;
 			obj.plotFuncs.plotGroupLevel = @plotGroupLevelStuff;
 			obj.plotFuncs.clusterPlotFunc = @plotMCclusters;
-			
+
 			%% Create variables
 			% TODO: These lists could be removed with some work
 			obj.varList.participantLevel = {'m', 'c','alpha','epsilon'};
 			obj.varList.participantLevelPriors = {'m_group_prior', 'c_group_prior','alpha_group_prior','epsilon_group_prior'};
 			obj.varList.groupLevel = {'m_group', 'c_group','alpha_group','epsilon_group'};
-			
+
 			% These need to be kept for JAGS
 			obj.varList.monitored = {'m', 'c','alpha','epsilon',...
 				'm_group', 'c_group','alpha_group','epsilon_group',...
@@ -32,9 +32,10 @@ classdef ModelHierarchicalME < Model
 				'groupMmu_prior', 'groupMsigma_prior', 'groupCmu_prior','groupCsigma_prior','groupW_prior','groupK_prior','groupALPHAmu_prior','groupALPHAsigma_prior',...
 				'Rpostpred', 'P'};
 		end
-		
-		% Generate initial values of the leaf nodes
+
+
 		function obj = setInitialParamValues(obj)
+            % Generate initial values of the leaf nodes
 			for chain = 1:obj.sampler.mcmcparams.nchains
 				obj.initialParams(chain).groupMmu		= normrnd(-0.243,10);
 				obj.initialParams(chain).groupMsigma	= rand*10;
@@ -45,8 +46,8 @@ classdef ModelHierarchicalME < Model
 				obj.initialParams(chain).groupALPHAsigma= rand*10;
 			end
 		end
-		
-		
+
+
 		%% ******** SORT OUT WHERE THESE AND OTHER FUNCTIONS SHOULD BE *************
 		function obj = conditionalDiscountRates(obj, reward, plotFlag)
 			% For group level and all participants, extract and plot P( log(k) | reward)
@@ -61,7 +62,7 @@ classdef ModelHierarchicalME < Model
 				%legend(lh.DisplayName)
 			end
 		end
-		
+
 		function conditionalDiscountRates_GroupLevel(obj, reward, plotFlag)
 			GROUP = obj.data.nParticipants; % last participant is our unobserved
 			params = obj.mcmc.getSamplesFromParticipantAsMatrix(GROUP, {'m','c'});
@@ -69,14 +70,14 @@ classdef ModelHierarchicalME < Model
 			lh.LineWidth = 3;
 			lh.Color= 'k';
 		end
-		
+
 	end
-	
+
 	methods (Access = protected)
-		
+
 		function obj = calcDerivedMeasures(obj)
 		end
-		
+
 	end
-	
+
 end

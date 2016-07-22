@@ -11,18 +11,18 @@ classdef ModelGaussianRandomWalkSimple < Model
 
 
 	methods (Access = public)
-		
+
 		function obj = ModelGaussianRandomWalkSimple(data, varargin)
 			obj = obj@Model(data, varargin{:});
-			
+
 			obj.modelType		= 'mixedGRWsimple';
 			obj.discountFuncType = 'nonparametric';
-			
+
 			% 'Decorate' the object with appropriate plot functions
 			obj.plotFuncs.participantFigFunc = @figParticipantLOGK;
 			obj.plotFuncs.plotGroupLevel = @plotGroupLevelStuff;
 			obj.plotFuncs.clusterPlotFunc = @() []; % null func
-			
+
 			obj.varList.participantLevel = {'discountFraction'};
 			obj.varList.groupLevel = {'alpha_group','epsilon_group','varInc_group'};
 			obj.varList.groupLevelPriors = {'alpha_group_prior','epsilon_group_prior','varInc_group_prior'};
@@ -31,12 +31,12 @@ classdef ModelGaussianRandomWalkSimple < Model
 				'alpha_group','epsilon_group', 'varInc_group',...
 				'alpha_group_prior', 'epsilon_group_prior', 'varInc_group_prior',...
 				'Rpostpred', 'P'};
-			
-		end
-		
-		% Generate initial values of the leaf nodes
-		function obj = setInitialParamValues(obj)
 
+		end
+
+
+		function obj = setInitialParamValues(obj)
+            % Generate initial values of the leaf nodes
 			%nTrials = size(obj.data.observedData.A,2);
 			nParticipants = obj.data.nParticipants;
 			nUniqueDelays = numel(obj.data.observedData.uniqueDelays);
@@ -114,9 +114,9 @@ classdef ModelGaussianRandomWalkSimple < Model
 
 
 		function personStruct = getParticipantData(obj, p)
-			
+
 			obj = calcAUCscores(obj); % TODO: This is put here as a quick fix.
-			
+
 			% Create a structure with all the useful info about a person
 			% p = person number
 			participantName = obj.data.IDname{p};
@@ -142,16 +142,16 @@ classdef ModelGaussianRandomWalkSimple < Model
 			end
 		end
 
-		
+
 	end
-	
-	
+
+
 	methods (Access = protected)
-		
+
 		function obj = calcDerivedMeasures(obj)
 			obj = obj.calcAUCscores();
 		end
-		
+
 		function obj = calcAUCscores(obj)
 			delays = obj.data.observedData.uniqueDelays;
 			for p=1:obj.data.nParticipants
@@ -160,8 +160,8 @@ classdef ModelGaussianRandomWalkSimple < Model
 				obj.AUC_DATA(p).name  = obj.data.participantFilenames{p};
 			end
 		end
-		
+
 	end
-	
-	
+
+
 end
