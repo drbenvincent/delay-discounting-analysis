@@ -21,7 +21,7 @@ classdef ModelGaussianRandomWalkSimple < Model
 			% 'Decorate' the object with appropriate plot functions
 			obj.plotFuncs.participantFigFunc = @figParticipantLOGK;
 			obj.plotFuncs.plotGroupLevel = @plotGroupLevelStuff;
-			
+			obj.plotFuncs.clusterPlotFunc = @() []; % null func
 			
 			obj.varList.participantLevel = {'discountFraction'};
 			obj.varList.groupLevel = {'alpha_group','epsilon_group','varInc_group'};

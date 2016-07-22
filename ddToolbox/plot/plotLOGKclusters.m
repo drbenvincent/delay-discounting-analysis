@@ -1,4 +1,4 @@
-function plotLOGKclusters(mcmcContainer, data, col, pointEstimateType)
+function plotLOGKclusters(mcmcContainer, data, col, pointEstimateType, saveFolder, modelType)
 
 % plot posteriors over log(k) for all participants
 
@@ -34,6 +34,11 @@ axis(participantAxisBounds)
 % set(gca,'XAxisLocation','origin',...
 % 	'YAxisLocation','origin')
 drawnow
+
+myExport('LOGK_summary',...
+	'saveFolder', saveFolder,...
+	'prefix', modelType)
+
 
 	function plotOpts = definePlotOptions4Participant(col)
 		plotOpts = {'FaceAlpha', 0.2,...

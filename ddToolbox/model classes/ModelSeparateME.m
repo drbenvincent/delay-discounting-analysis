@@ -19,6 +19,7 @@ classdef ModelSeparateME < Model
 			% 'Decorate' the object with appropriate plot functions
 			obj.plotFuncs.participantFigFunc = @figParticipantME;
 			obj.plotFuncs.plotGroupLevel = @(x) []; % null function
+			obj.plotFuncs.clusterPlotFunc = @plotMCclusters;
 
 			%% Create variables
 			obj.varList.participantLevel = {'m', 'c','alpha','epsilon'};

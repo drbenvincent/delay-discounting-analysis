@@ -345,16 +345,15 @@ classdef Model
 	
 	
 	% **********************************************************************
-	% **********************************************************************
 	% PLOTTING *************************************************************
-	% **********************************************************************
 	% **********************************************************************
 	
 	methods (Access = public)
 		
 		function plot(obj)
 			% plot
-			% Plot experiment-level + group-level (if applicable) figures.
+			
+			%% Plot experiment-level + group-level (if applicable) figures.
 			for n = 1:numel(obj.pdata)
 				% multi-panel fig
 				obj.plotFuncs.participantFigFunc( obj.pdata(n) );
@@ -366,48 +365,20 @@ classdef Model
 				figPosteriorPrediction( obj.pdata(n) )
 			end
 			
-			% Plot functions that use data from all participants
+			%% Plot functions that use data from all participants
 			figUnivariateSummary( obj.alldata )
+			
+			% TODO: pass in obj.alldata or obj.pdata rather than all these args
+			obj.plotFuncs.clusterPlotFunc(...
+				obj.mcmc,...
+				obj.data,...
+				[1 0 0],...
+				obj.pointEstimateType,...
+				obj.saveFolder,...
+				obj.modelType)
 			
 		end
 		
 	end
-	
-	methods (Access = private)
 		
-		% +++++++++++++++++++++++++++++++++++++++++++
-		% TODO: IS THIS BEING CALLED?
-		% +++++++++++++++++++++++++++++++++++++++++++
-		
-		
-		function summary_plot(obj)
-			%% SUMMARY PLOTS
-			switch obj.discountFuncType
-				case{'me'} % code smell
-					% MC cluster plot
-					probMass = 0.5; % <-- 50% prob mass to avoid too much clutter on graph
-					% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-					figure(12)
-					plotMCclusters(obj.mcmc,...
-						obj.data, [1 0 0],...
-						probMass,...
-						obj.pointEstimateType)
-					% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-					myExport('MC_summary',...
-						'saveFolder', obj.saveFolder,...
-						'prefix', obj.modelType)
-					
-				case{'logk'}
-					% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-					figure(12)
-					plotLOGKclusters(obj.mcmc, obj.data, [1 0 0], obj.pointEstimateType)
-					% ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-					myExport('LOGK_summary',...
-						'saveFolder', obj.saveFolder,...
-						'prefix', obj.modelType)
-			end
-		end
-		
-	end
-	
 end

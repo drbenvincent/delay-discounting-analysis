@@ -9,7 +9,7 @@ ddAnalysisSetUp();
 
 %% Load data
 datapath = '~/git-local/delay-discounting-analysis/demo/data';
-%filesToAnalyse = allFilesInFolder(environment.dataPath, 'txt');
+%filesToAnalyse = allFilesInFolder(datapath, 'txt');
 filesToAnalyse={'AC-kirby27-DAYS.txt', 'CS-kirby27-DAYS.txt'};
 %filesToAnalyse={'AC-kirby27-DAYS.txt'};
 myData = DataClass(datapath, 'files', filesToAnalyse);

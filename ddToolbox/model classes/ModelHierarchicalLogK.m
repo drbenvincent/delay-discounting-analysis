@@ -17,6 +17,7 @@ classdef ModelHierarchicalLogK < Model
 			% 'Decorate' the object with appropriate plot functions
 			obj.plotFuncs.participantFigFunc = @figParticipantLOGK;
 			obj.plotFuncs.plotGroupLevel = @plotGroupLevelStuff;
+			obj.plotFuncs.clusterPlotFunc = @plotLOGKclusters;
 
 			%% Create variables
 			obj.varList.participantLevel = {'logk','alpha','epsilon'};

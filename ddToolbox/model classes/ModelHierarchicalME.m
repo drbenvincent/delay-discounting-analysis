@@ -13,8 +13,10 @@ classdef ModelHierarchicalME < Model
 			
 			obj.modelType			= 'hierarchicalME';
 			obj.discountFuncType	= 'me';
+			
 			obj.plotFuncs.participantFigFunc = @figParticipantME;
 			obj.plotFuncs.plotGroupLevel = @plotGroupLevelStuff;
+			obj.plotFuncs.clusterPlotFunc = @plotMCclusters;
 			
 			%% Create variables
 			% TODO: These lists could be removed with some work

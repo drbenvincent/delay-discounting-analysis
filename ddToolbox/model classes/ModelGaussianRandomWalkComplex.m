@@ -17,6 +17,7 @@ classdef ModelGaussianRandomWalkComplex < Model
 			% 'Decorate' the object with appropriate plot functions
 			obj.plotFuncs.participantFigFunc = @figParticipantLOGK;
 			obj.plotFuncs.plotGroupLevel = @plotGroupLevelStuff;
+			obj.plotFuncs.clusterPlotFunc = @() []; % null func
 
 			%% Create variables
 			obj.varList.participantLevel = {'discountFraction','epsilon'};

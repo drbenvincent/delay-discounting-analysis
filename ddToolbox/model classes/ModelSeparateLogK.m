@@ -17,6 +17,7 @@ classdef ModelSeparateLogK < Model
 			% 'Decorate' the object with appropriate plot functions
 			obj.plotFuncs.participantFigFunc = @figParticipantLOGK;
 			obj.plotFuncs.plotGroupLevel = @(x) []; % null function
+			obj.plotFuncs.clusterPlotFunc = @plotLOGKclusters;
 
 			%% Create variables
 			obj.varList.participantLevel = {'logk','alpha','epsilon'};

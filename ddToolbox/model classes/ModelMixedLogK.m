@@ -18,7 +18,8 @@ classdef ModelMixedLogK < Model
 			% 'Decorate' the object with appropriate plot functions
 			obj.plotFuncs.participantFigFunc = @figParticipantLOGK;
 			obj.plotFuncs.plotGroupLevel = @plotGroupLevelStuff;
-
+			obj.plotFuncs.clusterPlotFunc = @plotLOGKclusters;
+			
 			%% Create variables
 			obj.varList.participantLevel = {'logk','alpha','epsilon'};
             obj.varList.participantLevelPriors = {'logk_group_prior','alpha_group_prior','epsilon_group_prior'};
