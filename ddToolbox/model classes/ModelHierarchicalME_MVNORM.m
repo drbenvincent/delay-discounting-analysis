@@ -22,11 +22,11 @@ classdef ModelHierarchicalME_MVNORM < Model
 			%% Create variables
 			% TODO: These lists could be removed with some work
 			obj.varList.participantLevel = {'m','c','alpha','epsilon'};
-			obj.varList.participantLevelPriors = {'m_group_prior', 'c_group_prior','alpha_group_prior','epsilon_group_prior'};
-			obj.varList.groupLevel = {'mc_mu', 'mc_sigma','m_group', 'c_group', 'r', 'alpha_group', 'epsilon_group'};
+			%obj.varList.participantLevelPriors = {'m_group_prior', 'c_group_prior','alpha_group_prior','epsilon_group_prior'};
+			%obj.varList.groupLevel = {'mc_mu', 'mc_sigma','m_group', 'c_group', 'r', 'alpha_group', 'epsilon_group'};
 
 			% These need to be kept for JAGS
-			obj.varList.monitored = {'r', 'm', 'c', 'mc', 'mc_mu', 'mc_sigma','alpha','epsilon',...
+			obj.varList.monitored = {'r', 'm', 'c', 'mc_mu', 'mc_sigma','alpha','epsilon',...
 				'alpha_group','epsilon_group', 'm_group','c_group', ...
 				'epsilon_group_prior','alpha_group_prior',... % 'm_group_prior', 'c_group_prior',
 				'groupW','groupK','groupALPHAmu','groupALPHAsigma',... % 'groupMmu', 'groupMsigma', 'groupCmu','groupCsigma',
