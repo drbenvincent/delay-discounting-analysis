@@ -17,7 +17,6 @@ classdef ModelSeparateME < Model
 
 			% 'Decorate' the object with appropriate plot functions
 			obj.plotFuncs.participantFigFunc = @figParticipantME;
-			obj.plotFuncs.plotGroupLevel = @(x) []; % null function
 			obj.plotFuncs.clusterPlotFunc = @plotMCclusters;
 
 			%% Create variables
@@ -33,10 +32,10 @@ classdef ModelSeparateME < Model
             % Generate initial values of the leaf nodes
 			nParticipants = obj.data.nParticipants;
 			for chain = 1:obj.sampler.mcmcparams.nchains
-				obj.initialParams(chain).m = normrnd(-0.243,2, [nParticipants,1]);
-				obj.initialParams(chain).c = normrnd(0,10, [nParticipants,1]);
-				obj.initialParams(chain).alpha = abs(normrnd(0.01,10, [nParticipants,1]));
-				obj.initialParams(chain).epsilon = 0.1 + rand([nParticipants,1])/10;
+				obj.initialParams(chain).m = normrnd(-0.243,2, [nParticipants+1,1]);
+				obj.initialParams(chain).c = normrnd(0,10, [nParticipants+1,1]);
+				obj.initialParams(chain).alpha = abs(normrnd(0.01,10, [nParticipants+1,1]));
+				obj.initialParams(chain).epsilon = 0.1 + rand([nParticipants+1,1])/10;
 
 			end
 		end

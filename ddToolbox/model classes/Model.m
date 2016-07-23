@@ -245,48 +245,6 @@ classdef Model
 				obj.alldata.(var{:}).pointEstVal	= tempPE;
 			end
 			% TODO: Do we have group info in obj.alldata?
-			
-			% 			% CREATE GROUP LEVEL ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			% 			if ~isempty (obj.varList.groupLevel)
-			% 				p=numel(obj.pdata)+1;
-			%
-			% 				group_level_prior_variables = cellfun(...
-			% 					@getPriorOfVariable,...
-			% 					obj.varList.groupLevel,...
-			% 					'UniformOutput',false );
-			%
-			% 				% strip the '_group' off of variablenames
-			% 				for n=1:numel(obj.varList.groupLevel)
-			% 					temp=regexp(obj.varList.groupLevel{n},'_','split');
-			% 					groupLevelVarName{n} = temp{1};
-			% 				end
-			% 				[pSamples] = obj.mcmc.getSamples(obj.varList.groupLevel);
-			% 				% flatten
-			% 				for n=1:numel(obj.varList.groupLevel)
-			% 					pSamples.(obj.varList.groupLevel{n}) = vec(pSamples.(obj.varList.groupLevel{n}));
-			% 				end
-			% 				% rename
-			% 				pSamples = renameFields(...
-			% 					pSamples,...
-			% 					obj.varList.groupLevel,...
-			% 					groupLevelVarName);
-			%
-			% 				% gather data from this experiment
-			% 				obj.pdata(p).data.totalTrials = obj.data.totalTrials;
-			% 				obj.pdata(p).IDname = 'GROUP';
-			% 				obj.pdata(p).data.trialsForThisParticant = 0;
-			% 				obj.pdata(p).data.rawdata = [];
-			% 				% gather posterior prediction info
-			% 				obj.pdata(p).postPred = [];
-			% 				% gather mcmc samples
-			% 				obj.pdata(p).samples.posterior	= pSamples;
-			% 				obj.pdata(p).samples.prior		= obj.mcmc.getSamples(obj.varList.participantLevelPriors);
-			% 				% other misc info
-			% 				obj.pdata(p).pointEstimateType = obj.pointEstimateType;
-			% 				obj.pdata(p).discountFuncType = obj.discountFuncType;
-			% 				obj.pdata(p).saveFolder = obj.saveFolder;
-			% 				obj.pdata(p).modelType = obj.modelType;
-			% 			end
 		end
 		
 		function obj = conditionalDiscountRates(obj, reward, plotFlag)

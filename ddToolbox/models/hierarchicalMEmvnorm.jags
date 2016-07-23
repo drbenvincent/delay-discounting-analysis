@@ -12,7 +12,7 @@ model{
 
 
     mc_mu[1] ~ dnorm(-0.243, 1/( (0.027*10)^2))    # prior over m_mu
-    mc_mu[2] ~ dnorm( 0    , 1/( 10^2) )           # prior over c_mu
+    mc_mu[2] ~ dnorm(-3    , 1/( 10^2) )           # prior over c_mu
 
     lambda[1] ~ dgamma(0.001,0.001)
     lambda[2] ~ dgamma(0.001,0.001)
