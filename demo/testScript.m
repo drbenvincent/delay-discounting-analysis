@@ -36,10 +36,23 @@ for n = 1:numel(listOfModels)
 		sampler,... % {'jags', 'stan'}
 		'mcmcSamples',numberOfMCMCSamples,...
 		'chains',chains,...
-		'shouldPlot','yes'); % TODO: add mcmcparams over-ride
+		'shouldPlot','yes');
 end
 
 
+% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+model = ModelHierarchicalME_MVNORM(myData,...
+	'saveFolder', 'mvnorm test',...
+	'pointEstimateType','mode');
+
+model = model.conductInference(...
+	'jags',... % {'jags', 'stan'}
+	'mcmcSamples', 10^4,...
+	'chains',2,...
+	'shouldPlot','no');
+
+model.plot()
+% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 

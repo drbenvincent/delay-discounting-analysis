@@ -47,7 +47,7 @@ classdef JAGSmcmc < mcmcContainer
 
 			[flatSamples] = obj.flattenChains(obj.samples, fieldsToGet);
 			for field = each(fieldsToGet)
-				samples.(field) = flatSamples.(field)(:,index);
+				samples.(field) = flatSamples.(field)(:,index,:);
 			end
 		end
 
@@ -138,7 +138,10 @@ classdef JAGSmcmc < mcmcContainer
 						samples.(field) = vec(temp);
 					case{3}
 						% dealing with multiple participants
-						newDims = [oldDims(1)*oldDims(2) oldDims([3:end])];
+						newDims = [oldDims(1)*oldDims(2) oldDims(3)];
+						samples.(field) = reshape(temp, newDims);
+					case{4}
+						newDims = [oldDims(1)*oldDims(2) oldDims(3) oldDims(4)];
 						samples.(field) = reshape(temp, newDims);
 				end
 			end
