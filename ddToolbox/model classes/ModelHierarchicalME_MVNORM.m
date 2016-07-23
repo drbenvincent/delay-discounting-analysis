@@ -16,7 +16,7 @@ classdef ModelHierarchicalME_MVNORM < Model
 
 			%obj.plotFuncs.participantFigFunc = @figParticipantMEmvnorm;
 			obj.plotFuncs.participantFigFunc = @figParticipantME;
-			obj.plotFuncs.plotGroupLevel = @plotGroupLevelStuff;
+			%obj.plotFuncs.plotGroupLevel = @plotGroupLevelStuff;
 			obj.plotFuncs.clusterPlotFunc = @plotMCclusters;
 
 			%% Create variables

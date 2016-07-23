@@ -17,16 +17,14 @@ classdef ModelMixedLogK < Model
 
 			% Decorate the object with appropriate plot functions
 			obj.plotFuncs.participantFigFunc = @figParticipantLOGK;
-			obj.plotFuncs.plotGroupLevel = @plotGroupLevelStuff;
+			%obj.plotFuncs.plotGroupLevel = @plotGroupLevelStuff;
 			obj.plotFuncs.clusterPlotFunc = @plotLOGKclusters;
 
 			%% Create variables
 			obj.varList.participantLevel = {'logk','alpha','epsilon'};
-            obj.varList.participantLevelPriors = {'logk_group_prior','alpha_group_prior','epsilon_group_prior'};
-			obj.varList.groupLevel = {'logk_group','alpha_group','epsilon_group'};
+            %obj.varList.participantLevelPriors = {'logk_group_prior','alpha_group_prior','epsilon_group_prior'};
+			%obj.varList.groupLevel = {'logk_group','alpha_group','epsilon_group'};
 			obj.varList.monitored = {'logk','alpha','epsilon',...
-				'logk_group','alpha_group','epsilon_group',...
-				'logk_group_prior','epsilon_group_prior','alpha_group_prior',...
 				'groupW','groupK','groupALPHAmu','groupALPHAsigma',...
 				'groupLogKmu_prior', 'groupLogKsigma_prior','groupW_prior','groupK_prior','groupALPHAmu_prior','groupALPHAsigma_prior',...
 				'Rpostpred', 'P'};

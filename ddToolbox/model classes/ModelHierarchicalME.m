@@ -15,7 +15,7 @@ classdef ModelHierarchicalME < Model
 			obj.discountFuncType	= 'me';
 
 			obj.plotFuncs.participantFigFunc = @figParticipantME;
-			obj.plotFuncs.plotGroupLevel = @plotGroupLevelStuff;
+			%obj.plotFuncs.plotGroupLevel = @plotGroupLevelStuff;
 			obj.plotFuncs.clusterPlotFunc = @plotMCclusters;
 
 			%% Create variables

@@ -26,12 +26,4 @@ model{
       Rpostpred[t]   ~ dbern(P[t])      # posterior predicted response
   }
 
-
-  # #############################################
-  # GENERATED QUANTITIES ########################
-
-  # priors (scalar)
-  logk_prior     ~ dnorm(logk_MEAN, logk_PRECISION)
-  epsilon_prior  ~ dbeta(1.1 , 10.9) T(,0.5)
-  alpha_prior    ~ dexp(0.01)
 }
