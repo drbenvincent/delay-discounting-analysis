@@ -122,6 +122,16 @@ classdef DataClass
 				obj.participantLevel(participant).trialsForThisParticant;
 		end
 		
+		function all_data = get_all_data_table(obj)
+			% Create long data table of all participants
+			all_data = obj.participantLevel(:).table;
+			if obj.nParticipants > 1
+				for p = 2:obj.nParticipants
+					all_data = [all_data; obj.participantLevel(p).table];
+				end
+			end
+		end
+		
  	end
 
 
