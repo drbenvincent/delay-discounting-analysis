@@ -29,6 +29,7 @@ classdef MatlabStanWrapper < SamplerWrapper
 			tic
 			stan_model.compile();
 			toc
+
 			%% Get our sampler to sample
 			display('SAMPLING STAN MODEL...')
 			tic
@@ -68,7 +69,7 @@ classdef MatlabStanWrapper < SamplerWrapper
 			warning('TODO: validate this folder exists')
 			obj.stanHome = stanHome;
 		end
-
+		
 	end
 
 end

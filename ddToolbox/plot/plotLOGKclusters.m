@@ -2,7 +2,7 @@ function plotLOGKclusters(mcmcContainer, data, col, pointEstimateType, saveFolde
 
 % plot posteriors over log(k) for all participants
 
-%figure(12), clf
+figure(12), clf
 
 % build samples
 for p = 1:data.nParticipants

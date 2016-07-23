@@ -43,6 +43,13 @@ end
 
 
 
+
+%% Load data
+datapath = '~/git-local/delay-discounting-analysis/demo/data';
+filesToAnalyse = allFilesInFolder(datapath, 'txt');
+myData = DataClass(datapath, 'files', filesToAnalyse);
+
+
 %% Do the analysis, loop over each of the models
 sampler = 'stan';
 listOfModels = {'ModelSeparateLogK','ModelMixedLogK','ModelHierarchicalLogK'};
@@ -57,7 +64,7 @@ for n = 1:numel(listOfModels)
 	
 	all_models(n).model = all_models(n).model.conductInference(...
 		sampler,... % {'jags', 'stan'}
-		'mcmcSamples',10^3,...
+		'mcmcSamples',10^4,...
 		'shouldPlot','no'); % TODO: add mcmcparams over-ride
 end
 
