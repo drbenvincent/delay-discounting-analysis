@@ -1,23 +1,5 @@
 model{
 
-#    # priors over group M mean
-#    groupMmu_MEAN <- -0.243
-#    groupMmu_PRECISION <- 1/( (0.027*10)^2)
-#    # priors over group M sigma
-#    groupMsigma_MEAN <- 0.072
-#    groupMsigma_PRECISION <- 1/( (0.025*10)^2)
-
-    # ----------------------------------------------------------------
-    # Group-level hyperpriors (see Appendix A1 and A2 for details)
-
-#    # slope (uninformative, see Appendix A)
-#    groupMmu        ~ dnorm(groupMmu_MEAN, groupMmu_PRECISION)
-#    groupMsigma     ~ dnorm(groupMsigma_MEAN, groupMsigma_PRECISION) T(0,)
-#
-#    # intercept
-#    groupCmu        ~ dnorm(0, 1/(10000^2))
-#    groupCsigma     ~ dunif(0, 10000)
-
     # comparison acuity (alpha)
     groupALPHAmu        ~ dunif(0,100)
     groupALPHAsigma     ~ dunif(0,100)
