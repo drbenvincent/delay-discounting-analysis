@@ -17,7 +17,7 @@ hModel = ModelHierarchicalME(myData,...
 % Do some Bayesian inference with JAGS or STAN
 hModel = hModel.conductInference('jags',... % {'jags', 'stan'}
 	'shouldPlot', 'no',...
-	'mcmcSamples', 10^5); % TODO: add mcmcparams over-ride
+	'mcmcSamples', 10^4); % TODO: add mcmcparams over-ride
 
 
 
