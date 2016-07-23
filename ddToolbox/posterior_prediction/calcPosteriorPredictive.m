@@ -9,7 +9,7 @@ nParticipants = obj.data.nParticipants;
 
 for p=1:nParticipants
 	% get data ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	trialIndOfThisParicipant	= obj.data.observedData.ID==p;
+	trialIndOfThisParicipant	= obj.observedData.ID==p;
 	responses_predictedMCMC		= obj.mcmc.getPChooseDelayed(trialIndOfThisParicipant);
 	responses_actual			= obj.data.participantLevel(p).table.R;
 	responses_predicted			= obj.mcmc.getParticipantPredictedResponses(trialIndOfThisParicipant);

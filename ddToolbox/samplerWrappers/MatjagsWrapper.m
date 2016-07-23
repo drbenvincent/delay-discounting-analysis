@@ -14,7 +14,7 @@ classdef MatjagsWrapper < SamplerWrapper
 		end
 
 
-		function mcmcFitObject = conductInference(obj, model, data)
+		function mcmcFitObject = conductInference(obj, model)
 
 			% TODO: pass in model.setInitialParamValues as a function
 			% instead of passing in all of model
@@ -28,7 +28,7 @@ classdef MatjagsWrapper < SamplerWrapper
 
 			% TODO: rather than ask for this, the model is going to do its
 			% model-specific process to go from raw data to observed variables.
-			obj.observed = data.observedData; %<---- TODO: remove
+			obj.observed = model.observedData;
 
 			obj.monitorparams = model.varList.monitored;
 

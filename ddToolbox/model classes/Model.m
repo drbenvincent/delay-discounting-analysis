@@ -1,13 +1,13 @@
 classdef Model
 	%Model Base class to provide basic functionality
-
+	
 	properties (Access = public)
 		samplerType
 		saveFolder
 		discountFuncType
 		pointEstimateType
 	end
-
+	
 	properties (SetAccess = protected, GetAccess = public)
 		modelFile
 		mcmc % handle to mcmc fit object  % TODO: dependency injection for MCMC fit object
@@ -16,8 +16,9 @@ classdef Model
 		parameterEstimateTable
 		pdata		% experiment level data for plotting
 		alldata		% cross-experiment level data for plotting
+		observedData % TODO make this  in model?
 	end
-
+	
 	properties (Hidden)
 		% User supplied preferences
 		mcmcSamples
@@ -29,13 +30,13 @@ classdef Model
 		initialParams
 		shouldPlot
 	end
-
+	
 	methods(Abstract, Access = protected)
 		calcDerivedMeasures(obj)
 	end
-
+	
 	methods (Access = public)
-
+		
 		function obj = Model(data, varargin)
 			p = inputParser;
 			p.FunctionName = mfilename;
@@ -43,24 +44,110 @@ classdef Model
 			p.addParameter('saveFolder','my_analysis', @isstr);
 			p.addParameter('pointEstimateType','mode',@(x) any(strcmp(x,{'mean','median','mode'})));
 			p.parse(data, varargin{:});
-
+			
 			% add p.Results fields into obj
 			fields = fieldnames(p.Results);
 			for n=1:numel(fields)
 				obj.(fields{n}) = p.Results.(fields{n});
 			end
+			
+			% Upon model (base-class) construction, we are going to call
+			% the method to construct the observed data which will be
+			% passed into the mcmc sampler.
+			% This method is defined here (in the base class) but can be
+			% over-ridden by model sub-classes.
+			obj.observedData = obj.constructObservedDataForMCMC(obj.data);
 		end
-
-
+		
+		
+		
+		
+		function observedData = constructObservedDataForMCMC(obj, data)
+			% construct a structure of ObservedData which will provide input to
+			% the MCMC process.
+			% TODO: can this become a static method?
+			
+			%% Create long data table of all participants    % TODO: make this a get method in data class?
+			all_data = data.participantLevel(:).table;
+			if data.nParticipants>1
+				for p = 2:data.nParticipants
+					all_data = [all_data; data.participantLevel(p).table];
+				end
+			end
+			
+			%% Convert each column of table in to a field of a structure
+			% As wanted by JAGS/STAN
+			variables = all_data.Properties.VariableNames;
+			for varname = variables
+				observedData.(varname{:}) = all_data.(varname{:});
+			end
+			
+			% add on an unobserved participant
+			observedData.participantIndexList = [unique(all_data.ID) ; max(unique(all_data.ID))+1];
+			
+			% **** Observed variables below are for the Gaussian Random Walk model ****
+			observedData.uniqueDelays = sort(unique(observedData.DB))';
+			observedData.delayLookUp = calcDelayLookup();
+			
+			function delayLookUp = calcDelayLookup()
+				delayLookUp = observedData.DB;
+				for n=1: numel(observedData.uniqueDelays)
+					delay = observedData.uniqueDelays(n);
+					delayLookUp(observedData.DB==delay) = n;
+				end
+			end
+			
+		end
+		
+		
+		% 			% **** Observed variables below are for the Gaussian Random
+		% 			% Walk model ****
+		% 			%
+		% 			% Create a lookup table, for a given [participant,trial], this
+		% 			% is the index of DB.
+		%
+		% 			% If we insert additional delays into this vector
+		% 			% (uniqueDelays), then the model will interpolate between the
+		% 			% delays that we have data for.
+		% 			% If you do not want to interpolate any delays, then set :
+		% 			%  interpolation_delays = []
+		%
+		% % 			unique_delays_from_data = sort(unique(obj.observedData.DB))';
+		% % 			% optionally add interpolated delays ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		% % 			add_interpolated_delays = true;
+		% % 			if add_interpolated_delays
+		% % 				interpolation_delays =  [ [7:7:365-7] ...
+		% % 					[7*52:7:7*80]]; % <--- future
+		% % 				combined = [unique_delays_from_data interpolation_delays];
+		% % 				obj.observedData.uniqueDelays = sort(unique(combined));
+		% % 			else
+		% % 				obj.observedData.uniqueDelays = [0.01 unique_delays_from_data];
+		% % 			end
+		% % 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		% %
+		% % 			% Now we create a lookup table [participants,tials] full of
+		% % 			% integers which point to the index of the delay value in
+		% % 			% uniqueDelays
+		% % 			temp = obj.observedData.DB;
+		% % 			for n=1: numel(obj.observedData.uniqueDelays)
+		% % 				delay = obj.observedData.uniqueDelays(n);
+		% % 				temp(obj.observedData.DB==delay) = n;
+		% % 			end
+		% % 			obj.observedData.delayLookUp = temp;
+		% 		end
+		
+		
+		
+		
 		function obj = conductInference(obj, samplerType, varargin)
 			% conductInference  Runs inference
 			%   conductInference(samplerType, varargin)
-
+			
 			% TODO: get the observed data from the raw group data here.
 			samplerType     = lower(samplerType);
-
+			
 			obj.modelFile = makeProbModelsPath(obj.modelType, samplerType);
-
+			
 			p = inputParser;
 			p.FunctionName = mfilename;
 			p.addRequired('samplerType',@ischar);
@@ -69,13 +156,13 @@ classdef Model
 			p.addParameter('chains',[], @isscalar)
 			p.addParameter('shouldPlot','no',@(x) any(strcmp(x,{'yes','no'})));
 			p.parse(samplerType, varargin{:});
-
+			
 			% add p.Results fields into obj
 			fields = fieldnames(p.Results);
 			for n=1:numel(fields)
 				obj.(fields{n}) = p.Results.(fields{n});
 			end
-
+			
 			%% Create sampler object --------------------------------------
 			% Use of external function "samplerFactory" means this class is
 			% closed for modification, but open to extension.
@@ -84,7 +171,7 @@ classdef Model
 			% If we passed in "samplerFactory" as a function then we could
 			% make it easier to completely swap out types of samplers.
 			obj.sampler = samplerFactory(p.Results.samplerType, obj.modelFile);
-
+			
 			% update with user-provided params
 			if ~isempty(p.Results.mcmcSamples)
 				obj.sampler.mcmcparams.nsamples = p.Results.mcmcSamples;
@@ -92,44 +179,44 @@ classdef Model
 			if ~isempty(p.Results.chains)
 				obj.sampler.mcmcparams.nchains = p.Results.chains;
 			end
-
-
+			
+			
 			%% Ask the Sampler to do MCMC sampling, return an mcmcObject ~~~~~~~~~~~~~~~~~
-			obj.mcmc = obj.sampler.conductInference( obj , obj.data );
+			obj.mcmc = obj.sampler.conductInference( obj );
 			%obj.mcmc = mcmcObject;
 			% fix/check ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
+			
 			%% Post-sampling activities (unique to a given model sub-class)
 			% If a model has additional measures that need to be calculated
 			% from the MCMC samples, then we can do by overriding this
 			% method in the model sub-classes
 			obj = obj.calcDerivedMeasures();
-
+			
 			%% Post-sampling activities (common to all models)
 			obj.postPred = calcPosteriorPredictive( obj );
 			%try
-				obj.mcmc.convergenceSummary(obj.saveFolder, obj.data.IDname)
+			obj.mcmc.convergenceSummary(obj.saveFolder, obj.data.IDname)
 			%catch
 			%	beep
 			%	warning('**** convergenceSummary FAILED ****.\nProbably because things are not finished for STAN.')
 			%end
 			%try
-				obj.exportParameterEstimates();
+			obj.exportParameterEstimates();
 			%catch
 			%	warning('*** exportParameterEstimates() FAILED ***')
 			%	beep
 			%end
-
+			
 			obj = obj.packageUpDataForPlotting();
-
+			
 			if ~strcmp(obj.shouldPlot,'no')
 				obj.plot()
 			end
-
+			
 			obj.tellUserAboutPublicMethods()
 		end
-
-
+		
+		
 		function finalTable = exportParameterEstimates(obj, varargin)
 			%% Create table of parameter estimates
 			paramEstimateTable = obj.mcmc.exportParameterEstimates(...
@@ -175,17 +262,17 @@ classdef Model
 			finalTable = join(paramEstimateTable, postPredTable,...
 				'Keys','RowNames');
 			display(finalTable)
-
+			
 			%% Export table to textfile
 			fname = ['parameterEstimates_Posterior_' obj.pointEstimateType '.csv'];
 			savePath = fullfile('figs',obj.saveFolder,fname);
 			exportTable(finalTable, savePath);
-
+			
 			%% Store the table
 			obj.parameterEstimateTable = finalTable;
-
+			
 		end
-
+		
 		function obj = packageUpDataForPlotting(obj)
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			% Package up all information into data structures to be sent
@@ -193,7 +280,7 @@ classdef Model
 			% The idea being we can just pass pdata(n) to a plot function
 			% and it has all the information it needs
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			for p = 1:obj.data.nParticipants 
+			for p = 1:obj.data.nParticipants
 				% gather data from this experiment
 				obj.pdata(p).data.totalTrials				= obj.data.totalTrials;
 				obj.pdata(p).IDname							= obj.data.IDname{p};
@@ -236,55 +323,55 @@ classdef Model
 				obj.alldata.(var{:}).pointEstVal	= tempPE;
 			end
 			% TODO: Do we have group info in obj.alldata?
-
-% 			% CREATE GROUP LEVEL ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-% 			if ~isempty (obj.varList.groupLevel)
-% 				p=numel(obj.pdata)+1;
-% 
-% 				group_level_prior_variables = cellfun(...
-% 					@getPriorOfVariable,...
-% 					obj.varList.groupLevel,...
-% 					'UniformOutput',false );
-% 
-% 				% strip the '_group' off of variablenames
-% 				for n=1:numel(obj.varList.groupLevel)
-% 					temp=regexp(obj.varList.groupLevel{n},'_','split');
-% 					groupLevelVarName{n} = temp{1};
-% 				end
-% 				[pSamples] = obj.mcmc.getSamples(obj.varList.groupLevel);
-% 				% flatten
-% 				for n=1:numel(obj.varList.groupLevel)
-% 					pSamples.(obj.varList.groupLevel{n}) = vec(pSamples.(obj.varList.groupLevel{n}));
-% 				end
-% 				% rename
-% 				pSamples = renameFields(...
-% 					pSamples,...
-% 					obj.varList.groupLevel,...
-% 					groupLevelVarName);
-% 
-% 				% gather data from this experiment
-% 				obj.pdata(p).data.totalTrials = obj.data.totalTrials;
-% 				obj.pdata(p).IDname = 'GROUP';
-% 				obj.pdata(p).data.trialsForThisParticant = 0;
-% 				obj.pdata(p).data.rawdata = [];
-% 				% gather posterior prediction info
-% 				obj.pdata(p).postPred = [];
-% 				% gather mcmc samples
-% 				obj.pdata(p).samples.posterior	= pSamples;
-% 				obj.pdata(p).samples.prior		= obj.mcmc.getSamples(obj.varList.participantLevelPriors);
-% 				% other misc info
-% 				obj.pdata(p).pointEstimateType = obj.pointEstimateType;
-% 				obj.pdata(p).discountFuncType = obj.discountFuncType;
-% 				obj.pdata(p).saveFolder = obj.saveFolder;
-% 				obj.pdata(p).modelType = obj.modelType;
-% 			end
+			
+			% 			% CREATE GROUP LEVEL ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			% 			if ~isempty (obj.varList.groupLevel)
+			% 				p=numel(obj.pdata)+1;
+			%
+			% 				group_level_prior_variables = cellfun(...
+			% 					@getPriorOfVariable,...
+			% 					obj.varList.groupLevel,...
+			% 					'UniformOutput',false );
+			%
+			% 				% strip the '_group' off of variablenames
+			% 				for n=1:numel(obj.varList.groupLevel)
+			% 					temp=regexp(obj.varList.groupLevel{n},'_','split');
+			% 					groupLevelVarName{n} = temp{1};
+			% 				end
+			% 				[pSamples] = obj.mcmc.getSamples(obj.varList.groupLevel);
+			% 				% flatten
+			% 				for n=1:numel(obj.varList.groupLevel)
+			% 					pSamples.(obj.varList.groupLevel{n}) = vec(pSamples.(obj.varList.groupLevel{n}));
+			% 				end
+			% 				% rename
+			% 				pSamples = renameFields(...
+			% 					pSamples,...
+			% 					obj.varList.groupLevel,...
+			% 					groupLevelVarName);
+			%
+			% 				% gather data from this experiment
+			% 				obj.pdata(p).data.totalTrials = obj.data.totalTrials;
+			% 				obj.pdata(p).IDname = 'GROUP';
+			% 				obj.pdata(p).data.trialsForThisParticant = 0;
+			% 				obj.pdata(p).data.rawdata = [];
+			% 				% gather posterior prediction info
+			% 				obj.pdata(p).postPred = [];
+			% 				% gather mcmc samples
+			% 				obj.pdata(p).samples.posterior	= pSamples;
+			% 				obj.pdata(p).samples.prior		= obj.mcmc.getSamples(obj.varList.participantLevelPriors);
+			% 				% other misc info
+			% 				obj.pdata(p).pointEstimateType = obj.pointEstimateType;
+			% 				obj.pdata(p).discountFuncType = obj.discountFuncType;
+			% 				obj.pdata(p).saveFolder = obj.saveFolder;
+			% 				obj.pdata(p).modelType = obj.modelType;
+			% 			end
 		end
-
+		
 		function obj = conditionalDiscountRates(obj, reward, plotFlag)
 			% Extract and plot P( log(k) | reward)
 			warning('THIS METHOD IS A TOTAL MESS - PLAN THIS AGAIN FROM SCRATCH')
 			obj.conditionalDiscountRates_ParticipantLevel(reward, plotFlag)
-
+			
 			if plotFlag
 				removeYaxis
 				title(sprintf('$P(\\log(k)|$reward=$\\pounds$%d$)$', reward),'Interpreter','latex')
@@ -292,18 +379,18 @@ classdef Model
 				axis square
 			end
 		end
-
+		
 		% MIDDLE-MAN METHODS ================================================
-
+		
 		function obj = plotMCMCchains(obj,vars)
 			obj.mcmc.plotMCMCchains(vars);
 		end
-
+		
 	end
-
-
+	
+	
 	methods (Access = private)
-
+		
 		function varNames = extractLevelNVarNames(obj, N)
 			varNames={};
 			for var = each(fieldnames(obj.variables))
@@ -312,7 +399,7 @@ classdef Model
 				end
 			end
 		end
-
+		
 		function bool = isGroupLevelModel(obj)
 			% we determine if the model has group level parameters by checking if
 			% we have a 'groupLevel' subfield in the varList.
@@ -320,11 +407,11 @@ classdef Model
 				bool = ~isempty(obj.varList.groupLevel);
 			end
 		end
-
+		
 		function tellUserAboutPublicMethods(obj)
 			methods(obj)
 		end
-
+		
 		function conditionalDiscountRates_ParticipantLevel(obj, reward, plotFlag)
 			nParticipants = obj.data.nParticipants;
 			%count=1;
@@ -344,31 +431,31 @@ classdef Model
 			% 				'VariableNames',{'logK_posteriorMode'},...)
 			% 				'RowNames', num2cell([1:nParticipants]) )
 		end
-
+		
 	end
 	
 	% **********************************************************************
 	% PLOTTING *************************************************************
 	% **********************************************************************
-
+	
 	methods (Access = public)
-
+		
 		function plot(obj)
 			%% Plot experiment-level + group-level (if applicable) figures.
 			for n = 1:numel(obj.pdata)
 				% multi-panel fig
 				obj.plotFuncs.participantFigFunc( obj.pdata(n) );
-
+				
 				% corner plot of posterior
 				plotTriPlotWrapper( obj.pdata(n) )
-
+				
 				% posterior prediction plot
 				figPosteriorPrediction( obj.pdata(n) )
 			end
-
+			
 			%% Plot functions that use data from all participants
 			figUnivariateSummary( obj.alldata )
-
+			
 			% TODO: pass in obj.alldata or obj.pdata rather than all these args
 			obj.plotFuncs.clusterPlotFunc(...
 				obj.mcmc,...
@@ -378,7 +465,7 @@ classdef Model
 				obj.saveFolder,...
 				obj.modelType)
 		end
-
+		
 	end
-
+	
 end

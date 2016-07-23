@@ -9,7 +9,6 @@ classdef DataClass
 		IDname
 		participantLevel  % structure containing a table for each participant
 		groupTable        % table of A, DA, B, DB, R, ID, PA, PB
-		observedData % TODO make this  in model?
 	end
 
 
@@ -83,10 +82,7 @@ classdef DataClass
 			% Add info for extra (unobserved) participant
 			n = obj.nParticipants + 1;
 			obj.IDname{n} = 'GROUP';
-			%obj.nParticipants = obj.nParticipants + 1;
 
-			
-			obj = obj.constructObservedDataForMCMC();
 			obj = obj.exportGroupDataFile();
 			obj.totalTrials = height(obj.groupTable);
 
@@ -125,101 +121,7 @@ classdef DataClass
 			dataStruct.trialsForThisParticant =...
 				obj.participantLevel(participant).trialsForThisParticant;
 		end
-
-		function obj = constructObservedDataForMCMC(obj)
-			% construct a structure of ObservedData which will provide input to
-			% the MCMC process.
-
-			%% Create long data table of all participants
-			all_data = obj.participantLevel(:).table;
-			if obj.nParticipants>1
-				for p=2:obj.nParticipants
-					all_data = [all_data; obj.participantLevel(p).table];
-				end
-			end
-
-			%% Convert each column of table in to a field of a structure
-			% As wanted by JAGS
-			variables = all_data.Properties.VariableNames;
-			for varname = variables
-				obj.observedData.(varname{:}) = all_data.(varname{:});
-			end
-
-			% add on an unobserved participant
-			obj.observedData.participantIndexList = [unique(all_data.ID) ; max(unique(all_data.ID))+1];
-			
-			% **** Observed variables below are for the Gaussian Random Walk model ****
-			obj.observedData.uniqueDelays = sort(unique(obj.observedData.DB))';
-			obj.observedData.delayLookUp = obj.calcDelayLookup();
-		end
-
-		function delayLookUp = calcDelayLookup(obj)
-			delayLookUp = obj.observedData.DB;
-			for n=1: numel(obj.observedData.uniqueDelays)
-				delay = obj.observedData.uniqueDelays(n);
-				delayLookUp(obj.observedData.DB==delay) = n;
-			end
-		end
-
-% 		function constructObservedDataForMCMC(obj)
-% 			% construct a structure of ObservedData which will provide input to
-% 			% the MCMC process.
-% 			maxTrials = max([obj.participantLevel.trialsForThisParticant]);
-%
-% 			fields = {'A', 'B', 'DA', 'DB', 'PA', 'PB', 'R'};
-% 			for p=1:obj.nParticipants
-% 				Tp = obj.participantLevel(p).trialsForThisParticant;
-% 				for n = 1:numel(fields)
-% 					% makes vector of NaN's
-% 					obj.observedData.(fields{n})(p,:) = NaN(1, maxTrials);
-% 					% fills up with data
-% 					obj.observedData.(fields{n})(p,[1:Tp]) =...
-% 						obj.participantLevel(p).table.(fields{n});
-% 				end
-% 			end
-%
-% 			obj.observedData.T = [obj.participantLevel.trialsForThisParticant];
-% 			%obj.observedData.nParticipants = obj.nParticipants;
-% 			obj.observedData.participantIndexList = [1:obj.nParticipants];
-%
-%
-%
-% 			% **** Observed variables below are for the Gaussian Random
-% 			% Walk model ****
-% 			%
-% 			% Create a lookup table, for a given [participant,trial], this
-% 			% is the index of DB.
-%
-% 			% If we insert additional delays into this vector
-% 			% (uniqueDelays), then the model will interpolate between the
-% 			% delays that we have data for.
-% 			% If you do not want to interpolate any delays, then set :
-% 			%  interpolation_delays = []
-%
-% % 			unique_delays_from_data = sort(unique(obj.observedData.DB))';
-% % 			% optionally add interpolated delays ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-% % 			add_interpolated_delays = true;
-% % 			if add_interpolated_delays
-% % 				interpolation_delays =  [ [7:7:365-7] ...
-% % 					[7*52:7:7*80]]; % <--- future
-% % 				combined = [unique_delays_from_data interpolation_delays];
-% % 				obj.observedData.uniqueDelays = sort(unique(combined));
-% % 			else
-% % 				obj.observedData.uniqueDelays = [0.01 unique_delays_from_data];
-% % 			end
-% % 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-% %
-% % 			% Now we create a lookup table [participants,tials] full of
-% % 			% integers which point to the index of the delay value in
-% % 			% uniqueDelays
-% % 			temp = obj.observedData.DB;
-% % 			for n=1: numel(obj.observedData.uniqueDelays)
-% % 				delay = obj.observedData.uniqueDelays(n);
-% % 				temp(obj.observedData.DB==delay) = n;
-% % 			end
-% % 			obj.observedData.delayLookUp = temp;
-% 		end
-
+		
  	end
 
 
