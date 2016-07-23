@@ -38,7 +38,6 @@ model{
     for (d in 2:length(uniqueDelays)) {
       discountFraction[p,d] ~ dnorm( discountFraction[p,d-1], 1/ (varInc_group * (uniqueDelays[d]-uniqueDelays[d-1]))) T(0,)
     }
-
   }
 
   for (t in 1:length(ID)) {
@@ -50,18 +49,5 @@ model{
       R[t]         ~ dbern(P[t]) # likelihood of actual response
       Rpostpred[t] ~ dbern(P[t]) # posterior predicted response
   }
-
-
-
-
-
-
-  # GENERATED QUANTITIES ########################
-  alpha_group_prior   ~ dexp(0.01)
-  epsilon_group_prior ~ dbeta(1.1 , 10.9)
-
-  precision_prior ~ dgamma(0.001, 0.001)
-  # avoid divide by zero errors?
-  varInc_group_prior  <- 1 / (precision_prior+0.00000000001)
 
 }

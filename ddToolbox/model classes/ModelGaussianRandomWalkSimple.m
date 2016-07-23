@@ -20,17 +20,11 @@ classdef ModelGaussianRandomWalkSimple < Model
 
 			% 'Decorate' the object with appropriate plot functions
 			obj.plotFuncs.participantFigFunc = @figParticipantLOGK;
-			obj.plotFuncs.plotGroupLevel = @plotGroupLevelStuff;
 			obj.plotFuncs.clusterPlotFunc = @() []; % null func
 
 			obj.varList.participantLevel = {'discountFraction'};
-			obj.varList.groupLevel = {'alpha_group','epsilon_group','varInc_group'};
-			obj.varList.groupLevelPriors = {'alpha_group_prior','epsilon_group_prior','varInc_group_prior'};
 			% TODO: remove varList as a property of Model base class.
-			obj.varList.monitored = {'discountFraction',...
-				'alpha_group','epsilon_group', 'varInc_group',...
-				'alpha_group_prior', 'epsilon_group_prior', 'varInc_group_prior',...
-				'Rpostpred', 'P'};
+			obj.varList.monitored = {'discountFraction', 'Rpostpred', 'P'};
 
 		end
 
@@ -42,7 +36,7 @@ classdef ModelGaussianRandomWalkSimple < Model
 			nUniqueDelays = numel(obj.data.observedData.uniqueDelays);
 
 			for chain = 1:obj.sampler.mcmcparams.nchains
-				obj.initialParams(chain).discountFraction = normrnd(1, 0.1, [nParticipants,nUniqueDelays]);
+				obj.initialParams(chain).discountFraction = normrnd(1, 0.1, [nParticipants+1, nUniqueDelays]);
 			end
 			% TODO: have a function called discountFraction and pass it
 			% into this initialParam maker loop
