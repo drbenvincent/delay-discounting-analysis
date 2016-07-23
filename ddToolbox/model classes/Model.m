@@ -153,21 +153,14 @@ classdef Model
 			% Calculate point estimates of perceptPredicted. use the point
 			% estimate type that the user specified
 			pointEstFunc = str2func(obj.pointEstimateType);
-			for p=1:obj.data.nParticipants
-				percentPredicted(p,1) = pointEstFunc( obj.postPred(p).percentPredictedDistribution );
-			end
+			percentPredicted = cellfun(pointEstFunc, {obj.postPred.percentPredictedDistribution})';
+			
 			% Check if HDI of percentPredicted overlaps with 0.5
-			% Using mcmc-utils-matlab package
-			for p=1:obj.data.nParticipants
-				[HDI] = mcmc.HDIofSamples(...
-					obj.postPred(p).percentPredictedDistribution,...
-					0.95);
-				if HDI(1)<0.5
-					warning_percent_predicted(p,1) = true;
-				else
-					warning_percent_predicted(p,1) = false;
-				end
-			end
+			hdiFunc = @(x) mcmc.HDIofSamples(x, 0.95); % Using mcmc-utils-matlab package
+			warningFunc = @(x) x(1) < 0.5;
+			warnOnHDI = @(x) warningFunc( hdiFunc(x) );
+			warning_percent_predicted = cellfun( warnOnHDI, {obj.postPred.percentPredictedDistribution})';
+			
 			% make table
 			postPredTable = table(ppScore,...
 				percentPredicted,...
@@ -238,13 +231,12 @@ classdef Model
 			obj.alldata.saveFolder	= obj.saveFolder;
 			obj.alldata.modelType	= obj.modelType;
 			for var = obj.alldata.variables
-				templow		= obj.mcmc.getStats('hdi_low',var{:});
-				temphigh	= obj.mcmc.getStats('hdi_high',var{:});
-				tempPE		= obj.mcmc.getStats(obj.pointEstimateType, var{:});
-				obj.alldata.(var{:}).hdi			= [templow, temphigh];
-				obj.alldata.(var{:}).pointEstVal	= tempPE;
+				obj.alldata.(var{:}).hdi =...
+					[obj.mcmc.getStats('hdi_low',var{:}),...
+					obj.mcmc.getStats('hdi_high',var{:})];
+				obj.alldata.(var{:}).pointEstVal =...
+					obj.mcmc.getStats(obj.pointEstimateType, var{:});
 			end
-			% TODO: Do we have group info in obj.alldata?
 		end
 		
 		function obj = conditionalDiscountRates(obj, reward, plotFlag)
@@ -272,6 +264,7 @@ classdef Model
 	methods (Access = private)
 		
 		function varNames = extractLevelNVarNames(obj, N)
+			error('is this dead code?')
 			varNames={};
 			for var = each(fieldnames(obj.variables))
 				if obj.variables.(var).analysisFlag == N
@@ -281,6 +274,7 @@ classdef Model
 		end
 		
 		function bool = isGroupLevelModel(obj)
+			error('is this dead code?')
 			% we determine if the model has group level parameters by checking if
 			% we have a 'groupLevel' subfield in the varList.
 			if isfield(obj.varList,'groupLevel')
@@ -329,7 +323,7 @@ classdef Model
 			for varname = variables
 				observedData.(varname{:}) = all_data.(varname{:});
 			end
-			
+
 			% add on an unobserved participant
 			observedData.participantIndexList = [unique(all_data.ID) ; max(unique(all_data.ID))+1];
 			
@@ -391,17 +385,9 @@ classdef Model
 	methods (Access = public)
 		
 		function plot(obj)
-			%% Plot experiment-level + group-level (if applicable) figures.
-			for n = 1:numel(obj.pdata)
-				% multi-panel fig
-				obj.plotFuncs.participantFigFunc( obj.pdata(n) );
-				
-				% corner plot of posterior
-				plotTriPlotWrapper( obj.pdata(n) )
-				
-				% posterior prediction plot
-				figPosteriorPrediction( obj.pdata(n) )
-			end
+			arrayfun(obj.plotFuncs.participantFigFunc, obj.pdata) % multi-panel fig
+			arrayfun(@plotTriPlotWrapper, obj.pdata) % corner plot of posterior
+			arrayfun(@figPosteriorPrediction, obj.pdata) % posterior prediction plot
 			
 			%% Plot functions that use data from all participants
 			figUnivariateSummary( obj.alldata )
