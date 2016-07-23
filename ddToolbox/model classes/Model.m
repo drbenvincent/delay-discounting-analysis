@@ -107,18 +107,18 @@ classdef Model
 
 			%% Post-sampling activities (common to all models)
 			obj.postPred = calcPosteriorPredictive( obj );
-			try
+			%try
 				obj.mcmc.convergenceSummary(obj.saveFolder, obj.data.IDname)
-			catch
-				beep
-				warning('**** convergenceSummary FAILED ****.\nProbably because things are not finished for STAN.')
-			end
-			try
+			%catch
+			%	beep
+			%	warning('**** convergenceSummary FAILED ****.\nProbably because things are not finished for STAN.')
+			%end
+			%try
 				obj.exportParameterEstimates();
-			catch
-				warning('*** exportParameterEstimates() FAILED ***')
-				beep
-			end
+			%catch
+			%	warning('*** exportParameterEstimates() FAILED ***')
+			%	beep
+			%end
 
 			obj = obj.packageUpDataForPlotting();
 
@@ -133,8 +133,7 @@ classdef Model
 		function finalTable = exportParameterEstimates(obj, varargin)
 			%% Create table of parameter estimates
 			paramEstimateTable = obj.mcmc.exportParameterEstimates(...
-				obj.varList.participantLevel,...
-				obj.varList.groupLevel,...
+				obj.varList.participantLevel,... %obj.varList.groupLevel,...
 				obj.data.IDname,...
 				obj.saveFolder,...
 				obj.pointEstimateType,...
@@ -164,8 +163,14 @@ classdef Model
 			postPredTable = table(ppScore,...
 				percentPredicted,...
 				warning_percent_predicted,...
-				'RowNames',obj.data.IDname);
-
+				'RowNames',obj.data.IDname(1:end-1)); %<---- TODO replace with get method
+			% add extra row of NaN's on the bottom for the unobserved
+			% participant
+			unobserved = table(NaN, NaN, NaN,...
+				'RowNames',obj.data.IDname(end),...
+				'VariableNames', postPredTable.Properties.VariableNames)
+			postPredTable = [postPredTable; unobserved];
+			
 			%% Combine the tables
 			finalTable = join(paramEstimateTable, postPredTable,...
 				'Keys','RowNames');
@@ -188,7 +193,7 @@ classdef Model
 			% The idea being we can just pass pdata(n) to a plot function
 			% and it has all the information it needs
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			for p = 1:obj.data.nParticipants
+			for p = 1:obj.data.nParticipants 
 				% gather data from this experiment
 				obj.pdata(p).data.totalTrials				= obj.data.totalTrials;
 				obj.pdata(p).IDname							= obj.data.IDname{p};
@@ -198,13 +203,26 @@ classdef Model
 				obj.pdata(p).postPred						= obj.postPred(p);
 				% gather mcmc samples
 				obj.pdata(p).samples.posterior	= obj.mcmc.getSamplesAtIndex(p, obj.varList.participantLevel);
-				obj.pdata(p).samples.prior		= obj.mcmc.getSamples(obj.varList.participantLevelPriors);
+				%obj.pdata(p).samples.prior		= obj.mcmc.getSamples(obj.varList.participantLevelPriors);
 				% other misc info
 				obj.pdata(p).pointEstimateType	= obj.pointEstimateType;
 				obj.pdata(p).discountFuncType	= obj.discountFuncType;
 				obj.pdata(p).saveFolder			= obj.saveFolder;
 				obj.pdata(p).modelType			= obj.modelType;
 			end
+			% add info for unobserved participant ~~~~~
+			p = obj.data.nParticipants + 1;
+			obj.pdata(p).data.totalTrials = [];
+			obj.pdata(p).IDname				= obj.data.IDname{p};
+			obj.pdata(p).data.trialsForThisParticant = [];
+			obj.pdata(p).data.rawdata		= [];
+			obj.pdata(p).postPred			= [];
+			obj.pdata(p).samples.posterior	= obj.mcmc.getSamplesAtIndex(p, obj.varList.participantLevel);
+			obj.pdata(p).pointEstimateType	= obj.pointEstimateType;
+			obj.pdata(p).discountFuncType	= obj.discountFuncType;
+			obj.pdata(p).saveFolder			= obj.saveFolder;
+			obj.pdata(p).modelType			= obj.modelType;
+			
 			% gather cross-experiment data for univariate stats
 			obj.alldata.variables	= obj.varList.participantLevel;
 			obj.alldata.IDnames		= obj.data.IDname;
@@ -219,47 +237,47 @@ classdef Model
 			end
 			% TODO: Do we have group info in obj.alldata?
 
-			% CREATE GROUP LEVEL ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			if ~isempty (obj.varList.groupLevel)
-				p=numel(obj.pdata)+1;
-
-				group_level_prior_variables = cellfun(...
-					@getPriorOfVariable,...
-					obj.varList.groupLevel,...
-					'UniformOutput',false );
-
-				% strip the '_group' off of variablenames
-				for n=1:numel(obj.varList.groupLevel)
-					temp=regexp(obj.varList.groupLevel{n},'_','split');
-					groupLevelVarName{n} = temp{1};
-				end
-				[pSamples] = obj.mcmc.getSamples(obj.varList.groupLevel);
-				% flatten
-				for n=1:numel(obj.varList.groupLevel)
-					pSamples.(obj.varList.groupLevel{n}) = vec(pSamples.(obj.varList.groupLevel{n}));
-				end
-				% rename
-				pSamples = renameFields(...
-					pSamples,...
-					obj.varList.groupLevel,...
-					groupLevelVarName);
-
-				% gather data from this experiment
-				obj.pdata(p).data.totalTrials = obj.data.totalTrials;
-				obj.pdata(p).IDname = 'GROUP';
-				obj.pdata(p).data.trialsForThisParticant = 0;
-				obj.pdata(p).data.rawdata = [];
-				% gather posterior prediction info
-				obj.pdata(p).postPred = [];
-				% gather mcmc samples
-				obj.pdata(p).samples.posterior	= pSamples;
-				obj.pdata(p).samples.prior		= obj.mcmc.getSamples(obj.varList.participantLevelPriors);
-				% other misc info
-				obj.pdata(p).pointEstimateType = obj.pointEstimateType;
-				obj.pdata(p).discountFuncType = obj.discountFuncType;
-				obj.pdata(p).saveFolder = obj.saveFolder;
-				obj.pdata(p).modelType = obj.modelType;
-			end
+% 			% CREATE GROUP LEVEL ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% 			if ~isempty (obj.varList.groupLevel)
+% 				p=numel(obj.pdata)+1;
+% 
+% 				group_level_prior_variables = cellfun(...
+% 					@getPriorOfVariable,...
+% 					obj.varList.groupLevel,...
+% 					'UniformOutput',false );
+% 
+% 				% strip the '_group' off of variablenames
+% 				for n=1:numel(obj.varList.groupLevel)
+% 					temp=regexp(obj.varList.groupLevel{n},'_','split');
+% 					groupLevelVarName{n} = temp{1};
+% 				end
+% 				[pSamples] = obj.mcmc.getSamples(obj.varList.groupLevel);
+% 				% flatten
+% 				for n=1:numel(obj.varList.groupLevel)
+% 					pSamples.(obj.varList.groupLevel{n}) = vec(pSamples.(obj.varList.groupLevel{n}));
+% 				end
+% 				% rename
+% 				pSamples = renameFields(...
+% 					pSamples,...
+% 					obj.varList.groupLevel,...
+% 					groupLevelVarName);
+% 
+% 				% gather data from this experiment
+% 				obj.pdata(p).data.totalTrials = obj.data.totalTrials;
+% 				obj.pdata(p).IDname = 'GROUP';
+% 				obj.pdata(p).data.trialsForThisParticant = 0;
+% 				obj.pdata(p).data.rawdata = [];
+% 				% gather posterior prediction info
+% 				obj.pdata(p).postPred = [];
+% 				% gather mcmc samples
+% 				obj.pdata(p).samples.posterior	= pSamples;
+% 				obj.pdata(p).samples.prior		= obj.mcmc.getSamples(obj.varList.participantLevelPriors);
+% 				% other misc info
+% 				obj.pdata(p).pointEstimateType = obj.pointEstimateType;
+% 				obj.pdata(p).discountFuncType = obj.discountFuncType;
+% 				obj.pdata(p).saveFolder = obj.saveFolder;
+% 				obj.pdata(p).modelType = obj.modelType;
+% 			end
 		end
 
 		function obj = conditionalDiscountRates(obj, reward, plotFlag)

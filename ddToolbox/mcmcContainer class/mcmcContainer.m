@@ -41,38 +41,25 @@ classdef mcmcContainer < handle
 		function obj = mcmcContainer()
 		end
 
-
 		function paramEstimateTable = exportParameterEstimates(obj,...
-				level1varNames, level2varNames, IDname, saveFolder, pointEstimateType, varargin)
+				level1varNames, IDname, saveFolder, pointEstimateType, varargin)
 			p = inputParser;
 			p.FunctionName = mfilename;
 			p.addRequired('level1varNames',@iscellstr);
-			p.addRequired('level2varNames',@iscellstr);
 			p.addRequired('IDname',@iscellstr);
 			p.addRequired('saveFolder',@ischar);
 			p.addParameter('includeGroupEstimates',false, @islogical);
 			p.addParameter('includeCI',false, @islogical);
-			p.parse(level1varNames, level2varNames, IDname, saveFolder,  varargin{:});
+			p.parse(level1varNames, IDname, saveFolder,  varargin{:});
 
 			% TODO: act on includeCI preference. Ie get, or do not get CI's.
-
-
+			
 			%% participant level
 			colHeaderNames = createColumnHeaders(level1varNames, p.Results.includeCI, pointEstimateType);
 			paramEstimates = obj.grabParamEstimates(level1varNames, p.Results.includeCI, pointEstimateType);
 			paramEstimateTable = array2table(paramEstimates,...
 				'VariableNames',colHeaderNames,...
 				'RowNames', IDname);
-
-			%% group level
-			if ~isempty(level2varNames) && p.Results.includeGroupEstimates
-				paramEstimates = obj.grabParamEstimates(level2varNames, p.Results.includeCI, pointEstimateType);
-				group_level = array2table(paramEstimates,...
-					'VariableNames',colHeaderNames,...
-					'RowNames', {'GroupLevelInference'});
-				% append tables
-				paramEstimateTable = [paramEstimateTable ; group_level];
-			end
 
 			function colHeaderNames = createColumnHeaders(varNames,getCI, pointEstimateType)
 				colHeaderNames = {};
@@ -98,7 +85,7 @@ classdef mcmcContainer < handle
 			function MCMCParameterReport()
 				logInfo(fid,'MCMC inference was conducted with %d chains. ', obj.mcmcparams.nchains)
 				logInfo(fid,'The first %d samples were discarded from each chain, ', obj.mcmcparams.nburnin )
-				logInfo(fid,'resulting in a total of %d samples to approximate the posterior distribution. ', obj.mcmcparams.totalSamples )
+				logInfo(fid,'resulting in a total of %d samples to approximate the posterior distribution. ', obj.mcmcparams.nsamples )
 				logInfo(fid,'\n\n\n');
 			end
 

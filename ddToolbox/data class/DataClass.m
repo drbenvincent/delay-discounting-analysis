@@ -80,7 +80,12 @@ classdef DataClass
  				obj.participantLevel(n).table = participantTable;
  				obj.participantLevel(n).trialsForThisParticant = height(participantTable);
 			end
+			% Add info for extra (unobserved) participant
+			n = obj.nParticipants + 1;
+			obj.IDname{n} = 'GROUP';
+			%obj.nParticipants = obj.nParticipants + 1;
 
+			
 			obj = obj.constructObservedDataForMCMC();
 			obj = obj.exportGroupDataFile();
 			obj.totalTrials = height(obj.groupTable);
@@ -140,8 +145,9 @@ classdef DataClass
 				obj.observedData.(varname{:}) = all_data.(varname{:});
 			end
 
-			obj.observedData.participantIndexList = unique(all_data.ID);
-
+			% add on an unobserved participant
+			obj.observedData.participantIndexList = [unique(all_data.ID) ; max(unique(all_data.ID))+1];
+			
 			% **** Observed variables below are for the Gaussian Random Walk model ****
 			obj.observedData.uniqueDelays = sort(unique(obj.observedData.DB))';
 			obj.observedData.delayLookUp = obj.calcDelayLookup();

@@ -5,7 +5,7 @@ function figPosteriorPrediction(data)
 
 % skip if there are no trials (eg if we are dealing with group-level
 % inferences)
-if data.data.trialsForThisParticant==0
+if isempty(data.data.trialsForThisParticant)
 	return
 end
 
