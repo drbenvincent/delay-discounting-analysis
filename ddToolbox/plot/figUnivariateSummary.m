@@ -14,6 +14,10 @@ figure(34)
 variables = alldata.variables;
 participantNames = alldata.IDnames;
 
+% just get the participant ID. We assume the filenames are coded as:
+% <ID>-<other information>.txt
+participantNames = getPrefixOfString(participantNames,'-');
+
 for v = 1:numel(variables)
 	subplot(numel(variables),1,v)
 	plotErrorBars({participantNames{:}},...
@@ -25,7 +29,9 @@ for v = 1:numel(variables)
 end
 
 %% Scale width of figure
-set(gcf,'Position',[100 200 100+numel(participantNames)*50 500])
+screen_size = get(0,'ScreenSize');
+fig_width = min(screen_size(3), 100+numel(participantNames)*20);
+set(gcf,'Position',[100 200 fig_width 1000])
 
 %% Export
 %latex_fig(16, 5, 5)
