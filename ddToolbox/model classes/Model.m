@@ -51,13 +51,7 @@ classdef Model
 				obj.(fields{n}) = p.Results.(fields{n});
 			end
 			
-			% Upon model (base-class) construction, we are going to call
-			% the method to construct the observed data which will be
-			% passed into the mcmc sampler.
-			% This method is defined here (in the base class) but can be
-			% over-ridden by model sub-classes.
-			all_data_table = data.get_all_data_table();
-			obj.observedData = obj.constructObservedDataForMCMC(all_data_table);
+			obj.observedData = obj.constructObservedDataForMCMC( data.get_all_data_table() );
 		end
 		
 		
@@ -65,15 +59,12 @@ classdef Model
 			% conductInference  Runs inference
 			%   conductInference(samplerType, varargin)
 			
-			% TODO: get the observed data from the raw group data here.
 			samplerType     = lower(samplerType);
-			
-			obj.modelFile = makeProbModelsPath(obj.modelType, samplerType);
+			obj.modelFile	= makeProbModelsPath(obj.modelType, samplerType);
 			
 			p = inputParser;
 			p.FunctionName = mfilename;
 			p.addRequired('samplerType',@ischar);
-			% additional user-supplied preferences
 			p.addParameter('mcmcSamples',[], @isscalar)
 			p.addParameter('chains',[], @isscalar)
 			p.addParameter('shouldPlot','no',@(x) any(strcmp(x,{'yes','no'})));
@@ -102,35 +93,23 @@ classdef Model
 				obj.sampler.mcmcparams.nchains = p.Results.chains;
 			end
 			
-			
-			%% Ask the Sampler to do MCMC sampling, return an mcmcObject ~~~~~~~~~~~~~~~~~
+			%% Do MCMC sampling, return an mcmcObject ---------------------
 			obj.mcmc = obj.sampler.conductInference( obj );
-			%obj.mcmc = mcmcObject;
-			% fix/check ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 			
-			%% Post-sampling activities (unique to a given model sub-class)
+			%% Post-sampling activities (for model sub-classes) -----------
 			% If a model has additional measures that need to be calculated
 			% from the MCMC samples, then we can do by overriding this
 			% method in the model sub-classes
 			obj = obj.calcDerivedMeasures();
 			
-			%% Post-sampling activities (common to all models)
+			%% Post-sampling activities (common to all models) ------------
 			obj.postPred = calcPosteriorPredictive( obj );
-			%try
+			
 			obj.mcmc.convergenceSummary(obj.saveFolder, obj.data.IDname)
-			%catch
-			%	beep
-			%	warning('**** convergenceSummary FAILED ****.\nProbably because things are not finished for STAN.')
-			%end
-			%try
-			obj.exportParameterEstimates();
-			%catch
-			%	warning('*** exportParameterEstimates() FAILED ***')
-			%	beep
-			%end
 			
-			obj = obj.packageUpDataForPlotting();
-			
+			obj.parameterEstimateTable = obj.exportParameterEstimates();
+
+			[obj.pdata, obj.alldata] = obj.packageUpDataForPlotting();
 			if ~strcmp(obj.shouldPlot,'no')
 				obj.plot()
 			end
@@ -166,8 +145,7 @@ classdef Model
 				percentPredicted,...
 				warning_percent_predicted,...
 				'RowNames',obj.data.IDname(1:end-1)); %<---- TODO replace with get method
-			% add extra row of NaN's on the bottom for the unobserved
-			% participant
+			% add extra row of NaN's on the bottom for the unobserved participant
 			unobserved = table(NaN, NaN, NaN,...
 				'RowNames',obj.data.IDname(end),...
 				'VariableNames', postPredTable.Properties.VariableNames)
@@ -181,14 +159,10 @@ classdef Model
 			%% Export table to textfile
 			fname = ['parameterEstimates_Posterior_' obj.pointEstimateType '.csv'];
 			savePath = fullfile('figs',obj.saveFolder,fname);
-			exportTable(finalTable, savePath);
-			
-			%% Store the table
-			obj.parameterEstimateTable = finalTable;
-			
+			exportTable(finalTable, savePath);			
 		end
 		
-		function obj = packageUpDataForPlotting(obj)
+		function [pdata, alldata] = packageUpDataForPlotting(obj)
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			% Package up all information into data structures to be sent
 			% off to plotting functions.
@@ -197,46 +171,64 @@ classdef Model
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			for p = 1:obj.data.nParticipants
 				% gather data from this experiment
-				obj.pdata(p).data.totalTrials				= obj.data.totalTrials;
-				obj.pdata(p).IDname							= obj.data.IDname{p};
-				obj.pdata(p).data.trialsForThisParticant	= obj.data.participantLevel(p).trialsForThisParticant;
-				obj.pdata(p).data.rawdata					= obj.data.participantLevel(p).table;
+				pdata(p).data.totalTrials				= obj.data.totalTrials;
+				pdata(p).IDname							= obj.data.IDname{p};
+				pdata(p).data.trialsForThisParticant	= obj.data.participantLevel(p).trialsForThisParticant;
+				pdata(p).data.rawdata					= obj.data.participantLevel(p).table;
 				% gather posterior prediction info
-				obj.pdata(p).postPred						= obj.postPred(p);
+				pdata(p).postPred						= obj.postPred(p);
 				% gather mcmc samples
-				obj.pdata(p).samples.posterior	= obj.mcmc.getSamplesAtIndex(p, obj.varList.participantLevel);
+				pdata(p).samples.posterior	= obj.mcmc.getSamplesAtIndex(p, obj.varList.participantLevel);
 				%obj.pdata(p).samples.prior		= obj.mcmc.getSamples(obj.varList.participantLevelPriors);
 				% other misc info
-				obj.pdata(p).pointEstimateType	= obj.pointEstimateType;
-				obj.pdata(p).discountFuncType	= obj.discountFuncType;
-				obj.pdata(p).saveFolder			= obj.saveFolder;
-				obj.pdata(p).modelType			= obj.modelType;
+				pdata(p).pointEstimateType	= obj.pointEstimateType;
+				pdata(p).discountFuncType	= obj.discountFuncType;
+				pdata(p).saveFolder			= obj.saveFolder;
+				pdata(p).modelType			= obj.modelType;
 			end
 			% add info for unobserved participant ~~~~~
 			p = obj.data.nParticipants + 1;
-			obj.pdata(p).data.totalTrials = [];
-			obj.pdata(p).IDname				= obj.data.IDname{p};
-			obj.pdata(p).data.trialsForThisParticant = [];
-			obj.pdata(p).data.rawdata		= [];
-			obj.pdata(p).postPred			= [];
-			obj.pdata(p).samples.posterior	= obj.mcmc.getSamplesAtIndex(p, obj.varList.participantLevel);
-			obj.pdata(p).pointEstimateType	= obj.pointEstimateType;
-			obj.pdata(p).discountFuncType	= obj.discountFuncType;
-			obj.pdata(p).saveFolder			= obj.saveFolder;
-			obj.pdata(p).modelType			= obj.modelType;
+			pdata(p).data.totalTrials = [];
+			pdata(p).IDname				= obj.data.IDname{p};
+			pdata(p).data.trialsForThisParticant = [];
+			pdata(p).data.rawdata		= [];
+			pdata(p).postPred			= [];
+			pdata(p).samples.posterior	= obj.mcmc.getSamplesAtIndex(p, obj.varList.participantLevel);
+			pdata(p).pointEstimateType	= obj.pointEstimateType;
+			pdata(p).discountFuncType	= obj.discountFuncType;
+			pdata(p).saveFolder			= obj.saveFolder;
+			pdata(p).modelType			= obj.modelType;
 			
 			% gather cross-experiment data for univariate stats
-			obj.alldata.variables	= obj.varList.participantLevel;
-			obj.alldata.IDnames		= obj.data.IDname;
-			obj.alldata.saveFolder	= obj.saveFolder;
-			obj.alldata.modelType	= obj.modelType;
-			for var = obj.alldata.variables
-				obj.alldata.(var{:}).hdi =...
+			alldata.variables	= obj.varList.participantLevel;
+			alldata.IDnames		= obj.data.IDname;
+			alldata.saveFolder	= obj.saveFolder;
+			alldata.modelType	= obj.modelType;
+			for var = alldata.variables
+				alldata.(var{:}).hdi =...
 					[obj.mcmc.getStats('hdi_low',var{:}),...
 					obj.mcmc.getStats('hdi_high',var{:})];
-				obj.alldata.(var{:}).pointEstVal =...
+				alldata.(var{:}).pointEstVal =...
 					obj.mcmc.getStats(obj.pointEstimateType, var{:});
 			end
+		end
+		
+		function plot(obj)
+			arrayfun(obj.plotFuncs.participantFigFunc, obj.pdata) % multi-panel fig
+			arrayfun(@plotTriPlotWrapper, obj.pdata) % corner plot of posterior
+			arrayfun(@figPosteriorPrediction, obj.pdata) % posterior prediction plot
+			
+			%% Plot functions that use data from all participants
+			figUnivariateSummary( obj.alldata )
+			
+			% TODO: pass in obj.alldata or obj.pdata rather than all these args
+			obj.plotFuncs.clusterPlotFunc(...
+				obj.mcmc,...
+				obj.data,...
+				[1 0 0],...
+				obj.pointEstimateType,...
+				obj.saveFolder,...
+				obj.modelType)
 		end
 		
 		function obj = conditionalDiscountRates(obj, reward, plotFlag)
@@ -262,25 +254,6 @@ classdef Model
 	
 	
 	methods (Access = private)
-		
-		function varNames = extractLevelNVarNames(obj, N)
-			error('is this dead code?')
-			varNames={};
-			for var = each(fieldnames(obj.variables))
-				if obj.variables.(var).analysisFlag == N
-					varNames{end+1} = var;
-				end
-			end
-		end
-		
-		function bool = isGroupLevelModel(obj)
-			error('is this dead code?')
-			% we determine if the model has group level parameters by checking if
-			% we have a 'groupLevel' subfield in the varList.
-			if isfield(obj.varList,'groupLevel')
-				bool = ~isempty(obj.varList.groupLevel);
-			end
-		end
 		
 		function tellUserAboutPublicMethods(obj)
 			methods(obj)
@@ -312,35 +285,12 @@ classdef Model
 	methods (Static)
 		
 		function observedData = constructObservedDataForMCMC(all_data)
+			% This function can be overridden by model subclasses, however
+			% we still expect them to call this model baseclass method to
+			% set up the core data (unlikely to change across models).
 			assert(istable(all_data), 'all_data must be a table')
 			observedData = table2struct(all_data, 'ToScalar',true);
 			observedData.participantIndexList = [unique(all_data.ID) ; max(unique(all_data.ID))+1];
-		end
-		
-	end
-	
-	% **********************************************************************
-	% PLOTTING *************************************************************
-	% **********************************************************************
-	
-	methods (Access = public)
-		
-		function plot(obj)
-			arrayfun(obj.plotFuncs.participantFigFunc, obj.pdata) % multi-panel fig
-			arrayfun(@plotTriPlotWrapper, obj.pdata) % corner plot of posterior
-			arrayfun(@figPosteriorPrediction, obj.pdata) % posterior prediction plot
-			
-			%% Plot functions that use data from all participants
-			figUnivariateSummary( obj.alldata )
-			
-			% TODO: pass in obj.alldata or obj.pdata rather than all these args
-			obj.plotFuncs.clusterPlotFunc(...
-				obj.mcmc,...
-				obj.data,...
-				[1 0 0],...
-				obj.pointEstimateType,...
-				obj.saveFolder,...
-				obj.modelType)
 		end
 		
 	end
