@@ -24,7 +24,7 @@ classdef ModelGaussianRandomWalkSimple < Model
 
 			obj.varList.participantLevel = {'discountFraction'};
 			% TODO: remove varList as a property of Model base class.
-			obj.varList.monitored = {'discountFraction', 'Rpostpred', 'P'};
+			obj.varList.monitored = {'discountFraction', 'alpha', 'epsilon', 'varInc', 'Rpostpred', 'P'};
 
 		end
 
@@ -36,7 +36,7 @@ classdef ModelGaussianRandomWalkSimple < Model
 			nUniqueDelays = numel(obj.observedData.uniqueDelays);
 
 			for chain = 1:obj.sampler.mcmcparams.nchains
-				obj.initialParams(chain).discountFraction = normrnd(1, 0.1, [nParticipants+1, nUniqueDelays]);
+				obj.initialParams(chain).discountFraction = normrnd(1, 0.1, [nParticipants, nUniqueDelays]);
 			end
 			% TODO: have a function called discountFraction and pass it
 			% into this initialParam maker loop
@@ -58,17 +58,16 @@ classdef ModelGaussianRandomWalkSimple < Model
 
 		function plot(obj) % overriding from Model base class
 			close all
+            warning('SORT THIS PLOT FUNCTION OUT!')
 
 			%% Corner plot of group-level params
-			posteriorSamples = obj.mcmc.getSamplesAsMatrix({'varInc_group','alpha_group','epsilon_group'});
-			priorSamples = obj.mcmc.getSamplesAsMatrix({'varInc_group_prior','alpha_group_prior','epsilon_group_prior'});
-			varLabals = {'varInc_group','alpha_group','epsilon_group'};
+			posteriorSamples = obj.mcmc.getSamplesAsMatrix({'varInc','alpha','epsilon'});
+			%priorSamples = obj.mcmc.getSamplesAsMatrix({'varInc_group_prior','alpha_group_prior','epsilon_group_prior'});
+			varLabals = {'varInc','alpha','epsilon'};
 
 			figure(87)
-			import mcmc.*
-			TriPlotSamples(posteriorSamples,...
+			mcmc.TriPlotSamples(posteriorSamples,...
 				varLabals,...
-				'PRIOR', priorSamples,...
 				'pointEstimateType','mean');
 			drawnow
 			myExport('triplot',...
@@ -120,7 +119,7 @@ classdef ModelGaussianRandomWalkSimple < Model
 			catch
 				personStruct.participantName = participantName;
 			end
-			personStruct.delays = obj.data.observedData.uniqueDelays;
+			personStruct.delays = obj.observedData.uniqueDelays;
 			personStruct.dfSamples = obj.extractDiscountFunctionSamples(p);
 			personStruct.data = obj.data.getParticipantData(p);
 			personStruct.AUCsamples = obj.AUC_DATA(p).AUCsamples;
@@ -137,6 +136,23 @@ classdef ModelGaussianRandomWalkSimple < Model
 		end
 
 
+		function observedData = constructObservedDataForMCMC(obj, all_data)
+			%% Call superclass method to prepare the core data
+			observedData = constructObservedDataForMCMC@Model(obj, all_data);
+
+			%% Now add model specific observed data
+			observedData.uniqueDelays = sort(unique(observedData.DB))';
+			observedData.delayLookUp = calcDelayLookup();
+
+			function delayLookUp = calcDelayLookup()
+				delayLookUp = observedData.DB;
+				for n=1: numel(observedData.uniqueDelays)
+					delay = observedData.uniqueDelays(n);
+					delayLookUp(observedData.DB==delay) = n;
+				end
+			end
+		end
+
 	end
 
 
@@ -147,7 +163,11 @@ classdef ModelGaussianRandomWalkSimple < Model
 		end
 
 		function obj = calcAUCscores(obj)
-			delays = obj.data.observedData.uniqueDelays;
+			
+			% TODO: TOTAL FUDGE. THIS SHOULD BE DONE ELSEWHERE
+			obj.observedData = obj.constructObservedDataForMCMC( obj.data.get_all_data_table() ); % TODO: do this in base-class
+			
+			delays = obj.observedData.uniqueDelays;
 			for p=1:obj.data.nParticipants
 				dfSamples = obj.extractDiscountFunctionSamples(p);
 				obj.AUC_DATA(p).AUCsamples = calculateAUC(delays,dfSamples, false);
@@ -156,26 +176,11 @@ classdef ModelGaussianRandomWalkSimple < Model
 		end
 
 	end
-	
+
 	methods (Static)
-		
-		function observedData = constructObservedDataForMCMC(all_data)
-			%% Call superclass method to prepare the core data
-			observedData = constructObservedDataForMCMC@Model(all_data);
-			
-			%% Now add model specific observed data
-			observedData.uniqueDelays = sort(unique(observedData.DB))';
-			observedData.delayLookUp = calcDelayLookup();
-			
-			function delayLookUp = calcDelayLookup()
-				delayLookUp = observedData.DB;
-				for n=1: numel(observedData.uniqueDelays)
-					delay = observedData.uniqueDelays(n);
-					delayLookUp(observedData.DB==delay) = n;
-				end
-			end
-		end
-		
+
+
+
 		%% FYI
 		% 			% **** Observed variables below are for the Gaussian Random
 		% 			% Walk model ****
@@ -212,7 +217,7 @@ classdef ModelGaussianRandomWalkSimple < Model
 		% % 			end
 		% % 			obj.observedData.delayLookUp = temp;
 		% 		end
-		
+
 	end
 
 end

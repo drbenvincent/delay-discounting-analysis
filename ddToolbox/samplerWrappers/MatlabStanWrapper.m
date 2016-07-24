@@ -17,8 +17,9 @@ classdef MatlabStanWrapper < SamplerWrapper
 		end
 
 
-		function mcmcFitObject = conductInference(obj, ~, data)
+		function mcmcFitObject = conductInference(obj, model, data)
 			%% preparation for MCMC sampling
+			model.observedData = model.constructObservedDataForMCMC( model.data.get_all_data_table() ); % TODO: do this in base-class
 			% Prepare data
 			obj = obj.setObservedValues(data); %<---- TODO: remove
 			% create Stan Model

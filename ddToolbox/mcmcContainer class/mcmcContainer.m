@@ -57,9 +57,15 @@ classdef mcmcContainer < handle
 			%% participant level
 			colHeaderNames = createColumnHeaders(level1varNames, p.Results.includeCI, pointEstimateType);
 			paramEstimates = obj.grabParamEstimates(level1varNames, p.Results.includeCI, pointEstimateType);
-			paramEstimateTable = array2table(paramEstimates,...
-				'VariableNames',colHeaderNames,...
-				'RowNames', IDname);
+			if numel(colHeaderNames) ~= size(paramEstimates,2)
+				warning('CANT DEAL WITH VECTORS OF PARAMS FOR PEOPLE YET')
+				beep
+				paramEstimateTable=[];
+			else
+				paramEstimateTable = array2table(paramEstimates,...
+					'VariableNames',colHeaderNames,...
+					'RowNames', IDname);
+			end
 
 			function colHeaderNames = createColumnHeaders(varNames,getCI, pointEstimateType)
 				colHeaderNames = {};

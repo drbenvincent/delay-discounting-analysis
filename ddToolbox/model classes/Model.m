@@ -16,7 +16,7 @@ classdef Model
 		parameterEstimateTable
 		pdata		% experiment level data for plotting
 		alldata		% cross-experiment level data for plotting
-		observedData % TODO make this  in model?
+		
 	end
 	
 	properties (Hidden)
@@ -30,6 +30,7 @@ classdef Model
 		initialParams
 		shouldPlot
 		unobservedParticipantExist
+		observedData % TODO make this  in model?
 	end
 	
 	methods(Abstract, Access = protected)
@@ -76,9 +77,7 @@ classdef Model
 			for n=1:numel(fields)
 				obj.(fields{n}) = p.Results.(fields{n});
 			end
-			
-			obj.observedData = obj.constructObservedDataForMCMC( obj.data.get_all_data_table() );
-			
+						
 			%% Create sampler object --------------------------------------
 			% Use of external function "samplerFactory" means this class is
 			% closed for modification, but open to extension.
@@ -110,8 +109,12 @@ classdef Model
 			
 			obj.mcmc.convergenceSummary(obj.saveFolder, obj.data.IDname)
 			
-			obj.parameterEstimateTable = obj.exportParameterEstimates();
-
+			try
+				obj.parameterEstimateTable = obj.exportParameterEstimates();
+			catch
+				warning('exportParameterEstimates() FAILED')
+			end
+			
 			[obj.pdata, obj.alldata] = obj.packageUpDataForPlotting();
 			if ~strcmp(obj.shouldPlot,'no')
 				obj.plot()
@@ -258,6 +261,24 @@ classdef Model
 			end
 		end
 		
+		function observedData = constructObservedDataForMCMC(obj, all_data)
+			% This function can be overridden by model subclasses, however
+			% we still expect them to call this model baseclass method to
+			% set up the core data (unlikely to change across models).
+			assert(istable(all_data), 'all_data must be a table')
+			observedData = table2struct(all_data, 'ToScalar',true);
+			
+			% Pass in a vector of [1,...P] where P is the number of
+			% participants. BUT hierarchical models will have an extra
+			% (unobserved) participant, so we need to be sensitive to
+			% whether this exists of not
+			if obj.unobservedParticipantExist
+				observedData.participantIndexList = [unique(all_data.ID) ; max(unique(all_data.ID))+1];
+			else
+				observedData.participantIndexList = unique(all_data.ID);
+			end
+		end
+		
 		% MIDDLE-MAN METHODS ================================================
 		
 		function obj = plotMCMCchains(obj,vars)
@@ -291,26 +312,6 @@ classdef Model
 			% 			logkCondition = array2table([posteriorMode'],...
 			% 				'VariableNames',{'logK_posteriorMode'},...)
 			% 				'RowNames', num2cell([1:nParticipants]) )
-		end
-		
-
-		
-		function observedData = constructObservedDataForMCMC(obj, all_data)
-			% This function can be overridden by model subclasses, however
-			% we still expect them to call this model baseclass method to
-			% set up the core data (unlikely to change across models).
-			assert(istable(all_data), 'all_data must be a table')
-			observedData = table2struct(all_data, 'ToScalar',true);
-			
-			% Pass in a vector of [1,...P] where P is the number of
-			% participants. BUT hierarchical models will have an extra
-			% (unobserved) participant, so we need to be sensitive to
-			% whether this exists of not
-			if obj.unobservedParticipantExist
-				observedData.participantIndexList = [unique(all_data.ID) ; max(unique(all_data.ID))+1];
-			else
-				observedData.participantIndexList = unique(all_data.ID);
-			end
 		end
 		
 	end
