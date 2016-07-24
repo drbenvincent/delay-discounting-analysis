@@ -60,16 +60,17 @@ model.plot()
 
 
 
-
-%% Load data
-datapath = '~/git-local/delay-discounting-analysis/demo/data';
-filesToAnalyse = allFilesInFolder(datapath, 'txt');
-myData = DataClass(datapath, 'files', filesToAnalyse);
-
-
-%% Do the analysis, loop over each of the models
 sampler = 'stan';
-listOfModels = {'ModelSeparateLogK','ModelMixedLogK','ModelHierarchicalLogK'};
+chains = 4;
+numberOfMCMCSamples = 10^3;
+
+listOfModels = {... % 'ModelHierarchicalME_MVNORM'
+	'ModelHierarchicalME',... %'ModelHierarchicalMEUpdated',...
+	'ModelMixedME',...
+	'ModelSeparateME',...
+	'ModelHierarchicalLogK',...
+	'ModelMixedLogK',...
+	'ModelSeparateLogK'};
 
 for n = 1:numel(listOfModels)
 	modelName = listOfModels{n};
@@ -81,12 +82,10 @@ for n = 1:numel(listOfModels)
 	
 	all_models(n).model = all_models(n).model.conductInference(...
 		sampler,... % {'jags', 'stan'}
-		'mcmcSamples',10^4,...
-		'shouldPlot','no'); % TODO: add mcmcparams over-ride
+		'mcmcSamples',numberOfMCMCSamples,...
+		'chains',chains,...
+		'shouldPlot','no');
 end
-
-
-
 
 
 
@@ -132,7 +131,7 @@ grw = ModelGaussianRandomWalkSimple('JAGS', myData,...
 	'mcmcSamples', numberOfMCMCSamples,...
 	'chains', chains,...
 	'shouldPlot','all');
-grw = grw.conductInference(); 
+grw = grw.conductInference();
 
 
 
@@ -141,20 +140,20 @@ grw = grw.conductInference();
 % bin/stansummary /Users/benvincent/git-local/delay-discounting-analysis/demo/output-1.csv
 %
 % sModel.sampler.stanFit.print()
-% 
+%
 % sModel.sampler.stanFit
 % clf
 % sModel.sampler.stanFit.print()
-% 
+%
 % temp = sModel.sampler.stanFit.extract('pars','logk_group').logk_group;
 % hist(temp,100)
-% 
+%
 % temp = sModel.sampler.stanFit.extract('pars','epsilon_group').epsilon_group;
 % hist(temp,100)
-% 
+%
 % temp = sModel.sampler.stanFit.extract('pars','alpha_group').alpha_group;
 % hist(temp,100)
-% 
+%
 % % EXTRACT ALL
 % all = sModel.sampler.stanFit.extract('permuted',true);
 %stanModel.sampler.stanFit.traceplot() % use with care
