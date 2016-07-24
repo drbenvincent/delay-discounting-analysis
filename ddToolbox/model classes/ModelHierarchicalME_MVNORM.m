@@ -14,24 +14,15 @@ classdef ModelHierarchicalME_MVNORM < Model
 			obj.modelType			= 'hierarchicalMEmvnorm';
 			obj.discountFuncType	= 'me';
 
-			%obj.plotFuncs.participantFigFunc = @figParticipantMEmvnorm;
+			% Decorate the object with appropriate plot functions
 			obj.plotFuncs.participantFigFunc = @figParticipantME;
-			%obj.plotFuncs.plotGroupLevel = @plotGroupLevelStuff;
 			obj.plotFuncs.clusterPlotFunc = @plotMCclusters;
 
-			%% Create variables
-			% TODO: These lists could be removed with some work
+			% Create variables
 			obj.varList.participantLevel = {'m','c','alpha','epsilon'};
-			%obj.varList.participantLevelPriors = {'m_group_prior', 'c_group_prior','alpha_group_prior','epsilon_group_prior'};
-			%obj.varList.groupLevel = {'mc_mu', 'mc_sigma','m_group', 'c_group', 'r', 'alpha_group', 'epsilon_group'};
-
-			% These need to be kept for JAGS
-			obj.varList.monitored = {'r', 'm', 'c', 'mc_mu', 'mc_sigma','alpha','epsilon',...
-				'alpha_group','epsilon_group', 'm_group','c_group', ...
-				'epsilon_group_prior','alpha_group_prior',... % 'm_group_prior', 'c_group_prior',
-				'groupW','groupK','groupALPHAmu','groupALPHAsigma',... % 'groupMmu', 'groupMsigma', 'groupCmu','groupCsigma',
-				'groupW_prior','groupK_prior','groupALPHAmu_prior','groupALPHAsigma_prior',... % 'groupMmu_prior', 'groupMsigma_prior', 'groupCmu_prior','groupCsigma_prior',
-				'Rpostpred', 'P'};
+			obj.varList.monitored = {'r', 'm', 'c', 'mc_mu', 'mc_sigma','alpha','epsilon', 'Rpostpred', 'P'};
+			
+			obj = obj.addUnobservedParticipant('GROUP');
 		end
 
 
@@ -42,8 +33,8 @@ classdef ModelHierarchicalME_MVNORM < Model
 				%obj.initialParams(chain).groupMsigma	= rand*10;
 				%obj.initialParams(chain).groupCmu		= normrnd(0,30);
 				%obj.initialParams(chain).groupCsigma	= rand*10;
-				obj.initialParams(chain).r				= -0.2;
-				obj.initialParams(chain).mc_mu			= [(rand-0.5)*2 randn*10];
+				obj.initialParams(chain).r				= -0.2 + randn/10;
+				obj.initialParams(chain).mc_mu			= [(rand-0.5)*2 randn*5];
 				obj.initialParams(chain).groupW			= rand;
 				obj.initialParams(chain).groupALPHAmu	= rand*10;
 				obj.initialParams(chain).groupALPHAsigma= rand*10;

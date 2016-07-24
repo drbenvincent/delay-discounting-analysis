@@ -14,31 +14,19 @@ classdef ModelMixedME < Model
 			obj.modelType			= 'mixedME';
 			obj.discountFuncType	= 'me';
 
+			% Decorate the object with appropriate plot functions
 			obj.plotFuncs.participantFigFunc = @figParticipantME;
-			%obj.plotFuncs.plotGroupLevel = @plotGroupLevelStuff;
 			obj.plotFuncs.clusterPlotFunc = @plotMCclusters;
 
-			%% Create variables
-			% TODO: These lists could be removed with some work
-			obj.varList.participantLevel = {'m', 'c','alpha','epsilon'};
-			%obj.varList.participantLevelPriors = {'m_group_prior', 'c_group_prior','alpha_group_prior','epsilon_group_prior'};
-			%obj.varList.groupLevel = {'m_group', 'c_group','alpha_group','epsilon_group'};
-
-			% These need to be kept for JAGS
-			obj.varList.monitored = {'m', 'c','alpha','epsilon',...
-				'groupMmu', 'groupMsigma', 'groupCmu','groupCsigma','groupW','groupK','groupALPHAmu','groupALPHAsigma',...
-				'groupW_prior','groupK_prior','groupALPHAmu_prior','groupALPHAsigma_prior',... % 'groupMmu_prior', 'groupMsigma_prior', 'groupCmu_prior','groupCsigma_prior',
-				'Rpostpred', 'P'};
+			% Create variables
+			obj.varList.participantLevel = {'m', 'c', 'alpha', 'epsilon'};
+			obj.varList.monitored = {'m', 'c','alpha','epsilon', 'Rpostpred', 'P'};
 		end
 
 
 		function obj = setInitialParamValues(obj)
             % Generate initial values of the leaf nodes
 			for chain = 1:obj.sampler.mcmcparams.nchains
-				%obj.initialParams(chain).groupMmu		= normrnd(-0.243,10);
-				%obj.initialParams(chain).groupMsigma	= rand*10;
-				%obj.initialParams(chain).groupCmu		= normrnd(0,30);
-				%obj.initialParams(chain).groupCsigma	= rand*10;
 				obj.initialParams(chain).groupW			= rand;
 				obj.initialParams(chain).groupALPHAmu	= rand*10;
 				obj.initialParams(chain).groupALPHAsigma= rand*10;

@@ -1,42 +1,26 @@
 model{
 
-  # Separate and independent priors for each participant.
-  for (p in participantIndexList){
-      m[p]       ~ dnorm(-0.243, 1/(0.072^2))
-      c[p]       ~ dnorm(0, 1/(1000^2))
-      alpha[p]   ~ dexp(0.01)
-      epsilon[p] ~ dbeta(1.1, 10.9) T(,0.5)
-  }
+for (p in participantIndexList){
+	m[p]       ~ dnorm(-0.243, 1/(0.072^2))
+	c[p]       ~ dnorm(0, 1/(1000^2))
+	alpha[p]   ~ dexp(0.01)
+	epsilon[p] ~ dbeta(1.1, 10.9) T(,0.5)
+}
 
-  for (t in 1:length(ID)) {
-      # MAGNITUDE EFFECT
-      # what is log(k) on this trial?
-      lkA[t] <- m[ID[t]]*log(abs(A[t]))+c[ID[t]]
-      lkB[t] <- m[ID[t]]*log(abs(B[t]))+c[ID[t]]
+for (t in 1:length(ID)) {
+	# MAGNITUDE EFFECT: what is log(k) on this trial?
+	lkA[t] <- m[ID[t]]*log(abs(A[t]))+c[ID[t]]
+	lkB[t] <- m[ID[t]]*log(abs(B[t]))+c[ID[t]]
 
-      # calculate present subjective value for each reward
-      VA[t] <- A[t] / (1+(exp(lkA[t])*DA[t]))
-      VB[t] <- B[t] / (1+(exp(lkB[t])*DB[t]))
+	# calculate present subjective value for each reward
+	VA[t] <- A[t] / (1+(exp(lkA[t])*DA[t]))
+	VB[t] <- B[t] / (1+(exp(lkB[t])*DB[t]))
 
-      # Psychometric function
-      P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * phi( (VB[t]-VA[t]) / alpha[ID[t]] )
+	# Psychometric function
+	P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * phi( (VB[t]-VA[t]) / alpha[ID[t]] )
 
-      # response likelihood
-      R[t]         ~ dbern(P[t]) # likelihood of actual response
-      Rpostpred[t] ~ dbern(P[t]) # posterior predicted response
-  }
-
-
-
-  # #############################################
-  # GENERATED QUANTITIES ########################
-
-  # These priors are separated from the data and are only included here
-	# so that we can plot the prior distributions. They are duplicated from
-	# the priors above.
-  m_prior       ~  dnorm(-0.243, 1/(100^2))
-  c_prior       ~  dnorm(0, 1/(1000^2))
-  alpha_prior   ~  dexp(0.01)
-  epsilon_prior ~  dbeta(1.1, 10.9) T(,0.5)
+	R[t]         ~ dbern(P[t]) # likelihood of actual response
+	Rpostpred[t] ~ dbern(P[t]) # posterior predicted response
+}
 
 }

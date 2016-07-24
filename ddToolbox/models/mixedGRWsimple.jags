@@ -1,7 +1,5 @@
 # Discount rate modelled as a Gaussian Random Walk :)
 
-
-
 # **** WARNING ****
 # We also assume reward A is immediate, ie DA=0
 
@@ -20,34 +18,34 @@
 
 model{
 
-  # group-level priors
-  alpha_group   ~ dexp(0.01)
-  epsilon_group ~ dbeta(1.1 , 10.9)
+# group-level priors
+alpha_group   ~ dexp(0.01)
+epsilon_group ~ dbeta(1.1 , 10.9)
 
-  # varInc_group: This is the variance of the Gaussian Random Walk per unit of time.
-  # We can set this to a particular value, but we have no a priori knowledge of what this should be. So instead we infer a distribution over it. We specify a prior over precision, then take the reciprocal to have our variance.
-  precision ~ dgamma(0.001, 0.001)
-  varInc_group <- 1 / precision
+# varInc_group: This is the variance of the Gaussian Random Walk per unit of time.
+# We can set this to a particular value, but we have no a priori knowledge of what this should be. So instead we infer a distribution over it. We specify a prior over precision, then take the reciprocal to have our variance.
+precision ~ dgamma(0.001, 0.001)
+varInc_group <- 1 / precision
 
-  # GAUSSIAN RANDOM WALK PRIORS
-  for (p in participantIndexList){
-    # Special treatment for the first delay
-    discountFraction[p,1] ~ dnorm(1, 1/(uniqueDelays[1]*varInc_group)) T(0,)
+# GAUSSIAN RANDOM WALK PRIORS
+for (p in participantIndexList){
+	# Special treatment for the first delay
+	discountFraction[p,1] ~ dnorm(1, 1/(uniqueDelays[1]*varInc_group)) T(0,)
 
-    # subsequent priors are centered on previous discount fraction, and variance is a function of duration since last delay
-    for (d in 2:length(uniqueDelays)) {
-      discountFraction[p,d] ~ dnorm( discountFraction[p,d-1], 1/ (varInc_group * (uniqueDelays[d]-uniqueDelays[d-1]))) T(0,)
-    }
-  }
+	# subsequent priors are centered on previous discount fraction, and variance is a function of duration since last delay
+	for (d in 2:length(uniqueDelays)) {
+		discountFraction[p,d] ~ dnorm( discountFraction[p,d-1], 1/ (varInc_group * (uniqueDelays[d]-uniqueDelays[d-1]))) T(0,)
+	}
+}
 
-  for (t in 1:length(ID)) {
-      VA[t] <- A[t] # NO DELAY FOR A
-      VB[t] <- (B[t]) * discountFraction[ID[t], delayLookUp[t] ]
-      P[t] <- epsilon_group + (1-2*epsilon_group) * phi( (VB[t]-VA[t]) / alpha_group )
+for (t in 1:length(ID)) {
+	VA[t] <- A[t] # NO DELAY FOR A
+	VB[t] <- (B[t]) * discountFraction[ID[t], delayLookUp[t] ]
 
-      # response likelihood
-      R[t]         ~ dbern(P[t]) # likelihood of actual response
-      Rpostpred[t] ~ dbern(P[t]) # posterior predicted response
-  }
+	P[t] <- epsilon_group + (1-2*epsilon_group) * phi( (VB[t]-VA[t]) / alpha_group )
+
+	R[t]         ~ dbern(P[t]) # likelihood of actual response
+	Rpostpred[t] ~ dbern(P[t]) # posterior predicted response
+}
 
 }

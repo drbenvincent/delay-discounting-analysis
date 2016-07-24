@@ -16,26 +16,17 @@ classdef ModelHierarchicalLogK < Model
 
 			% 'Decorate' the object with appropriate plot functions
 			obj.plotFuncs.participantFigFunc = @figParticipantLOGK;
-			%obj.plotFuncs.plotGroupLevel = @plotGroupLevelStuff;
 			obj.plotFuncs.clusterPlotFunc = @plotLOGKclusters;
 
-			%% Create variables
+			% Create variables
 			obj.varList.participantLevel = {'logk','alpha','epsilon'};
-            %obj.varList.participantLevelPriors = {'logk_group_prior','alpha_group_prior','epsilon_group_prior'};
-			%obj.varList.groupLevel = {'logk_group','alpha_group','epsilon_group'};
-			obj.varList.monitored = {'logk','alpha','epsilon',...
-				'groupLogKmu', 'groupLogKsigma',...
-				'groupW','groupK',...
-				'groupALPHAmu','groupALPHAsigma',...
-				'groupLogKmu_prior', 'groupLogKsigma_prior',...
-				'groupW_prior','groupK_prior',...
-				'groupALPHAmu_prior','groupALPHAsigma_prior',...
-				'Rpostpred', 'P'};
+			obj.varList.monitored = {'logk','alpha','epsilon', 'Rpostpred', 'P'};
+			
+			obj = obj.addUnobservedParticipant('GROUP');
 		end
 
 
 		function obj = setInitialParamValues(obj)
-			%setInitialParamValues
 			% Generate initial values of the leaf nodes
 			for chain = 1:obj.sampler.mcmcparams.nchains
 				obj.initialParams(chain).groupLogKmu		= normrnd(log(1/50),1);

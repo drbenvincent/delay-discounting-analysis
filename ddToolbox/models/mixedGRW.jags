@@ -15,88 +15,53 @@
 
 model{
 
-    alpha <- 10
-  # --------------------------------------------------------------------------
-  # Group-level hyperpriors
+alpha <- 10
 
-  # variance increase per unit time
-  varInc <- 0.005 # DO INFERENCE OVER THIS RATHER THAN SETTING ITS VALUE
+# variance increase per unit time
+varInc <- 0.005 # DO INFERENCE OVER THIS RATHER THAN SETTING ITS VALUE
 
-
-
-  # error rates (epsilon)
-  groupW          ~ dbeta(1.1, 10.9)  # mode for lapse rate
-  groupKminus2    ~ dgamma(0.5,0.5) # concentration parameter ## UPDATED SINCE PAPER
-  groupK          <- groupKminus2+2
+# error rates (epsilon)
+groupW          ~ dbeta(1.1, 10.9)  # mode for lapse rate
+groupKminus2    ~ dgamma(0.5,0.5) # concentration parameter ## UPDATED SINCE PAPER
+groupK          <- groupKminus2+2
 
 
-  # --------------------------------------------------------------------------
-  # Participant-level parameters
-  for (p in participantIndexList){
+for (p in participantIndexList){
+	epsilon[p]  ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 )
 
-    epsilon[p]  ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 )
+	# GAUSSIAN RANDOM WALK PRIORS
+	# Discount fractions are always >=0
+	# Discount fractions are normally <1, however people might anti-discount and so could be >1
 
-    # GAUSSIAN RANDOM WALK PRIORS
-    # Discount fractions are always >=0
-    # Discount fractions are normally <1, however people might anti-discount and so could be >1
+	# First delay: We assume that the discount fraction at delay=0 is equal to 1. Anything else doesn't make sense. So the first delay will be normally distributed around 1, with variance proportional to that delay.
 
-    # First delay: We assume that the discount fraction at delay=0 is equal to 1. Anything else doesn't make sense. So the first delay will be normally distributed around 1, with variance proportional to that delay.
+	discountFraction[p,1] ~ dnorm(1, 1/(uniqueDelays[1]*varInc)) T[0,]
 
-    discountFraction[p,1] ~ dnorm(1, 1/(uniqueDelays[1]*varInc)) T[0,]
+	# Subsequently: The indifference points for the rest of the delays are normally distributed around the indifference point of the previous delay, with variance proportional to the duration between those rewards (following the variance sum law).
 
-    # Subsequently: The indifference points for the rest of the delays are normally distributed around the indifference point of the previous delay, with variance proportional to the duration between those rewards (following the variance sum law).
+	for (d in 2:length(uniqueDelays)){
+		discountFraction[p,d] ~ dnorm( discountFraction[p,d-1], 1/ (varInc * (uniqueDelays[d]-uniqueDelays[d-1]))) T[0,]
+	}
 
-    for (d in 2:length(uniqueDelays)){
-        discountFraction[p,d] ~ dnorm( discountFraction[p,d-1], 1/ (varInc * (uniqueDelays[d]-uniqueDelays[d-1]))) T[0,]
-    }
+}
 
-  }
+for (t in 1:length(ID)) {
 
-  for (t in 1:length(ID)) {
+	# A is always the immediate reward
+	# B is always the delayed reward
+	# Typically |B|>|A| for discounting ????????????
 
-        # A is always the immediate reward
-        # B is always the delayed reward
-        # Typically |B|>|A| for discounting ????????????
+	# calculate present subjective value for each reward
+	VA[t] <- (A[t]) * discountFraction[ID[t], delayLookUp[t] ]
+	VB[t] <- (B[t]) * discountFraction[ID[t], delayLookUp[t] ]
 
-      # calculate present subjective value for each reward
-      VA[t] <- (A[t]) * discountFraction[ID[t], delayLookUp[t] ]
-      VB[t] <- (B[t]) * discountFraction[ID[t], delayLookUp[t] ]
+	# Psychometric function
+	# P is prob of choosing delayed reward (B).
+	# This will happen generally when VB>VA
+	P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * phi( (VB[t]-VA[t]) / alpha )
 
-      # Psychometric function
-      # P is prob of choosing delayed reward (B).
-      # This will happen generally when VB>VA
-      P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * phi( (VB[t]-VA[t]) / alpha )
-
-      # response likelihood
-      R[t]         ~ dbern(P[t]) # likelihood of actual response
-      Rpostpred[t] ~ dbern(P[t]) # posterior predicted response
-  }
-
-
-
-
-
-
-  # #############################################
-  # GENERATED QUANTITIES ########################
-
-  # Sample hyperpriors (Make sure values correspond to the priors given above)
-  # We draw these samples, that are independent from the data, so that we can plot our prior beliefs of group-level parameters. These will be determined by the actual values given in the priors.
-  # IMPORTANT - Make sure the numerical values you provide below match the priors above.
-
-
-
-#  # error rates
-#  groupW_prior          ~ dbeta(1.1, 10.9)  # mode for lapse rate
-#  groupKminus2_prior    ~ dgamma(0.5,0.5) # concentration parameter
-#  groupK_prior          <- groupKminus2_prior+2
-#
-#  # Prior beliefs about the group level (equivalently, an as yet unobserved participant). As determined by priors on parameters specified above
-  epsilon_group_prior  ~ dbeta(groupW_prior*(groupK_prior-2)+1 , (1-groupW_prior)*(groupK_prior-2)+1 )
-
-
-
-#  # Group-level posterior predictive distributions. These samples can be seen as inferences about an as yet unobserved participant who represents what we know about the parameters at the group level.
-#  epsilon_group ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 )
+	R[t]         ~ dbern(P[t]) # likelihood of actual response
+	Rpostpred[t] ~ dbern(P[t]) # posterior predicted response
+}
 
 }

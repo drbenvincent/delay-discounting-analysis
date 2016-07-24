@@ -79,9 +79,10 @@ classdef DataClass
  				obj.participantLevel(n).table = participantTable;
  				obj.participantLevel(n).trialsForThisParticant = height(participantTable);
 			end
-			% Add info for extra (unobserved) participant
-			n = obj.nParticipants + 1;
-			obj.IDname{n} = 'GROUP';
+% 			% Add info for extra (unobserved) participant ~~~~~~~~~~~~~~~~~
+% 			n = obj.nParticipants + 1;
+% 			obj.IDname{n} = 'GROUP';
+% 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 			obj = obj.exportGroupDataFile();
 			obj.totalTrials = height(obj.groupTable);
@@ -132,8 +133,18 @@ classdef DataClass
 			end
 		end
 		
- 	end
+		function obj = add_unobserved_participant(obj, str)
+			%obj.nParticipants = obj.nParticipants + 1;
+			obj.IDname{end+1} = str;
+		end
 
+	end
+	
+	methods
+		function names = get.IDname(obj)
+			names = obj.IDname;
+		end
+	end
 
 	methods(Static)
 

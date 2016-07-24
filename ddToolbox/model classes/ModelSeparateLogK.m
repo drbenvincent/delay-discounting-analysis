@@ -16,24 +16,20 @@ classdef ModelSeparateLogK < Model
 
 			% 'Decorate' the object with appropriate plot functions
 			obj.plotFuncs.participantFigFunc = @figParticipantLOGK;
-			%obj.plotFuncs.plotGroupLevel = @(x) []; % null function
 			obj.plotFuncs.clusterPlotFunc = @plotLOGKclusters;
 
-			%% Create variables
+			% Create variables
 			obj.varList.participantLevel = {'logk','alpha','epsilon'};
-			%obj.varList.participantLevelPriors = {'logk_prior','alpha_prior','epsilon_prior'};
-			%obj.varList.groupLevel = {};
-			obj.varList.monitored = {'logk','alpha','epsilon',...
-				'Rpostpred', 'P'};
+			obj.varList.monitored = {'logk','alpha','epsilon', 'Rpostpred', 'P'};
 		end
 
 		function obj = setInitialParamValues(obj)
             % Generate initial values of the leaf nodes
 			nParticipants = obj.data.nParticipants;
 			for chain = 1:obj.sampler.mcmcparams.nchains
-				obj.initialParams(chain).logk = normrnd(log(1/365),10, [nParticipants+1,1]);
-				obj.initialParams(chain).epsilon = 0.1 + rand([nParticipants+1,1])/10;
-				obj.initialParams(chain).alpha = abs(normrnd(0.01,10,[nParticipants+1,1]));
+				obj.initialParams(chain).logk = normrnd(log(1/365),10, [nParticipants,1]);
+				obj.initialParams(chain).epsilon = 0.1 + rand([nParticipants,1])/10;
+				obj.initialParams(chain).alpha = abs(normrnd(0.01,10,[nParticipants,1]));
 			end
 		end
 

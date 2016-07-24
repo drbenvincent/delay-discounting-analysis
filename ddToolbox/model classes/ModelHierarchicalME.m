@@ -14,20 +14,15 @@ classdef ModelHierarchicalME < Model
 			obj.modelType			= 'hierarchicalME';
 			obj.discountFuncType	= 'me';
 
+			% Decorate the object with appropriate plot functions
 			obj.plotFuncs.participantFigFunc = @figParticipantME;
 			obj.plotFuncs.clusterPlotFunc = @plotMCclusters;
 
-			%% Create variables
-			% TODO: These lists could be removed with some work
-			obj.varList.participantLevel = {'m', 'c','alpha','epsilon'};
-			%obj.varList.participantLevelPriors = {'m_group_prior', 'c_group_prior','alpha_group_prior','epsilon_group_prior'};
-			%obj.varList.groupLevel = {'m_group', 'c_group','alpha_group','epsilon_group'};
-
-			% These need to be kept for JAGS
-			obj.varList.monitored = {'m', 'c','alpha','epsilon',... %'m_group', 'c_group','alpha_group','epsilon_group',... %'m_group_prior', 'c_group_prior','epsilon_group_prior','alpha_group_prior',...
-				'groupMmu', 'groupMsigma', 'groupCmu','groupCsigma','groupW','groupK','groupALPHAmu','groupALPHAsigma',...
-				'groupMmu_prior', 'groupMsigma_prior', 'groupCmu_prior','groupCsigma_prior','groupW_prior','groupK_prior','groupALPHAmu_prior','groupALPHAsigma_prior',...
-				'Rpostpred', 'P'};
+			% Create variables
+			obj.varList.participantLevel = {'m', 'c', 'alpha', 'epsilon'};
+			obj.varList.monitored = {'m', 'c', 'alpha', 'epsilon', 'Rpostpred', 'P'};
+	
+			obj = obj.addUnobservedParticipant('GROUP');
 		end
 
 

@@ -1,86 +1,55 @@
 model{
 
-    # priors over group M mean
-    groupMmu_MEAN <- -0.243
-    groupMmu_PRECISION <- 1/( (0.027*10)^2)
-    # priors over group M sigma
-    groupMsigma_MEAN <- 0.072
-    groupMsigma_PRECISION <- 1/( (0.025*10)^2)
-
-    # ----------------------------------------------------------------
-    # Group-level hyperpriors (see Appendix A1 and A2 for details)
-
-    # slope (uninformative, see Appendix A)
-    groupMmu        ~ dnorm(groupMmu_MEAN, groupMmu_PRECISION)
-    groupMsigma     ~ dnorm(groupMsigma_MEAN, groupMsigma_PRECISION) T(0,)
-
-    # intercept
-    groupCmu        ~ dnorm(0, 1/(10000^2))
-    groupCsigma     ~ dunif(0, 10000)
-
-    # comparison acuity (alpha)
-    groupALPHAmu        ~ dunif(0,1000)
-    groupALPHAsigma     ~ dunif(0,1000)
-
-    # error rates (epsilon)
-    groupW          ~ dbeta(1.1, 10.9)  # mode for lapse rate
-    groupKminus2    ~ dgamma(0.01,0.01) # concentration parameter
-    groupK          <- groupKminus2+2
+# priors over group M mean
+groupMmu_MEAN <- -0.243
+groupMmu_PRECISION <- 1/( (0.027*10)^2)
+# priors over group M sigma
+groupMsigma_MEAN <- 0.072
+groupMsigma_PRECISION <- 1/( (0.025*10)^2)
 
 
-    # ---------------------------------------------------------------
-    # Participant-level parameters
-    # the +1 is for an unobserved participant, equivalent to "group-level" inferences.
-    # But m[p+1], c[p+1] etc are unattached to the data
-    for (p in participantIndexList){
-      m[p]        ~ dnorm(groupMmu, 1/(groupMsigma^2))
-      c[p]        ~ dnorm(groupCmu, 1/(groupCsigma^2))
+# slope (uninformative, see Appendix A)
+groupMmu        ~ dnorm(groupMmu_MEAN, groupMmu_PRECISION)
+groupMsigma     ~ dnorm(groupMsigma_MEAN, groupMsigma_PRECISION) T(0,)
 
-      epsilon[p]  ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
-      alpha[p]    ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
-    }
+# intercept
+groupCmu        ~ dnorm(0, 1/(10000^2))
+groupCsigma     ~ dunif(0, 10000)
 
+# comparison acuity (alpha)
+groupALPHAmu        ~ dunif(0,1000)
+groupALPHAsigma     ~ dunif(0,1000)
 
-  for (t in 1:length(ID)) {
-        # Calculate log discount rate for each reward
-        lkA[t] <- m[ID[t]]*log(abs(A[t]))+c[ID[t]]
-        lkB[t] <- m[ID[t]]*log(abs(B[t]))+c[ID[t]]
-
-        # calculate present subjective value for each reward
-        VA[t] <- A[t] / (1+(exp(lkA[t])*DA[t]))
-        VB[t] <- B[t] / (1+(exp(lkB[t])*DB[t]))
-
-        # Psychometric function
-        P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * phi( (VB[t]-VA[t]) / alpha[ID[t]] )
-
-        # response likelihood
-        R[t]         ~ dbern(P[t]) # likelihood of actual response
-        Rpostpred[t] ~ dbern(P[t]) # posterior predicted response
-    }
+# error rates (epsilon)
+groupW          ~ dbeta(1.1, 10.9)  # mode for lapse rate
+groupKminus2    ~ dgamma(0.01,0.01) # concentration parameter
+groupK          <- groupKminus2+2
 
 
-    # #############################################
-    # GENERATED QUANTITIES ########################
+for (p in participantIndexList){
+	m[p]        ~ dnorm(groupMmu, 1/(groupMsigma^2))
+	c[p]        ~ dnorm(groupCmu, 1/(groupCsigma^2))
 
-    # Sample hyperpriors (Make sure values correspond to the priors given above)
-    # We draw these samples, that are independent from the data, so that we can plot our prior beliefs of group-level parameters. These will be determined by the actual values given in the priors.
-    # IMPORTANT - Make sure the numerical values you provide below match the priors above.
+	epsilon[p]  ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
+	alpha[p]    ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
+}
 
-    # slope
-    groupMmu_prior       ~ dnorm(groupMmu_MEAN, groupMmu_PRECISION)
-    groupMsigma_prior    ~ dnorm(groupMsigma_MEAN, groupMsigma_PRECISION) T(0,)
 
-    # intercept (sample from the prior, independent from the data)
-    groupCmu_prior        ~ dnorm(0, 1/(10000^2))
-    groupCsigma_prior     ~ dunif(0, 10000)
+for (t in 1:length(ID)) {
+	# Calculate log discount rate for each reward
+	lkA[t] <- m[ID[t]]*log(abs(A[t]))+c[ID[t]]
+	lkB[t] <- m[ID[t]]*log(abs(B[t]))+c[ID[t]]
 
-    # comparison acuity
-    groupALPHAmu_prior    ~ dunif(0,1000)
-    groupALPHAsigma_prior ~ dunif(0,1000)
+	# calculate present subjective value for each reward
+	VA[t] <- A[t] / (1+(exp(lkA[t])*DA[t]))
+	VB[t] <- B[t] / (1+(exp(lkB[t])*DB[t]))
 
-    # error rates
-    groupW_prior          ~ dbeta(1.1, 10.9)  # mode for lapse rate
-    groupKminus2_prior    ~ dgamma(0.01,0.01) # concentration parameter
-    groupK_prior          <- groupKminus2_prior+2
+	# Psychometric function
+	P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * phi( (VB[t]-VA[t]) / alpha[ID[t]] )
+
+	# response likelihood
+	R[t]         ~ dbern(P[t]) # likelihood of actual response
+	Rpostpred[t] ~ dbern(P[t]) # posterior predicted response
+}
 
 }

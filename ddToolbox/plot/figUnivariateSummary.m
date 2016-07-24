@@ -9,7 +9,7 @@ function figUnivariateSummary(alldata)
 % % participant, in the light of the participant data available thus
 % % far.
 
-figure
+figure(34)
 
 variables = alldata.variables;
 participantNames = alldata.IDnames;
@@ -24,9 +24,12 @@ for v = 1:numel(variables)
 	axis([0.5 a(2)+0.5 a(3) a(4)]);
 end
 
+%% Scale width of figure
+set(gcf,'Position',[100 200 100+numel(participantNames)*50 500])
+
 %% Export
-latex_fig(16, 5, 5)
+%latex_fig(16, 5, 5)
 myExport('UnivariateSummary',...
     'saveFolder',alldata.saveFolder,...
-    'prefix', alldata.modelType)
+    'suffix', alldata.modelType)
 end

@@ -5,7 +5,7 @@ function plotLOGKclusters(mcmcContainer, data, col, pointEstimateType, saveFolde
 figure(12), clf
 
 % build samples
-for p = 1:data.nParticipants + 1
+for p = 1:numel(data.IDname)
 	logkSamples(:,p) = mcmcContainer.getSamplesFromParticipantAsMatrix(p, {'logk'});
 end
 
@@ -32,9 +32,9 @@ axis(participantAxisBounds)
 % 	'YAxisLocation','origin')
 drawnow
 
-myExport('LOGK_summary',...
+myExport('summary_plot',...
 	'saveFolder', saveFolder,...
-	'prefix', modelType)
+	'suffix', modelType)
 
 
 	function plotOpts = definePlotOptions4Participant(col)

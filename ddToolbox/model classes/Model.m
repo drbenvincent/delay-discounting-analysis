@@ -29,6 +29,7 @@ classdef Model
 		plotFuncs % structure of function handles
 		initialParams
 		shouldPlot
+		unobservedParticipantExist
 	end
 	
 	methods(Abstract, Access = protected)
@@ -50,8 +51,8 @@ classdef Model
 			for n=1:numel(fields)
 				obj.(fields{n}) = p.Results.(fields{n});
 			end
+			obj.unobservedParticipantExist = false;
 			
-			obj.observedData = obj.constructObservedDataForMCMC( data.get_all_data_table() );
 		end
 		
 		
@@ -75,6 +76,8 @@ classdef Model
 			for n=1:numel(fields)
 				obj.(fields{n}) = p.Results.(fields{n});
 			end
+			
+			obj.observedData = obj.constructObservedDataForMCMC( obj.data.get_all_data_table() );
 			
 			%% Create sampler object --------------------------------------
 			% Use of external function "samplerFactory" means this class is
@@ -119,47 +122,56 @@ classdef Model
 		
 		
 		function finalTable = exportParameterEstimates(obj, varargin)
-			%% Create table of parameter estimates
+			%% Make tables
 			paramEstimateTable = obj.mcmc.exportParameterEstimates(...
 				obj.varList.participantLevel,... %obj.varList.groupLevel,...
 				obj.data.IDname,...
 				obj.saveFolder,...
 				obj.pointEstimateType,...
 				varargin{:});
-			%% Create table of posterior prediction measures
-			% Add mean score (log ratio of model vs control)
-			ppScore = [obj.postPred(:).score]';
-			% Calculate point estimates of perceptPredicted. use the point
-			% estimate type that the user specified
-			pointEstFunc = str2func(obj.pointEstimateType);
-			percentPredicted = cellfun(pointEstFunc, {obj.postPred.percentPredictedDistribution})';
 			
-			% Check if HDI of percentPredicted overlaps with 0.5
-			hdiFunc = @(x) mcmc.HDIofSamples(x, 0.95); % Using mcmc-utils-matlab package
-			warningFunc = @(x) x(1) < 0.5;
-			warnOnHDI = @(x) warningFunc( hdiFunc(x) );
-			warning_percent_predicted = cellfun( warnOnHDI, {obj.postPred.percentPredictedDistribution})';
+			postPredTable = makePostPredTable();
 			
-			% make table
-			postPredTable = table(ppScore,...
-				percentPredicted,...
-				warning_percent_predicted,...
-				'RowNames',obj.data.IDname(1:end-1)); %<---- TODO replace with get method
-			% add extra row of NaN's on the bottom for the unobserved participant
-			unobserved = table(NaN, NaN, NaN,...
-				'RowNames',obj.data.IDname(end),...
-				'VariableNames', postPredTable.Properties.VariableNames)
-			postPredTable = [postPredTable; unobserved];
-			
-			%% Combine the tables
+			%% Horizontally joint the tables
 			finalTable = join(paramEstimateTable, postPredTable,...
 				'Keys','RowNames');
 			display(finalTable)
 			
-			%% Export table to textfile
-			fname = ['parameterEstimates_Posterior_' obj.pointEstimateType '.csv'];
-			savePath = fullfile('figs',obj.saveFolder,fname);
-			exportTable(finalTable, savePath);			
+			%% Export  to textfile
+			savePath = fullfile('figs',...
+				obj.saveFolder,...
+				['parameterEstimates_Posterior_' obj.pointEstimateType '.csv']);
+			exportTable(finalTable, savePath);	
+			
+			function postPredTable = makePostPredTable()
+				% Create table of posterior prediction measures
+				% Add mean score (log ratio of model vs control)
+				ppScore = [obj.postPred(:).score]';
+				% Calculate point estimates of perceptPredicted. use the point
+				% estimate type that the user specified
+				pointEstFunc = str2func(obj.pointEstimateType);
+				percentPredicted = cellfun(pointEstFunc, {obj.postPred.percentPredictedDistribution})';
+				
+				% Check if HDI of percentPredicted overlaps with 0.5
+				hdiFunc = @(x) mcmc.HDIofSamples(x, 0.95); % Using mcmc-utils-matlab package
+				warningFunc = @(x) x(1) < 0.5;
+				warnOnHDI = @(x) warningFunc( hdiFunc(x) );
+				warning_percent_predicted = cellfun( warnOnHDI, {obj.postPred.percentPredictedDistribution})';
+				
+				% make table
+				postPredTable = table(ppScore,...
+					percentPredicted,...
+					warning_percent_predicted,...
+					'RowNames', obj.data.IDname([1:obj.data.nParticipants])');
+				if obj.unobservedParticipantExist
+					% add extra row of NaN's on the bottom for the unobserved participant
+					unobserved = table(NaN, NaN, NaN,...
+						'RowNames', obj.data.IDname(end),...
+						'VariableNames', postPredTable.Properties.VariableNames);
+					postPredTable = [postPredTable; unobserved];
+				end
+				
+			end
 		end
 		
 		function [pdata, alldata] = packageUpDataForPlotting(obj)
@@ -186,18 +198,20 @@ classdef Model
 				pdata(p).saveFolder			= obj.saveFolder;
 				pdata(p).modelType			= obj.modelType;
 			end
-			% add info for unobserved participant ~~~~~
-			p = obj.data.nParticipants + 1;
-			pdata(p).data.totalTrials = [];
-			pdata(p).IDname				= obj.data.IDname{p};
-			pdata(p).data.trialsForThisParticant = [];
-			pdata(p).data.rawdata		= [];
-			pdata(p).postPred			= [];
-			pdata(p).samples.posterior	= obj.mcmc.getSamplesAtIndex(p, obj.varList.participantLevel);
-			pdata(p).pointEstimateType	= obj.pointEstimateType;
-			pdata(p).discountFuncType	= obj.discountFuncType;
-			pdata(p).saveFolder			= obj.saveFolder;
-			pdata(p).modelType			= obj.modelType;
+			if obj.unobservedParticipantExist
+				% add info for unobserved participant ~~~~~
+				p = obj.data.nParticipants + 1;
+				pdata(p).data.totalTrials = [];
+				pdata(p).IDname				= obj.data.IDname{p};
+				pdata(p).data.trialsForThisParticant = [];
+				pdata(p).data.rawdata		= [];
+				pdata(p).postPred			= [];
+				pdata(p).samples.posterior	= obj.mcmc.getSamplesAtIndex(p, obj.varList.participantLevel);
+				pdata(p).pointEstimateType	= obj.pointEstimateType;
+				pdata(p).discountFuncType	= obj.discountFuncType;
+				pdata(p).saveFolder			= obj.saveFolder;
+				pdata(p).modelType			= obj.modelType;
+			end
 			
 			% gather cross-experiment data for univariate stats
 			alldata.variables	= obj.varList.participantLevel;
@@ -279,20 +293,34 @@ classdef Model
 			% 				'RowNames', num2cell([1:nParticipants]) )
 		end
 		
-	end
-	
-	
-	methods (Static)
+
 		
-		function observedData = constructObservedDataForMCMC(all_data)
+		function observedData = constructObservedDataForMCMC(obj, all_data)
 			% This function can be overridden by model subclasses, however
 			% we still expect them to call this model baseclass method to
 			% set up the core data (unlikely to change across models).
 			assert(istable(all_data), 'all_data must be a table')
 			observedData = table2struct(all_data, 'ToScalar',true);
-			observedData.participantIndexList = [unique(all_data.ID) ; max(unique(all_data.ID))+1];
+			
+			% Pass in a vector of [1,...P] where P is the number of
+			% participants. BUT hierarchical models will have an extra
+			% (unobserved) participant, so we need to be sensitive to
+			% whether this exists of not
+			if obj.unobservedParticipantExist
+				observedData.participantIndexList = [unique(all_data.ID) ; max(unique(all_data.ID))+1];
+			else
+				observedData.participantIndexList = unique(all_data.ID);
+			end
 		end
 		
+	end
+	
+	methods (Access = protected)
+		function obj = addUnobservedParticipant(obj, str)
+			% Ask data class to add an unobserved participant
+			obj.data = obj.data.add_unobserved_participant(str);
+			obj.unobservedParticipantExist = true;
+		end
 	end
 	
 end

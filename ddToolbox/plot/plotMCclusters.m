@@ -8,7 +8,7 @@ probMass = 0.5;
 figure(12), clf
 
 % build samples
-for p = 1:data.nParticipants + 1
+for p = 1:numel(data.IDname)
 	m(:,p) = mcmcContainer.getSamplesFromParticipantAsMatrix(p, {'m'});
 	c(:,p) = mcmcContainer.getSamplesFromParticipantAsMatrix(p, {'c'});
 end
@@ -55,9 +55,9 @@ set(gca,'XAxisLocation','origin',...
 	'YAxisLocation','origin')
 drawnow
 
-myExport('MC_summary',...
+myExport('summary_plot',...
 	'saveFolder', saveFolder,...
-	'prefix', modelType)
+	'suffix', modelType)
 
 	function plotOpts = definePlotOptions4Participant(col)
 		plotOpts = {'FaceAlpha', 0.1,...
