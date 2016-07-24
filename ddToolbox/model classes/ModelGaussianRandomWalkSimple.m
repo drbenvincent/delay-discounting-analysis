@@ -33,7 +33,7 @@ classdef ModelGaussianRandomWalkSimple < Model
             % Generate initial values of the leaf nodes
 			%nTrials = size(obj.data.observedData.A,2);
 			nParticipants = obj.data.nParticipants;
-			nUniqueDelays = numel(obj.data.observedData.uniqueDelays);
+			nUniqueDelays = numel(obj.observedData.uniqueDelays);
 
 			for chain = 1:obj.sampler.mcmcparams.nchains
 				obj.initialParams(chain).discountFraction = normrnd(1, 0.1, [nParticipants+1, nUniqueDelays]);
@@ -156,6 +156,63 @@ classdef ModelGaussianRandomWalkSimple < Model
 		end
 
 	end
-
+	
+	methods (Static)
+		
+		function observedData = constructObservedDataForMCMC(all_data)
+			%% Call superclass method to prepare the core data
+			observedData = constructObservedDataForMCMC@Model(all_data);
+			
+			%% Now add model specific observed data
+			observedData.uniqueDelays = sort(unique(observedData.DB))';
+			observedData.delayLookUp = calcDelayLookup();
+			
+			function delayLookUp = calcDelayLookup()
+				delayLookUp = observedData.DB;
+				for n=1: numel(observedData.uniqueDelays)
+					delay = observedData.uniqueDelays(n);
+					delayLookUp(observedData.DB==delay) = n;
+				end
+			end
+		end
+		
+		%% FYI
+		% 			% **** Observed variables below are for the Gaussian Random
+		% 			% Walk model ****
+		% 			%
+		% 			% Create a lookup table, for a given [participant,trial], this
+		% 			% is the index of DB.
+		%
+		% 			% If we insert additional delays into this vector
+		% 			% (uniqueDelays), then the model will interpolate between the
+		% 			% delays that we have data for.
+		% 			% If you do not want to interpolate any delays, then set :
+		% 			%  interpolation_delays = []
+		%
+		% % 			unique_delays_from_data = sort(unique(obj.observedData.DB))';
+		% % 			% optionally add interpolated delays ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		% % 			add_interpolated_delays = true;
+		% % 			if add_interpolated_delays
+		% % 				interpolation_delays =  [ [7:7:365-7] ...
+		% % 					[7*52:7:7*80]]; % <--- future
+		% % 				combined = [unique_delays_from_data interpolation_delays];
+		% % 				obj.observedData.uniqueDelays = sort(unique(combined));
+		% % 			else
+		% % 				obj.observedData.uniqueDelays = [0.01 unique_delays_from_data];
+		% % 			end
+		% % 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		% %
+		% % 			% Now we create a lookup table [participants,tials] full of
+		% % 			% integers which point to the index of the delay value in
+		% % 			% uniqueDelays
+		% % 			temp = obj.observedData.DB;
+		% % 			for n=1: numel(obj.observedData.uniqueDelays)
+		% % 				delay = obj.observedData.uniqueDelays(n);
+		% % 				temp(obj.observedData.DB==delay) = n;
+		% % 			end
+		% % 			obj.observedData.delayLookUp = temp;
+		% 		end
+		
+	end
 
 end
