@@ -9,7 +9,7 @@ function figUnivariateSummary(alldata)
 % % participant, in the light of the participant data available thus
 % % far.
 
-figure(34)
+figure(34), clf
 
 variables = alldata.variables;
 participantNames = alldata.IDnames;

@@ -20,7 +20,6 @@ classdef MatjagsWrapper < SamplerWrapper
 			% instead of passing in all of model
 
 			%% preparation for MCMC sampling
-			model.observedData = model.constructObservedDataForMCMC( model.data.get_all_data_table() ); % TODO: do this in base-class
 			
 			model = model.setInitialParamValues(); % mcmc chain values NOT mcmc parameters
 			obj.initialParameters = model.initialParams;

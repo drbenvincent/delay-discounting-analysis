@@ -1,5 +1,8 @@
 function figParticipantLOGK(plotdata)
 
+fh = figure;
+fh.Name = ['participant: ' plotdata.IDname];
+
 rows=1; cols=4;
 
 subplot(rows, cols, 1)
@@ -21,5 +24,12 @@ logk = mcmc.UnivariateDistribution(plotdata.samples.posterior.logk(:),...
 % Plot in 2D data space
 subplot(rows, cols, 4)
 plotDiscountFunction(plotdata);
+
+
+latex_fig(16, 18, 4)
+myExport('fig',...
+	'saveFolder', plotdata.saveFolder,...
+	'prefix', plotdata.IDname,...
+	'suffix', plotdata.modelType);
 
 end

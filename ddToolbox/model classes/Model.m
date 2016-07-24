@@ -54,6 +54,7 @@ classdef Model
 			end
 			obj.unobservedParticipantExist = false;
 			
+			obj.observedData = obj.constructObservedDataForMCMC( obj.data.get_all_data_table() );
 		end
 		
 		
@@ -277,6 +278,10 @@ classdef Model
 			else
 				observedData.participantIndexList = unique(all_data.ID);
 			end
+			
+			% protected method which can be over-ridden by model sub-classes
+			%observedData = obj.addititionalObservedData();
+			
 		end
 		
 		% MIDDLE-MAN METHODS ================================================
@@ -321,7 +326,15 @@ classdef Model
 			% Ask data class to add an unobserved participant
 			obj.data = obj.data.add_unobserved_participant(str);
 			obj.unobservedParticipantExist = true;
+			obj.observedData.participantIndexList(end+1) = ...
+				max(obj.observedData.participantIndexList) + 1;
 		end
 	end
+	
+% 	methods (Static, Access = protected)
+% 		function observedData = addititionalObservedData(observedData)
+% 			% This is meant to be over-ridden by model sub-classes
+% 		end
+% 	end
 	
 end
