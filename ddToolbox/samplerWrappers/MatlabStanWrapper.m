@@ -17,10 +17,12 @@ classdef MatlabStanWrapper < SamplerWrapper
 		end
 
 
-		function mcmcFitObject = conductInference(obj, model, data)
+		function mcmcFitObject = conductInference(obj, model)
 			%% preparation for MCMC sampling
-			% Prepare data
-			obj = obj.setObservedValues(data); %<---- TODO: remove
+			% TODO: This is a bit kludgy.
+			observedData = obj.addStanSpecificObservedData(model.observedData, model.data);
+			obj.observed = observedData;
+			
 			% create Stan Model
 			stan_model = StanModel('file',obj.modelFilename,...
 				'stan_home', obj.stanHome);
@@ -59,17 +61,21 @@ classdef MatlabStanWrapper < SamplerWrapper
 			obj.mcmcparams.nchains		= 2;
 		end
 
-		function obj = setObservedValues(obj, data)
-			obj.observed                = data.observedData;
-			obj.observed.nParticipants	= data.nParticipants;
-			obj.observed.totalTrials	= data.totalTrials;
-		end
+
 
 		function obj = setStanHome(obj, stanHome)
 			warning('TODO: validate this folder exists')
 			obj.stanHome = stanHome;
 		end
 		
+	end
+	
+	methods (Static)
+		function observedData = addStanSpecificObservedData(observedData, data)
+			%obj.observed                = data.observedData;
+			observedData.nParticipants	= data.nParticipants;
+			observedData.totalTrials	= data.totalTrials;
+		end
 	end
 
 end

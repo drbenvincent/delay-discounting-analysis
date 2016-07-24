@@ -57,7 +57,7 @@ transformed parameters {
 }
 
 model {
-  // group level priors
+  // priors over group-level params
   groupALPHAmu     ~ uniform(0,100);
   groupALPHAsigma  ~ inv_gamma(0.01,0.01);
 
@@ -73,47 +73,10 @@ model {
 }
 
 generated quantities {  // NO VECTORIZATION IN THIS BLOCK
-  real groupLogKmu_prior;
-  real groupALPHAmu_prior;
-  real<lower=0> groupALPHAsigma_prior;
-  real groupW_prior;
-  real<lower = 0> groupKminus2_prior;
-  real groupK_prior;
-
-  real logk_group;
-  real alpha_group; // TODO: NEEDS TO BE POSTIVE-VALUED ONLY
-  real <lower=0,upper=1> epsilon_group;
-
-  real logk_group_prior;
-  real alpha_group_prior; // TODO: NEEDS TO BE POSTIVE-VALUED ONLY
-  real <lower=0,upper=1> epsilon_group_prior;
-
   int <lower=0,upper=1> Rpostpred[totalTrials];
 
-  // POSTERIOR PREDICTION
-
-  // group level posterior predictive distributions
-  logk_group       <- normal_rng(groupLogKmu, groupLogKsigma);
-  alpha_group      <- normal_rng(groupALPHAmu, groupALPHAsigma);
-  epsilon_group    <- beta_rng(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 );
   // posterior predictive responses
   for (t in 1:totalTrials){
     Rpostpred[t] <- bernoulli_rng(P[t]);
   }
-
-  // SAMPLING FROM PRIORS
-
-  //group level priors
-  groupALPHAmu_prior     <- uniform_rng(0,100);
-  groupALPHAsigma_prior  <- inv_gamma_rng(0.001,0.001);
-
-  groupW_prior           <- beta_rng(1.1, 10.9);  // mode for lapse rate
-  groupKminus2_prior     <- gamma_rng(0.01,0.01); // concentration parameter
-  groupK_prior <- groupKminus2_prior+2;
-
-  // priors about the group level
-  logk_group_prior     <- normal_rng(groupLogKmu, groupLogKsigma);
-  alpha_group_prior    <- normal_rng(groupALPHAmu_prior, groupALPHAsigma_prior);
-  epsilon_group_prior  <- beta_rng(groupW_prior*(groupK_prior-2)+1 , (1-groupW_prior)*(groupK_prior-2)+1 );
-
 }

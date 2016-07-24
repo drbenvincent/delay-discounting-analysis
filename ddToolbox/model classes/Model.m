@@ -21,8 +21,7 @@ classdef Model
 	
 	properties (Hidden)
 		% User supplied preferences
-		mcmcSamples
-		chains
+		mcmcSamples, chains, burnin % mcmcparams
 		modelType % string (ie modelType.jags, or modelType.stan)
 		data % handle to Data class (dependency is injected from outside)
 		varList
@@ -70,6 +69,7 @@ classdef Model
 			p.addRequired('samplerType',@ischar);
 			p.addParameter('mcmcSamples',[], @isscalar)
 			p.addParameter('chains',[], @isscalar)
+			p.addParameter('burnin',[], @isscalar)
 			p.addParameter('shouldPlot','no',@(x) any(strcmp(x,{'yes','no'})));
 			p.parse(samplerType, varargin{:});
 			
@@ -95,6 +95,9 @@ classdef Model
 			if ~isempty(p.Results.chains)
 				obj.sampler.mcmcparams.nchains = p.Results.chains;
 			end
+			if ~isempty(p.Results.burnin)
+				obj.sampler.mcmcparams.burnin = p.Results.burnin;
+			end
 			
 			%% Do MCMC sampling, return an mcmcObject ---------------------
 			obj.mcmc = obj.sampler.conductInference( obj );
@@ -108,7 +111,11 @@ classdef Model
 			%% Post-sampling activities (common to all models) ------------
 			obj.postPred = calcPosteriorPredictive( obj );
 			
-			obj.mcmc.convergenceSummary(obj.saveFolder, obj.data.IDname)
+			try
+				obj.mcmc.convergenceSummary(obj.saveFolder, obj.data.IDname)
+			catch
+				warning('mcmc.convergenceSummary() FAILED')
+			end
 			
 			try
 				obj.parameterEstimateTable = obj.exportParameterEstimates();

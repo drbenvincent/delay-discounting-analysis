@@ -38,26 +38,17 @@ transformed parameters {
 }
 
 model {
-  // participant level - these are vectors
   logk    ~ normal(-3.9120, 2.5);
   alpha   ~ exponential(0.01);
-  epsilon ~ beta(1.1, 10.9); # T[,0.5]
+  epsilon ~ beta(1.1, 10.9); // T[,0.5]; // truncation can only happen for univariate?
   R       ~ bernoulli(P);
 }
 
-generated quantities {  // NO VECTORIZATION IN THIS BLOCK
+generated quantities {  // NO VECTORIZATION IN THIS BLOCK ?
   int <lower=0,upper=1> Rpostpred[totalTrials];
-  real logk_prior;
-  real alpha_prior; // TODO: NEEDS TO BE POSTIVE-VALUED ONLY
-  real <lower=0,upper=1> epsilon_prior;
 
   // POSTERIOR PREDICTION
   for (t in 1:totalTrials){
     Rpostpred[t] <- bernoulli_rng(P[t]);
   }
-
-  // SAMPLING FROM PRIORS
-  logk_prior <- normal_rng(-3.9120, 2.5);
-  alpha_prior <- exponential_rng(0.01);
-  epsilon_prior <- beta_rng(1.1, 10.9); // how do I trunate <0.5
 }
