@@ -40,3 +40,7 @@ workspace_SLOC.txt
 ddToolbox/models/mixedME
 
 ddToolbox/models/separateME
+
+demo/tests/temp.mat
+
+demo/tests/figs

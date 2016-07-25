@@ -2,4 +2,4 @@
 % These are intended to be 'integration tests'
 
 import matlab.unittest.TestSuite;
-testResults = run(TestSuite.fromFolder('tests'));
+testResults = run(TestSuite.fromFolder('tests'))
