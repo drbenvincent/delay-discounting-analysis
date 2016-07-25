@@ -1,4 +1,4 @@
-classdef more_tests < matlab.unittest.TestCase
+classdef test_logk2halflife < matlab.unittest.TestCase
 	
 	properties
 	end
@@ -10,7 +10,7 @@ classdef more_tests < matlab.unittest.TestCase
 		end
 	
 		function testlogk2halflife2(testCase)
-			testCase.verifyEqual( logk2halflife(log(1/100)), 100, 'AbsTol', 10^-5)
+			testCase.verifyEqual( logk2halflife(log(1/50)), 50, 'AbsTol', 10^-5)
 		end
 		
 	end

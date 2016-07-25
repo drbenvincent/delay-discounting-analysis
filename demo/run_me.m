@@ -8,6 +8,7 @@ function [data, model] = run_me()
 % <a href="matlab:[data, model] = run_me();">[data, model] = run_me();</a>
 %
 % MAIN ANALYSIS PROCEDURE -------------------------------------------------
+%
 % 1) Set the path of the toolbox folder:
 % >> addpath('~/git-local/delay-discounting-analysis/ddToolbox')
 %
@@ -68,7 +69,7 @@ function [data, model] = run_me()
 %
 % See also: DataClass, Model
 
-% USE THE CODE BELOW AS A TEMPLATE FOR YOUR OWN ANALYSES
+% --------- USE THE CODE BELOW AS A TEMPLATE FOR YOUR OWN ANALYSES --------
 
 % USERS TO REPLACE THIS CODE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 path_of_this_mfile = strrep(which(mfilename),[mfilename '.m'],'');
@@ -84,16 +85,14 @@ addpath(toolbox_path)
 ddAnalysisSetUp();
 
 % Load data
-data = DataClass(datapath,...
-	'files', allFilesInFolder(datapath, 'txt'));
+data = DataClass(datapath, 'files', allFilesInFolder(datapath, 'txt'));
 
 % Create an analysis model
 model = ModelHierarchicalME(data,...
 	'saveFolder', 'analysis_with_hierarchical_magnitude_effect',...
 	'pointEstimateType','median');
 
-% Do some Bayesian inference. 
-% All arguments to this function are optional.
+% Do some Bayesian inference (All arguments to this function are optional)
 model = model.conductInference(...
 	'sampler', 'jags',...					% {'jags', 'stan'}
 	'shouldPlot', 'no',...					% {'no', 'yes'}

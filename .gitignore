@@ -44,3 +44,6 @@ ddToolbox/models/separateME
 demo/tests/temp.mat
 
 demo/tests/figs
+
+tests/integration_tests/figs
+tests/integration_tests/temp.mat

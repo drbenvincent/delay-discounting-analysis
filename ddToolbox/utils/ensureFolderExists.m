@@ -1,5 +1,8 @@
-function ensureFolderExists(folderPath)
-if exist(folderPath,'dir') ~= 7
+function doesExist = ensureFolderExists(folderPath)
+
+doesExist = ~(exist(folderPath,'dir') ~= 7);
+if ~doesExist
   mkdir(folderPath)
+  doesExist = true;
 end
 return
