@@ -3,7 +3,7 @@ classdef test_calculateAUC < matlab.unittest.TestCase
 	properties
 	end
 	
-	methods (Test)
+	methods (Test, TestTags = {'Unit'})
 		
 		function calculateAUC_1(testCase)
 			results = calculateAUC([0 1],[1 0], false);

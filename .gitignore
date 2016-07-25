@@ -47,3 +47,7 @@ demo/tests/figs
 
 tests/integration_tests/figs
 tests/integration_tests/temp.mat
+
+tests/temp.mat
+
+tests/figs/

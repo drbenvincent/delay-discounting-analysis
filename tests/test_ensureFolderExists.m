@@ -3,7 +3,7 @@ classdef test_ensureFolderExists < matlab.unittest.TestCase
 	properties
 	end
 	
-	methods (Test)
+	methods (Test, TestTags = {'Unit'})
 		
 		function ensureFolderExists_nonexistant(testCase)
 			testFolderToMake = 'thisFolderDoesNotExist';

@@ -1,5 +1,8 @@
 function testScript
 
+
+warning('********* REPLACE THIS WITH UNIT/INTEGRATION TESTS *********')
+
 numberOfMCMCSamples = 10^3;
 chains = 2;
 

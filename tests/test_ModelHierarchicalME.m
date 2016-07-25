@@ -1,4 +1,4 @@
-classdef test_run_me < matlab.unittest.TestCase
+classdef test_ModelHierarchicalME < matlab.unittest.TestCase
 % Test the example code (run_me.m) I've provided to demonstrate using the
 % software.
 
@@ -13,7 +13,7 @@ classdef test_run_me < matlab.unittest.TestCase
 	methods (TestClassSetup)
 		function setup(testCase)
 			% assuming this is running on my maching
-			addpath('~/git-local/delay-discounting-analysis/ddToolbox')
+			%addpath('~/git-local/delay-discounting-analysis/ddToolbox')
 			datapath = '~/git-local/delay-discounting-analysis/demo/data';
 			
 			% only analyse 2 people, for speed of running tests
@@ -24,7 +24,7 @@ classdef test_run_me < matlab.unittest.TestCase
 	
 	methods (Test)
 		
-		function testModel(testCase)
+		function defaultInferenceWithModelHierarchicalME(testCase)
 			
 			testCase.assertInstanceOf(testCase.data,'DataClass')
 			
@@ -37,7 +37,7 @@ classdef test_run_me < matlab.unittest.TestCase
 			testCase.assertInstanceOf(model,'ModelHierarchicalME')
 		end
 		
-		function canSaveAndLoad(testCase)
+		function SaveAndLoad(testCase)
 			% pre-loaded data
 			data = testCase.data;
 			% create new model

@@ -1,21 +1,30 @@
+
+
 % Run the dToolbox tests
 import matlab.unittest.TestSuite;
 
 
 %% Required setup
-
+disp('=== DOING NECESSARY TOOLBOX SETUP BEFORE RUNNING TESTS ===')
 % assumes this is being run on Ben's computer
 addpath('~/git-local/delay-discounting-analysis/ddToolbox')
 ddAnalysisSetUp()
 
 
-%% Run test suites
-ddToolboxTestSuite = run(TestSuite.fromFolder('tests/util_tests'));
-IntegrationTestSuite = run(TestSuite.fromFolder('tests/integration_tests'));
+%% RUN ALL TESTS
+testSuite = TestSuite.fromFolder('tests');
+testSuite = testSuite.run()
+testSuite.table
 
-%% Display summary outputs of tests
-ddToolboxTestSuite.table
-IntegrationTestSuite.table
 
-ddToolboxTestSuite
-IntegrationTestSuite
+
+% %% just run unit tests
+% % Learn more about using TAGS here:
+% % http://uk.mathworks.com/help/matlab/matlab_prog/tag-unit-tests.html
+% 
+% unitTestSuite = TestSuite.fromFolder('tests', 'Tag','Unit');
+% unitTestSuite = unitTestSuite.run()
+% unitTestSuite.table
+
+
+
