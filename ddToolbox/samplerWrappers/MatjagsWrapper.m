@@ -24,9 +24,7 @@ classdef MatjagsWrapper < SamplerWrapper
 			model = model.setInitialParamValues(); % mcmc chain values NOT mcmc parameters
 			obj.initialParameters = model.initialParams;
 
-			
-			
-			assert(obj.mcmcparams.nchains>=2, 'Use a minimum of 2 MCMC chains')
+			assert(obj.mcmcparams.nchains >= 2, 'Use a minimum of 2 MCMC chains')
 			startParallelPool()
 
 			% TODO: rather than ask for this, the model is going to do its
@@ -59,7 +57,8 @@ classdef MatjagsWrapper < SamplerWrapper
 			% outputs of MatJAGS which has useful getter functions.
 			mcmcFitObject = JAGSmcmc(samples, stats, obj.mcmcparams);
 
-			speak('sampling complete')
+			% Uncomment this line if you want auditory feedback
+			%speak('sampling complete')
 		end
 
 		%% SET METHODS ----------------------------------------------------

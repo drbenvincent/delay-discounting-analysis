@@ -18,8 +18,10 @@ classdef test_AllModels < matlab.unittest.TestCase
 			'ModelHierarchicalLogK',...
 			'ModelMixedLogK',...
 			'ModelSeparateLogK',...
-			'ModelGaussianRandomWalkSimple'};
+			'ModelGaussianRandomWalkSimple'}
 		pointEstimateType = {'mean','median','mode'}
+		sampler = {'jags'} % TODO: ADD STAN
+		chains = {1,2,3}
 	end
 	
 	methods (TestClassSetup)
@@ -54,17 +56,44 @@ classdef test_AllModels < matlab.unittest.TestCase
 	
 	methods (Test)
 		
-% 		function doInferenceWithModel(testCase, model)
-% 			% make model
-% 			makeModelFunction = str2func(model);
-% 			created_model = makeModelFunction(testCase.data);
-% 			% do inference with model
-% 			created_model = created_model.conductInference(...
-% 				'mcmcSamples', 100,...
-% 				'chains', 1,...
-% 				'shouldPlot', 'no');
-% 			% TODO: DO AN ACTUAL TEST HERE !!!!!!!!!!!!!!!!!!!!!!
-% 		end
+		function doInferenceWithModel_default_sampler(testCase, model)
+			% make model
+			makeModelFunction = str2func(model);
+			created_model = makeModelFunction(testCase.data);
+			% do inference with model
+			created_model = created_model.conductInference(...
+				'mcmcSamples', 100,...
+				'chains', 2,...
+				'shouldPlot', 'no');
+			% TODO: DO AN ACTUAL TEST HERE !!!!!!!!!!!!!!!!!!!!!!
+		end
+		
+		function doInferenceWithModel_with_N_chains(testCase, model, chains)
+			% make model
+			makeModelFunction = str2func(model);
+			created_model = makeModelFunction(testCase.data);
+			% do inference with model
+			created_model = created_model.conductInference(...
+				'mcmcSamples', 100,...
+				'chains', chains,...
+				'shouldPlot', 'no');
+			% TODO: DO AN ACTUAL TEST HERE !!!!!!!!!!!!!!!!!!!!!!
+		end
+		
+		
+		function doInferenceWithModel_specified_sampler(testCase, model, sampler)
+			% make model
+			makeModelFunction = str2func(model);
+			created_model = makeModelFunction(testCase.data);
+			% do inference with model
+			created_model = created_model.conductInference(...
+				'sampler', sampler,...
+				'mcmcSamples', 100,...
+				'chains', 2,...
+				'shouldPlot', 'no');
+			% TODO: DO AN ACTUAL TEST HERE !!!!!!!!!!!!!!!!!!!!!!
+		end
+		
 		
 	end
 	

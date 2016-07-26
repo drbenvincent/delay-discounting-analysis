@@ -134,7 +134,9 @@ classdef mcmcContainer < handle
 
 				if isRhatThresholdExceeded
 					logInfo(fid,'\n\n\n**** WARNING: convergence issues :( ****\n\n\n')
-					speak('there were some convergence issues')
+					% Uncomment this line if you want auditory feedback
+					% speak('there were some convergence issues')
+					% beep
 				else
 					logInfo(fid,'\n\n\n**** No convergence issues :) ****\n\n\n')
 				end

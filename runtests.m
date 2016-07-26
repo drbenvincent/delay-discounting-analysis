@@ -10,6 +10,8 @@ disp('=== DOING NECESSARY TOOLBOX SETUP BEFORE RUNNING TESTS ===')
 addpath('~/git-local/delay-discounting-analysis/ddToolbox')
 ddAnalysisSetUp()
 
+initial_dir = cd;
+cd('~/git-local/delay-discounting-analysis/')
 
 %% RUN ALL TESTS
 testSuite = TestSuite.fromFolder('tests');

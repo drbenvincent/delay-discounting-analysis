@@ -63,20 +63,20 @@ classdef Model
 			
 			p = inputParser;
 			p.FunctionName = mfilename;
-			p.addParameter('sampler', 'jags', @(x) any(strcmp(x,{'jags','stan'})));
+			p.addParameter('samplerType', 'jags', @(x) any(strcmp(x,{'jags','stan'})));
 			p.addParameter('mcmcSamples', [], @isscalar)
 			p.addParameter('chains', [], @isscalar)
 			p.addParameter('burnin', [], @isscalar)
 			p.addParameter('shouldPlot', 'no', @(x) any(strcmp(x,{'yes','no'})));
 			p.parse(varargin{:});
 			
-			obj.modelFile			= makeProbModelsPath(obj.modelType, lower(p.Results.sampler));
+			obj.modelFile = makeProbModelsPath(obj.modelType, lower(p.Results.samplerType));
 			
 			% add p.Results fields into obj
-			% but not samplerType
+			% but not sampler
 			fields = fieldnames(p.Results);
 			for n = 1:numel(fields)
-				if strcmp(fields,'sampler'), continue, end % skip this field
+				%if strcmp(fields,'sampler'), continue, end % skip this field
 				obj.(fields{n}) = p.Results.(fields{n});
 			end
 						
@@ -87,14 +87,17 @@ classdef Model
 			% "samplerFactory" function.
 			% If we passed in "samplerFactory" as a function then we could
 			% make it easier to completely swap out types of samplers.
-			obj.sampler = samplerFactory(p.Results.sampler, obj.modelFile);
+			obj.sampler = samplerFactory(p.Results.samplerType, obj.modelFile);
 			
 			% update with user-provided params
 			if ~isempty(p.Results.mcmcSamples)
 				obj.sampler.mcmcparams.nsamples = p.Results.mcmcSamples;
 			end
-			if ~isempty(p.Results.chains)
+			if ~isempty(p.Results.chains) % TODO: THIS IS NOT WORKING
 				obj.sampler.mcmcparams.nchains = p.Results.chains;
+				if obj.sampler.mcmcparams.nchains <= 0
+					obj.sampler.mcmcparams.nchains = 2;
+				end
 			end
 			if ~isempty(p.Results.burnin)
 				obj.sampler.mcmcparams.burnin = p.Results.burnin;
