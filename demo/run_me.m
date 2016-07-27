@@ -74,7 +74,7 @@ function [data, model] = run_me()
 % USERS TO REPLACE THIS CODE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 path_of_this_mfile = strrep(which(mfilename),[mfilename '.m'],'');
 toolbox_path = fullfile(path_of_this_mfile,'..','ddToolbox');
-datapath = fullfile(path_of_this_mfile,'data');
+datapath = fullfile(path_of_this_mfile,'datasets','kirby');
 % WITH THIS (update the paths as appropriate) ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 % addpath('~/git-local/delay-discounting-analysis/ddToolbox')
 % datapath = '~/git-local/delay-discounting-analysis/demo/data';

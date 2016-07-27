@@ -14,7 +14,7 @@ classdef test_ModelHierarchicalME < matlab.unittest.TestCase
 		function setup(testCase)
 			% assuming this is running on my maching
 			%addpath('~/git-local/delay-discounting-analysis/ddToolbox')
-			datapath = '~/git-local/delay-discounting-analysis/demo/data';
+			datapath = '~/git-local/delay-discounting-analysis/demo/datasets/kirby';
 			
 			% only analyse 2 people, for speed of running tests
 			filesToAnalyse={'AC-kirby27-DAYS.txt', 'CS-kirby27-DAYS.txt'};

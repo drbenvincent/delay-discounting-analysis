@@ -32,6 +32,8 @@ parameters {
   vector[nParticipants] logk;
   vector<lower=0>[nParticipants] alpha;
   vector<lower=0,upper=1>[nParticipants] epsilon;
+
+
 }
 
 transformed parameters {
@@ -69,7 +71,7 @@ model {
   logk    ~ normal(groupLogKmu, groupLogKsigma);
   alpha   ~ normal(groupALPHAmu, groupALPHAsigma); // truncate?
   epsilon ~ beta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ); // truncate?
-
+  
   R ~ bernoulli(P);
 }
 

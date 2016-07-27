@@ -81,6 +81,12 @@ classdef mcmcContainer < handle
 
 
 		function convergenceSummary(obj,saveFolder,IDnames)
+			% TODO: export Rhat stats in the form of a Table. Would need a
+			% table for participant-level variables. This would now include
+			% a "group" unobserved participant. But we may also have other
+			% group-level parameters in addition to this, and these might
+			% have to go into a separate table.
+			
 			[fid, fname] = setupTextFile(saveFolder, 'ConvergenceReport.txt');
 			MCMCParameterReport();
 			printRhatInformation(IDnames);
@@ -147,10 +153,7 @@ classdef mcmcContainer < handle
 						logInfo(fid,'(WARNING: poor convergence)');
 					end
 				end
-
 			end
-
-
 		end
 
 

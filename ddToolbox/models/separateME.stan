@@ -13,6 +13,7 @@ data {
 }
 
 parameters {
+  // participant level
   vector[nParticipants] m;
   vector[nParticipants] c;
   vector<lower=0>[nParticipants] alpha;

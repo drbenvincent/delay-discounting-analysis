@@ -10,12 +10,12 @@ classdef test_allFilesInFolder < matlab.unittest.TestCase
 			testCase.verifyTrue( iscellstr(results) )
 		end
 		
-		function allFilesInFolder_2(testCase)
-			path_to_test_data = fullfile(pwd,'..','demo','data');
-			results = allFilesInFolder(path_to_test_data, 'txt');
-			testCase.verifyTrue( iscellstr(results) )
-			testCase.verifyLength( results, 15)
-		end
+% 		function allFilesInFolder_2(testCase)
+% 			path_to_test_data = fullfile(pwd,'..','demo','data');
+% 			results = allFilesInFolder(path_to_test_data, 'txt');
+% 			testCase.verifyTrue( iscellstr(results) )
+% 			testCase.verifyLength( results, 15)
+% 		end
 		
 	end
 end

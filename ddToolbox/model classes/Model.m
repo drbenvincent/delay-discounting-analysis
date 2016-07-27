@@ -1,13 +1,13 @@
 classdef Model
 	%Model Base class to provide basic functionality
-	
+
 	properties (Access = public)
 		samplerType
 		saveFolder
 		discountFuncType
 		pointEstimateType
 	end
-	
+
 	properties (SetAccess = protected, GetAccess = public)
 		modelFile
 		mcmc % handle to mcmc fit object  % TODO: dependency injection for MCMC fit object
@@ -16,9 +16,9 @@ classdef Model
 		parameterEstimateTable
 		pdata		% experiment level data for plotting
 		alldata		% cross-experiment level data for plotting
-		
+
 	end
-	
+
 	properties (Hidden)
 		% User supplied preferences
 		mcmcSamples, chains, burnin % mcmcparams
@@ -31,13 +31,13 @@ classdef Model
 		unobservedParticipantExist
 		observedData % TODO make this  in model?
 	end
-	
+
 	methods(Abstract, Access = protected)
 		calcDerivedMeasures(obj)
 	end
-	
+
 	methods (Access = public)
-		
+
 		function obj = Model(data, varargin)
 			p = inputParser;
 			p.FunctionName = mfilename;
@@ -45,22 +45,24 @@ classdef Model
 			p.addParameter('saveFolder','my_analysis', @isstr);
 			p.addParameter('pointEstimateType','mode',@(x) any(strcmp(x,{'mean','median','mode'})));
 			p.parse(data, varargin{:});
-			
+
 			% add p.Results fields into obj
 			fields = fieldnames(p.Results);
 			for n=1:numel(fields)
 				obj.(fields{n}) = p.Results.(fields{n});
 			end
+
+            % This flag is over-ridden by model sub-classes that do hierarchical inference.
 			obj.unobservedParticipantExist = false;
-			
+
 			obj.observedData = obj.constructObservedDataForMCMC( obj.data.get_all_data_table() );
 		end
-		
-		
+
+
 		function obj = conductInference(obj, varargin)
 			% conductInference  Runs inference
 			%   conductInference(samplerType, varargin)
-			
+
 			p = inputParser;
 			p.FunctionName = mfilename;
 			p.addParameter('samplerType', 'jags', @(x) any(strcmp(x,{'jags','stan'})));
@@ -69,9 +71,9 @@ classdef Model
 			p.addParameter('burnin', [], @isscalar)
 			p.addParameter('shouldPlot', 'no', @(x) any(strcmp(x,{'yes','no'})));
 			p.parse(varargin{:});
-			
+
 			obj.modelFile = makeProbModelsPath(obj.modelType, lower(p.Results.samplerType));
-			
+
 			% add p.Results fields into obj
 			% but not sampler
 			fields = fieldnames(p.Results);
@@ -79,7 +81,7 @@ classdef Model
 				%if strcmp(fields,'sampler'), continue, end % skip this field
 				obj.(fields{n}) = p.Results.(fields{n});
 			end
-						
+
 			%% Create sampler object --------------------------------------
 			% Use of external function "samplerFactory" means this class is
 			% closed for modification, but open to extension.
@@ -88,7 +90,7 @@ classdef Model
 			% If we passed in "samplerFactory" as a function then we could
 			% make it easier to completely swap out types of samplers.
 			obj.sampler = samplerFactory(p.Results.samplerType, obj.modelFile);
-			
+
 			% update with user-provided params
 			if ~isempty(p.Results.mcmcSamples)
 				obj.sampler.mcmcparams.nsamples = p.Results.mcmcSamples;
@@ -102,40 +104,40 @@ classdef Model
 			if ~isempty(p.Results.burnin)
 				obj.sampler.mcmcparams.burnin = p.Results.burnin;
 			end
-			
+
 			%% Do MCMC sampling, return an mcmcObject ---------------------
 			obj.mcmc = obj.sampler.conductInference( obj );
-			
+
 			%% Post-sampling activities (for model sub-classes) -----------
 			% If a model has additional measures that need to be calculated
 			% from the MCMC samples, then we can do by overriding this
 			% method in the model sub-classes
 			obj = obj.calcDerivedMeasures();
-			
+
 			%% Post-sampling activities (common to all models) ------------
 			obj.postPred = calcPosteriorPredictive( obj );
-			
+
 			try
 				obj.mcmc.convergenceSummary(obj.saveFolder, obj.data.IDname)
 			catch
 				warning('mcmc.convergenceSummary() FAILED')
 			end
-			
+
 			try
 				obj.parameterEstimateTable = obj.exportParameterEstimates();
 			catch
 				warning('exportParameterEstimates() FAILED')
 			end
-			
+
 			[obj.pdata, obj.alldata] = obj.packageUpDataForPlotting();
 			if ~strcmp(obj.shouldPlot,'no')
 				obj.plot()
 			end
-			
+
 			obj.tellUserAboutPublicMethods()
 		end
-		
-		
+
+
 		function finalTable = exportParameterEstimates(obj, varargin)
 			%% Make tables
 			paramEstimateTable = obj.mcmc.exportParameterEstimates(...
@@ -144,20 +146,20 @@ classdef Model
 				obj.saveFolder,...
 				obj.pointEstimateType,...
 				varargin{:});
-			
+
 			postPredTable = makePostPredTable();
-			
-			%% Horizontally joint the tables
+
+			%% Horizontally join the tables
 			finalTable = join(paramEstimateTable, postPredTable,...
 				'Keys','RowNames');
 			display(finalTable)
-			
-			%% Export  to textfile
+
+			%% Export to textfile
 			savePath = fullfile('figs',...
 				obj.saveFolder,...
 				['parameterEstimates_Posterior_' obj.pointEstimateType '.csv']);
-			exportTable(finalTable, savePath);	
-			
+			exportTable(finalTable, savePath);
+
 			function postPredTable = makePostPredTable()
 				% Create table of posterior prediction measures
 				% Add mean score (log ratio of model vs control)
@@ -166,13 +168,13 @@ classdef Model
 				% estimate type that the user specified
 				pointEstFunc = str2func(obj.pointEstimateType);
 				percentPredicted = cellfun(pointEstFunc, {obj.postPred.percentPredictedDistribution})';
-				
+
 				% Check if HDI of percentPredicted overlaps with 0.5
 				hdiFunc = @(x) mcmc.HDIofSamples(x, 0.95); % Using mcmc-utils-matlab package
 				warningFunc = @(x) x(1) < 0.5;
 				warnOnHDI = @(x) warningFunc( hdiFunc(x) );
 				warning_percent_predicted = cellfun( warnOnHDI, {obj.postPred.percentPredictedDistribution})';
-				
+
 				% make table
 				postPredTable = table(ppScore,...
 					percentPredicted,...
@@ -185,10 +187,10 @@ classdef Model
 						'VariableNames', postPredTable.Properties.VariableNames);
 					postPredTable = [postPredTable; unobserved];
 				end
-				
+
 			end
 		end
-		
+
 		function [pdata, alldata] = packageUpDataForPlotting(obj)
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			% Package up all information into data structures to be sent
@@ -227,7 +229,7 @@ classdef Model
 				pdata(p).saveFolder			= obj.saveFolder;
 				pdata(p).modelType			= obj.modelType;
 			end
-			
+
 			% gather cross-experiment data for univariate stats
 			alldata.variables	= obj.varList.participantLevel;
 			alldata.IDnames		= obj.data.IDname;
@@ -241,15 +243,15 @@ classdef Model
 					obj.mcmc.getStats(obj.pointEstimateType, var{:});
 			end
 		end
-		
+
 		function plot(obj)
 			arrayfun(obj.plotFuncs.participantFigFunc, obj.pdata) % multi-panel fig
 			arrayfun(@plotTriPlotWrapper, obj.pdata) % corner plot of posterior
 			arrayfun(@figPosteriorPrediction, obj.pdata) % posterior prediction plot
-			
+
 			%% Plot functions that use data from all participants
 			figUnivariateSummary( obj.alldata )
-			
+
 			% TODO: pass in obj.alldata or obj.pdata rather than all these args
 			obj.plotFuncs.clusterPlotFunc(...
 				obj.mcmc,...
@@ -259,12 +261,12 @@ classdef Model
 				obj.saveFolder,...
 				obj.modelType)
 		end
-		
+
 		function obj = conditionalDiscountRates(obj, reward, plotFlag)
 			% Extract and plot P( log(k) | reward)
 			warning('THIS METHOD IS A TOTAL MESS - PLAN THIS AGAIN FROM SCRATCH')
 			obj.conditionalDiscountRates_ParticipantLevel(reward, plotFlag)
-			
+
 			if plotFlag
 				removeYaxis
 				title(sprintf('$P(\\log(k)|$reward=$\\pounds$%d$)$', reward),'Interpreter','latex')
@@ -272,14 +274,14 @@ classdef Model
 				axis square
 			end
 		end
-		
+
 		function observedData = constructObservedDataForMCMC(obj, all_data)
 			% This function can be overridden by model subclasses, however
 			% we still expect them to call this model baseclass method to
 			% set up the core data (unlikely to change across models).
 			assert(istable(all_data), 'all_data must be a table')
 			observedData = table2struct(all_data, 'ToScalar',true);
-			
+
 			% Pass in a vector of [1,...P] where P is the number of
 			% participants. BUT hierarchical models will have an extra
 			% (unobserved) participant, so we need to be sensitive to
@@ -289,27 +291,27 @@ classdef Model
 			else
 				observedData.participantIndexList = unique(all_data.ID);
 			end
-			
+
 			% protected method which can be over-ridden by model sub-classes
 			%observedData = obj.addititionalObservedData();
-			
+
 		end
-		
+
 		% MIDDLE-MAN METHODS ================================================
-		
+
 		function obj = plotMCMCchains(obj,vars)
 			obj.mcmc.plotMCMCchains(vars);
 		end
-		
+
 	end
-	
-	
+
+
 	methods (Access = private)
-		
+
 		function tellUserAboutPublicMethods(obj)
 			methods(obj)
 		end
-		
+
 		function conditionalDiscountRates_ParticipantLevel(obj, reward, plotFlag)
 			nParticipants = obj.data.nParticipants;
 			%count=1;
@@ -329,9 +331,9 @@ classdef Model
 			% 				'VariableNames',{'logK_posteriorMode'},...)
 			% 				'RowNames', num2cell([1:nParticipants]) )
 		end
-		
+
 	end
-	
+
 	methods (Access = protected)
 		function obj = addUnobservedParticipant(obj, str)
 			% Ask data class to add an unobserved participant
@@ -341,11 +343,11 @@ classdef Model
 				max(obj.observedData.participantIndexList) + 1;
 		end
 	end
-	
+
 % 	methods (Static, Access = protected)
 % 		function observedData = addititionalObservedData(observedData)
 % 			% This is meant to be over-ridden by model sub-classes
 % 		end
 % 	end
-	
+
 end

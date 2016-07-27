@@ -1,4 +1,4 @@
-classdef test_AllModels < matlab.unittest.TestCase
+classdef test_AllParametricModels < matlab.unittest.TestCase
 	% test that we can instantiate all of the specified model classes. This
 	% uses Matlab's Parameterized Testing:
 	% http://uk.mathworks.com/help/matlab/matlab_prog/create-basic-parameterized-test.html
@@ -11,16 +11,16 @@ classdef test_AllModels < matlab.unittest.TestCase
 	
 	properties (TestParameter)
 		model = {'ModelHierarchicalME_MVNORM',...
-			'ModelHierarchicalME',...
-			'ModelHierarchicalMEUpdated',...
+			'ModelHierarchicalME',... 
+			'ModelHierarchicalMEUpdated',... 
 			'ModelMixedME',...
-			'ModelSeparateME',...
+			'ModelSeparateME',... 
 			'ModelHierarchicalLogK',...
 			'ModelMixedLogK',...
 			'ModelSeparateLogK',...
 			'ModelGaussianRandomWalkSimple'}
 		pointEstimateType = {'mean','median','mode'}
-		sampler = {'jags'} % TODO: ADD STAN
+		sampler = {'jags', 'stan'} % TODO: ADD STAN
 		chains = {1,2,3}
 	end
 	
@@ -28,7 +28,7 @@ classdef test_AllModels < matlab.unittest.TestCase
 		function setup(testCase)
 			% assuming this is running on my maching
 			addpath('~/git-local/delay-discounting-analysis/ddToolbox')
-			datapath = '~/git-local/delay-discounting-analysis/demo/data';
+			datapath = '~/git-local/delay-discounting-analysis/demo/datasets/kirby';
 			
 			% only analyse 2 people, for speed of running tests
 			filesToAnalyse={'AC-kirby27-DAYS.txt', 'CS-kirby27-DAYS.txt'};
@@ -84,7 +84,9 @@ classdef test_AllModels < matlab.unittest.TestCase
 		function doInferenceWithModel_specified_sampler(testCase, model, sampler)
 			% make model
 			makeModelFunction = str2func(model);
-			created_model = makeModelFunction(testCase.data);
+			saveFolderName = model;
+			created_model = makeModelFunction(testCase.data,...
+				'saveFolder', saveFolderName);
 			% do inference with model
 			created_model = created_model.conductInference(...
 				'sampler', sampler,...
@@ -94,6 +96,21 @@ classdef test_AllModels < matlab.unittest.TestCase
 			% TODO: DO AN ACTUAL TEST HERE !!!!!!!!!!!!!!!!!!!!!!
 		end
 		
+% 		function canCompileSTANmodel(testCase, model)
+% 			% make model
+% 			makeModelFunction = str2func(model);
+% 			saveFolderName = model;
+% 			created_model = makeModelFunction(testCase.data,...
+% 				'saveFolder', saveFolderName);
+% 			
+% 			% Try to compile stan model
+% 			stan_model = StanModel('file', created_model.modelFilename,...
+% 				'stan_home', obj.stanHome);
+% 			% Compile the Stan model. This takes a bit of time
+% 			display(['COMPILING STAN MODEL...' model])
+% 			stan_model.compile();
+% 			
+% 		end
 		
 	end
 	
