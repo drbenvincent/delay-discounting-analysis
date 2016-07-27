@@ -51,7 +51,7 @@ classdef MatlabStanWrapper < SamplerWrapper
 			% calculates stats about samples
 			mcmcFitObject =  STANmcmc(obj.stanFit);
 
-			speak('sampling complete')
+			%speak('sampling complete')
 		end
 
 		%% SET METHODS ----------------------------------------------------
@@ -72,8 +72,7 @@ classdef MatlabStanWrapper < SamplerWrapper
 	
 	methods (Static)
 		function observedData = addStanSpecificObservedData(observedData, data)
-			%obj.observed                = data.observedData;
-			observedData.nParticipants	= data.nParticipants;
+			observedData.nParticipants	= max(observedData.participantIndexList);
 			observedData.totalTrials	= data.totalTrials;
 		end
 	end
