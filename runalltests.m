@@ -1,6 +1,10 @@
+%RUNALLTESTS
+% A script to run the tests
+%
+% Manually run specific tests like this...
+% result = runtests('tests/test_calculateAUC.m')
 
 
-% Run the dToolbox tests
 import matlab.unittest.TestSuite;
 
 
@@ -12,6 +16,7 @@ ddAnalysisSetUp()
 
 initial_dir = cd;
 cd('~/git-local/delay-discounting-analysis/')
+
 
 %% RUN ALL TESTS
 testSuite = TestSuite.fromFolder('tests');
