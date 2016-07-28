@@ -96,21 +96,28 @@ classdef test_AllParametricModels < matlab.unittest.TestCase
 			% TODO: DO AN ACTUAL TEST HERE !!!!!!!!!!!!!!!!!!!!!!
 		end
 		
-% 		function canCompileSTANmodel(testCase, model)
-% 			% make model
-% 			makeModelFunction = str2func(model);
-% 			saveFolderName = model;
-% 			created_model = makeModelFunction(testCase.data,...
-% 				'saveFolder', saveFolderName);
-% 			
-% 			% Try to compile stan model
-% 			stan_model = StanModel('file', created_model.modelFilename,...
-% 				'stan_home', obj.stanHome);
-% 			% Compile the Stan model. This takes a bit of time
-% 			display(['COMPILING STAN MODEL...' model])
-% 			stan_model.compile();
-% 			
-% 		end
+		% 		function canCompileSTANmodel(testCase, model)
+		% 			% make model
+		% 			makeModelFunction = str2func(model);
+		% 			saveFolderName = model;
+		% 			created_model = makeModelFunction(testCase.data,...
+		% 				'saveFolder', saveFolderName);
+		%
+		% 			% Try to compile stan model
+		% 			stan_model = StanModel('file', created_model.modelFilename,...
+		% 				'stan_home', obj.stanHome);
+		% 			% Compile the Stan model. This takes a bit of time
+		% 			display(['COMPILING STAN MODEL...' model])
+		% 			stan_model.compile();
+		%
+		% 		end
+		
+		function teardown(testCase)
+			% we are in the tests folder
+			rmdir('figs','s')
+			delete('*.R')
+			delete('*.csv')
+		end
 		
 	end
 	

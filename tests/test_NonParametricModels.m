@@ -89,6 +89,11 @@ classdef test_NonParametricModels < matlab.unittest.TestCase
 		end
 		
 		
+		function teardown(testCase)
+			% we are in the tests folder
+			rmdir('figs','s')
+		end
+		
 	end
 	
 end

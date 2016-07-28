@@ -65,6 +65,13 @@ classdef test_ModelHierarchicalME < matlab.unittest.TestCase
 			testCase.assumeTrue(isstruct(samples))
 		end
 		
+		
+		function teardown(testCase)
+			% we are in the tests folder
+			rmdir('figs','s')
+			delete('temp.mat')
+		end
+		
 	end
 end
 
