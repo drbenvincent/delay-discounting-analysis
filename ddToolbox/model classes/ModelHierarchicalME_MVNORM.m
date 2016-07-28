@@ -19,22 +19,19 @@ classdef ModelHierarchicalME_MVNORM < Model
 			obj.plotFuncs.clusterPlotFunc = @plotMCclusters;
 
 			% Create variables
-			obj.varList.participantLevel = {'m','c','alpha','epsilon'};
-			obj.varList.monitored = {'r', 'm', 'c', 'mc_mu', 'mc_sigma','alpha','epsilon', 'Rpostpred', 'P'};
-			
-			obj = obj.addUnobservedParticipant('GROUP');
+			obj.varList.participantLevel = {'m','c', 'r', 'alpha','epsilon'};
+			obj.varList.monitored = {'r', 'm', 'c', 'mc_mu', 'mc_sigma','alpha','epsilon',  'Rpostpred', 'P'};
+
+            % TODO: ADD THIS BACK
+			%obj = obj.addUnobservedParticipant('GROUP');
 		end
 
 
 		function obj = setInitialParamValues(obj)
             % Generate initial values of the leaf nodes
 			for chain = 1:obj.sampler.mcmcparams.nchains
-				%obj.initialParams(chain).groupMmu		= normrnd(-0.243,10);
-				%obj.initialParams(chain).groupMsigma	= rand*10;
-				%obj.initialParams(chain).groupCmu		= normrnd(0,30);
-				%obj.initialParams(chain).groupCsigma	= rand*10;
-				obj.initialParams(chain).r				= -0.2 + randn/10;
-				obj.initialParams(chain).mc_mu			= [(rand-0.5)*2 randn*5];
+				%obj.initialParams(chain).r				= -0.2 + randn/10;
+				%obj.initialParams(chain).mc_mu			= [(rand-0.5)*2 randn*5];
 				obj.initialParams(chain).groupW			= rand;
 				obj.initialParams(chain).groupALPHAmu	= rand*10;
 				obj.initialParams(chain).groupALPHAsigma= rand*10;
@@ -70,7 +67,7 @@ classdef ModelHierarchicalME_MVNORM < Model
 	methods (Access = protected)
 
 		function obj = calcDerivedMeasures(obj)
-			
+
 			% convert mc to m and c
 			%beep
 		end

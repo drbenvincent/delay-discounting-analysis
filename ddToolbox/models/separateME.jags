@@ -1,8 +1,8 @@
 model{
 
 for (p in participantIndexList){
-	m[p]       ~ dnorm(-0.243, 1/(0.072^2))
-	c[p]       ~ dnorm(0, 1/(1000^2))
+	m[p]       ~ dnorm(-0.243, 1/(100^2))  # dnorm(-0.243, 1/(0.072^2))
+	c[p]       ~ dnorm(0, 1/(1000^2))      # dnorm(0, 1/(1000^2))
 	alpha[p]   ~ dexp(0.01)
 	epsilon[p] ~ dbeta(1.1, 10.9) T(,0.5)
 }

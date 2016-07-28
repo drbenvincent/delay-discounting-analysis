@@ -126,7 +126,7 @@ classdef JAGSmcmc < mcmcContainer
 
 	methods(Static)
 
-		function [samples] = flattenChains(samples, fieldsToGet)
+		function [new_samples] = flattenChains(samples, fieldsToGet)
 			% collapse the first 2 dimensions of samples (number of MCMC
 			% chains, number of MCMC samples)
 			for field = each(fieldsToGet)
@@ -135,14 +135,14 @@ classdef JAGSmcmc < mcmcContainer
 				switch numel(oldDims)
 					case{2}
 						% only dealing with one participant
-						samples.(field) = vec(temp);
+						new_samples.(field) = vec(temp);
 					case{3}
 						% dealing with multiple participants
 						newDims = [oldDims(1)*oldDims(2) oldDims(3)];
-						samples.(field) = reshape(temp, newDims);
+						new_samples.(field) = reshape(temp, newDims);
 					case{4}
 						newDims = [oldDims(1)*oldDims(2) oldDims(3) oldDims(4)];
-						samples.(field) = reshape(temp, newDims);
+						new_samples.(field) = reshape(temp, newDims);
 				end
 			end
 		end

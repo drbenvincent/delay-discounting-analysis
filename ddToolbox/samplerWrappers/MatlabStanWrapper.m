@@ -11,7 +11,7 @@ classdef MatlabStanWrapper < SamplerWrapper
 
 		function obj = MatlabStanWrapper(modelFilename)
 			obj = obj@SamplerWrapper();
-			obj.stanHome = '~/cmdstan-2.9.0';
+			obj.stanHome = '~/cmdstan-2.11.0';
 			obj.modelFilename = modelFilename;
 			obj = obj.setDefaultMCMCparams();
 		end
@@ -22,7 +22,7 @@ classdef MatlabStanWrapper < SamplerWrapper
 			% TODO: This is a bit kludgy.
 			observedData = obj.addStanSpecificObservedData(model.observedData, model.data);
 			obj.observed = observedData;
-			
+
 			% create Stan Model
 			stan_model = StanModel('file',obj.modelFilename,...
 				'stan_home', obj.stanHome);
@@ -67,9 +67,9 @@ classdef MatlabStanWrapper < SamplerWrapper
 			warning('TODO: validate this folder exists')
 			obj.stanHome = stanHome;
 		end
-		
+
 	end
-	
+
 	methods (Static)
 		function observedData = addStanSpecificObservedData(observedData, data)
 			observedData.nParticipants	= max(observedData.participantIndexList);

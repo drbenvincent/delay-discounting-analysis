@@ -11,29 +11,35 @@ groupK          <- groupKminus2+2
 
 
 # Multivariate normal distribution over (m,c) =========================
-mc_mu[1] ~ dnorm(-0.243, 1/( (0.027*10)^2))    # prior over m_mu
-mc_mu[2] ~ dnorm(-3    , 1/( 10^2) )           # prior over c_mu
 
-lambda[1] ~ dgamma(0.001,0.001)
-lambda[2] ~ dgamma(0.001,0.001)
 
-#r ~ dunif(-1,1)
-r ~ dnorm(-0.9,1/(0.2^2)) T(-1,1)
 
-# Reparamaterize
-mc_sigma[1] <- 1/sqrt(lambda[1]) # sigma over m
-mc_sigma[2] <- 1/sqrt(lambda[2]) # sigma over c
-T[1,1] <- 1/lambda[1]
-T[1,2] <- r*mc_sigma[1]*mc_sigma[2]
-T[2,1] <- r*mc_sigma[1]*mc_sigma[2]
-T[2,2] <- 1/lambda[2]
-TI[1:2,1:2] <- inverse(T[1:2,1:2])
 # =====================================================================
 
 
 
 for (p in participantIndexList){
-	mc[p,1:2]   ~ dmnorm(mc_mu[],TI[,])
+
+    lambda[p,1] ~ dgamma(0.001,0.001)
+    lambda[p,2] ~ dgamma(0.001,0.001)
+    mc_sigma[p,1] <- 1/sqrt(lambda[p,1]) # sigma over m
+    mc_sigma[p,2] <- 1/sqrt(lambda[p,2]) # sigma over c
+
+
+    mc_mu[p,1] ~ dnorm(-0.243, 1/( (0.027*10)^2))    # prior over m_mu
+    mc_mu[p,2] ~ dnorm(-3    , 1/( 10^2) )           # prior over c_mu
+
+    r[p] ~  dunif(-1,1)
+
+    # Reparamaterize
+
+    T[p,1,1] <- 1/lambda[p,1]
+    T[p,1,2] <- r[p] * mc_sigma[p,1] * mc_sigma[p,2]
+    T[p,2,1] <- r[p] * mc_sigma[p,1] * mc_sigma[p,2]
+    T[p,2,2] <- 1/lambda[p,2]
+    TI[p,1:2,1:2] <- inverse(T[p,1:2,1:2])
+
+	mc[p,1:2]   ~ dmnorm(mc_mu[p,1:2],TI[p,1:2,1:2])
 
 	# just for ease of plotting variables m, c...
 	m[p] <- mc[p,1]
