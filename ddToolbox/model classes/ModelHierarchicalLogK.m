@@ -9,20 +9,21 @@ classdef ModelHierarchicalLogK < Model
 	methods (Access = public)
 
 		function obj = ModelHierarchicalLogK(data, varargin)
-            obj = obj@Model(data, varargin{:});
-
+			obj = obj@Model(data, varargin{:});
+			
 			obj.modelType		= 'hierarchicalLogK';
 			obj.discountFuncType = 'logk';
-
-			% 'Decorate' the object with appropriate plot functions
-			obj.plotFuncs.participantFigFunc = @figParticipantLOGK;
-			obj.plotFuncs.clusterPlotFunc = @plotLOGKclusters;
-
+			
 			% Create variables
 			obj.varList.participantLevel = {'logk','alpha','epsilon'};
 			obj.varList.monitored = {'logk','alpha','epsilon', 'Rpostpred', 'P'};
 			
 			obj = obj.addUnobservedParticipant('GROUP');
+			
+			%% Plotting
+			obj.participantFigPlotFuncs		= make_participantFigPlotFuncs_LogK();
+			obj.plotFuncs.clusterPlotFunc	= @plotLOGKclusters;
+			
 		end
 
 

@@ -16,7 +16,7 @@ classdef Model
 		parameterEstimateTable
 		pdata		% experiment level data for plotting
 		alldata		% cross-experiment level data for plotting
-
+		participantFigPlotFuncs
 	end
 
 	properties (Hidden)
@@ -235,17 +235,25 @@ classdef Model
 			alldata.IDnames		= obj.data.IDname;
 			alldata.saveFolder	= obj.saveFolder;
 			alldata.modelType	= obj.modelType;
-			for var = alldata.variables
-				alldata.(var{:}).hdi =...
-					[obj.mcmc.getStats('hdi_low',var{:}),...
-					obj.mcmc.getStats('hdi_high',var{:})];
-				alldata.(var{:}).pointEstVal =...
-					obj.mcmc.getStats(obj.pointEstimateType, var{:});
+			for v = alldata.variables
+				alldata.(v{:}).hdi =...
+					[obj.mcmc.getStats('hdi_low',v{:}),...
+					obj.mcmc.getStats('hdi_high',v{:})];
+				alldata.(v{:}).pointEstVal =...
+					obj.mcmc.getStats(obj.pointEstimateType, v{:});
 			end
 		end
 
 		function plot(obj)
-			arrayfun(obj.plotFuncs.participantFigFunc, obj.pdata) % multi-panel fig
+			
+			%arrayfun(@figParticipant, obj.pdata, obj.participantFigPlotFuncs) % multi-panel fig
+			% TODO: replace this loop with use of partials
+% 			partial = @(x) figParticipant(x, obj.participantFigPlotFuncs);
+% 			arrayfun(partial, obj.pdata)
+			for p=1:numel(obj.pdata)
+				figParticipant(obj.participantFigPlotFuncs, obj.pdata(p));
+			end
+			
 			arrayfun(@plotTriPlotWrapper, obj.pdata) % corner plot of posterior
 			arrayfun(@figPosteriorPrediction, obj.pdata) % posterior prediction plot
 

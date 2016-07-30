@@ -14,13 +14,14 @@ classdef ModelMixedME < Model
 			obj.modelType			= 'mixedME';
 			obj.discountFuncType	= 'me';
 
-			% Decorate the object with appropriate plot functions
-			obj.plotFuncs.participantFigFunc = @figParticipantME;
-			obj.plotFuncs.clusterPlotFunc = @plotMCclusters;
-
 			% Create variables
 			obj.varList.participantLevel = {'m', 'c', 'alpha', 'epsilon'};
 			obj.varList.monitored = {'m', 'c','alpha','epsilon', 'Rpostpred', 'P'};
+			
+			%% Plotting stuff
+			obj.participantFigPlotFuncs		= make_participantFigPlotFuncs_ME();
+			obj.plotFuncs.clusterPlotFunc	= @plotMCclusters;
+			
 		end
 
 

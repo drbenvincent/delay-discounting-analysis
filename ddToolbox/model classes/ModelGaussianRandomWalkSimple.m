@@ -18,15 +18,28 @@ classdef ModelGaussianRandomWalkSimple < Model
 			obj.modelType		= 'mixedGRWsimple';
 			obj.discountFuncType = 'nonparametric';
 			
-			% 'Decorate' the object with appropriate plot functions
-			obj.plotFuncs.participantFigFunc = @figParticipantLOGK;
-			obj.plotFuncs.clusterPlotFunc = @() []; % null func
-			
 			obj.varList.participantLevel = {'discountFraction'};
 			% TODO: remove varList as a property of Model base class.
 			obj.varList.monitored = {'discountFraction', 'alpha', 'epsilon', 'varInc', 'Rpostpred', 'P'};
 			
 			obj.observedData = obj.addititionalObservedData( obj.observedData );
+			
+			% Define plotting functions for the participant mult-panel
+			% figure
+			obj.participantFigPlotFuncs{1} = @(plotdata) mcmc.BivariateDistribution(plotdata.samples.posterior.epsilon,...
+				plotdata.samples.posterior.alpha,...
+				'xLabel','error rate, $\epsilon$',...
+				'ylabel','comparison accuity, $\alpha$',...
+				'pointEstimateType', plotdata.pointEstimateType,...
+				'plotStyle', 'hist');
+			
+			obj.participantFigPlotFuncs{2} = @(plotdata) plotPsychometricFunc(plotdata.samples, plotdata.pointEstimateType);
+			
+			% TODO: FIX THIS
+			%obj.participantFigPlotFuncs{3} = @(personInfo) plotDiscountFunctionGRW(personInfo,  [50 95]);
+						
+			% Decorate the object with appropriate plot functions
+			obj.plotFuncs.clusterPlotFunc = @() []; % null func
 		end
 		
 		
@@ -63,7 +76,6 @@ classdef ModelGaussianRandomWalkSimple < Model
 			
 			%% Corner plot of group-level params
 			posteriorSamples = obj.mcmc.getSamplesAsMatrix({'varInc','alpha','epsilon'});
-			%priorSamples = obj.mcmc.getSamplesAsMatrix({'varInc_group_prior','alpha_group_prior','epsilon_group_prior'});
 			varLabals = {'varInc','alpha','epsilon'};
 			
 			figure(87)
@@ -85,7 +97,7 @@ classdef ModelGaussianRandomWalkSimple < Model
 				% Plotting
 				figure(1), clf
 				
-				subplot(1,2,1)
+				subplot(1,2,1) % TODO: PUT THIS PLOT IN THE PARTICIPANT PLOT FUNCTIONS
 				intervals = [50 95];
 				plotDiscountFunctionGRW(personInfo, intervals)
 				latex_fig(16, 14, 4)

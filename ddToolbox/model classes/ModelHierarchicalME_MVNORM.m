@@ -14,9 +14,6 @@ classdef ModelHierarchicalME_MVNORM < Model
 			obj.modelType			= 'hierarchicalMEmvnorm';
 			obj.discountFuncType	= 'me';
 
-			% Decorate the object with appropriate plot functions
-			obj.plotFuncs.participantFigFunc = @figParticipantME;
-			obj.plotFuncs.clusterPlotFunc = @plotMCclusters;
 
 			% Create variables
 			obj.varList.participantLevel = {'m','c', 'r', 'alpha','epsilon'};
@@ -24,6 +21,32 @@ classdef ModelHierarchicalME_MVNORM < Model
 
             % TODO: ADD THIS BACK
 			%obj = obj.addUnobservedParticipant('GROUP');
+			
+			%% Plotting
+			obj.participantFigPlotFuncs{1} = @(plotdata) mcmc.BivariateDistribution(plotdata.samples.posterior.epsilon(:), plotdata.samples.posterior.alpha(:),...
+				'xLabel','error rate, $\epsilon$',...
+				'ylabel','comparison accuity, $\alpha$',...
+				'pointEstimateType',plotdata.pointEstimateType,...
+				'plotStyle', 'hist');
+
+			obj.participantFigPlotFuncs{2} = @(plotdata) plotPsychometricFunc(plotdata.samples, plotdata.pointEstimateType);
+			
+			obj.participantFigPlotFuncs{3} = mcmc.UnivariateDistribution(plotdata.samples.posterior.r(:),...
+				'xLabel', 'r');
+
+			obj.participantFigPlotFuncs{4} = @(plotdata) mcmc.BivariateDistribution(plotdata.samples.posterior.m(:), plotdata.samples.posterior.c(:),...
+				'xLabel','slope, $m$',...
+				'ylabel','intercept, $c$',...
+				'pointEstimateType',plotdata.pointEstimateType,...
+				'plotStyle', 'hist');
+			
+			obj.participantFigPlotFuncs{5} = @(plotdata) plotMagnitudeEffect(plotdata.samples, plotdata.pointEstimateType);
+			
+			obj.participantFigPlotFuncs{6} = @(plotdata) plotDiscountSurface(plotdata);
+
+			% Decorate the object with appropriate plot functions
+			obj.plotFuncs.clusterPlotFunc = @plotMCclusters;
+			
 		end
 
 

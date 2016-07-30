@@ -99,3 +99,5 @@ model = model.conductInference(...
 	'mcmcSamples', 10^4,...					% default is ???????????
 	'chains', 3,...							% default is ???
 	'burnin', 1000);						% default is ?????
+
+model.plot()
