@@ -21,7 +21,7 @@ classdef ModelHierarchicalME_MVNORM < Model
 
             % TODO: ADD THIS BACK
 			%obj = obj.addUnobservedParticipant('GROUP');
-			
+
 			%% Plotting
 			obj.participantFigPlotFuncs{1} = @(plotdata) mcmc.BivariateDistribution(plotdata.samples.posterior.epsilon(:), plotdata.samples.posterior.alpha(:),...
 				'xLabel','error rate, $\epsilon$',...
@@ -30,7 +30,7 @@ classdef ModelHierarchicalME_MVNORM < Model
 				'plotStyle', 'hist');
 
 			obj.participantFigPlotFuncs{2} = @(plotdata) plotPsychometricFunc(plotdata.samples, plotdata.pointEstimateType);
-			
+
 			obj.participantFigPlotFuncs{3} = mcmc.UnivariateDistribution(plotdata.samples.posterior.r(:),...
 				'xLabel', 'r');
 
@@ -39,25 +39,25 @@ classdef ModelHierarchicalME_MVNORM < Model
 				'ylabel','intercept, $c$',...
 				'pointEstimateType',plotdata.pointEstimateType,...
 				'plotStyle', 'hist');
-			
+
 			obj.participantFigPlotFuncs{5} = @(plotdata) plotMagnitudeEffect(plotdata.samples, plotdata.pointEstimateType);
-			
+
 			obj.participantFigPlotFuncs{6} = @(plotdata) plotDiscountSurface(plotdata);
 
 			% Decorate the object with appropriate plot functions
 			obj.plotFuncs.clusterPlotFunc = @plotMCclusters;
-			
+
 		end
 
 
-		function obj = setInitialParamValues(obj)
+		function initialParams = setInitialParamValues(obj)
             % Generate initial values of the leaf nodes
 			for chain = 1:obj.sampler.mcmcparams.nchains
 				%obj.initialParams(chain).r				= -0.2 + randn/10;
 				%obj.initialParams(chain).mc_mu			= [(rand-0.5)*2 randn*5];
-				obj.initialParams(chain).groupW			= rand;
-				obj.initialParams(chain).groupALPHAmu	= rand*10;
-				obj.initialParams(chain).groupALPHAsigma= rand*10;
+				initialParams(chain).groupW			= rand;
+				initialParams(chain).groupALPHAmu	= rand*10;
+				initialParams(chain).groupALPHAsigma= rand*10;
 			end
 		end
 

@@ -18,15 +18,11 @@ classdef MatlabStanWrapper < SamplerWrapper
 
 
 		function mcmcFitObject = conductInference(obj, model)
-			%% preparation for MCMC sampling
-			% TODO: This is a bit kludgy.
-			observedData = obj.addStanSpecificObservedData(model.observedData, model.data);
-			obj.observed = observedData;
 
-			% create Stan Model
+            %% sampler-specific preparation
+			obj.observed = obj.addStanSpecificObservedData(model.observedData, model.data);
 			stan_model = StanModel('file',obj.modelFilename,...
 				'stan_home', obj.stanHome);
-			% Compile the Stan model. This takes a bit of time
 			display('COMPILING STAN MODEL...')
 			tic
 			stan_model.compile();
@@ -51,6 +47,7 @@ classdef MatlabStanWrapper < SamplerWrapper
 			% calculates stats about samples
 			mcmcFitObject =  STANmcmc(obj.stanFit);
 
+            % Uncomment this line if you want auditory feedback
 			%speak('sampling complete')
 		end
 
@@ -60,8 +57,6 @@ classdef MatlabStanWrapper < SamplerWrapper
 			obj.mcmcparams.nsamples		= 10^4;	% represents TOTAL number of samples we want
 			obj.mcmcparams.nchains		= 2;
 		end
-
-
 
 		function obj = setStanHome(obj, stanHome)
 			warning('TODO: validate this folder exists')

@@ -17,20 +17,20 @@ classdef ModelMixedME < Model
 			% Create variables
 			obj.varList.participantLevel = {'m', 'c', 'alpha', 'epsilon'};
 			obj.varList.monitored = {'m', 'c','alpha','epsilon', 'Rpostpred', 'P'};
-			
+
 			%% Plotting stuff
 			obj.participantFigPlotFuncs		= make_participantFigPlotFuncs_ME();
 			obj.plotFuncs.clusterPlotFunc	= @plotMCclusters;
-			
+
 		end
 
 
-		function obj = setInitialParamValues(obj)
+		function initialParams = setInitialParamValues(obj)
             % Generate initial values of the leaf nodes
 			for chain = 1:obj.sampler.mcmcparams.nchains
-				obj.initialParams(chain).groupW			= rand;
-				obj.initialParams(chain).groupALPHAmu	= rand*10;
-				obj.initialParams(chain).groupALPHAsigma= rand*10;
+				initialParams(chain).groupW			= rand;
+				initialParams(chain).groupALPHAmu	= rand*10;
+				initialParams(chain).groupALPHAsigma= rand*10;
 			end
 		end
 

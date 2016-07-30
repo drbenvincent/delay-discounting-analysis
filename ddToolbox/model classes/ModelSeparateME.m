@@ -18,20 +18,20 @@ classdef ModelSeparateME < Model
 			% Create variables
 			obj.varList.participantLevel = {'m', 'c','alpha','epsilon'};
 			obj.varList.monitored = {'m', 'c','alpha','epsilon', 'Rpostpred', 'P'};
-			
+
 			%% Plotting stuff
 			obj.participantFigPlotFuncs		= make_participantFigPlotFuncs_ME();
 			obj.plotFuncs.clusterPlotFunc	= @plotMCclusters;
 		end
 
-		function obj = setInitialParamValues(obj)
+		function initialParams = setInitialParamValues(obj)
             % Generate initial values of the leaf nodes
 			nParticipants = obj.data.nParticipants;
 			for chain = 1:obj.sampler.mcmcparams.nchains
-				obj.initialParams(chain).m			= normrnd(-0.243,2, [nParticipants,1]);
-				obj.initialParams(chain).c			= normrnd(0,10, [nParticipants,1]);
-				obj.initialParams(chain).alpha		= abs(normrnd(0.01,10, [nParticipants,1]));
-				obj.initialParams(chain).epsilon	= 0.1 + rand([nParticipants,1])/10;
+				initialParams(chain).m			= normrnd(-0.243,2, [nParticipants,1]);
+				initialParams(chain).c			= normrnd(0,10, [nParticipants,1]);
+				initialParams(chain).alpha		= abs(normrnd(0.01,10, [nParticipants,1]));
+				initialParams(chain).epsilon	= 0.1 + rand([nParticipants,1])/10;
 
 			end
 		end

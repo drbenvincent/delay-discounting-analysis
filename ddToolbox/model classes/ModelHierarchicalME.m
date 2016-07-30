@@ -13,30 +13,30 @@ classdef ModelHierarchicalME < Model
 
 			obj.modelType			= 'hierarchicalME';
 			obj.discountFuncType	= 'me';
-			
+
 			% Create variables
 			obj.varList.participantLevel = {'m', 'c', 'alpha', 'epsilon'};
 			obj.varList.monitored = {'m', 'c', 'alpha', 'epsilon', 'Rpostpred', 'P'};
-	
+
 			obj = obj.addUnobservedParticipant('GROUP');
-			
+
 			%% Plotting stuff
 			obj.participantFigPlotFuncs		= make_participantFigPlotFuncs_ME();
 			obj.plotFuncs.clusterPlotFunc	= @plotMCclusters;
-			
+
 		end
 
 
-		function obj = setInitialParamValues(obj)
+		function initialParams = setInitialParamValues(obj)
             % Generate initial values of the leaf nodes
 			for chain = 1:obj.sampler.mcmcparams.nchains
-				obj.initialParams(chain).groupMmu		= normrnd(-0.243,10);
-				obj.initialParams(chain).groupMsigma	= rand*10;
-				obj.initialParams(chain).groupCmu		= normrnd(0,30);
-				obj.initialParams(chain).groupCsigma	= rand*10;
-				obj.initialParams(chain).groupW			= rand;
-				obj.initialParams(chain).groupALPHAmu	= rand*10;
-				obj.initialParams(chain).groupALPHAsigma= rand*10;
+				initialParams(chain).groupMmu		= normrnd(-0.243,10);
+				initialParams(chain).groupMsigma	= rand*10;
+				initialParams(chain).groupCmu		= normrnd(0,30);
+				initialParams(chain).groupCsigma	= rand*10;
+				initialParams(chain).groupW			= rand;
+				initialParams(chain).groupALPHAmu	= rand*10;
+				initialParams(chain).groupALPHAsigma= rand*10;
 			end
 		end
 

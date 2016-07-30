@@ -26,7 +26,6 @@ classdef Model
 		data % handle to Data class (dependency is injected from outside)
 		varList
 		plotFuncs % structure of function handles
-		initialParams
 		shouldPlot
 		unobservedParticipantExist
 		observedData % TODO make this  in model?
@@ -245,7 +244,7 @@ classdef Model
 		end
 
 		function plot(obj)
-			
+
 			%arrayfun(@figParticipant, obj.pdata, obj.participantFigPlotFuncs) % multi-panel fig
 			% TODO: replace this loop with use of partials
 % 			partial = @(x) figParticipant(x, obj.participantFigPlotFuncs);
@@ -253,7 +252,7 @@ classdef Model
 			for p=1:numel(obj.pdata)
 				figParticipant(obj.participantFigPlotFuncs, obj.pdata(p));
 			end
-			
+
 			arrayfun(@plotTriPlotWrapper, obj.pdata) % corner plot of posterior
 			arrayfun(@figPosteriorPrediction, obj.pdata) % posterior prediction plot
 

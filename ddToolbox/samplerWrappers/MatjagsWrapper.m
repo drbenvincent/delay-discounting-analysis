@@ -16,22 +16,11 @@ classdef MatjagsWrapper < SamplerWrapper
 
 		function mcmcFitObject = conductInference(obj, model)
 
-			% TODO: pass in model.setInitialParamValues as a function
-			% instead of passing in all of model
-
-			%% preparation for MCMC sampling
-			
-			model = model.setInitialParamValues(); % mcmc chain values NOT mcmc parameters
-			obj.initialParameters = model.initialParams;
-
-			assert(obj.mcmcparams.nchains >= 2, 'Use a minimum of 2 MCMC chains')
-			startParallelPool()
-
-			% TODO: rather than ask for this, the model is going to do its
-			% model-specific process to go from raw data to observed variables.
+			%% sampler-specific preparation
+			obj.initialParameters = model.setInitialParamValues();
 			obj.observed = model.observedData;
-
 			obj.monitorparams = model.varList.monitored;
+            startParallelPool()
 
 			%% Get our sampler to sample
 			fprintf('\nRunning JAGS (%d chains, %d samples each)\n',...
