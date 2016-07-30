@@ -10,6 +10,7 @@ classdef test_AllParametricModels < matlab.unittest.TestCase
 	end
 	
 	properties (TestParameter)
+		sampler = {'jags', 'stan'} % TODO: ADD STAN
 		model = {'ModelHierarchicalME_MVNORM',...
 			'ModelHierarchicalME',... 
 			'ModelHierarchicalMEUpdated',... 
@@ -20,7 +21,6 @@ classdef test_AllParametricModels < matlab.unittest.TestCase
 			'ModelSeparateLogK',...
 			'ModelGaussianRandomWalkSimple'}
 		pointEstimateType = {'mean','median','mode'}
-		sampler = {'jags', 'stan'} % TODO: ADD STAN
 		chains = {1,2,3}
 	end
 	

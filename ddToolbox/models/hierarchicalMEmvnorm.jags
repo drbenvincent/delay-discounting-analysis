@@ -26,8 +26,10 @@ for (p in participantIndexList){
     mc_sigma[p,2] <- 1/sqrt(lambda[p,2]) # sigma over c
 
 
-    mc_mu[p,1] ~ dnorm(-0.243, 1/( (0.027*10)^2))    # prior over m_mu
-    mc_mu[p,2] ~ dnorm(-3    , 1/( 10^2) )           # prior over c_mu
+    #mc_mu[p,1] ~ dnorm(-0.243, 1/( (0.027*5)^2))    # prior over m_mu
+    #mc_mu[p,2] ~ dnorm(-3    , 1/( 5^2) )           # prior over c_mu
+	mc_mu[p,1] ~ dt(-0.243, 1/( (0.027)^2), 1)    # prior over m_mu
+    mc_mu[p,2] ~ dt(-3    , 1/( 1^2) , 1)           # prior over c_mu
 
     r[p] ~  dunif(-1,1)
 
@@ -59,7 +61,7 @@ for (t in 1:length(ID)) {
 	VB[t] <- B[t] / (1+ ( exp(lkB[t]) * DB[t]))
 
 	# Psychometric function
-	P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * phi( (VB[t]-VA[t]) / alpha[ID[t]] )
+	P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * phi( (VB[t]/VA[t]) / alpha[ID[t]] )
 
 	# response likelihood
 	R[t]         ~ dbern(P[t]) # likelihood of actual response
