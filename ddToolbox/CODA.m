@@ -140,7 +140,7 @@ classdef CODA
 		
 		
 		function plotMCMCchains(obj, variablesToPlot)
-			
+			assert(iscellstr(variablesToPlot))
 			for varName = each(variablesToPlot)
 				figure
 				latex_fig(16, 12,10)

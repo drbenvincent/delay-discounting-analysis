@@ -30,8 +30,8 @@ parameters {
   real groupALPHAmu;
   real <lower=0> groupALPHAsigma;
 
-  real <lower=0,upper=1>groupW;
-  real groupKminus2;
+  real <lower=0,upper=1> groupW;
+  real <lower=0> groupK;
 
   // particiant LEVEL
   vector[nParticipants] logk;
@@ -43,9 +43,6 @@ transformed parameters {
   vector[totalTrials] VA;
   vector[totalTrials] VB;
   vector[totalTrials] P;
-  real groupK;
-
-  groupK <- groupKminus2+2;
 
   for (t in 1:totalTrials){
     // calculate present subjective value for each reward
@@ -62,7 +59,7 @@ model {
   groupALPHAsigma  ~ inv_gamma(0.01,0.01);
 
   groupW           ~ beta(1.1, 10.9);  // mode for lapse rate
-  groupKminus2     ~ gamma(0.1,0.1); // concentration parameter
+  groupK           ~ gamma(0.1,0.1);   // concentration parameter
 
   // participant level - these are vectors
   logk    ~ normal(groupLogKmu, groupLogKsigma);

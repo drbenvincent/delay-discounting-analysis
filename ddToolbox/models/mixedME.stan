@@ -16,19 +16,17 @@ parameters {
   real groupALPHAmu;
   real <lower=0> groupALPHAsigma;
 
-  real <lower=0,upper=1>groupW;
-  real groupKminus2;
+  real <lower=0,upper=1> groupW;
+  real <lower=0> groupK;
 
   // participant level
   vector[nParticipants] m;
   vector[nParticipants] c;
   vector<lower=0>[nParticipants] alpha;
-  vector<lower=0,upper=0.5>[nParticipants] epsilon;
+  vector<lower=0,upper=1>[nParticipants] epsilon;
 }
 
 transformed parameters {
-  // group LEVEL
-  real groupK;
 
   vector[totalTrials] lkA;
   vector[totalTrials] lkB;
@@ -38,7 +36,6 @@ transformed parameters {
 
   vector[totalTrials] P;
 
-  groupK <- groupKminus2+2;
 
   for (t in 1:totalTrials){
     // Magnitude Effect
@@ -59,7 +56,7 @@ model {
   groupALPHAmu    ~ uniform(0, 100);
   groupALPHAsigma ~ uniform(0, 100);
   groupW          ~ beta(1.1, 10.9);  // mode for lapse rate
-  groupKminus2    ~ gamma(0.01, 0.01); // concentration parameter
+  groupK          ~ gamma(0.01, 0.01); // concentration parameter
 
   // PARTICIPANT LEVEL =======================================================
   m        ~ normal(-0.243, 0.5);
