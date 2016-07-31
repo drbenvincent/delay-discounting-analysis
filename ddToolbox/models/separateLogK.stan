@@ -20,7 +20,7 @@ data {
 parameters {
   vector[nParticipants] logk;
   vector<lower=0>[nParticipants] alpha;
-  vector<lower=0,upper=1>[nParticipants] epsilon;
+  vector<lower=0,upper=0.5>[nParticipants] epsilon;
 }
 
 transformed parameters {
