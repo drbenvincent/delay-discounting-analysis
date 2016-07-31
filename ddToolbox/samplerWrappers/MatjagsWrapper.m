@@ -14,7 +14,7 @@ classdef MatjagsWrapper < SamplerWrapper
 		end
 
 
-		function mcmcFitObject = conductInference(obj, model)
+		function codaObject = conductInference(obj, model)
 
 			%% sampler-specific preparation
 			obj.initialParameters = model.setInitialParamValues();
@@ -41,13 +41,11 @@ classdef MatjagsWrapper < SamplerWrapper
 				'cleanup', 1,...
 				'rndseed', 1,...
 				'dic', 0);
-
-			% Create an MCMC object. This is basically a wrapper around the
-			% outputs of MatJAGS which has useful getter functions.
-			mcmcFitObject = JAGSmcmc(samples, stats, obj.mcmcparams);
-
+			
 			% Uncomment this line if you want auditory feedback
 			%speak('sampling complete')
+
+			codaObject = CODA(samples, stats);
 		end
 
 		%% SET METHODS ----------------------------------------------------

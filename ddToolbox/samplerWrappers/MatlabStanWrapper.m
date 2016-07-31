@@ -17,7 +17,7 @@ classdef MatlabStanWrapper < SamplerWrapper
 		end
 
 
-		function mcmcFitObject = conductInference(obj, model)
+		function codaObject = conductInference(obj, model)
 
             %% sampler-specific preparation
 			obj.observed = obj.addStanSpecificObservedData(model.observedData, model.data);
@@ -41,14 +41,11 @@ classdef MatlabStanWrapper < SamplerWrapper
 			% block command window access until sampling finished
 			obj.stanFit.block();
 			toc
-
-			% Create an MCMC object. This is basically a wrapper around the
-			% StanFit object which has useful getter functions. It also
-			% calculates stats about samples
-			mcmcFitObject =  STANmcmc(obj.stanFit);
-
+			
             % Uncomment this line if you want auditory feedback
 			%speak('sampling complete')
+			
+			codaObject = CODA.buildFromStanFit(obj.stanFit);
 		end
 
 		%% SET METHODS ----------------------------------------------------
