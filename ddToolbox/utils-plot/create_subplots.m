@@ -22,7 +22,11 @@ switch(facetStyle)
 		end
 		
 	case{'col'}
-		
+		rows = N;
+		cols = 1;
+		for n = 1:N
+			subplot_handles(n) = subplot(rows, cols, n);
+		end
 end
 
 end

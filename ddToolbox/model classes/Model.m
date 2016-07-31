@@ -236,8 +236,8 @@ classdef Model
 			alldata.modelType	= obj.modelType;
 			for v = alldata.variables
 				alldata.(v{:}).hdi =...
-					[obj.mcmc.getStats('hdi_low',v{:}),...
-					obj.mcmc.getStats('hdi_high',v{:})];
+					[obj.mcmc.getStats('hdi_low',v{:}),... % TODO: ERROR - expecting a vector to be returned
+					obj.mcmc.getStats('hdi_high',v{:})]; % TODO: ERROR - expecting a vector to be returned
 				alldata.(v{:}).pointEstVal =...
 					obj.mcmc.getStats(obj.pointEstimateType, v{:});
 			end

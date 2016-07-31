@@ -11,21 +11,18 @@ function figUnivariateSummary(alldata)
 
 figure(34), clf
 
-variables = alldata.variables;
-participantNames = alldata.IDnames;
+%% DATA PREP
+participantNames = makeParticipantNames();
 
-% just get the participant ID. We assume the filenames are coded as:
-% <ID>-<other information>.txt
-participantNames = getPrefixOfString(participantNames,'-');
+%% CREATE SUBPLOTS
+N = numel(variables);
+subplot_handles = create_subplots(N, 'col');
 
-for v = 1:numel(variables)
-	subplot(numel(variables),1,v)
-	plotErrorBars({participantNames{:}},...
-		alldata.(variables{v}).pointEstVal,...
-		alldata.(variables{v}).hdi,...
-		variables{v});
-	a=axis;
-	axis([0.5 a(2)+0.5 a(3) a(4)]);
+%% APPLY THE PLOTS TO THE SUBPLOTS
+%arrayfun(int_plot_func(), [1:N])
+for n = 1:numel(variables)
+	subplot( subplot_handles(n) )
+	int_plot_func(n)
 end
 
 %% Scale width of figure
@@ -36,6 +33,26 @@ set(gcf,'Position',[100 200 fig_width 1000])
 %% Export
 %latex_fig(16, 5, 5)
 myExport('UnivariateSummary',...
-    'saveFolder',alldata.saveFolder,...
-    'suffix', alldata.modelType)
+	'saveFolder',alldata.saveFolder,...
+	'suffix', alldata.modelType)
+
+
+	function participantNames = makeParticipantNames()
+		variables = alldata.variables;
+		participantNames = alldata.IDnames;
+		
+		% just get the participant ID. We assume the filenames are coded as:
+		% <ID>-<other information>.txt
+		participantNames = getPrefixOfString(participantNames,'-');
+	end
+
+	function int_plot_func(n)
+		subplot( subplot_handles(n) )
+		plotErrorBars({participantNames{:}},...
+			alldata.(variables{n}).pointEstVal,...
+			alldata.(variables{n}).hdi,...
+			variables{n});
+		a=axis;
+		axis([0.5 a(2)+0.5 a(3) a(4)]);
+	end
 end
