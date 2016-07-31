@@ -94,10 +94,10 @@ model = ModelHierarchicalME(data,...
 
 % Do some Bayesian inference (All arguments to this function are optional)
 model = model.conductInference(...
-	'sampler', 'stan',...					% {'jags', 'stan'}
+	'sampler', 'jags',...					% {'jags', 'stan'}
 	'shouldPlot', 'no',...					% {'no', 'yes'}
-	'mcmcSamples', 10^5,...					% default is ???????????
+	'mcmcSamples', 10^3,...					% default is ???????????
 	'chains', 4,...							% default is ???
-	'burnin', 15000);						% default is ?????
+	'burnin', 500);						% default is ?????
 
 %model.plot()

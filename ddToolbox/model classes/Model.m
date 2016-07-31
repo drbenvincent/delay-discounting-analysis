@@ -104,8 +104,9 @@ classdef Model
 				obj.sampler.mcmcparams.burnin = p.Results.burnin;
 			end
 
-			%% Do MCMC sampling, return an mcmcObject ---------------------
+			%% Do MCMC sampling, return an mcmcObject ~~~~~~~~~~~~~~~~~~~~~
 			obj.mcmc = obj.sampler.conductInference( obj );
+			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 			%% Post-sampling activities (for model sub-classes) -----------
 			% If a model has additional measures that need to be calculated
@@ -116,17 +117,9 @@ classdef Model
 			%% Post-sampling activities (common to all models) ------------
 			obj.postPred = calcPosteriorPredictive( obj );
 
-			try
-				obj.mcmc.convergenceSummary(obj.saveFolder, obj.data.IDname)
-			catch
-				warning('mcmc.convergenceSummary() FAILED')
-			end
+			obj.mcmc.convergenceSummary(obj.saveFolder, obj.data.IDname)
 
-			try
-				obj.parameterEstimateTable = obj.exportParameterEstimates();
-			catch
-				warning('exportParameterEstimates() FAILED')
-			end
+			obj.parameterEstimateTable = obj.exportParameterEstimates();
 
 			[obj.pdata, obj.alldata] = obj.packageUpDataForPlotting();
 			if ~strcmp(obj.shouldPlot,'no')
