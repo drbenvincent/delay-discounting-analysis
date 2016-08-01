@@ -238,17 +238,6 @@ classdef Model
 
 		function plot(obj)
 
-			%arrayfun(@figParticipant, obj.pdata, obj.participantFigPlotFuncs) % multi-panel fig
-			% TODO: replace this loop with use of partials
-% 			partial = @(x) figParticipant(x, obj.participantFigPlotFuncs);
-% 			arrayfun(partial, obj.pdata)
-			for p=1:numel(obj.pdata)
-				figParticipant(obj.participantFigPlotFuncs, obj.pdata(p));
-			end
-
-			arrayfun(@plotTriPlotWrapper, obj.pdata) % corner plot of posterior
-			arrayfun(@figPosteriorPrediction, obj.pdata) % posterior prediction plot
-
 			%% Plot functions that use data from all participants
 			figUnivariateSummary( obj.alldata )
 
@@ -260,6 +249,18 @@ classdef Model
 				obj.pointEstimateType,...
 				obj.saveFolder,...
 				obj.modelType)
+			
+			%% Plots, one per participant
+			%arrayfun(@figParticipant, obj.pdata, obj.participantFigPlotFuncs) % multi-panel fig
+			% TODO: replace this loop with use of partials
+% 			partial = @(x) figParticipant(x, obj.participantFigPlotFuncs);
+% 			arrayfun(partial, obj.pdata)
+			for p=1:numel(obj.pdata)
+				figParticipant(obj.participantFigPlotFuncs, obj.pdata(p));
+			end
+			
+			arrayfun(@plotTriPlotWrapper, obj.pdata) % corner plot of posterior
+			arrayfun(@figPosteriorPrediction, obj.pdata) % posterior prediction plot
 		end
 
 		function obj = conditionalDiscountRates(obj, reward, plotFlag)

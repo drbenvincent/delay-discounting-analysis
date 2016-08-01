@@ -1,11 +1,13 @@
 function figPsychometricParamsSeparate(mcmc, data)
-  % Plot priors/posteriors for parameters related to the psychometric
-  % function, ie how response 'errors' are characterised
-  %
-  % plotPsychometricParams(hModel.sampler.samples)
+% Plot priors/posteriors for parameters related to the psychometric
+% function, ie how response 'errors' are characterised
+%
+% plotPsychometricParams(hModel.sampler.samples)
 
-  figure(7), clf
-  P=obj.data.nParticipants;
+warning('IS THIS FUNCTION BEING CALLED ANY MORE?')
+
+figure(7), clf
+P=obj.data.nParticipants;
 % 			%====================================
 % 			subplot(3,2,1)
 % 			plotPriorPostHist(...
@@ -25,17 +27,17 @@ function figPsychometricParamsSeparate(mcmc, data)
 % 				obj.sampler.getSamplesAsMatrix({'groupALPHAsigma'}));
 % 			xlabel('\sigma_\alpha')
 
-  subplot(3,2,5),
-        for p=1:P-1 % plot participant level alpha (alpha(:,:,p))
-          %histogram(vec(samples.alpha(:,:,p)));
-          [F,XI]=ksdensity(vec(obj.sampler.samples.alpha(:,:,p)),...
-            'support','positive',...
-            'function','pdf');
-          plot(XI, F)
-          hold on
-        end
-  xlabel('$\alpha_p$')
-  box off
+subplot(3,2,5),
+for p=1:P-1 % plot participant level alpha (alpha(:,:,p))
+	%histogram(vec(samples.alpha(:,:,p)));
+	[F,XI]=ksdensity(vec(obj.sampler.samples.alpha(:,:,p)),...
+		'support','positive',...
+		'function','pdf');
+	plot(XI, F)
+	hold on
+end
+xlabel('$\alpha_p$')
+box off
 
 % 			%====================================
 % 			subplot(3,2,2)
@@ -56,15 +58,15 @@ function figPsychometricParamsSeparate(mcmc, data)
 % 				obj.sampler.getSamplesAsMatrix({'groupK'}));
 % 			xlabel('\kappa (concentration)')
 
-  subplot(3,2,6),
-        for p=1:P-1 % plot participant level alpha (alpha(:,:,p))
-          %histogram(vec(samples.epsilon(:,:,p)));
-            [F,XI]=ksdensity(vec(samples.epsilon(:,:,p)),...
-            'support','positive',...
-            'function','pdf');
-          plot(XI, F)
-          hold on
-        end
-  xlabel('$\epsilon_p$')
-  box off
+subplot(3,2,6),
+for p=1:P-1 % plot participant level alpha (alpha(:,:,p))
+	%histogram(vec(samples.epsilon(:,:,p)));
+	[F,XI]=ksdensity(vec(samples.epsilon(:,:,p)),...
+		'support','positive',...
+		'function','pdf');
+	plot(XI, F)
+	hold on
+end
+xlabel('$\epsilon_p$')
+box off
 end

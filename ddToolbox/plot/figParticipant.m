@@ -2,15 +2,11 @@ function figParticipant(plotFuncs, plotdata)
 
 fh = figure('Name', ['participant: ' plotdata.IDname]);
 
-%% CREATE SUBPLOTS
 subplot_handles = create_subplots(numel(plotFuncs), 'row');
 
-%% APPLY PLOT FUNCTIONS TO SUBPLOTS
-%plotFuncs{1}(plotdata)
-N = numel(plotFuncs);
 arrayfun(...
 	@(n) apply_plot_function_to_subplot_handle(plotFuncs{n}, subplot_handles(n), plotdata),...
-	[1:N])
+	[1:numel(plotFuncs)])
 
 %% EXPORT
 latex_fig(16, 18, 4)
