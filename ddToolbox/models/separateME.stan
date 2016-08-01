@@ -15,13 +15,13 @@ functions {
 
 data {
   int <lower=1> totalTrials;
-  int <lower=1> nParticipants;
+  int <lower=1> nRealParticipants;
   vector[totalTrials] A;
   vector[totalTrials] B;
   vector<lower=0>[totalTrials] DA;
   vector<lower=0>[totalTrials] DB;
   int <lower=0,upper=1> R[totalTrials];
-  int <lower=0,upper=nParticipants> ID[totalTrials];
+  int <lower=0,upper=nRealParticipants> ID[totalTrials];
 }
 
 transformed data {
@@ -35,10 +35,10 @@ transformed data {
 }
 
 parameters {
-  vector[nParticipants] m;
-  vector[nParticipants] c;
-  vector<lower=0>[nParticipants] alpha;
-  vector<lower=0,upper=0.5>[nParticipants] epsilon;
+  vector[nRealParticipants] m;
+  vector[nRealParticipants] c;
+  vector<lower=0>[nRealParticipants] alpha;
+  vector<lower=0,upper=0.5>[nRealParticipants] epsilon;
 }
 
 transformed parameters {

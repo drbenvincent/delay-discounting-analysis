@@ -20,6 +20,8 @@ classdef ModelMixedLogK < Model
 			obj.varList.monitored = {'logk','alpha','epsilon',...
 				'Rpostpred', 'P'};
 
+			obj = obj.addUnobservedParticipant('GROUP');
+			
 			%% Plotting
 			obj.participantFigPlotFuncs		= make_participantFigPlotFuncs_LogK();
 			obj.plotFuncs.clusterPlotFunc	= @plotLOGKclusters;

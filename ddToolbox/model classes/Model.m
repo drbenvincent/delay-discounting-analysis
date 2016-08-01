@@ -28,7 +28,7 @@ classdef Model
 		plotFuncs % structure of function handles
 		shouldPlot
 		unobservedParticipantExist
-		observedData % TODO make this  in model?
+		observedData % TODO make this in model?
 	end
 
 	methods(Abstract, Access = protected)
@@ -103,7 +103,9 @@ classdef Model
 			if ~isempty(p.Results.burnin)
 				obj.sampler.mcmcparams.burnin = p.Results.burnin;
 			end
-
+			
+			obj.sampler.observedData = obj.observedData;
+			
 			%% Do MCMC sampling, return an mcmcObject ~~~~~~~~~~~~~~~~~~~~~
 			obj.mcmc = obj.sampler.conductInference( obj );
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -292,7 +294,9 @@ classdef Model
 			else
 				observedData.participantIndexList = unique(all_data.ID);
 			end
-
+			
+			observedData.nRealParticipants	= max(all_data.ID);
+			observedData.totalTrials		= height(all_data);
 			% protected method which can be over-ridden by model sub-classes
 			%observedData = obj.addititionalObservedData();
 
@@ -338,10 +342,9 @@ classdef Model
 	methods (Access = protected)
 		function obj = addUnobservedParticipant(obj, str)
 			% Ask data class to add an unobserved participant
-			obj.data = obj.data.add_unobserved_participant(str);
-			obj.unobservedParticipantExist = true;
-			obj.observedData.participantIndexList(end+1) = ...
-				max(obj.observedData.participantIndexList) + 1;
+			obj.data = obj.data.add_unobserved_participant(str);	% add name (eg 'GROUP')
+			obj.unobservedParticipantExist = true;					% TODO is this being used?
+			%obj.observedData.participantIndexList(end+1) = max(obj.observedData.participantIndexList) + 1;
 		end
 	end
 

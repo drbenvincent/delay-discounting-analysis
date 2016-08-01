@@ -20,7 +20,7 @@ classdef MatlabStanWrapper < SamplerWrapper
 		function codaObject = conductInference(obj, model)
 
             %% sampler-specific preparation
-			obj.observed = obj.addStanSpecificObservedData(model.observedData, model.data);
+% 			obj.observed = obj.addStanSpecificObservedData(model.observedData, model.data);
 			stan_model = StanModel('file',obj.modelFilename,...
 				'stan_home', obj.stanHome);
 			display('COMPILING STAN MODEL...')
@@ -32,7 +32,7 @@ classdef MatlabStanWrapper < SamplerWrapper
 			display('SAMPLING STAN MODEL...')
 			tic
 			obj.stanFit = stan_model.sampling(...
-				'data', obj.observed,...
+				'data', obj.observedData,...
 				'warmup', obj.mcmcparams.nburnin,...	% warmup = burn-in
 				'iter', obj.samplesPerChain(),...		% iter = number of MCMC samples
 				'chains', obj.mcmcparams.nchains,...
@@ -64,8 +64,8 @@ classdef MatlabStanWrapper < SamplerWrapper
 
 	methods (Static)
 		function observedData = addStanSpecificObservedData(observedData, data)
-			observedData.nParticipants	= max(observedData.participantIndexList);
-			observedData.totalTrials	= data.totalTrials;
+			%observedData.nParticipants	= max(observedData.participantIndexList);
+% 			observedData.totalTrials	= data.totalTrials;
 		end
 	end
 

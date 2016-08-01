@@ -14,13 +14,11 @@ classdef ModelHierarchicalME_MVNORM < Model
 			obj.modelType			= 'hierarchicalMEmvnorm';
 			obj.discountFuncType	= 'me';
 
-
 			% Create variables
 			obj.varList.participantLevel = {'m','c', 'r', 'alpha','epsilon'};
 			obj.varList.monitored = {'r', 'm', 'c', 'mc_mu', 'mc_sigma','alpha','epsilon',  'Rpostpred', 'P'};
 
-            % TODO: ADD THIS BACK
-			%obj = obj.addUnobservedParticipant('GROUP');
+            obj = obj.addUnobservedParticipant('GROUP');
 
 			%% Plotting
 			obj.participantFigPlotFuncs{1} = @(plotdata) mcmc.BivariateDistribution(plotdata.samples.posterior.epsilon(:), plotdata.samples.posterior.alpha(:),...

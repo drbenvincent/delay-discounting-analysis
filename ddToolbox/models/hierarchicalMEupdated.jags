@@ -30,7 +30,7 @@ groupK          <- groupKminus2+2
 
 # ---------------------------------------------------------------
 # Participant-level parameters
-for (p in participantIndexList){
+for (p in 1:(nRealParticipants+1)){ # +1 for unobserved participant
 	m[p]        ~ dnorm(groupMmu, 1/(groupMsigma^2))
 	c[p]        ~ dnorm(groupCmu, 1/(groupCsigma^2))
 

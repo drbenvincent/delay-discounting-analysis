@@ -11,27 +11,27 @@ functions {
 
 data {
   int <lower=1> totalTrials;
-  int <lower=1> nParticipants;
+  int <lower=1> nRealParticipants;
   vector[totalTrials] A;
   vector[totalTrials] B;
   vector<lower=0>[totalTrials] DA;
   vector<lower=0>[totalTrials] DB;
   int <lower=0,upper=1> R[totalTrials];
-  int <lower=0,upper=nParticipants> ID[totalTrials];
+  int <lower=0,upper=nRealParticipants> ID[totalTrials];
 }
 
 parameters {
   real logk_mu;
   real<lower=0> logk_sigma;
-  vector[nParticipants] logk;
+  vector[nRealParticipants+1] logk; // +1 for unobserved participant
 
   real alpha_mu;
   real <lower=0> alpha_sigma;
-  vector<lower=0>[nParticipants] alpha;
+  vector<lower=0>[nRealParticipants+1] alpha; // +1 for unobserved participant
 
   real <lower=0,upper=1> omega;
   real <lower=0> kappa;
-  vector<lower=0,upper=0.5>[nParticipants] epsilon;
+  vector<lower=0,upper=0.5>[nRealParticipants+1] epsilon; // +1 for unobserved participants
 }
 
 transformed parameters {

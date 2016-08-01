@@ -18,7 +18,7 @@ groupK          <- groupKminus2+2
 
 
 
-for (p in participantIndexList){
+for (p in 1:(nRealParticipants+1)){ # +1 for unobserved participant
 
     lambda[p,1] ~ dgamma(0.001,0.001)
     lambda[p,2] ~ dgamma(0.001,0.001)

@@ -3,7 +3,7 @@ classdef (Abstract) SamplerWrapper
   % This is basically a wrapper to either matjags or matlabstan.
 
 	properties (Access = public)
-		observed % struct
+		observedData % struct
 		modelFilename
 		mcmcparams % struct
 		monitorparams % cell array of parameter names

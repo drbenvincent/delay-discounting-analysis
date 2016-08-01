@@ -15,13 +15,13 @@ functions {
 
 data {
   int <lower=1> totalTrials;
-  int <lower=1> nParticipants;
+  int <lower=1> nRealParticipants;
   vector[totalTrials] A;
   vector[totalTrials] B;
   vector<lower=0>[totalTrials] DA;
   vector<lower=0>[totalTrials] DB;
   int <lower=0,upper=1> R[totalTrials];
-  int <lower=0,upper=nParticipants> ID[totalTrials];
+  int <lower=0,upper=nRealParticipants> ID[totalTrials];
 }
 
 transformed data {
@@ -34,16 +34,16 @@ transformed data {
 }
 
 parameters {
-  vector[nParticipants] m;
-  vector[nParticipants] c;
+  vector[nRealParticipants] m; // No hierarchical, so no +1
+  vector[nRealParticipants] c; // No hierarchical, so no +1
 
   real alpha_mu;
   real <lower=0> alpha_sigma;
-  vector<lower=0>[nParticipants] alpha;
+  vector<lower=0>[nRealParticipants+1] alpha;
 
   real <lower=0,upper=1> omega;
   real <lower=0> kappa;
-  vector<lower=0,upper=0.5>[nParticipants] epsilon;
+  vector<lower=0,upper=0.5>[nRealParticipants+1] epsilon;
 }
 
 transformed parameters {
