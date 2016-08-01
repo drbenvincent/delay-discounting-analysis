@@ -18,7 +18,7 @@ classdef ModelHierarchicalLogK < Model
 			obj.varList.participantLevel = {'logk','alpha','epsilon'};
 			obj.varList.monitored = {'logk','alpha','epsilon', 'Rpostpred', 'P'};
 
-			obj = obj.addUnobservedParticipant('GROUP');
+			% obj = obj.addUnobservedParticipant('GROUP'); % TODO: resolve this
 
 			%% Plotting
 			obj.participantFigPlotFuncs		= make_participantFigPlotFuncs_LogK();

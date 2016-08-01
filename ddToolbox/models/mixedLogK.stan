@@ -1,42 +1,35 @@
-// JAGS model of temporal discounting behaviour
-// - 1-parameter hyperbolic discount function
-// - magnitude effect
-// - hierarchical: estimates participant- and group-level parameters
+functions {
+  real psychometric_function(real alpha, real epsilon, real VA, real VB){
+    // returns probability of choosing B (delayed reward)
+    return epsilon + (1-2*epsilon) * Phi( (VB-VA) / alpha);
+  }
 
-// INTEGERS HAVE TO BE IN ARRAYS
+  vector df_hyperbolic1(vector reward, vector logk, vector delay){
+    return reward ./ (1+(exp(logk).*delay));
+  }
+}
 
 data {
   int <lower=1> totalTrials;
   int <lower=1> nParticipants;
-
   vector[totalTrials] A;
   vector[totalTrials] B;
   vector<lower=0>[totalTrials] DA;
   vector<lower=0>[totalTrials] DB;
   int <lower=0,upper=1> R[totalTrials];
   int <lower=0,upper=nParticipants> ID[totalTrials];
-
-}
-
-transformed data {
-  real groupLogKmu;
-  real<lower=0> groupLogKsigma;
-  groupLogKmu <- -3.9120; #log(1/50)
-  groupLogKsigma <- 2.5;
 }
 
 parameters {
-  // group level
-  real groupALPHAmu;
-  real <lower=0> groupALPHAsigma;
-
-  real <lower=0,upper=1> groupW;
-  real <lower=0> groupK;
-
-  // particiant LEVEL
-  vector[nParticipants] logk;
+  real alpha_mu;
+  real <lower=0> alpha_sigma;
   vector<lower=0>[nParticipants] alpha;
+
+  real <lower=0,upper=1> omega;
+  real <lower=0> kappa;
   vector<lower=0,upper=0.5>[nParticipants] epsilon;
+
+  vector[nParticipants] logk;
 }
 
 transformed parameters {
@@ -44,27 +37,25 @@ transformed parameters {
   vector[totalTrials] VB;
   vector[totalTrials] P;
 
+  VA = df_hyperbolic1(A, logk[ID], DA);
+  VB = df_hyperbolic1(B, logk[ID], DB);
+
   for (t in 1:totalTrials){
-    // calculate present subjective value for each reward
-    VA[t] <- A[t] / (1+(exp(logk[ID[t]])*DA[t]));
-    VB[t] <- B[t] / (1+(exp(logk[ID[t]])*DB[t]));
-    // Psychometric function
-    P[t] <- epsilon[ID[t]] + (1-(2*epsilon[ID[t]])) * Phi_approx( (VB[t]-VA[t]) / alpha[ID[t]] );
+    P[t] = psychometric_function(alpha[ID[t]], epsilon[ID[t]], VA[t], VB[t]);
   }
 }
 
 model {
-  // priors over group-level params
-  groupALPHAmu     ~ uniform(0,100);
-  groupALPHAsigma  ~ inv_gamma(0.01,0.01);
+  alpha_mu     ~ uniform(0,100);
+  alpha_sigma  ~ inv_gamma(0.01,0.01);
+  alpha        ~ normal(alpha_mu, alpha_sigma);
 
-  groupW           ~ beta(1.1, 10.9);  // mode for lapse rate
-  groupK           ~ gamma(0.1,0.1);   // concentration parameter
+  omega        ~ beta(1.1, 10.9);  // mode for lapse rate
+  kappa        ~ gamma(0.1,0.1);   // concentration parameter
+  epsilon      ~ beta(omega*(kappa-2)+1 , (1-omega)*(kappa-2)+1 );
 
-  // participant level - these are vectors
-  logk    ~ normal(groupLogKmu, groupLogKsigma);
-  alpha   ~ normal(groupALPHAmu, groupALPHAsigma); // truncate?
-  epsilon ~ beta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ); // truncate?
+  // no hierarchical inference for logk
+  logk         ~ normal(log(1.0/50.0), 2.5);
 
   R ~ bernoulli(P);
 }
@@ -72,8 +63,7 @@ model {
 generated quantities {  // NO VECTORIZATION IN THIS BLOCK
   int <lower=0,upper=1> Rpostpred[totalTrials];
 
-  // posterior predictive responses
   for (t in 1:totalTrials){
-    Rpostpred[t] <- bernoulli_rng(P[t]);
+    Rpostpred[t] = bernoulli_rng(P[t]);
   }
 }

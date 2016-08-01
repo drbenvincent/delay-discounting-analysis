@@ -1,14 +1,17 @@
-// JAGS model of temporal discounting behaviour
-// - 1-parameter hyperbolic discount function
-// - magnitude effect
-// - hierarchical: estimates participant- and group-level parameters
+functions {
+  real psychometric_function(real alpha, real epsilon, real VA, real VB){
+    // returns probability of choosing B (delayed reward)
+    return epsilon + (1-2*epsilon) * Phi( (VB-VA) / alpha);
+  }
 
-// INTEGERS HAVE TO BE IN ARRAYS
+  vector df_hyperbolic1(vector reward, vector logk, vector delay){
+    return reward ./ (1+(exp(logk).*delay));
+  }
+}
 
 data {
   int <lower=1> totalTrials;
   int <lower=1> nParticipants;
-
   vector[totalTrials] A;
   vector[totalTrials] B;
   vector<lower=0>[totalTrials] DA;
@@ -28,27 +31,26 @@ transformed parameters {
   vector[totalTrials] VB;
   vector[totalTrials] P;
 
+  VA = df_hyperbolic1(A, logk[ID], DA);
+  VB = df_hyperbolic1(B, logk[ID], DB);
+
   for (t in 1:totalTrials){
-    // calculate present subjective value for each reward
-    VA[t] <- A[t] / (1+(exp(logk[ID[t]])*DA[t]));
-    VB[t] <- B[t] / (1+(exp(logk[ID[t]])*DB[t]));
-    // Psychometric function
-    P[t] <- epsilon[ID[t]] + (1-(2*epsilon[ID[t]])) * Phi_approx( (VB[t]-VA[t]) / alpha[ID[t]] );
+    P[t] = psychometric_function(alpha[ID[t]], epsilon[ID[t]], VA[t], VB[t]);
   }
 }
 
 model {
-  logk    ~ normal(-3.9120, 2.5);
+  // no hierarchical inference for logk, alpha, epsilon
+  logk    ~ normal(log(1.0/50.0), 2.5);
   alpha   ~ exponential(0.01);
-  epsilon ~ beta(1.1, 10.9); // T[,0.5]; // truncation can only happen for univariate?
+  epsilon ~ beta(1.1, 10.9);
   R       ~ bernoulli(P);
 }
 
 generated quantities {  // NO VECTORIZATION IN THIS BLOCK ?
   int <lower=0,upper=1> Rpostpred[totalTrials];
 
-  // POSTERIOR PREDICTION
   for (t in 1:totalTrials){
-    Rpostpred[t] <- bernoulli_rng(P[t]);
+    Rpostpred[t] = bernoulli_rng(P[t]);
   }
 }
