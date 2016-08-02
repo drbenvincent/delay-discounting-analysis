@@ -11,7 +11,7 @@ classdef MatlabStanWrapper < SamplerWrapper
 
 		function obj = MatlabStanWrapper(modelFilename)
 			obj = obj@SamplerWrapper();
-			obj.stanHome = '~/cmdstan-2.11.0';
+			obj.stanHome = '~/cmdstan-2.9.0';
 			obj.modelFilename = modelFilename;
 			
 			% set default parameters

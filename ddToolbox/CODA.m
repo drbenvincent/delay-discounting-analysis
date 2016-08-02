@@ -23,6 +23,11 @@ classdef CODA
 		% TODO: REMOVE OR MAKE IT GENERAL
 		function paramEstimateTable = exportParameterEstimates(obj,...
 				level1varNames, IDname, saveFolder, pointEstimateType, varargin)
+			% make a Table. Rows correspond to "IDname", columns
+			% correspond to those in "level1varNames". 
+			% Note: some variables may not have an entry for the
+			% "unobserved participant".
+			
 			p = inputParser;
 			p.FunctionName = mfilename;
 			p.addRequired('level1varNames',@iscellstr);
@@ -34,18 +39,44 @@ classdef CODA
 			
 			% TODO: act on includeCI preference. Ie get, or do not get CI's.
 			
-			%% participant level
 			colHeaderNames = createColumnHeaders(level1varNames, p.Results.includeCI, pointEstimateType);
-			paramEstimates = obj.grabParamEstimates(level1varNames, p.Results.includeCI, pointEstimateType);
-			if numel(colHeaderNames) ~= size(paramEstimates,2)
-				warning('CANT DEAL WITH VECTORS OF PARAMS FOR PEOPLE YET')
-				beep
-				paramEstimateTable=[];
-			else
-				paramEstimateTable = array2table(paramEstimates,...
+			
+			
+			tableEntries = NaN(numel(IDname), numel(colHeaderNames));
+			for n = 1:numel(colHeaderNames)
+				 vals = obj.grabParamEstimates(level1varNames(n), p.Results.includeCI, pointEstimateType);
+				 tableEntries([1:numel(vals)],n) = vals;
+			end
+			paramEstimateTable = array2table(tableEntries,...
 					'VariableNames',colHeaderNames,...
 					'RowNames', IDname);
-			end
+				
+% 			% Build table, column by column
+% 			for n = 1:numel(colHeaderNames)
+% 				
+% 				values = obj.grabParamEstimates(level1varNames(n), p.Results.includeCI, pointEstimateType);
+% 				col(n).table = array2table(...
+% 					values,...
+% 					'VariableNames', colHeaderNames(n),...
+% 					'RowNames', IDname(1:numel(values)));
+% 			end
+% 			%  join
+% 			paramEstimates = col(1).table;
+% 			for n=2:numel(colHeaderNames)
+% 				paramEstimatesNEW = join(paramEstimates, col(n).table);
+% 			end
+			
+			
+% 			paramEstimates = obj.grabParamEstimates(level1varNames, p.Results.includeCI, pointEstimateType);
+% 			if numel(colHeaderNames) ~= size(paramEstimates,2)
+% 				warning('CANT DEAL WITH VECTORS OF PARAMS FOR PEOPLE YET')
+% 				beep
+% 				paramEstimateTable=[];
+% 			else
+% 				paramEstimateTable = array2table(paramEstimates,...
+% 					'VariableNames',colHeaderNames,...
+% 					'RowNames', IDname);
+% 			end
 			
 			function colHeaderNames = createColumnHeaders(varNames,getCI, pointEstimateType)
 				colHeaderNames = {};
@@ -217,7 +248,11 @@ classdef CODA
 			
 			[flatSamples] = obj.flattenChains(obj.samples, fieldsToGet);
 			for field = each(fieldsToGet)
-				samples.(field) = flatSamples.(field)(:,index,:);
+				try
+					samples.(field) = flatSamples.(field)(:,index,:);
+				catch
+					samples.(field) = NaN;
+				end
 			end
 		end
 		

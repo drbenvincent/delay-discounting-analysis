@@ -12,7 +12,7 @@ classdef test_NonParametricModels < matlab.unittest.TestCase
 	properties (TestParameter)
 		model = {'ModelGaussianRandomWalkSimple'}
 		pointEstimateType = {'mean','median','mode'}
-		sampler = {'jags'} % TODO: ADD STAN
+		sampler = {'jags', 'stan'} % TODO: ADD STAN
 		chains = {2,3}
 	end
 	
@@ -29,22 +29,22 @@ classdef test_NonParametricModels < matlab.unittest.TestCase
 	end
 	
 	
-	methods (Test, TestTags = {'Unit'})
-		
-		function make_model_zeroArguments(testCase, model)
-			makeModelFunction = str2func(model);
-			created_model = makeModelFunction(testCase.data);
-			testCase.assertInstanceOf(created_model, model)
-		end
-			
-		function make_model_withPointEstimateType(testCase, model, pointEstimateType)
-			makeModelFunction = str2func(model);
-			created_model = makeModelFunction(testCase.data,...
-				'pointEstimateType', pointEstimateType);
-			testCase.assertInstanceOf(created_model, model)
-		end
-		
-	end
+% 	methods (Test, TestTags = {'Unit'})
+% 		
+% 		function make_model_zeroArguments(testCase, model)
+% 			makeModelFunction = str2func(model);
+% 			created_model = makeModelFunction(testCase.data);
+% 			testCase.assertInstanceOf(created_model, model)
+% 		end
+% 			
+% 		function make_model_withPointEstimateType(testCase, model, pointEstimateType)
+% 			makeModelFunction = str2func(model);
+% 			created_model = makeModelFunction(testCase.data,...
+% 				'pointEstimateType', pointEstimateType);
+% 			testCase.assertInstanceOf(created_model, model)
+% 		end
+% 		
+% 	end
 	
 	methods (Test)
 		

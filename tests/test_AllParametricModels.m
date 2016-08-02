@@ -38,19 +38,22 @@ classdef test_AllParametricModels < matlab.unittest.TestCase
 	
 	
 	methods (Test, TestTags = {'Unit'})
-		
-		function make_model_zeroArguments(testCase, model)
-			makeModelFunction = str2func(model);
-			created_model = makeModelFunction(testCase.data);
-			testCase.assertInstanceOf(created_model, model)
-		end
+	
+		% This is fine, just that it takes a long time to test given the
+		% default number of samples.
+% 		function make_model_zeroArguments(testCase, model)
+% 			makeModelFunction = str2func(model);
+% 			created_model = makeModelFunction(testCase.data);
+% 			testCase.assertInstanceOf(created_model, model)
+% 		end
 			
-		function make_model_withPointEstimateType(testCase, model, pointEstimateType)
-			makeModelFunction = str2func(model);
-			created_model = makeModelFunction(testCase.data,...
-				'pointEstimateType', pointEstimateType);
-			testCase.assertInstanceOf(created_model, model)
-		end
+% We don't just make models any more
+% 		function make_model_withPointEstimateType(testCase, model, pointEstimateType)
+% 			makeModelFunction = str2func(model);
+% 			created_model = makeModelFunction(testCase.data,...
+% 				'pointEstimateType', pointEstimateType);
+% 			testCase.assertInstanceOf(created_model, model)
+% 		end
 		
 	end
 	
@@ -76,9 +79,10 @@ classdef test_AllParametricModels < matlab.unittest.TestCase
 			model = makeModelFunction(testCase.data,...
 				'saveFolder', 'unit test output',...
 				'mcmcParams', struct('nsamples', 10^2,...
-									 'chains', chains,...
+									 'chains', 2,...
 									 'nburnin', 100),...
 				'shouldPlot','no');
+			
 			% TODO: DO AN ACTUAL TEST HERE !!!!!!!!!!!!!!!!!!!!!!
 		end
 		
@@ -86,14 +90,14 @@ classdef test_AllParametricModels < matlab.unittest.TestCase
 		function doInferenceWithModel_specified_sampler(testCase, model, sampler)
 			% make model
 			makeModelFunction = str2func(model);
-			saveFolderName = model;
-			chains = 2;
 			model = makeModelFunction(testCase.data,...
-				'saveFolder', saveFolderName,...
+				'saveFolder', 'unit test output',...
+				'sampler', sampler,...
 				'mcmcParams', struct('nsamples', 10^2,...
-									 'chains', chains,...
+									 'chains', 2,...
 									 'nburnin', 100),...
 				'shouldPlot','no');
+			
 			% TODO: DO AN ACTUAL TEST HERE !!!!!!!!!!!!!!!!!!!!!!
 		end
 		
