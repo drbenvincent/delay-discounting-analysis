@@ -1,4 +1,4 @@
-classdef DataClass
+classdef Data
 	%data A class to load and handle data
 
 	properties (GetAccess = public, SetAccess = private)
@@ -14,7 +14,7 @@ classdef DataClass
 
 	methods (Access = public)
 
-		function obj = DataClass(dataFolder, varargin)
+		function obj = Data(dataFolder, varargin)
 			p = inputParser;
 			p.addRequired('dataFolder',@isstr);
 			p.FunctionName = mfilename;
@@ -25,7 +25,7 @@ classdef DataClass
 				table();
 			catch
 				error( strcat('ERROR: This version of Matlab does not support the Table data type. ',...
-					'You will need to call DataClassLegacy() instead of DataClass().'))
+					'You will need to call DataLegacy() instead of Data().'))
 			end
 			obj.dataFolder = dataFolder;
 			display('You have created a Data object')
@@ -122,7 +122,7 @@ classdef DataClass
 			dataStruct.trialsForThisParticant =...
 				obj.participantLevel(participant).trialsForThisParticant;
 		end
-		
+
 		function all_data = get_all_data_table(obj)
 			% Create long data table of all participants
 			all_data = obj.participantLevel(:).table;
@@ -132,14 +132,14 @@ classdef DataClass
 				end
 			end
 		end
-		
+
 		function obj = add_unobserved_participant(obj, str)
 			%obj.nParticipants = obj.nParticipants + 1;
 			obj.IDname{end+1} = str;
 		end
 
 	end
-	
+
 	methods
 		function names = get.IDname(obj)
 			names = obj.IDname;

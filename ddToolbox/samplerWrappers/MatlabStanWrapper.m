@@ -13,7 +13,11 @@ classdef MatlabStanWrapper < SamplerWrapper
 			obj = obj@SamplerWrapper();
 			obj.stanHome = '~/cmdstan-2.11.0';
 			obj.modelFilename = modelFilename;
-			obj = obj.setDefaultMCMCparams();
+			
+			% set default parameters
+			obj.mcmcparams.nburnin		= 1000;	% (warmup)
+			obj.mcmcparams.nsamples		= 10^4;	% represents TOTAL number of samples we want
+			obj.mcmcparams.nchains		= 2;
 		end
 
 
@@ -49,16 +53,17 @@ classdef MatlabStanWrapper < SamplerWrapper
 		end
 
 		%% SET METHODS ----------------------------------------------------
-		function obj = setDefaultMCMCparams(obj)
-			obj.mcmcparams.nburnin		= 1000;	% (warmup)
-			obj.mcmcparams.nsamples		= 10^4;	% represents TOTAL number of samples we want
-			obj.mcmcparams.nchains		= 2;
-		end
+% 		function obj = setDefaultMCMCparams(obj)
+% 			obj.mcmcparams.nburnin		= 1000;	% (warmup)
+% 			obj.mcmcparams.nsamples		= 10^4;	% represents TOTAL number of samples we want
+% 			obj.mcmcparams.nchains		= 2;
+% 		end
 
 		function obj = setStanHome(obj, stanHome)
 			warning('TODO: validate this folder exists')
 			obj.stanHome = stanHome;
 		end
+		
 
 	end
 

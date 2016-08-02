@@ -40,6 +40,9 @@ classdef ModelGaussianRandomWalkSimple < Model
 
 			% Decorate the object with appropriate plot functions
 			obj.plotFuncs.clusterPlotFunc = @() []; % null func
+			
+			% MUST CALL THIS METHOD AT THE END OF ALL MODEL-SUBCLASS CONSTRUCTORS
+			obj = obj.conductInference();
 		end
 
 

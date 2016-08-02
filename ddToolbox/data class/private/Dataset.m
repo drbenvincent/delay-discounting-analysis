@@ -26,7 +26,7 @@ classdef Dataset
 				table();
 			catch
 				error( strcat('ERROR: This version of Matlab does not support the Table data type. ',...
-					'You will need to call DataClassLegacy() instead of DataClass().'))
+					'You will need to call DataLegacy() instead of Data().'))
 			end
 			obj.dataFolder = dataFolder;
 			display('You have created a Data object')

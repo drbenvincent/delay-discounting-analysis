@@ -22,6 +22,8 @@ classdef ModelSeparateLogK < Model
 			obj.participantFigPlotFuncs		= make_participantFigPlotFuncs_LogK();
 			obj.plotFuncs.clusterPlotFunc	= @plotLOGKclusters;
 
+			% MUST CALL THIS METHOD AT THE END OF ALL MODEL-SUBCLASS CONSTRUCTORS
+			obj = obj.conductInference();
 		end
 
 		function initialParams = setInitialParamValues(obj)

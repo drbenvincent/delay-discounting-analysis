@@ -23,7 +23,9 @@ classdef ModelHierarchicalME < Model
 			%% Plotting stuff
 			obj.participantFigPlotFuncs		= make_participantFigPlotFuncs_ME();
 			obj.plotFuncs.clusterPlotFunc	= @plotMCclusters;
-
+			
+			% MUST CALL THIS METHOD AT THE END OF ALL MODEL-SUBCLASS CONSTRUCTORS
+			obj = obj.conductInference();
 		end
 
 

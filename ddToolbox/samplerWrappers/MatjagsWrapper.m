@@ -10,7 +10,13 @@ classdef MatjagsWrapper < SamplerWrapper
 		function obj = MatjagsWrapper(modelFilename)
 			obj = obj@SamplerWrapper();
 			obj.modelFilename = modelFilename;
-			obj = obj.setDefaultMCMCparams();
+			%obj = obj.setDefaultMCMCparams();
+			
+			% set default parameters
+			obj.mcmcparams.doparallel	= 1;
+			obj.mcmcparams.nburnin		= 5000;
+			obj.mcmcparams.nchains		= 2;
+			obj.mcmcparams.nsamples		= 10^4; % represents TOTAL number of samples we want
 		end
 
 
@@ -48,13 +54,15 @@ classdef MatjagsWrapper < SamplerWrapper
 		end
 
 		%% SET METHODS ----------------------------------------------------
-		function obj = setDefaultMCMCparams(obj)
-			obj.mcmcparams.doparallel	= 1;
-			obj.mcmcparams.nburnin		= 5000;
-			obj.mcmcparams.nchains		= 2;
-			obj.mcmcparams.nsamples		= 10^4; % represents TOTAL number of samples we want
-		end
+% 		function obj = setDefaultMCMCparams(obj)
+% 			obj.mcmcparams.doparallel	= 1;
+% 			obj.mcmcparams.nburnin		= 5000;
+% 			obj.mcmcparams.nchains		= 2;
+% 			obj.mcmcparams.nsamples		= 10^4; % represents TOTAL number of samples we want
+% 		end
 
+
+		
 	end
 
 end

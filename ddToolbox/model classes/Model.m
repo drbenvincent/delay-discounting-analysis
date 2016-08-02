@@ -17,11 +17,12 @@ classdef Model
 		pdata		% experiment level data for plotting
 		alldata		% cross-experiment level data for plotting
 		participantFigPlotFuncs
+		mcmcParams % structure of user-supplied params
 	end
 
 	properties (Hidden)
 		% User supplied preferences
-		mcmcSamples, chains, burnin % mcmcparams
+		%mcmcSamples, chains, burnin % mcmcparams
 		modelType % string (ie modelType.jags, or modelType.stan)
 		data % handle to Data class (dependency is injected from outside)
 		varList
@@ -38,48 +39,59 @@ classdef Model
 	methods (Access = public)
 
 		function obj = Model(data, varargin)
+			
+			% Input parsing ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			p = inputParser;
+			p.StructExpand = false;
 			p.FunctionName = mfilename;
-			p.addRequired('data', @(x) isa(x,'DataClass'));
+			% Required
+			p.addRequired('data', @(x) isa(x,'Data'));
+			% Optional preferences
 			p.addParameter('saveFolder','my_analysis', @isstr);
 			p.addParameter('pointEstimateType','mode',@(x) any(strcmp(x,{'mean','median','mode'})));
+			p.addParameter('shouldPlot', 'no', @(x) any(strcmp(x,{'yes','no'})));
+			% Optional inference related parameters
+			p.addParameter('samplerType', 'jags', @(x) any(strcmp(x,{'jags','stan'})));
+			p.addParameter('mcmcParams', struct, @isstruct)
+			% parse inputs
 			p.parse(data, varargin{:});
-
 			% add p.Results fields into obj
 			fields = fieldnames(p.Results);
 			for n=1:numel(fields)
 				obj.(fields{n}) = p.Results.(fields{n});
 			end
+			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
             % This flag is over-ridden by model sub-classes that do hierarchical inference.
 			obj.unobservedParticipantExist = false;
 
 			obj.observedData = obj.constructObservedDataForMCMC( obj.data.get_all_data_table() );
+			
 		end
 
 
-		function obj = conductInference(obj, varargin)
+		function obj = conductInference(obj)
 			% conductInference  Runs inference
 			%   conductInference(samplerType, varargin)
 
-			p = inputParser;
-			p.FunctionName = mfilename;
-			p.addParameter('samplerType', 'jags', @(x) any(strcmp(x,{'jags','stan'})));
-			p.addParameter('mcmcSamples', [], @isscalar)
-			p.addParameter('chains', [], @isscalar)
-			p.addParameter('burnin', [], @isscalar)
-			p.addParameter('shouldPlot', 'no', @(x) any(strcmp(x,{'yes','no'})));
-			p.parse(varargin{:});
+% 			p = inputParser;
+% 			p.FunctionName = mfilename;
+% 			p.addParameter('samplerType', 'jags', @(x) any(strcmp(x,{'jags','stan'})));
+% 			p.addParameter('mcmcSamples', [], @isscalar)
+% 			p.addParameter('chains', [], @isscalar)
+% 			p.addParameter('burnin', [], @isscalar)
+% 			p.addParameter('shouldPlot', 'no', @(x) any(strcmp(x,{'yes','no'})));
+% 			p.parse(varargin{:});
 
-			obj.modelFile = makeProbModelsPath(obj.modelType, lower(p.Results.samplerType));
+			obj.modelFile = makeProbModelsPath(obj.modelType, lower(obj.samplerType));
 
-			% add p.Results fields into obj
-			% but not sampler
-			fields = fieldnames(p.Results);
-			for n = 1:numel(fields)
-				%if strcmp(fields,'sampler'), continue, end % skip this field
-				obj.(fields{n}) = p.Results.(fields{n});
-			end
+% 			% add p.Results fields into obj
+% 			% but not sampler
+% 			fields = fieldnames(p.Results);
+% 			for n = 1:numel(fields)
+% 				%if strcmp(fields,'sampler'), continue, end % skip this field
+% 				obj.(fields{n}) = p.Results.(fields{n});
+% 			end
 
 			%% Create sampler object --------------------------------------
 			% Use of external function "samplerFactory" means this class is
@@ -88,24 +100,26 @@ classdef Model
 			% "samplerFactory" function.
 			% If we passed in "samplerFactory" as a function then we could
 			% make it easier to completely swap out types of samplers.
-			obj.sampler = samplerFactory(p.Results.samplerType, obj.modelFile);
+			obj.sampler = samplerFactory(obj.samplerType, obj.modelFile);
 
-			% update with user-provided params
-			if ~isempty(p.Results.mcmcSamples)
-				obj.sampler.mcmcparams.nsamples = p.Results.mcmcSamples;
-			end
-			if ~isempty(p.Results.chains) % TODO: THIS IS NOT WORKING
-				obj.sampler.mcmcparams.nchains = p.Results.chains;
-				if obj.sampler.mcmcparams.nchains <= 0
-					obj.sampler.mcmcparams.nchains = 2;
-				end
-			end
-			if ~isempty(p.Results.burnin)
-				obj.sampler.mcmcparams.burnin = p.Results.burnin;
-			end
-			
+			obj.sampler = obj.sampler.updateMCMCparams(obj.mcmcParams);
+% 			% update with user-provided params
+% 			if ~isempty(obj.mcmcSamples)
+% 				obj.sampler.mcmcparams.nsamples = obj.mcmcSamples;
+% 			end
+% 			if ~isempty(obj.chains) % TODO: THIS IS NOT WORKING
+% 				obj.sampler.mcmcparams.nchains = obj.chains;
+% 				if obj.sampler.mcmcparams.nchains <= 0
+% 					obj.sampler.mcmcparams.nchains = 2;
+% 				end
+% 			end
+% 			if ~isempty(obj.burnin)
+% 				obj.sampler.mcmcparams.burnin = obj.burnin;
+% 			end
+
+			% CODE SMALL: INAPPROPRIATE INTIMACY (use a set method)
 			obj.sampler.observedData = obj.observedData;
-			
+
 			%% Do MCMC sampling, return an mcmcObject ~~~~~~~~~~~~~~~~~~~~~
 			obj.mcmc = obj.sampler.conductInference( obj );
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -251,7 +265,7 @@ classdef Model
 				obj.pointEstimateType,...
 				obj.saveFolder,...
 				obj.modelType)
-			
+
 			%% Plots, one per participant
 			%arrayfun(@figParticipant, obj.pdata, obj.participantFigPlotFuncs) % multi-panel fig
 			% TODO: replace this loop with use of partials
@@ -260,7 +274,7 @@ classdef Model
 			for p=1:numel(obj.pdata)
 				figParticipant(obj.participantFigPlotFuncs, obj.pdata(p));
 			end
-			
+
 			arrayfun(@plotTriPlotWrapper, obj.pdata) % corner plot of posterior
 			arrayfun(@figPosteriorPrediction, obj.pdata) % posterior prediction plot
 		end
@@ -294,7 +308,7 @@ classdef Model
 			else
 				observedData.participantIndexList = unique(all_data.ID);
 			end
-			
+
 			observedData.nRealParticipants	= max(all_data.ID);
 			observedData.totalTrials		= height(all_data);
 			% protected method which can be over-ridden by model sub-classes

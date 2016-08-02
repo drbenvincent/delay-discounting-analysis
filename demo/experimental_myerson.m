@@ -26,7 +26,7 @@ fnames={'AC-kirby27-DAYS.txt',...
 'VD-kirby27.txt'};
 
 pathToData='data';
-myData = DataClass(pathToData);
+myData = Data(pathToData);
 myData.loadDataFiles(fnames);
 
 
@@ -37,19 +37,17 @@ z = ceil(sqrt(myData.nParticipants));
 
 for n=1:myData.nParticipants
 	subplot(z,z,n)
-	
+
 	% get participant data
 	data = myData.getParticipantData(n);
-	
+
 	% Calculate kindif column
 	data.logkindiff = log( ((data.B ./ data.A)-1) ./ data.DB );
-	
+
 	plot( data.logkindiff, data.R , 'k+')
-	
+
 	xlabel('$\log(k_{indif})$', 'Interpreter','Latex')
 	ylabel('P(choose delayed)', 'Interpreter','Latex')
 	box off
 	drawnow
 end
-
-

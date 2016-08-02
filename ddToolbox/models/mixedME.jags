@@ -22,7 +22,7 @@ groupKminus2    ~ dgamma(0.01,0.01) # concentration parameter
 groupK          <- groupKminus2+2
 
 # Participant-level parameters
-for (p in 1:nRealParticipants{
+for (p in 1:nRealParticipants){
 	m[p]        ~ dnorm(groupMmu, 1/(groupMsigma^2))
 	c[p]        ~ dnorm(groupCmu, 1/(groupCsigma^2))
 }
