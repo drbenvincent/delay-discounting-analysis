@@ -10,7 +10,6 @@ classdef MatjagsWrapper < SamplerWrapper
 		function obj = MatjagsWrapper(modelFilename)
 			obj = obj@SamplerWrapper();
 			obj.modelFilename = modelFilename;
-			%obj = obj.setDefaultMCMCparams();
 			
 			% set default parameters
 			obj.mcmcparams.doparallel	= 1;
@@ -22,10 +21,11 @@ classdef MatjagsWrapper < SamplerWrapper
 
 		function codaObject = conductInference(obj, model)
 
-			%% sampler-specific preparation
+			%% sampler-specific preparation +++++++++++++++++++++++
 			obj.initialParameters = model.setInitialParamValues();
 			obj.monitorparams = model.varList.monitored;
             startParallelPool()
+			% +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 			%% Get our sampler to sample
 			fprintf('\nRunning JAGS (%d chains, %d samples each)\n',...
@@ -53,16 +53,6 @@ classdef MatjagsWrapper < SamplerWrapper
 			codaObject = CODA(samples, stats);
 		end
 
-		%% SET METHODS ----------------------------------------------------
-% 		function obj = setDefaultMCMCparams(obj)
-% 			obj.mcmcparams.doparallel	= 1;
-% 			obj.mcmcparams.nburnin		= 5000;
-% 			obj.mcmcparams.nchains		= 2;
-% 			obj.mcmcparams.nsamples		= 10^4; % represents TOTAL number of samples we want
-% 		end
-
-
-		
 	end
 
 end

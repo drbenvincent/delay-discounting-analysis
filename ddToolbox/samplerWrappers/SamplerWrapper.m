@@ -21,18 +21,18 @@ classdef (Abstract) SamplerWrapper
 		function obj = SamplerWrapper() % constructor
 		end
 		
-		function obj = updateMCMCparams(obj, userProvidedMcmcPreferences)
-			% update defaults (obj.mcmcparams) with any userProvidedMcmcPreferences
-			
-			% list of fields specified in kwarg structure
-			fields = fieldnames(userProvidedMcmcPreferences);
-			
-			% loop through adding, or overwriting the fields in opts with that in
-			% kwargs.
-			for n=1:numel(fields)
-				obj.mcmcparams.(fields{n}) = userProvidedMcmcPreferences.(fields{n});
-			end
-		end
+% 		function obj = updateMCMCparams(obj, userProvidedMcmcPreferences)
+% 			% update defaults (obj.mcmcparams) with any userProvidedMcmcPreferences
+% 			
+% 			% list of fields specified in kwarg structure
+% 			fields = fieldnames(userProvidedMcmcPreferences);
+% 			
+% 			% loop through adding, or overwriting the fields in opts with that in
+% 			% kwargs.
+% 			for n=1:numel(fields)
+% 				obj.mcmcparams.(fields{n}) = userProvidedMcmcPreferences.(fields{n});
+% 			end
+% 		end
 	end
 	
 	methods (Access = protected)

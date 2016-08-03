@@ -13,6 +13,11 @@ fh = @(x,params) bsxfun(@plus,...
 samples(:,1) = pSamples.posterior.epsilon;
 samples(:,2) = pSamples.posterior.alpha;
 
+% check that we actually have samples
+if any(isnan(samples))
+	return
+end
+
 mcmc.PosteriorPrediction1D(fh,...
     'xInterp',linspace(-200,200,200),... % TODO: make this a function of alpha?
     'samples',samples,...

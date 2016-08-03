@@ -3,8 +3,8 @@ classdef CODA
 	%   Detailed explanation goes here
 	
 	properties
-		samples
-		stats
+		samples % structure. Fields correspond to variables.
+		stats	% structure. Fields correspond to stats, subfield correspond to variables
 	end
 	
 	methods
@@ -114,6 +114,7 @@ classdef CODA
 % 			end
 			
 			function printRhatInformation(IDnames)
+				% TODO: export this in a longform table ? 
 				nParticipants = numel(IDnames);
 				rhatThreshold = 1.01;
 				isRhatThresholdExceeded = false;
@@ -260,7 +261,11 @@ classdef CODA
 			assert(iscell(fieldsToGet),'fieldsToGet must be a cell array')
 			% TODO: This function is doing the same thing as getSamplesAtIndex() ???
 			for field = each(fieldsToGet)
-				samples.(field) = vec(obj.samples.(field)(:,:,participant));
+				try
+					samples.(field) = vec(obj.samples.(field)(:,:,participant));
+				catch
+					samples.(field) = NaN;
+				end
 			end
 			[samplesMatrix] = struct2Matrix(samples);
 		end

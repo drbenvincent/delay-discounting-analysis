@@ -39,7 +39,7 @@ classdef Model
 	methods (Access = public)
 
 		function obj = Model(data, varargin)
-			
+
 			% Input parsing ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			p = inputParser;
 			p.StructExpand = false;
@@ -66,59 +66,22 @@ classdef Model
 			obj.unobservedParticipantExist = false;
 
 			obj.observedData = obj.constructObservedDataForMCMC( obj.data.get_all_data_table() );
-			
+
 		end
 
 
 		function obj = conductInference(obj)
 			% conductInference  Runs inference
-			%   conductInference(samplerType, varargin)
-
-% 			p = inputParser;
-% 			p.FunctionName = mfilename;
-% 			p.addParameter('samplerType', 'jags', @(x) any(strcmp(x,{'jags','stan'})));
-% 			p.addParameter('mcmcSamples', [], @isscalar)
-% 			p.addParameter('chains', [], @isscalar)
-% 			p.addParameter('burnin', [], @isscalar)
-% 			p.addParameter('shouldPlot', 'no', @(x) any(strcmp(x,{'yes','no'})));
-% 			p.parse(varargin{:});
 
 			obj.modelFile = makeProbModelsPath(obj.modelType, lower(obj.samplerType));
 
-% 			% add p.Results fields into obj
-% 			% but not sampler
-% 			fields = fieldnames(p.Results);
-% 			for n = 1:numel(fields)
-% 				%if strcmp(fields,'sampler'), continue, end % skip this field
-% 				obj.(fields{n}) = p.Results.(fields{n});
-% 			end
-
 			%% Create sampler object --------------------------------------
-			% Use of external function "samplerFactory" means this class is
-			% closed for modification, but open to extension.
-			% We can just add new concerete sampler wrappers to the
-			% "samplerFactory" function.
-			% If we passed in "samplerFactory" as a function then we could
-			% make it easier to completely swap out types of samplers.
+			% We are using STRATEGY PATTERN here to use the sampler we want
 			obj.sampler = samplerFactory(obj.samplerType, obj.modelFile);
-
-			obj.sampler = obj.sampler.updateMCMCparams(obj.mcmcParams);
-% 			% update with user-provided params
-% 			if ~isempty(obj.mcmcSamples)
-% 				obj.sampler.mcmcparams.nsamples = obj.mcmcSamples;
-% 			end
-% 			if ~isempty(obj.chains) % TODO: THIS IS NOT WORKING
-% 				obj.sampler.mcmcparams.nchains = obj.chains;
-% 				if obj.sampler.mcmcparams.nchains <= 0
-% 					obj.sampler.mcmcparams.nchains = 2;
-% 				end
-% 			end
-% 			if ~isempty(obj.burnin)
-% 				obj.sampler.mcmcparams.burnin = obj.burnin;
-% 			end
-
-			% CODE SMALL: INAPPROPRIATE INTIMACY (use a set method)
-			obj.sampler.observedData = obj.observedData;
+			% update mcmcparams with any user-supplied values
+			obj.sampler.mcmcparams = kwargify(obj.sampler.mcmcparams, obj.mcmcParams);
+			% provide observed data
+			obj.sampler.observedData = obj.observedData; % CODE SMELL: INAPPROPRIATE INTIMACY (use a set method)
 
 			%% Do MCMC sampling, return an mcmcObject ~~~~~~~~~~~~~~~~~~~~~
 			obj.mcmc = obj.sampler.conductInference( obj );
@@ -132,16 +95,12 @@ classdef Model
 
 			%% Post-sampling activities (common to all models) ------------
 			obj.postPred = calcPosteriorPredictive( obj );
-
 			obj.mcmc.convergenceSummary(obj.saveFolder, obj.data.IDname)
-
 			obj.parameterEstimateTable = obj.exportParameterEstimates();
-
 			[obj.pdata, obj.alldata] = obj.packageUpDataForPlotting();
 			if ~strcmp(obj.shouldPlot,'no')
 				obj.plot()
 			end
-
 			obj.tellUserAboutPublicMethods()
 		end
 
@@ -206,14 +165,22 @@ classdef Model
 			% The idea being we can just pass pdata(n) to a plot function
 			% and it has all the information it needs
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			for p = 1:obj.data.nParticipants
+			nRealExperiments = obj.data.nParticipants;
+			nExperimentsIncludingUnobserved = numel(obj.data.IDname);
+			
+			pdata(1:nExperimentsIncludingUnobserved) = struct; % preallocation
+			for p = 1:nExperimentsIncludingUnobserved
 				% gather data from this experiment
 				pdata(p).data.totalTrials				= obj.data.totalTrials;
 				pdata(p).IDname							= obj.data.IDname{p};
 				pdata(p).data.trialsForThisParticant	= obj.data.participantLevel(p).trialsForThisParticant;
 				pdata(p).data.rawdata					= obj.data.participantLevel(p).table;
 				% gather posterior prediction info
-				pdata(p).postPred						= obj.postPred(p);
+				try
+					pdata(p).postPred					= obj.postPred(p);
+				catch
+					pdata(p).postPred					= [];
+				end
 				% gather mcmc samples
 				pdata(p).samples.posterior	= obj.mcmc.getSamplesAtIndex(p, obj.varList.participantLevel);
 				%obj.pdata(p).samples.prior		= obj.mcmc.getSamples(obj.varList.participantLevelPriors);
@@ -223,20 +190,20 @@ classdef Model
 				pdata(p).saveFolder			= obj.saveFolder;
 				pdata(p).modelType			= obj.modelType;
 			end
-			if obj.unobservedParticipantExist
-				% add info for unobserved participant ~~~~~
-				p = obj.data.nParticipants + 1;
-				pdata(p).data.totalTrials = [];
-				pdata(p).IDname				= obj.data.IDname{p};
-				pdata(p).data.trialsForThisParticant = [];
-				pdata(p).data.rawdata		= [];
-				pdata(p).postPred			= [];
-				pdata(p).samples.posterior	= obj.mcmc.getSamplesAtIndex(p, obj.varList.participantLevel);
-				pdata(p).pointEstimateType	= obj.pointEstimateType;
-				pdata(p).discountFuncType	= obj.discountFuncType;
-				pdata(p).saveFolder			= obj.saveFolder;
-				pdata(p).modelType			= obj.modelType;
-			end
+% 			if obj.unobservedParticipantExist
+% 				% add info for unobserved participant ~~~~~
+% 				p = obj.data.nParticipants + 1;
+% 				pdata(p).data.totalTrials = [];
+% 				pdata(p).IDname				= obj.data.IDname{p};
+% 				pdata(p).data.trialsForThisParticant = [];
+% 				pdata(p).data.rawdata		= [];
+% 				pdata(p).postPred			= [];
+% 				pdata(p).samples.posterior	= obj.mcmc.getSamplesAtIndex(p, obj.varList.participantLevel);
+% 				pdata(p).pointEstimateType	= obj.pointEstimateType;
+% 				pdata(p).discountFuncType	= obj.discountFuncType;
+% 				pdata(p).saveFolder			= obj.saveFolder;
+% 				pdata(p).modelType			= obj.modelType;
+% 			end
 
 			% gather cross-experiment data for univariate stats
 			alldata.variables	= obj.varList.participantLevel;
@@ -361,11 +328,5 @@ classdef Model
 			%obj.observedData.participantIndexList(end+1) = max(obj.observedData.participantIndexList) + 1;
 		end
 	end
-
-% 	methods (Static, Access = protected)
-% 		function observedData = addititionalObservedData(observedData)
-% 			% This is meant to be over-ridden by model sub-classes
-% 		end
-% 	end
 
 end

@@ -41,18 +41,16 @@ classdef test_ModelHierarchicalME < matlab.unittest.TestCase
 			% create new model
 			model = ModelHierarchicalME(testCase.data,...
 				'saveFolder', 'unit test output',...
+				'shouldPlot','no',...
 				'mcmcParams', struct('nsamples', 10^2,...
 									 'chains', 2,...
 									 'nburnin', 100),...
-				'shouldPlot','no');
-			% don't bother converging it
 			% save it
-			save(testCase.tempSaveName, 'data', 'model')
-			clear model data
+			save(testCase.tempSaveName, 'model')
+			clear model 
 			load(testCase.tempSaveName)
 			% tests
 			testCase.assertInstanceOf(model,'ModelHierarchicalME')
-			testCase.assertInstanceOf(data,'Data')
 		end
 		
 		function canGetSamples(testCase)

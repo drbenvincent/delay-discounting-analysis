@@ -134,8 +134,14 @@ classdef Data
 		end
 
 		function obj = add_unobserved_participant(obj, str)
-			%obj.nParticipants = obj.nParticipants + 1;
 			obj.IDname{end+1} = str;
+			
+			% set all fields to empty
+			index = obj.nParticipants+1;
+			fields = fieldnames(obj.participantLevel);
+			for n=1:numel(fields)
+				obj.participantLevel(index).(fields{n}) = [];
+			end
 		end
 
 	end

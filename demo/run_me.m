@@ -95,7 +95,6 @@ datapath = fullfile(path_of_this_mfile,'datasets','kirby');
 addpath(toolbox_path)
 ddAnalysisSetUp();
 
-
 % Do an analysis
 model = ModelMixedME(...
 	Data(datapath, 'files', allFilesInFolder(datapath, 'txt')),...

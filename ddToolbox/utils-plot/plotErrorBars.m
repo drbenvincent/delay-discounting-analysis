@@ -1,4 +1,10 @@
 function plotErrorBars(xLabels, modeVal, ci, ylabelText)
+
+assert(ischar(ylabelText))
+assert(isvector(modeVal))
+assert(numel(xLabels)==numel(modeVal))
+assert(size(ci,1)==numel(modeVal))
+
 % plots a single forest plot
 N = numel(xLabels);
 hold on

@@ -11,9 +11,9 @@ classdef MatlabStanWrapper < SamplerWrapper
 
 		function obj = MatlabStanWrapper(modelFilename)
 			obj = obj@SamplerWrapper();
-			obj.stanHome = '~/cmdstan-2.9.0';
+			obj.stanHome = '~/cmdstan-2.11.0'; % <---- make sure this path is correct!
 			obj.modelFilename = modelFilename;
-			
+
 			% set default parameters
 			obj.mcmcparams.nburnin		= 1000;	% (warmup)
 			obj.mcmcparams.nsamples		= 10^4;	% represents TOTAL number of samples we want
@@ -23,14 +23,14 @@ classdef MatlabStanWrapper < SamplerWrapper
 
 		function codaObject = conductInference(obj, model)
 
-            %% sampler-specific preparation
-% 			obj.observed = obj.addStanSpecificObservedData(model.observedData, model.data);
+            %% sampler-specific preparation ++++++++++++++++++++
 			stan_model = StanModel('file',obj.modelFilename,...
-				'stan_home', obj.stanHome);
+				'stan_home', '~/cmdstan-2.11.0'); 
 			display('COMPILING STAN MODEL...')
 			tic
 			stan_model.compile();
 			toc
+			% ++++++++++++++++++++++++++++++++++++++++++++++++++
 
 			%% Get our sampler to sample
 			display('SAMPLING STAN MODEL...')
@@ -45,33 +45,13 @@ classdef MatlabStanWrapper < SamplerWrapper
 			% block command window access until sampling finished
 			obj.stanFit.block();
 			toc
-			
+
             % Uncomment this line if you want auditory feedback
 			%speak('sampling complete')
-			
+
 			codaObject = CODA.buildFromStanFit(obj.stanFit);
 		end
 
-		%% SET METHODS ----------------------------------------------------
-% 		function obj = setDefaultMCMCparams(obj)
-% 			obj.mcmcparams.nburnin		= 1000;	% (warmup)
-% 			obj.mcmcparams.nsamples		= 10^4;	% represents TOTAL number of samples we want
-% 			obj.mcmcparams.nchains		= 2;
-% 		end
-
-		function obj = setStanHome(obj, stanHome)
-			warning('TODO: validate this folder exists')
-			obj.stanHome = stanHome;
-		end
-		
-
-	end
-
-	methods (Static)
-		function observedData = addStanSpecificObservedData(observedData, data)
-			%observedData.nParticipants	= max(observedData.participantIndexList);
-% 			observedData.totalTrials	= data.totalTrials;
-		end
 	end
 
 end
