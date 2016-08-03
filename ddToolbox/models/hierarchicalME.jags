@@ -35,6 +35,8 @@ for (p in 1:(nRealParticipants+1)){ # +1 for unobserved participant
 }
 
 
+#  neither phi() nor exp() can be vectorised
+
 for (t in 1:length(ID)) {
 	# Calculate log discount rate for each reward
 	lkA[t] <- m[ID[t]]*log(abs(A[t]))+c[ID[t]]

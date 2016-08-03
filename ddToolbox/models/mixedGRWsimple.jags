@@ -38,6 +38,8 @@ for (p in participantIndexList){
 	}
 }
 
+#  neither phi() cannot be vectorised
+
 for (t in 1:length(ID)) {
 	VA[t] <- A[t] # NO DELAY FOR A
 	VB[t] <- (B[t]) * discountFraction[ID[t], delayLookUp[t] ]

@@ -19,6 +19,8 @@ for (p in 1:(nRealParticipants+1)){ # +1 for unobserved participant
 	alpha[p]    ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
 }
 
+#  neither phi() nor exp() can be vectorised
+
 for (t in 1:length(ID)) {
 	# calculate present subjective value for each reward
 	VA[t] <- A[t] / (1+(exp(logk[ID[t]])*DA[t]))
