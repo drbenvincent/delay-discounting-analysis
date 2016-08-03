@@ -1,4 +1,4 @@
-function plotLOGKclusters(mcmcContainer, data, col, pointEstimateType, saveFolder, modelType)
+function plotLOGKclusters(mcmcContainer, data, col, pointEstimateType, saveFolder, modelType, shouldExportPlots)
 
 % plot posteriors over log(k) for all participants
 

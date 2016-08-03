@@ -9,7 +9,7 @@ if numel(fields)>1
 end
 
 for n=1:numel(fields)
-	outputMatrix = [ outputMatrix inputStruct.(fields{n})];
+	outputMatrix(:,n) = inputStruct.(fields{n});
 end
 end
 
