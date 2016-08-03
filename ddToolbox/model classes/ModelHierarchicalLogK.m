@@ -28,18 +28,6 @@ classdef ModelHierarchicalLogK < Model
 			obj = obj.conductInference();
 		end
 
-
-		function initialParams = setInitialParamValues(obj)
-			% Generate initial values of the leaf nodes
-			for chain = 1:obj.sampler.mcmcparams.nchains
-				initialParams(chain).groupLogKmu		= normrnd(log(1/50),1);
-				initialParams(chain).groupLogKsigma		= rand*5;
-				initialParams(chain).groupW				= rand;
-				initialParams(chain).groupALPHAmu		= rand*10;
-				initialParams(chain).groupALPHAsigma	= rand*5;
-			end
-		end
-
 		function conditionalDiscountRates(obj, reward, plotFlag)
 			error('Not applicable to this model that calculates log(k)')
 		end
@@ -55,6 +43,20 @@ classdef ModelHierarchicalLogK < Model
 		function obj = calcDerivedMeasures(obj)
 		end
 
+	end
+	
+	methods (Static)
+		
+		function initialParams = setInitialParamValues(nchains)
+			% Generate initial values of the leaf nodes
+			for chain = 1:nchains
+				initialParams(chain).groupLogKmu		= normrnd(log(1/50),1);
+				initialParams(chain).groupLogKsigma		= rand*5;
+				initialParams(chain).groupW				= rand;
+				initialParams(chain).groupALPHAmu		= rand*10;
+				initialParams(chain).groupALPHAsigma	= rand*5;
+			end
+		end
 	end
 
 end

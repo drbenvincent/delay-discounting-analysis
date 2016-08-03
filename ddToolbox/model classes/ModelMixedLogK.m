@@ -29,18 +29,17 @@ classdef ModelMixedLogK < Model
 			% MUST CALL THIS METHOD AT THE END OF ALL MODEL-SUBCLASS CONSTRUCTORS
 			obj = obj.conductInference();
 		end
-
-
-		function initialParams = setInitialParamValues(obj)
+		
+		function initialParams = setInitialParamValues(obj, nchains)
 			% Generate initial values of the leaf nodes
 			nParticipants = obj.data.nParticipants;
-			for chain = 1:obj.sampler.mcmcparams.nchains
+			for chain = 1:nchains
 				initialParams(chain).groupW             = rand;
 				initialParams(chain).groupALPHAmu		= rand*100;
 				initialParams(chain).groupALPHAsigma	= rand*100;
 			end
 		end
-
+		
 		function conditionalDiscountRates(obj, reward, plotFlag)
 			error('Not applicable to this model that calculates log(k)')
 		end

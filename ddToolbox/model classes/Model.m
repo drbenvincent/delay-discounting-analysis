@@ -11,7 +11,7 @@ classdef Model
 	properties (SetAccess = protected, GetAccess = public)
 		modelFile
 		mcmc % handle to mcmc fit object  % TODO: dependency injection for MCMC fit object
-		sampler % handle to SamplerWrapper class % TODO: dependency injection for SAMPLER
+		%sampler % handle to SamplerWrapper class % TODO: dependency injection for SAMPLER
 		postPred
 		parameterEstimateTable
 		pdata		% experiment level data for plotting
@@ -29,7 +29,7 @@ classdef Model
 		plotFuncs % structure of function handles
 		shouldPlot
 		unobservedParticipantExist
-		observedData % TODO make this in model?
+		observedData
 	end
 
 	methods(Abstract, Access = protected)
@@ -65,7 +65,7 @@ classdef Model
             % This flag is over-ridden by model sub-classes that do hierarchical inference.
 			obj.unobservedParticipantExist = false;
 
-			obj.observedData = obj.constructObservedDataForMCMC( obj.data.get_all_data_table() );
+			%obj.observedData = obj.constructObservedDataForMCMC( obj.data.get_all_data_table() );
 
 		end
 
@@ -73,19 +73,32 @@ classdef Model
 		function obj = conductInference(obj)
 			% conductInference  Runs inference
 
-			obj.modelFile = makeProbModelsPath(obj.modelType, lower(obj.samplerType));
-
-			%% Create sampler object --------------------------------------
-			% We are using STRATEGY PATTERN here to use the sampler we want
-			obj.sampler = samplerFactory(obj.samplerType, obj.modelFile);
-			% update mcmcparams with any user-supplied values
-			obj.sampler.mcmcparams = kwargify(obj.sampler.mcmcparams, obj.mcmcParams);
-			% provide observed data
-			obj.sampler.observedData = obj.observedData; % CODE SMELL: INAPPROPRIATE INTIMACY (use a set method)
-
-			%% Do MCMC sampling, return an mcmcObject ~~~~~~~~~~~~~~~~~~~~~
-			obj.mcmc = obj.sampler.conductInference( obj );
-			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			switch obj.samplerType
+				case{'jags'}
+					samplerFunction = @sampleWithMatjags;
+				case{'stan'}
+					samplerFunction = @sampleWithMatlabStan;
+			end
+			
+			% set default parameters
+			defaultMCMCParams.doparallel	= 1;
+			defaultMCMCParams.nburnin		= 1000;
+			defaultMCMCParams.nchains		= 2;
+			defaultMCMCParams.nsamples		= 10^4; % represents TOTAL number of samples we want
+			
+			% update with any user-supplied options
+			mcmcparams = kwargify(defaultMCMCParams, obj.mcmcParams);
+			
+			obj.observedData = obj.constructObservedDataForMCMC( obj.data.get_all_data_table() );
+			
+			% do the sampling and get a CODA object back ~~~~~~~~~~~~
+			obj.mcmc = samplerFunction(...
+				makeProbModelsPath(obj.modelType, lower(obj.samplerType)),...
+				obj.observedData,...
+				mcmcparams,...
+				obj.setInitialParamValues(mcmcparams.nchains),... % TODO not really a "set" method
+				obj.varList.monitored);
+			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 			%% Post-sampling activities (for model sub-classes) -----------
 			% If a model has additional measures that need to be calculated
@@ -190,20 +203,6 @@ classdef Model
 				pdata(p).saveFolder			= obj.saveFolder;
 				pdata(p).modelType			= obj.modelType;
 			end
-% 			if obj.unobservedParticipantExist
-% 				% add info for unobserved participant ~~~~~
-% 				p = obj.data.nParticipants + 1;
-% 				pdata(p).data.totalTrials = [];
-% 				pdata(p).IDname				= obj.data.IDname{p};
-% 				pdata(p).data.trialsForThisParticant = [];
-% 				pdata(p).data.rawdata		= [];
-% 				pdata(p).postPred			= [];
-% 				pdata(p).samples.posterior	= obj.mcmc.getSamplesAtIndex(p, obj.varList.participantLevel);
-% 				pdata(p).pointEstimateType	= obj.pointEstimateType;
-% 				pdata(p).discountFuncType	= obj.discountFuncType;
-% 				pdata(p).saveFolder			= obj.saveFolder;
-% 				pdata(p).modelType			= obj.modelType;
-% 			end
 
 			% gather cross-experiment data for univariate stats
 			alldata.variables	= obj.varList.participantLevel;

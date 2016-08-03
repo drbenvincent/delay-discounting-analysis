@@ -29,16 +29,6 @@ classdef ModelMixedME < Model
 		end
 
 
-		function initialParams = setInitialParamValues(obj)
-            % Generate initial values of the leaf nodes
-			for chain = 1:obj.sampler.mcmcparams.nchains
-				initialParams(chain).groupW			= rand;
-				initialParams(chain).groupALPHAmu	= rand*10;
-				initialParams(chain).groupALPHAsigma= rand*10;
-			end
-		end
-
-
 		%% ******** SORT OUT WHERE THESE AND OTHER FUNCTIONS SHOULD BE *************
 		function obj = conditionalDiscountRates(obj, reward, plotFlag)
 			% For group level and all participants, extract and plot P( log(k) | reward)
@@ -70,5 +60,15 @@ classdef ModelMixedME < Model
 		end
 
 	end
-
+	
+	methods (Static)
+		function initialParams = setInitialParamValues(nchains) % TODO: make static method
+			% Generate initial values of the leaf nodes
+			for chain = 1:nchains
+				initialParams(chain).groupW			= rand;
+				initialParams(chain).groupALPHAmu	= rand*10;
+				initialParams(chain).groupALPHAsigma= rand*10;
+			end
+		end
+	end
 end

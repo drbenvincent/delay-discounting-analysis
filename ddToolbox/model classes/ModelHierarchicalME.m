@@ -1,25 +1,25 @@
 classdef ModelHierarchicalME < Model
 	%ModelHierarchicalME A model to estimate the magnitide effect
 	%   Detailed explanation goes here
-
+	
 	properties
 	end
-
-
+	
+	
 	methods (Access = public)
-
+		
 		function obj = ModelHierarchicalME(data, varargin)
 			obj = obj@Model(data, varargin{:});
-
+			
 			obj.modelType			= 'hierarchicalME';
 			obj.discountFuncType	= 'me';
-
+			
 			% Create variables
 			obj.varList.participantLevel = {'m', 'c', 'alpha', 'epsilon'};
 			obj.varList.monitored = {'m', 'c', 'alpha', 'epsilon', 'Rpostpred', 'P'};
-
+			
 			obj = obj.addUnobservedParticipant('GROUP');
-
+			
 			%% Plotting stuff
 			obj.participantFigPlotFuncs		= make_participantFigPlotFuncs_ME();
 			obj.plotFuncs.clusterPlotFunc	= @plotMCclusters;
@@ -27,22 +27,8 @@ classdef ModelHierarchicalME < Model
 			% MUST CALL THIS METHOD AT THE END OF ALL MODEL-SUBCLASS CONSTRUCTORS
 			obj = obj.conductInference();
 		end
-
-
-		function initialParams = setInitialParamValues(obj)
-            % Generate initial values of the leaf nodes
-			for chain = 1:obj.sampler.mcmcparams.nchains
-				initialParams(chain).groupMmu		= normrnd(-0.243,10);
-				initialParams(chain).groupMsigma	= rand*10;
-				initialParams(chain).groupCmu		= normrnd(0,30);
-				initialParams(chain).groupCsigma	= rand*10;
-				initialParams(chain).groupW			= rand;
-				initialParams(chain).groupALPHAmu	= rand*10;
-				initialParams(chain).groupALPHAsigma= rand*10;
-			end
-		end
-
-
+		
+		
 		%% ******** SORT OUT WHERE THESE AND OTHER FUNCTIONS SHOULD BE *************
 		function obj = conditionalDiscountRates(obj, reward, plotFlag)
 			% For group level and all participants, extract and plot P( log(k) | reward)
@@ -57,7 +43,7 @@ classdef ModelHierarchicalME < Model
 				%legend(lh.DisplayName)
 			end
 		end
-
+		
 		function conditionalDiscountRates_GroupLevel(obj, reward, plotFlag)
 			GROUP = obj.data.nParticipants; % last participant is our unobserved
 			params = obj.mcmc.getSamplesFromParticipantAsMatrix(GROUP, {'m','c'});
@@ -65,14 +51,31 @@ classdef ModelHierarchicalME < Model
 			lh.LineWidth = 3;
 			lh.Color= 'k';
 		end
-
+		
 	end
-
+	
 	methods (Access = protected)
-
+		
 		function obj = calcDerivedMeasures(obj)
 		end
-
+		
 	end
-
+	
+	methods (Static)
+		
+		function initialParams = setInitialParamValues(nchains)
+			% Generate initial values of the leaf nodes
+			for chain = 1:nchains
+				initialParams(chain).groupMmu		= normrnd(-0.243,10);
+				initialParams(chain).groupMsigma	= rand*10;
+				initialParams(chain).groupCmu		= normrnd(0,30);
+				initialParams(chain).groupCsigma	= rand*10;
+				initialParams(chain).groupW			= rand;
+				initialParams(chain).groupALPHAmu	= rand*10;
+				initialParams(chain).groupALPHAsigma= rand*10;
+			end
+		end
+		
+	end
+	
 end

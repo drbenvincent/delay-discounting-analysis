@@ -46,13 +46,13 @@ classdef ModelGaussianRandomWalkSimple < Model
 		end
 
 
-		function initialParams = setInitialParamValues(obj)
+		function initialParams = setInitialParamValues(obj, nchains)
 			% Generate initial values of the leaf nodes
 			%nTrials = size(obj.data.observedData.A,2);
 			nParticipants = obj.data.nParticipants;
 			nUniqueDelays = numel(obj.observedData.uniqueDelays);
 
-			for chain = 1:obj.sampler.mcmcparams.nchains
+			for chain = 1:nchains
 				initialParams(chain).discountFraction = normrnd(1, 0.1, [nParticipants, nUniqueDelays]);
 			end
 			% TODO: have a function called discountFraction and pass it
