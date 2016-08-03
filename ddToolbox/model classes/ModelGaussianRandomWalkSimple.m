@@ -22,7 +22,7 @@ classdef ModelGaussianRandomWalkSimple < Model
 			% TODO: remove varList as a property of Model base class.
 			obj.varList.monitored = {'discountFraction', 'alpha', 'epsilon', 'varInc', 'Rpostpred', 'P'};
 
-			obj.observedData = obj.addititionalObservedData( obj.observedData );
+			%obj.observedData = obj.addititionalObservedData( obj.observedData );
 
 			% Define plotting functions for the participant mult-panel
 			% figure
@@ -195,7 +195,7 @@ classdef ModelGaussianRandomWalkSimple < Model
 
 
 	methods (Static, Access = protected)
-		function observedData = addititionalObservedData(observedData)
+		function observedData = addititional_model_specific_ObservedData(observedData)
 			observedData.uniqueDelays = sort(unique(observedData.DB))';
 			observedData.delayLookUp = calcDelayLookup();
 

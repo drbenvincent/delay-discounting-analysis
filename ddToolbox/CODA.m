@@ -41,15 +41,30 @@ classdef CODA
 			
 			colHeaderNames = createColumnHeaders(level1varNames, p.Results.includeCI, pointEstimateType);
 			
-			
+			% TODO: FIX THIS FAFF TO DEAL WITH POSSIBLE VECTOR/MATRIX
+			% VARIABLES
+			errorFlag = false;
 			tableEntries = NaN(numel(IDname), numel(colHeaderNames));
 			for n = 1:numel(colHeaderNames)
-				 vals = obj.grabParamEstimates(level1varNames(n), p.Results.includeCI, pointEstimateType);
-				 tableEntries([1:numel(vals)],n) = vals;
+				vals = obj.grabParamEstimates(level1varNames(n), p.Results.includeCI, pointEstimateType);
+				if size(vals,2)>1
+					warning('CANNOT DEAL WITH VECTOR/MATRIX? VARIABLES YET')
+					errorFlag = true;
+				else
+					tableEntries([1:numel(vals)],n) = vals;
+				end
 			end
-			paramEstimateTable = array2table(tableEntries,...
+			
+			if ~errorFlag
+				paramEstimateTable = array2table(tableEntries,...
 					'VariableNames',colHeaderNames,...
 					'RowNames', IDname);
+			else
+				warning('non-scalar model variables detected: Can''t export these in a table yet')
+				% return an empty table
+				paramEstimateTable= table(); 
+			end
+				
 				
 % 			% Build table, column by column
 % 			for n = 1:numel(colHeaderNames)

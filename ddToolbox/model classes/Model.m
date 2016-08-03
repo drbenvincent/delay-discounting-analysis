@@ -9,9 +9,8 @@ classdef Model
 	end
 
 	properties (SetAccess = protected, GetAccess = public)
-		modelFile
+		%modelFile
 		mcmc % handle to mcmc fit object  % TODO: dependency injection for MCMC fit object
-		%sampler % handle to SamplerWrapper class % TODO: dependency injection for SAMPLER
 		postPred
 		parameterEstimateTable
 		pdata		% experiment level data for plotting
@@ -62,11 +61,7 @@ classdef Model
 			end
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-            % This flag is over-ridden by model sub-classes that do hierarchical inference.
-			obj.unobservedParticipantExist = false;
-
-			%obj.observedData = obj.constructObservedDataForMCMC( obj.data.get_all_data_table() );
-
+			obj.unobservedParticipantExist = false;	% default state 
 		end
 
 
@@ -119,7 +114,15 @@ classdef Model
 
 
 		function finalTable = exportParameterEstimates(obj, varargin)
-			%% Make tables
+			% Ideally, we are going to make a table. Each row is a
+			% participant/experiment. We have one set of columns related to
+			% the model variables, and another related to posterior
+			% prediction. These are made separately and then joined.
+			% Currently, this only works when the model variables are
+			% scalar, we don't yet have support for vector or matrix
+			% model variables.
+						
+			%% Make table 1 (model variable info)
 			paramEstimateTable = obj.mcmc.exportParameterEstimates(...
 				obj.varList.participantLevel,... %obj.varList.groupLevel,...
 				obj.data.IDname,...
@@ -127,6 +130,7 @@ classdef Model
 				obj.pointEstimateType,...
 				varargin{:});
 
+			%% Make table 2 (posterior prediction)
 			postPredTable = makePostPredTable();
 
 			%% Horizontally join the tables
@@ -278,8 +282,7 @@ classdef Model
 			observedData.nRealParticipants	= max(all_data.ID);
 			observedData.totalTrials		= height(all_data);
 			% protected method which can be over-ridden by model sub-classes
-			%observedData = obj.addititionalObservedData();
-
+			observedData = obj.addititional_model_specific_ObservedData(observedData);
 		end
 
 		% MIDDLE-MAN METHODS ================================================
@@ -294,6 +297,7 @@ classdef Model
 	methods (Access = private)
 
 		function tellUserAboutPublicMethods(obj)
+			% TODO - the point is to guide them into what to do next
 			methods(obj)
 		end
 
@@ -327,5 +331,11 @@ classdef Model
 			%obj.observedData.participantIndexList(end+1) = max(obj.observedData.participantIndexList) + 1;
 		end
 	end
-
+	
+	methods (Static, Access = protected)
+		% KEEP THIS HERE. IT IS OVER-RIDDEN IN SOME MODEL SUB-CLASSES
+		function observedData = addititional_model_specific_ObservedData(observedData)	
+		end
+	end
+	
 end

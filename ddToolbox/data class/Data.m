@@ -140,6 +140,8 @@ classdef Data
 			index = obj.nParticipants+1;
 			fields = fieldnames(obj.participantLevel);
 			for n=1:numel(fields)
+				% TODO: this currently needs to be empty ([]) but would be
+				% better if it was also able to coe being set as NaN.
 				obj.participantLevel(index).(fields{n}) = [];
 			end
 		end

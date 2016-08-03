@@ -18,6 +18,7 @@ classdef ModelHierarchicalME_MVNORM < Model
 			obj.varList.participantLevel = {'m','c', 'r', 'alpha','epsilon'};
 			obj.varList.monitored = {'r', 'm', 'c', 'mc_mu', 'mc_sigma','alpha','epsilon',  'Rpostpred', 'P'};
 			
+			warning('ModelHierarchicalME_MVNORM not working with unobserved participant')
 			%obj = obj.addUnobservedParticipant('GROUP');
 			
 			%% Plotting
