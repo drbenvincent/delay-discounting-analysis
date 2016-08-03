@@ -35,3 +35,8 @@ testSuite.table
 
 
 
+%% Run a single test file by...
+% make sure test folder is on path
+% >> run(name_of_test_file)
+
+% eg. run(test_create_subplots)

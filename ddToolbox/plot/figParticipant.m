@@ -1,5 +1,9 @@
 function figParticipant(plotFuncs, plotdata)
 
+assert(isstruct(plotdata))
+assert(iscell(plotFuncs))
+isa(plotFuncs{1},'function_handle')
+
 fh = figure('Name', ['participant: ' plotdata.IDname]);
 
 subplot_handles = create_subplots(numel(plotFuncs), 'row');
