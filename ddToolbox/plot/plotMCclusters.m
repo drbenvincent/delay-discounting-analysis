@@ -1,4 +1,4 @@
-function plotMCclusters(mcmcContainer, data, col, pointEstimateType, saveFolder, modelType)
+function plotMCclusters(mcmcContainer, data, col, pointEstimateType, saveFolder, modelType, shouldExportPlots)
 % TODO: TURN THIS INTO A "GROUPBivariateDistribution" PLOT CLASS
 
 % plot posteriors over (m,c) for all participants, as contour plots
@@ -57,9 +57,11 @@ set(gca,'XAxisLocation','origin',...
 	'YAxisLocation','origin')
 drawnow
 
-myExport('summary_plot',...
-	'saveFolder', saveFolder,...
-	'suffix', modelType)
+if shouldExportPlots
+	myExport('summary_plot',...
+		'saveFolder', saveFolder,...
+		'suffix', modelType)
+end
 
 	function plotOpts = definePlotOptions4Participant(col)
 		plotOpts = {'FaceAlpha', 0.1,...

@@ -30,12 +30,13 @@ screen_size = get(0,'ScreenSize');
 fig_width = min(screen_size(3), 100+numel(participantNames)*20);
 set(gcf,'Position',[100 200 fig_width 1000])
 
-%% Export
-%latex_fig(16, 5, 5)
-myExport('UnivariateSummary',...
-	'saveFolder',alldata.saveFolder,...
-	'suffix', alldata.modelType)
-
+if alldata.shouldExportPlots
+	%% Export
+	%latex_fig(16, 5, 5)
+	myExport('UnivariateSummary',...
+		'saveFolder',alldata.saveFolder,...
+		'suffix', alldata.modelType)
+end
 
 	function participantNames = makeParticipantNames()
 		variables = alldata.variables;

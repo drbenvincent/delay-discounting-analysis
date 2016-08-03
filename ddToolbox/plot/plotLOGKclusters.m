@@ -32,9 +32,11 @@ axis(participantAxisBounds)
 % 	'YAxisLocation','origin')
 drawnow
 
-myExport('summary_plot',...
-	'saveFolder', saveFolder,...
-	'suffix', modelType)
+if shouldExportPlots
+	myExport('summary_plot',...
+		'saveFolder', saveFolder,...
+		'suffix', modelType)
+end
 
 
 	function plotOpts = definePlotOptions4Participant(col)

@@ -26,7 +26,7 @@ classdef Model
 		data % handle to Data class (dependency is injected from outside)
 		varList
 		plotFuncs % structure of function handles
-		shouldPlot
+		shouldPlot, shouldExportPlots
 		unobservedParticipantExist
 		observedData
 	end
@@ -49,6 +49,7 @@ classdef Model
 			p.addParameter('saveFolder','my_analysis', @isstr);
 			p.addParameter('pointEstimateType','mode',@(x) any(strcmp(x,{'mean','median','mode'})));
 			p.addParameter('shouldPlot', 'no', @(x) any(strcmp(x,{'yes','no'})));
+			p.addParameter('shouldExportPlots', true, @islogical);
 			% Optional inference related parameters
 			p.addParameter('samplerType', 'jags', @(x) any(strcmp(x,{'jags','stan'})));
 			p.addParameter('mcmcParams', struct, @isstruct)
@@ -107,7 +108,7 @@ classdef Model
 			obj.parameterEstimateTable = obj.exportParameterEstimates();
 			[obj.pdata, obj.alldata] = obj.packageUpDataForPlotting();
 			if ~strcmp(obj.shouldPlot,'no')
-				obj.plot()
+				obj.plot( 'shouldExportPlots', obj.shouldExportPlots )
 			end
 			obj.tellUserAboutPublicMethods()
 		end
@@ -206,9 +207,11 @@ classdef Model
 				pdata(p).discountFuncType	= obj.discountFuncType;
 				pdata(p).saveFolder			= obj.saveFolder;
 				pdata(p).modelType			= obj.modelType;
+				pdata(p).shouldExportPlots  = obj.shouldExportPlots;
 			end
 
 			% gather cross-experiment data for univariate stats
+			alldata.shouldExportPlots =obj.shouldExportPlots;
 			alldata.variables	= obj.varList.participantLevel;
 			alldata.IDnames		= obj.data.IDname;
 			alldata.saveFolder	= obj.saveFolder;
@@ -222,8 +225,20 @@ classdef Model
 			end
 		end
 
-		function plot(obj)
+		function plot(obj, varargin)
+			
+			% parse inputs
+			p = inputParser;
+			p.FunctionName = mfilename;
+			p.addParameter('shouldExportPlots', true, @islogical);
+			p.parse(varargin{:});
 
+			% act on inputs
+			obj.alldata.shouldExportPlots = p.Results.shouldExportPlots;
+			for n=1:numel(obj.pdata)
+				obj.pdata(n).shouldExportPlots = p.Results.shouldExportPlots;
+			end
+			
 			%% Plot functions that use data from all participants
 			figUnivariateSummary( obj.alldata )
 
@@ -234,7 +249,8 @@ classdef Model
 				[1 0 0],...
 				obj.pointEstimateType,...
 				obj.saveFolder,...
-				obj.modelType)
+				obj.modelType,...
+				p.Results.shouldExportPlots)
 
 			%% Plots, one per participant
 			%arrayfun(@figParticipant, obj.pdata, obj.participantFigPlotFuncs) % multi-panel fig
