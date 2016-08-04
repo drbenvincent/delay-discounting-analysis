@@ -21,7 +21,7 @@ classdef Data
 	% NOTE TO SELF: These public methods need to be seen as interfaces to
 	% the outside world that are implementation-independent. So thought
 	% needs to be given to public methods.
-	% 
+	%
 	% These public methods need to be covered by tests.
 	
 	methods (Access = public)
@@ -43,7 +43,7 @@ classdef Data
 			display('You have created a Data object')
 			
 			if ~isempty(p.Results.files)
-				obj = obj.loadDataFiles(p.Results.files);
+				obj = obj.importAllFiles(p.Results.files);
 			end
 			
 			obj.unobservedPartipantPresent = false;
@@ -52,24 +52,25 @@ classdef Data
 		
 		% PUBLIC SET METHODS ==============================================
 		
-		function obj = loadDataFiles(obj, fnames)
+		function obj = importAllFiles(obj, fnames)
 			assert( iscellstr(fnames), 'fnames should be a cell array of filenames')
 			
-			obj.nParticipants = numel(fnames);
-			obj.nRealParticipants = numel(fnames);
-			obj.filenames = fnames;
-			obj = obj.buildParticipantTables(fnames);
+			obj.nParticipants		= numel(fnames);
+			obj.nRealParticipants	= numel(fnames);
+			obj.filenames			= fnames;
+			obj.IDnames				= obj.extractFilenames(fnames);
+			obj.participantLevel	= obj.buildParticipantTables(fnames);
 			obj.exportGroupDataFile();
-			obj.totalTrials = height( obj.buildGroupDataTable() );
+			obj.totalTrials			= height( obj.buildGroupDataTable() );
 			
 			display('The following participant-level data files were imported:')
 			display(fnames')
 		end
 		
 		
-		function exportGroupDataFile(obj)			
+		function exportGroupDataFile(obj)
 			saveLocation = fullfile(obj.dataFolder,'groupLevelData');
-			if ~exist(saveLocation, 'dir'), mkdir(saveLocation), end
+			ensureFolderExists(saveLocation)
 			writetable(...
 				obj.buildGroupDataTable(),...
 				fullfile(saveLocation,'COMBINED_DATA.txt'),...
@@ -84,7 +85,7 @@ classdef Data
 				error('Have already added unobserved participant')
 			end
 			
-			obj.IDnames{end+1} = str;
+			obj.IDnames{obj.nRealParticipants+1} = str;
 			
 			obj.nParticipants = obj.nParticipants + 1;
 			index = obj.nParticipants;
@@ -169,54 +170,62 @@ classdef Data
 	
 	methods (Access = private)
 		
-		function obj = buildParticipantTables(obj, fnames)
-			% TODO: THIS FUNCTION DOES TOO MANY DIFFERENT THINGS
-			% return a structure of tables
-			
+		function IDnames = extractFilenames(obj, fnames)
 			for n=1:obj.nParticipants
-				% determined participant ID string
-				[~,obj.IDnames{n},~] = fileparts(fnames{n}); % just get filename
-				%obj.IDnames{n} = getPrefixOfString(fnames{n},'-');
-				
-				participantTable = readtable(fullfile(obj.dataFolder, fnames{n}), 'delimiter', 'tab');
+				[~,IDnames{n},~] = fileparts(fnames{n}); % just get filename
+			end
+		end
+		
+		function participantLevel = buildParticipantTables(obj, fnames)
+			% return a structure of tables
+						
+			for n=1:obj.nParticipants
+				% read from disk
+				participantTable = readtable(...
+					fullfile(obj.dataFolder, fnames{n}),...
+					'delimiter', 'tab');
 				% Add participant ID column
 				participantTable = obj.appendParticipantIDcolumn(participantTable, n);
-				% Ensure columns PA and PB exist, assuming P=1 if they do not. This
-				% could be the case if we've done a pure delay discounting
-				% experiment and not bothered to store the fact that rewards have
-				% 100% of delivery. If they did not, then we would have stored the
-				% vales of PA and PB.
-				if ~obj.isColumnPresent(participantTable, 'PA')
-					PA = ones( height(participantTable), 1);
-					participantTable = [participantTable table(PA)];
-				end
-				if ~obj.isColumnPresent(participantTable, 'PB')
-					PB = ones( height(participantTable), 1);
-					participantTable = [participantTable table(PB)];
-				end
-				% Ensure columns DA and DB exist, assuming D=0 if they do not. This
-				% could be the case if we ran a pure probability discounting
-				% experiment, and didn't bother storing the fact that DA and DB
-				% were immediate rewards.
-				if ~obj.isColumnPresent(participantTable, 'DA')
-					DA = zeros( height(participantTable), 1);
-					participantTable = [participantTable table(DA)];
-				end
-				if ~obj.isColumnPresent(participantTable, 'DB')
-					DB = ones( zeros(participantTable), 1);
-					participantTable = [participantTable table(DB)];
-				end
-				% Add
-				obj.participantLevel(n).table = participantTable;
-				obj.participantLevel(n).trialsForThisParticant = height(participantTable);
+				% Ensure PA, PB, DA, DB cols present
+				participantTable = obj.ensureAllColsPresent(participantTable);
+				
+				% Add to struct
+				participantLevel(n).table = participantTable;
+				participantLevel(n).trialsForThisParticant = height(participantTable);
+			end
+		end
+		
+		function participantTable = ensureAllColsPresent(obj, participantTable)
+			
+			% Ensure columns PA and PB exist, assuming P=1 if they do not. This
+			% could be the case if we've done a pure delay discounting
+			% experiment and not bothered to store the fact that rewards have
+			% 100% of delivery. If they did not, then we would have stored the
+			% vales of PA and PB.
+			if ~obj.isColumnPresent(participantTable, 'PA')
+				PA = ones( height(participantTable), 1);
+				participantTable = [participantTable table(PA)];
+			end
+			if ~obj.isColumnPresent(participantTable, 'PB')
+				PB = ones( height(participantTable), 1);
+				participantTable = [participantTable table(PB)];
+			end
+			% Ensure columns DA and DB exist, assuming D=0 if they do not. This
+			% could be the case if we ran a pure probability discounting
+			% experiment, and didn't bother storing the fact that DA and DB
+			% were immediate rewards.
+			if ~obj.isColumnPresent(participantTable, 'DA')
+				DA = zeros( height(participantTable), 1);
+				participantTable = [participantTable table(DA)];
+			end
+			if ~obj.isColumnPresent(participantTable, 'DB')
+				DB = ones( zeros(participantTable), 1);
+				participantTable = [participantTable table(DB)];
 			end
 		end
 		
 		function groupTable = buildGroupDataTable(obj)
-			groupTable = table();
-			for n=1:obj.nParticipants
-				groupTable = [groupTable; obj.participantLevel(n).table];
-			end
+			groupTable = vertcat(obj.participantLevel(:).table);
 		end
 		
 	end

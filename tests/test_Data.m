@@ -33,7 +33,7 @@ classdef test_Data < matlab.unittest.TestCase
 		
 		function create_then_load(testCase)
 			temp = Data(testCase.datapath);
-			temp = temp.loadDataFiles({'AC-kirby27-DAYS.txt', 'CS-kirby27-DAYS.txt'});
+			temp = temp.importAllFiles({'AC-kirby27-DAYS.txt', 'CS-kirby27-DAYS.txt'});
 		end
 		
 		function getIDnames_all(testCase)
