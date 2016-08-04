@@ -62,7 +62,7 @@ classdef Model
 			end
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-			obj.unobservedParticipantExist = false;	% default state 
+			obj.unobservedParticipantExist = false;	% default state
 		end
 
 
@@ -75,18 +75,18 @@ classdef Model
 				case{'stan'}
 					samplerFunction = @sampleWithMatlabStan;
 			end
-			
+
 			% set default parameters
 			defaultMCMCParams.doparallel	= 1;
 			defaultMCMCParams.nburnin		= 1000;
 			defaultMCMCParams.nchains		= 2;
 			defaultMCMCParams.nsamples		= 10^4; % represents TOTAL number of samples we want
-			
+
 			% update with any user-supplied options
 			mcmcparams = kwargify(defaultMCMCParams, obj.mcmcParams);
-			
+
 			obj.observedData = obj.constructObservedDataForMCMC( obj.data.get_all_data_table() );
-			
+
 			% do the sampling and get a CODA object back ~~~~~~~~~~~~
 			obj.mcmc = samplerFunction(...
 				makeProbModelsPath(obj.modelType, lower(obj.samplerType)),...
@@ -104,7 +104,7 @@ classdef Model
 
 			%% Post-sampling activities (common to all models) ------------
 			obj.postPred = calcPosteriorPredictive( obj );
-			obj.mcmc.convergenceSummary(obj.saveFolder, obj.data.IDname)
+			obj.mcmc.convergenceSummary(obj.saveFolder, obj.data.getIDnames('all'))
 			obj.parameterEstimateTable = obj.exportParameterEstimates();
 			[obj.pdata, obj.alldata] = obj.packageUpDataForPlotting();
 			if ~strcmp(obj.shouldPlot,'no')
@@ -122,11 +122,16 @@ classdef Model
 			% Currently, this only works when the model variables are
 			% scalar, we don't yet have support for vector or matrix
 			% model variables.
-						
+
+            % **** CODE SMELL: This function needs to know a lot of implementation details. We have a lot of obj look-ups for information and this will break whenever there are any changes to implementation details.
+			% I need to make the objects:
+			%  a) expose interfaces,
+			%  b) hide implementation
+
 			%% Make table 1 (model variable info)
 			paramEstimateTable = obj.mcmc.exportParameterEstimates(...
 				obj.varList.participantLevel,... %obj.varList.groupLevel,...
-				obj.data.IDname,...
+				obj.data.getIDnames('all'),...
 				obj.saveFolder,...
 				obj.pointEstimateType,...
 				varargin{:});
@@ -164,11 +169,11 @@ classdef Model
 				postPredTable = table(ppScore,...
 					percentPredicted,...
 					warning_percent_predicted,...
-					'RowNames', obj.data.IDname([1:obj.data.nParticipants])');
+					'RowNames', obj.data.getIDnames('participants'));
 				if obj.unobservedParticipantExist
 					% add extra row of NaN's on the bottom for the unobserved participant
 					unobserved = table(NaN, NaN, NaN,...
-						'RowNames', obj.data.IDname(end),...
+						'RowNames', obj.data.getIDnames('group'),...
 						'VariableNames', postPredTable.Properties.VariableNames);
 					postPredTable = [postPredTable; unobserved];
 				end
@@ -184,15 +189,15 @@ classdef Model
 			% and it has all the information it needs
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			nRealExperiments = obj.data.nParticipants;
-			nExperimentsIncludingUnobserved = numel(obj.data.IDname);
-			
+			nExperimentsIncludingUnobserved = numel(obj.data.getIDnames('all')); % TODO: replace with different get method
+
 			pdata(1:nExperimentsIncludingUnobserved) = struct; % preallocation
 			for p = 1:nExperimentsIncludingUnobserved
 				% gather data from this experiment
 				pdata(p).data.totalTrials				= obj.data.totalTrials;
-				pdata(p).IDname							= obj.data.IDname{p};
-				pdata(p).data.trialsForThisParticant	= obj.data.participantLevel(p).trialsForThisParticant;
-				pdata(p).data.rawdata					= obj.data.participantLevel(p).table;
+				pdata(p).IDname							= obj.data.getIDnames(p);
+				pdata(p).data.trialsForThisParticant	= obj.data.getTrialsForThisParticant(p);
+				pdata(p).data.rawdata					= obj.data.getRawDataTableForParticipant(p);
 				% gather posterior prediction info
 				try
 					pdata(p).postPred					= obj.postPred(p);
@@ -213,7 +218,7 @@ classdef Model
 			% gather cross-experiment data for univariate stats
 			alldata.shouldExportPlots =obj.shouldExportPlots;
 			alldata.variables	= obj.varList.participantLevel;
-			alldata.IDnames		= obj.data.IDname;
+			alldata.IDnames		= obj.data.getIDnames('all');
 			alldata.saveFolder	= obj.saveFolder;
 			alldata.modelType	= obj.modelType;
 			for v = alldata.variables
@@ -226,7 +231,7 @@ classdef Model
 		end
 
 		function plot(obj, varargin)
-			
+
 			% parse inputs
 			p = inputParser;
 			p.FunctionName = mfilename;
@@ -238,7 +243,7 @@ classdef Model
 			for n=1:numel(obj.pdata)
 				obj.pdata(n).shouldExportPlots = p.Results.shouldExportPlots;
 			end
-			
+
 			%% Plot functions that use data from all participants
 			figUnivariateSummary( obj.alldata )
 
@@ -347,11 +352,11 @@ classdef Model
 			%obj.observedData.participantIndexList(end+1) = max(obj.observedData.participantIndexList) + 1;
 		end
 	end
-	
+
 	methods (Static, Access = protected)
 		% KEEP THIS HERE. IT IS OVER-RIDDEN IN SOME MODEL SUB-CLASSES
-		function observedData = addititional_model_specific_ObservedData(observedData)	
+		function observedData = addititional_model_specific_ObservedData(observedData)
 		end
 	end
-	
+
 end

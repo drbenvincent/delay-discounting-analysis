@@ -5,7 +5,7 @@ function plotLOGKclusters(mcmcContainer, data, col, pointEstimateType, saveFolde
 figure(12), clf
 
 % build samples
-for p = 1:numel(data.IDname)
+for p = 1:data.nParticipants
 	logkSamples(:,p) = mcmcContainer.getSamplesFromParticipantAsMatrix(p, {'logk'});
 end
 
@@ -19,12 +19,13 @@ uniG1 = mcmc.UnivariateDistribution(logkSamples(:,[1:data.nParticipants]),...
 axis tight
 participantAxisBounds = axis;
 
-if size(logkSamples,2) == data.nParticipants+1
-	mcmc.UnivariateDistribution(logkSamples(:,data.nParticipants+1),...
+%if size(logkSamples,2) == data.nParticipants+1
+if data.unobservedPartipantPresent
+	mcmc.UnivariateDistribution(logkSamples(:,data.nParticipants),...
 		'xLabel', '$\log(k)$',...
 		'plotHDI', false,...
 		'pointEstimateType', pointEstimateType,...
-		'patchProperties',definePlotOptions4Group(col));
+		'patchProperties', definePlotOptions4Group(col));
 end
 set(gca,'PlotBoxAspectRatio',[3,1,1])
 axis(participantAxisBounds)

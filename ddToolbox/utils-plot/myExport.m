@@ -2,7 +2,7 @@ function myExport(saveName, varargin)
 p = inputParser;
 p.FunctionName = mfilename;
 p.addRequired('saveName',@isstr);
-p.addParameter('prefix','',@isstr);
+p.addParameter('prefix','',@(x) @isstr(x) || @iscellstr(x));
 p.addParameter('suffix','',@isstr);
 p.addParameter('saveFolder','',@isstr);
 p.addParameter('formats',{'png'},@iscellstr);

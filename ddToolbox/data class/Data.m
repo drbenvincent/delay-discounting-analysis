@@ -1,26 +1,38 @@
 classdef Data
-	%data A class to load and handle data
-
+	%Data A class to load and handle data
+	
 	properties (GetAccess = public, SetAccess = private)
-		participantFilenames
-		dataFolder
-		nParticipants
+		% Ensure all properties here are NOT going to change, even if the
+		% inner workings of this class change.
+		nParticipants		% includes optional unobserved participant
+		nRealParticipants	% only includes number of real experiment files
 		totalTrials
-		IDname
-		participantLevel  % structure containing a table for each participant
-		groupTable        % table of A, DA, B, DB, R, ID, PA, PB
+		unobservedPartipantPresent %<--- not sure if we want this exposed or not
 	end
-
-
+	
+	properties (GetAccess = private, SetAccess = private)
+		dataFolder	% path to folder containing data files
+		filenames	% filename, including extension
+		IDnames		% filename, but no extension
+		participantLevel  % structure containing a table for each participant
+		%groupTable        % table of A, DA, B, DB, R, ID, PA, PB
+	end
+	
+	% NOTE TO SELF: These public methods need to be seen as interfaces to
+	% the outside world that are implementation-independent. So thought
+	% needs to be given to public methods.
+	% 
+	% These public methods need to be covered by tests.
+	
 	methods (Access = public)
-
+		
 		function obj = Data(dataFolder, varargin)
 			p = inputParser;
 			p.addRequired('dataFolder',@isstr);
 			p.FunctionName = mfilename;
-			p.addParameter('files',{''},@iscellstr);
+			p.addParameter('files',[],@iscellstr);
 			p.parse(dataFolder, varargin{:});
-
+			
 			try
 				table();
 			catch
@@ -29,25 +41,144 @@ classdef Data
 			end
 			obj.dataFolder = dataFolder;
 			display('You have created a Data object')
-
+			
 			if ~isempty(p.Results.files)
 				obj = obj.loadDataFiles(p.Results.files);
 			end
+			
+			obj.unobservedPartipantPresent = false;
 		end
-
-
+		
+		
+		% PUBLIC SET METHODS ==============================================
+		
 		function obj = loadDataFiles(obj, fnames)
 			assert( iscellstr(fnames), 'fnames should be a cell array of filenames')
-
+			
 			obj.nParticipants = numel(fnames);
-			obj.participantFilenames = fnames;
-
+			obj.nRealParticipants = numel(fnames);
+			obj.filenames = fnames;
+			obj = obj.buildParticipantTables(fnames);
+			obj.exportGroupDataFile();
+			obj.totalTrials = height( obj.buildGroupDataTable() );
+			
+			display('The following participant-level data files were imported:')
+			display(fnames')
+		end
+		
+		
+		function exportGroupDataFile(obj)			
+			saveLocation = fullfile(obj.dataFolder,'groupLevelData');
+			if ~exist(saveLocation, 'dir'), mkdir(saveLocation), end
+			writetable(...
+				obj.buildGroupDataTable(),...
+				fullfile(saveLocation,'COMBINED_DATA.txt'),...
+				'delimiter','tab')
+			fprintf('A copy of the group-level dataset just constructed has been saved as a text file:\n%s\n',...
+				fullfile(saveLocation,'COMBINED_DATA.txt'));
+		end
+		
+		
+		function obj = add_unobserved_participant(obj, str)
+			if obj.unobservedPartipantPresent
+				error('Have already added unobserved participant')
+			end
+			
+			obj.IDnames{end+1} = str;
+			
+			obj.nParticipants = obj.nParticipants + 1;
+			index = obj.nParticipants;
+			
+			% set all fields to empty
+			fields = fieldnames(obj.participantLevel);
+			for n=1:numel(fields)
+				% TODO: this currently needs to be empty ([]) but would be
+				% better if it was also able to coe being set as NaN.
+				obj.participantLevel(index).(fields{n}) = [];
+			end
+			
+			obj.unobservedPartipantPresent = true;
+		end
+		
+		
+		% PUBLIC GET METHODS ==============================================
+		
+		function dataStruct = getParticipantData(obj,participant)
+			% grabs data just from one participant.
+			% OUTPUTS:
+			% a structure with fields
+			%  - A, B, DA, DB, R, ID (all column vectors)
+			%  - trialsForThisParticant (a single value)
+			
+			dataStruct = table2struct(obj.participantLevel(participant).table,...
+				'ToScalar',true);
+			
+			dataStruct.trialsForThisParticant =...
+				obj.participantLevel(participant).trialsForThisParticant;
+		end
+		
+		function R = getParticipantResponses(obj, p)
+			R = obj.participantLevel(p).table.R;
+		end
+		
+		function nTrials = getTrialsForThisParticant(obj, p)
+			nTrials = obj.participantLevel(p).trialsForThisParticant;
+		end
+		
+		function pTable = getRawDataTableForParticipant(obj, p)
+			% return a Table of raw data
+			pTable = obj.participantLevel(p).table;
+		end
+		
+		function all_data = get_all_data_table(obj)
+			% Create long data table of all participants
+			all_data = obj.participantLevel(:).table;
+			if obj.nParticipants > 1
+				for p = 2:obj.nParticipants
+					all_data = [all_data; obj.participantLevel(p).table];
+				end
+			end
+		end
+		
+		function names = getIDnames(obj, whatIwant)
+			% returns a cell array of strings
+			if ischar(whatIwant)
+				switch whatIwant
+					case{'all'}
+						names = obj.IDnames;
+					case{'participants'}
+						names = obj.IDnames([1:obj.nRealParticipants]);
+					case{'group'}
+						if ~obj.unobservedPartipantPresent
+							error('Asking for group-level (unobserved) participant, but they do not exist')
+						end
+						names = obj.IDnames(end);
+				end
+			elseif isnumeric(whatIwant)
+				% assume we want to index into IDnames
+				names = obj.IDnames(whatIwant);
+			end
+		end
+		
+	end
+	
+	% PRIVATE =============================================================
+	% Not to be covered by tests, unless it is useful during development.
+	% But we do not need tests to constrain the way how these
+	% implementation details work.
+	
+	methods (Access = private)
+		
+		function obj = buildParticipantTables(obj, fnames)
+			% TODO: THIS FUNCTION DOES TOO MANY DIFFERENT THINGS
+			% return a structure of tables
+			
 			for n=1:obj.nParticipants
 				% determined participant ID string
-				[~,obj.IDname{n},~] = fileparts(fnames{n}); % just get filename
-				%obj.IDname{n} = getPrefixOfString(fnames{n},'-');
-
-				participantTable = readtable(fullfile(obj.dataFolder,fnames{n}), 'delimiter','tab');
+				[~,obj.IDnames{n},~] = fileparts(fnames{n}); % just get filename
+				%obj.IDnames{n} = getPrefixOfString(fnames{n},'-');
+				
+				participantTable = readtable(fullfile(obj.dataFolder, fnames{n}), 'delimiter', 'tab');
 				% Add participant ID column
 				participantTable = obj.appendParticipantIDcolumn(participantTable, n);
 				% Ensure columns PA and PB exist, assuming P=1 if they do not. This
@@ -76,95 +207,31 @@ classdef Data
 					participantTable = [participantTable table(DB)];
 				end
 				% Add
- 				obj.participantLevel(n).table = participantTable;
- 				obj.participantLevel(n).trialsForThisParticant = height(participantTable);
+				obj.participantLevel(n).table = participantTable;
+				obj.participantLevel(n).trialsForThisParticant = height(participantTable);
 			end
-% 			% Add info for extra (unobserved) participant ~~~~~~~~~~~~~~~~~
-% 			n = obj.nParticipants + 1;
-% 			obj.IDname{n} = 'GROUP';
-% 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-			obj = obj.exportGroupDataFile();
-			obj.totalTrials = height(obj.groupTable);
-
-			display('The following participant-level data files were imported:')
-			display(fnames')
 		end
-
-		function obj = exportGroupDataFile(obj)
-			obj = obj.buildGroupDataTable();
-			saveLocation = fullfile(obj.dataFolder,'groupLevelData');
-			if ~exist(saveLocation, 'dir'), mkdir(saveLocation), end
-			writetable(obj.groupTable,...
-				fullfile(saveLocation,'COMBINED_DATA.txt'),...
-				'delimiter','tab')
-			fprintf('A copy of the group-level dataset just constructed has been saved as a text file:\n%s\n',...
-				fullfile(saveLocation,'COMBINED_DATA.txt'));
-		end
-
-		function obj = buildGroupDataTable(obj)
-			obj.groupTable = table();
+		
+		function groupTable = buildGroupDataTable(obj)
+			groupTable = table();
 			for n=1:obj.nParticipants
-				obj.groupTable = [obj.groupTable; obj.participantLevel(n).table];
+				groupTable = [groupTable; obj.participantLevel(n).table];
 			end
 		end
-
-		function dataStruct = getParticipantData(obj,participant)
-			% grabs data just from one participant.
-			% OUTPUTS:
-			% a structure with fields
-			%  - A, B, DA, DB, R, ID (all column vectors)
-			%  - trialsForThisParticant (a single value)
-
-			dataStruct = table2struct(obj.participantLevel(participant).table,...
-				'ToScalar',true);
-
-			dataStruct.trialsForThisParticant =...
-				obj.participantLevel(participant).trialsForThisParticant;
-		end
-
-		function all_data = get_all_data_table(obj)
-			% Create long data table of all participants
-			all_data = obj.participantLevel(:).table;
-			if obj.nParticipants > 1
-				for p = 2:obj.nParticipants
-					all_data = [all_data; obj.participantLevel(p).table];
-				end
-			end
-		end
-
-		function obj = add_unobserved_participant(obj, str)
-			obj.IDname{end+1} = str;
-			
-			% set all fields to empty
-			index = obj.nParticipants+1;
-			fields = fieldnames(obj.participantLevel);
-			for n=1:numel(fields)
-				% TODO: this currently needs to be empty ([]) but would be
-				% better if it was also able to coe being set as NaN.
-				obj.participantLevel(index).(fields{n}) = [];
-			end
-		end
-
+		
 	end
-
-	methods
-		function names = get.IDname(obj)
-			names = obj.IDname;
-		end
-	end
-
-	methods(Static)
-
+	
+	methods(Static, Access = private)
+		
 		function pTable = appendParticipantIDcolumn(pTable, n)
 			ID = ones( height(pTable), 1) * n;
 			pTable = [pTable table(ID)];
 		end
-
+		
 		function isPresent = isColumnPresent(table, columnName)
 			isPresent = sum(strcmp(table.Properties.VariableNames,columnName))~=0;
 		end
-
+		
 	end
-
+	
 end

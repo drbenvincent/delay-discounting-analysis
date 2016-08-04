@@ -5,16 +5,15 @@ function postPred = calcPosteriorPredictive(obj)
 % TODO: remove obj being passed in?
 
 display('Calculating posterior predictive measures...')
-nParticipants = obj.data.nParticipants;
 
-for p=1:nParticipants
+for p = 1:obj.data.nRealParticipants;
 	% get data ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	trialIndOfThisParicipant	= obj.observedData.ID==p;
 	responses_predictedMCMC		= obj.mcmc.getPChooseDelayed(trialIndOfThisParicipant);
-	responses_actual			= obj.data.participantLevel(p).table.R;
+	responses_actual			= obj.data.getParticipantResponses(p);
 	responses_predicted			= obj.mcmc.getParticipantPredictedResponses(trialIndOfThisParicipant);
 	% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+	
 	% Calculate metrics
 	postPred(p).score							= calcPostPredOverallScore(responses_predicted, responses_actual);
 	postPred(p).GOF_distribtion					= calcGoodnessOfFitDistribution(responses_predictedMCMC, responses_actual);
