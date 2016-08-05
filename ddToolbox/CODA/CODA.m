@@ -71,64 +71,31 @@ classdef CODA
 				paramEstimateTable= table();
 			end
 			
-			
-			% 			% Build table, column by column
-			% 			for n = 1:numel(colHeaderNames)
-			%
-			% 				values = obj.grabParamEstimates(level1varNames(n), p.Results.includeCI, pointEstimateType);
-			% 				col(n).table = array2table(...
-			% 					values,...
-			% 					'VariableNames', colHeaderNames(n),...
-			% 					'RowNames', IDname(1:numel(values)));
-			% 			end
-			% 			%  join
-			% 			paramEstimates = col(1).table;
-			% 			for n=2:numel(colHeaderNames)
-			% 				paramEstimatesNEW = join(paramEstimates, col(n).table);
-			% 			end
-			
-			
-			% 			paramEstimates = obj.grabParamEstimates(level1varNames, p.Results.includeCI, pointEstimateType);
-			% 			if numel(colHeaderNames) ~= size(paramEstimates,2)
-			% 				warning('CANT DEAL WITH VECTORS OF PARAMS FOR PEOPLE YET')
-			% 				beep
-			% 				paramEstimateTable=[];
-			% 			else
-			% 				paramEstimateTable = array2table(paramEstimates,...
-			% 					'VariableNames',colHeaderNames,...
-			% 					'RowNames', IDname);
-			% 			end
-			
 			function colHeaderNames = createColumnHeaders(varNames,getCI, pointEstimateType)
 				colHeaderNames = {};
-				for var = each(varNames)
-					colHeaderNames{end+1} = sprintf('%s_%s', var, pointEstimateType);
+				for k = 1:numel(varNames)
+					colHeaderNames{end+1} = sprintf('%s_%s', varNames{k}, pointEstimateType);
 					if getCI
-						colHeaderNames{end+1} = sprintf('%s_HDI5', var);
-						colHeaderNames{end+1} = sprintf('%s_HDI95', var);
+						colHeaderNames{end+1} = sprintf('%s_HDI5', varNames{k});
+						colHeaderNames{end+1} = sprintf('%s_HDI95', varNames{k});
 					end
 				end
 			end
 		end
 		
 		
-		
-		
-		
-		
-		
 		function plotMCMCchains(obj, variablesToPlot)
 			assert(iscellstr(variablesToPlot))
-			for varName = each(variablesToPlot)
+			for n = 1:numel(variablesToPlot)
 				figure
 				latex_fig(16, 12,10)
-				mcmcsamples = obj.getSamples({varName});
-				mcmcsamples = mcmcsamples.(varName);
+				mcmcsamples = obj.getSamples(variablesToPlot(n));
+				mcmcsamples = mcmcsamples.(variablesToPlot{n});
 				[chains,Nsamples,rows] = size(mcmcsamples);
 				hChain=[];
-				rhat_all = obj.getStats('Rhat', varName);
+				rhat_all = obj.getStats('Rhat', variablesToPlot{n});
 				for row=1:rows
-					hChain(row) = intPlotChain(mcmcsamples(:,:,row), row, rows, varName, rhat_all(row));
+					hChain(row) = intPlotChain(mcmcsamples(:,:,row), row, rows, variablesToPlot{n}, rhat_all(row));
 					intPlotDistribution(mcmcsamples(:,:,row), row, rows)
 				end
 				linkaxes(hChain,'x')
@@ -194,11 +161,11 @@ classdef CODA
 			% model
 			
 			[flatSamples] = obj.flattenChains(obj.samples, fieldsToGet);
-			for field = each(fieldsToGet)
+			for n = 1:numel(fieldsToGet)
 				try
-					samples.(field) = flatSamples.(field)(:,index,:);
+					samples.(fieldsToGet{n}) = flatSamples.(fieldsToGet{n})(:,index,:);
 				catch
-					samples.(field) = NaN;
+					samples.(fieldsToGet{n}) = NaN;
 				end
 			end
 		end
@@ -206,11 +173,11 @@ classdef CODA
 		function [samplesMatrix] = getSamplesFromParticipantAsMatrix(obj, participant, fieldsToGet)
 			assert(iscellstr(fieldsToGet))
 			% TODO: This function is doing the same thing as getSamplesAtIndex() ???
-			for field = each(fieldsToGet)
+			for n = 1:numel(fieldsToGet)
 				try
-					samples.(field) = vec(obj.samples.(field)(:,:,participant));
+					samples.(fieldsToGet{n}) = vec(obj.samples.(fieldsToGet{n})(:,:,participant));
 				catch
-					samples.(field) = NaN;
+					samples.(fieldsToGet{n}) = NaN;
 				end
 			end
 			[samplesMatrix] = struct2Matrix(samples);
@@ -224,16 +191,18 @@ classdef CODA
 		end
 		
 		function [samplesMatrix] = getSamplesAsMatrix(obj, fieldsToGet)
-			% TODO: assumes same number of elements in each requested
-			% field, otherwise samplesMatrix will error at attempting to be
-			% a ragged matix
-			samples = flattenChains(obj.samples, fieldsToGet);
-			samplesMatrix = struct2Matrix(samples);
+			% TODO: this makes assumptions, which are not true. Add checks,
+			% or robustify.
+			samplesMatrix = struct2Matrix( flattenChains(obj.samples, fieldsToGet) );
 		end
 		
 		function [columnVector] = getStats(obj, field, variable)
 			try
-				columnVector = obj.stats.(field).(variable)';
+				if isempty(variable)
+					columnVector = obj.stats.(field);
+				else
+					columnVector = obj.stats.(field).(variable)';
+				end
 			catch
 				columnVector =[];
 			end
@@ -252,26 +221,19 @@ classdef CODA
 			% ind is a binary valued vector indicating the trials
 			% corresponding to a particular participant
 			assert(isvector(ind))
+			
 			RpostPred = obj.samples.Rpostpred(:,:,ind);
-			% collapse over chains
-			s = size(RpostPred);
-			%if ndims(RpostPred) == 2
-			%	participantRpostpredSamples = RpostPred(:);
-			%else
-			%	warning('IS THIS LINE EVER REACHED?')
-			participantRpostpredSamples = reshape(RpostPred, s(1)*s(2), s(3));
-			%end
+			participantRpostpredSamples = collapseFirstTwoColumnsOfMatrix(RpostPred);
+			%s = size(RpostPred);
+			%participantRpostpredSamples = reshape(RpostPred, s(1)*s(2), s(3));
+			
 			% Calculate predicted response probability
 			predicted = sum(participantRpostpredSamples,1) ./ size(participantRpostpredSamples,1);
 		end
 		
-		function [P] = getPChooseDelayed(obj, pInd)
-			% get samples for participant
-			P = obj.samples.P(:,:,pInd);
-			% flatten over chains
-			s = size(P);
-			P = reshape(P, s(1)*s(2), s(3));
-			P=P';
+		function [PChooseDelayed] = getPChooseDelayed(obj, pInd)
+			PChooseDelayed = obj.samples.P(:,:,pInd);
+			PChooseDelayed = collapseFirstTwoColumnsOfMatrix(PChooseDelayed)';
 		end
 		
 	end

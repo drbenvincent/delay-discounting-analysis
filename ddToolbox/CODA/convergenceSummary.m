@@ -32,20 +32,20 @@ fprintf('Convergence report saved in:\n\t%s\n\n',fname)
 		isRhatThresholdExceeded = false;
 		varNames = fieldnames(Rhat);
 		
-		for varName = each(varNames)
+		for n = 1:numel(varNames)
 			% skip posterior predictive variables
-			if strcmp(varName,'Rpostpred'), continue, end
-			RhatValues = Rhat.(varName);
+			if strcmp(varNames{n},'Rpostpred'), continue, end
+			RhatValues = Rhat.(varNames{n});
 			
 			% conditions
 			isVectorOfParticipants = @(x,p) isvector(x) && numel(x)==p;
 			isVecorForEachParticipant = @(x,p) ismatrix(x) && size(x,1)==p;
 			
 			if isscalar(RhatValues)
-				logInfo(fid,'\nRhat for: %s\t',varName);
+				logInfo(fid,'\nRhat for: %s\t',varNames{n});
 				logInfo(fid,'%2.5f', RhatValues);
 			elseif isVectorOfParticipants(RhatValues,nParticipants)
-				logInfo(fid,'\nRhat for: %s\n',varName);
+				logInfo(fid,'\nRhat for: %s\n',varNames{n});
 				for i=1:numel(IDnames)
 					logInfo(fid,'%s:\t', IDnames{i}); % participant name
 					logInfo(fid,'%2.5f\t', RhatValues(i));
@@ -53,7 +53,7 @@ fprintf('Convergence report saved in:\n\t%s\n\n',fname)
 					logInfo(fid,'\n');
 				end
 			elseif isVecorForEachParticipant(RhatValues,nParticipants)
-				logInfo(fid,'\nRhat for: %s\n',varName);
+				logInfo(fid,'\nRhat for: %s\n',varNames{n});
 				for i=1:numel(IDnames)
 					logInfo(fid,'%s\t', IDnames{i}); % participant name
 					logInfo(fid,'%2.5f\t', RhatValues(i,:));

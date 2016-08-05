@@ -7,14 +7,11 @@ classdef Model
 	end
 	
 	properties (SetAccess = protected, GetAccess = protected)
-		
 		samplerType
 		saveFolder
 		discountFuncType
 		pointEstimateType
-		
-		%modelFile
-		
+				
 		postPred
 		parameterEstimateTable
 		pdata		% experiment level data for plotting
@@ -23,7 +20,6 @@ classdef Model
 		mcmcParams % structure of user-supplied params
 		
 		% User supplied preferences
-		%mcmcSamples, chains, burnin % mcmcparams
 		modelType % string (ie modelType.jags, or modelType.stan)
 		
 		varList
@@ -65,7 +61,6 @@ classdef Model
 		
 		
 		function obj = conductInference(obj)
-			% conductInference  Runs inference
 			
 			switch obj.samplerType
 				case{'jags'}
@@ -102,7 +97,7 @@ classdef Model
 			
 			%% Post-sampling activities (common to all models) ------------
 			obj.postPred = obj.calcPosteriorPredictive();
-			obj.mcmc.convergenceSummary(obj.saveFolder, obj.data.getIDnames('all'))
+			convergenceSummary(obj.mcmc.getStats('Rhat',[]), obj.saveFolder, obj.data.getIDnames('all'))
 			obj.parameterEstimateTable = obj.exportParameterEstimates();
 			[obj.pdata, obj.alldata] = obj.packageUpDataForPlotting();
 			if ~strcmp(obj.shouldPlot,'no')
@@ -220,8 +215,7 @@ classdef Model
 		end
 		
 		
-		% TODO: This should only be in model sub-classes with Magnitude
-		% Effect
+		% TODO: This should only be in model sub-classes with Magnitude Effect
 		function obj = conditionalDiscountRates(obj, reward, plotFlag)
 			% Extract and plot P( log(k) | reward)
 			warning('THIS METHOD IS A TOTAL MESS - PLAN THIS AGAIN FROM SCRATCH')
@@ -297,7 +291,6 @@ classdef Model
 				end
 				% gather mcmc samples
 				pdata(p).samples.posterior	= obj.mcmc.getSamplesAtIndex(p, obj.varList.participantLevel);
-				%obj.pdata(p).samples.prior		= obj.mcmc.getSamples(obj.varList.participantLevelPriors);
 				% other misc info
 				pdata(p).pointEstimateType	= obj.pointEstimateType;
 				pdata(p).discountFuncType	= obj.discountFuncType;
@@ -326,8 +319,6 @@ classdef Model
 			%calcPosteriorPredictive Calculate various posterior predictive measures.
 			% Data saved to a struture: postPred(p).xxx
 			
-			% TODO: remove obj being passed in?
-			
 			display('Calculating posterior predictive measures...')
 			
 			for p = 1:obj.data.nRealParticipants;
@@ -348,7 +339,6 @@ classdef Model
 		end
 		
 		
-		
 		function tellUserAboutPublicMethods(obj)
 			% TODO - the point is to guide them into what to do next
 			methods(obj)
@@ -358,17 +348,13 @@ classdef Model
 		% TODO: This should only be in model sub-classes with Magnitude Effect
 		function conditionalDiscountRates_ParticipantLevel(obj, reward, plotFlag)
 			nParticipants = obj.data.nParticipants;
-			%count=1;
 			for p = 1:nParticipants
 				params(:,1) = obj.mcmc.getSamplesFromParticipantAsMatrix(p, {'m'});
 				params(:,2) = obj.mcmc.getSamplesFromParticipantAsMatrix(p, {'c'});
 				% ==============================================
 				[posteriorMean(p), lh(p)] =...
 					calculateLogK_ConditionOnReward(reward, params, plotFlag);
-				%lh(count).DisplayName=sprintf('participant %d', p);
-				%row(count) = {sprintf('participant %d', p)};
 				% ==============================================
-				%count=count+1;
 			end
 			warning('GET THESE NUMBERS PRINTED TO SCREEN')
 			% 			logkCondition = array2table([posteriorMode'],...
@@ -378,16 +364,15 @@ classdef Model
 		
 
 		function obj = addUnobservedParticipant(obj, str)
-			% Ask data class to add an unobserved participant
+			% TODO: Check we need this
 			obj.data = obj.data.add_unobserved_participant(str);	% add name (eg 'GROUP')
-			%obj.unobservedParticipantExist = true;					% TODO is this being used?
-			%obj.observedData.participantIndexList(end+1) = max(obj.observedData.participantIndexList) + 1;
 		end
 	end
 	
 	methods (Static, Access = protected)
-		% KEEP THIS HERE. IT IS OVER-RIDDEN IN SOME MODEL SUB-CLASSES
+		
 		function observedData = addititional_model_specific_ObservedData(observedData)
+			% KEEP THIS HERE. IT IS OVER-RIDDEN IN SOME MODEL SUB-CLASSES
 		end
 	end
 	
