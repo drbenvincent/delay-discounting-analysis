@@ -1,5 +1,11 @@
 function plotMCclusters(mcmcContainer, data, col, pointEstimateType, saveFolder, modelType, shouldExportPlots)
-% TODO: TURN THIS INTO A "GROUPBivariateDistribution" PLOT CLASS
+
+% TODO:
+% remove input:
+% - mcmcContainer, just pass in the data
+% - data, just pass in 
+% rename to plotBivariateDistributions
+
 
 % plot posteriors over (m,c) for all participants, as contour plots
 

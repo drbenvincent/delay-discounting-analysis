@@ -1,5 +1,11 @@
 function plotLOGKclusters(mcmcContainer, data, col, pointEstimateType, saveFolder, modelType, shouldExportPlots)
 
+% TODO:
+% remove input:
+% - mcmcContainer, just pass in the data
+% - data, just pass in 
+% rename to plotUnivariateDistributions
+
 % plot posteriors over log(k) for all participants
 
 figure(12), clf

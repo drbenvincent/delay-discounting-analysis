@@ -5,3 +5,4 @@ function index = argmax(x)
 % See also MAX, ARGMIN.
 
 [ignore,index] = max(x(:));
+returnw
