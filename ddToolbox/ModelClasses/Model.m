@@ -2,7 +2,7 @@ classdef Model
 	%Model Base class to provide basic functionality
 	
 	properties 
-		mcmc % handle to mcmc fit object
+		coda % handle to coda object
 		data % handle to Data class (dependency is injected from outside)
 	end
 	
@@ -81,7 +81,7 @@ classdef Model
 			obj.observedData = obj.constructObservedDataForMCMC( obj.data.get_all_data_table() );
 			
 			% do the sampling and get a CODA object back ~~~~~~~~~~~~
-			obj.mcmc = samplerFunction(...
+			obj.coda = samplerFunction(...
 				makeProbModelsPath(obj.modelType, lower(obj.samplerType)),...
 				obj.observedData,...
 				mcmcparams,...
@@ -97,7 +97,7 @@ classdef Model
 			
 			%% Post-sampling activities (common to all models) ------------
 			obj.postPred = obj.calcPosteriorPredictive();
-			convergenceSummary(obj.mcmc.getStats('Rhat',[]), obj.saveFolder, obj.data.getIDnames('all'))
+			convergenceSummary(obj.coda.getStats('Rhat',[]), obj.saveFolder, obj.data.getIDnames('all'))
 			obj.parameterEstimateTable = obj.exportParameterEstimates();
 			[obj.pdata, obj.alldata] = obj.packageUpDataForPlotting();
 			if ~strcmp(obj.shouldPlot,'no')
@@ -119,7 +119,7 @@ classdef Model
 			CREDIBLE_INTERVAL = 0.95;
 			
 			%% Make table 1 (model variable info)
-			paramEstimateTable = obj.mcmc.exportParameterEstimates(...
+			paramEstimateTable = obj.coda.exportParameterEstimates(...
 				obj.varList.participantLevel,... %obj.varList.groupLevel,...
 				obj.data.getIDnames('all'),...
 				obj.saveFolder,...
@@ -150,7 +150,7 @@ classdef Model
 					{obj.postPred.percentPredictedDistribution})';
 				
 				% Check if HDI of percentPredicted overlaps with 0.5
-				hdiFunc = @(x) HDIofSamples(x, CREDIBLE_INTERVAL); % Using mcmc-utils-matlab package
+				hdiFunc = @(x) HDIofSamples(x, CREDIBLE_INTERVAL);
 				warningFunc = @(x) x(1) < 0.5;
 				warnOnHDI = @(x) warningFunc( hdiFunc(x) );
 				warning_percent_predicted = cellfun( warnOnHDI,...
@@ -193,7 +193,7 @@ classdef Model
 			
 			% TODO: pass in obj.alldata or obj.pdata rather than all these args
 			obj.plotFuncs.clusterPlotFunc(...
-				obj.mcmc,...
+				obj.coda,...
 				obj.data,...
 				[1 0 0],...
 				obj.pointEstimateType,...
@@ -219,7 +219,7 @@ classdef Model
 		% MIDDLE-MAN METHODS ================================================
 		
 		function obj = plotMCMCchains(obj,vars)
-			obj.mcmc.plotMCMCchains(vars);
+			obj.coda.plotMCMCchains(vars);
 		end
 		
 	end
@@ -275,7 +275,7 @@ classdef Model
 					pdata(p).postPred					= [];
 				end
 				% gather mcmc samples
-				pdata(p).samples.posterior	= obj.mcmc.getSamplesAtIndex(p, obj.varList.participantLevel);
+				pdata(p).samples.posterior	= obj.coda.getSamplesAtIndex(p, obj.varList.participantLevel);
 				% other misc info
 				pdata(p).pointEstimateType	= obj.pointEstimateType;
 				pdata(p).discountFuncType	= obj.discountFuncType;
@@ -292,10 +292,10 @@ classdef Model
 			alldata.modelType	= obj.modelType;
 			for v = alldata.variables
 				alldata.(v{:}).hdi =...
-					[obj.mcmc.getStats('hdi_low',v{:}),... % TODO: ERROR - expecting a vector to be returned
-					obj.mcmc.getStats('hdi_high',v{:})]; % TODO: ERROR - expecting a vector to be returned
+					[obj.coda.getStats('hdi_low',v{:}),... % TODO: ERROR - expecting a vector to be returned
+					obj.coda.getStats('hdi_high',v{:})]; % TODO: ERROR - expecting a vector to be returned
 				alldata.(v{:}).pointEstVal =...
-					obj.mcmc.getStats(obj.pointEstimateType, v{:});
+					obj.coda.getStats(obj.pointEstimateType, v{:});
 			end
 		end
 		
@@ -309,9 +309,9 @@ classdef Model
 			for p = 1:obj.data.nRealParticipants;
 				% get data 
 				trialIndOfThisParicipant	= obj.observedData.ID==p;
-				responses_inferredPB		= obj.mcmc.getPChooseDelayed(trialIndOfThisParicipant);
+				responses_inferredPB		= obj.coda.getPChooseDelayed(trialIndOfThisParicipant);
 				responses_actual			= obj.data.getParticipantResponses(p);
-				responses_predicted			= obj.mcmc.getParticipantPredictedResponses(trialIndOfThisParicipant);
+				responses_predicted			= obj.coda.getParticipantPredictedResponses(trialIndOfThisParicipant);
 				
 				% Calculate metrics
 				postPred(p).score							= calcPostPredOverallScore(responses_predicted, responses_actual);

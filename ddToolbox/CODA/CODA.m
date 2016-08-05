@@ -128,7 +128,7 @@ classdef CODA
 			
 			function intPlotDistribution(samples, row, rows)
 				hHist = subplot(rows,6,row*6);
-				mcmc.UnivariateDistribution(samples(:));
+				mcmc.UnivariateDistribution(samples(:)); % using my plot tools package
 			end
 			
 		end
