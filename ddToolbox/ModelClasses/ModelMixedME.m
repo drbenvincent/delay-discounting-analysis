@@ -13,6 +13,7 @@ classdef ModelMixedME < Model
 
 			obj.modelType			= 'mixedME';
 			obj.discountFuncType	= 'me';
+			obj.getDiscountRate = @getDiscountRate; % <-------------------------------------- FINISH
 
 			% Create variables
 			obj.varList.participantLevel = {'m', 'c', 'alpha', 'epsilon'};

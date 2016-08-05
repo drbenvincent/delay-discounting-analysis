@@ -3,6 +3,7 @@ classdef ModelSeparateLogK < Model
 	%   Detailed explanation goes here
 
 	properties
+		getDiscountRate % function handle
 	end
 
 
@@ -13,6 +14,7 @@ classdef ModelSeparateLogK < Model
 
 			obj.modelType = 'separateLogK';
 			obj.discountFuncType = 'logk';
+			obj.getDiscountRate = @getDiscountRate; % <-------------------------------------- FINISH
 
 			% Create variables
 			obj.varList.participantLevel = {'logk','alpha','epsilon'};
@@ -20,7 +22,7 @@ classdef ModelSeparateLogK < Model
 
 			%% Plotting
 			obj.participantFigPlotFuncs		= make_participantFigPlotFuncs_LogK();
-			obj.plotFuncs.clusterPlotFunc	= @plotLOGKclusters;
+			obj.plotFuncs.clusterPlotFunc	= @plotLOGKclusters; 
 
 			% MUST CALL THIS METHOD AT THE END OF ALL MODEL-SUBCLASS CONSTRUCTORS
 			obj = obj.conductInference();

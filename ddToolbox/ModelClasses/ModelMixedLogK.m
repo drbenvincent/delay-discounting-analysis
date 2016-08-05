@@ -14,6 +14,7 @@ classdef ModelMixedLogK < Model
 
 			obj.modelType = 'mixedLogK';
 			obj.discountFuncType = 'logk';
+			obj.getDiscountRate = @getDiscountRate; % <-------------------------------------- FINISH
 
 			% Create variables
 			obj.varList.participantLevel = {'logk','alpha','epsilon'};

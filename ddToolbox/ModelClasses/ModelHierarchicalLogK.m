@@ -13,6 +13,7 @@ classdef ModelHierarchicalLogK < Model
 
 			obj.modelType		= 'hierarchicalLogK';
 			obj.discountFuncType = 'logk';
+			obj.getDiscountRate = @getDiscountRate; % <-------------------------------------- FINISH
 
 			% Create variables
 			obj.varList.participantLevel = {'logk','alpha','epsilon'};

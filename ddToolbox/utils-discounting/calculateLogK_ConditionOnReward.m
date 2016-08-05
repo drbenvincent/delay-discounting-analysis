@@ -1,17 +1,17 @@
 function [posteriorMean,lh] = calculateLogK_ConditionOnReward(reward, params, plotFlag)
     assert(isscalar(reward),'reward should be a scalar')
 	lh=[];
-	% -----------------------------------------------------------
-	% log(k) = m * log(B) + c
-	% k = exp( m * log(B) + c )
-	% fh = @(x,params) exp( params(:,1) * log(x) + params(:,2));
-	% Fast vectorised version of above --------------------------
-	fh = @(x,params) exp( bsxfun(@plus, ...
-		bsxfun(@times,params(:,1),log(x)),...
-		params(:,2)));
-	% -----------------------------------------------------------
+% 	% -----------------------------------------------------------
+% 	% log(k) = m * log(B) + c
+% 	% k = exp( m * log(B) + c )
+% 	% fh = @(x,params) exp( params(:,1) * log(x) + params(:,2));
+% 	% Fast vectorised version of above --------------------------
+% 	fh = @(x,params) exp( bsxfun(@plus, ...
+% 		bsxfun(@times,params(:,1),log(x)),...
+% 		params(:,2)));
+% 	% -----------------------------------------------------------
 
-	myplot = mcmc.PosteriorPrediction1D(fh,...
+	myplot = mcmc.PosteriorPrediction1D(@magnitudeEffect,...
 		'xInterp',reward,...
 		'samples',params,...
 		'shouldPlotData',false);

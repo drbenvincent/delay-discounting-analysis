@@ -14,6 +14,7 @@ classdef ModelSeparateME < Model
 			
 			obj.modelType = 'separateME';
 			obj.discountFuncType = 'me';
+			obj.getDiscountRate = @getDiscountRate; % <-------------------------------------- FINISH
 			
 			% Create variables
 			obj.varList.participantLevel = {'m', 'c','alpha','epsilon'};

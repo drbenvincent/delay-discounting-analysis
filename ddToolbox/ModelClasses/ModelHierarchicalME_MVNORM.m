@@ -13,6 +13,7 @@ classdef ModelHierarchicalME_MVNORM < Model
 			
 			obj.modelType			= 'hierarchicalMEmvnorm';
 			obj.discountFuncType	= 'me';
+			obj.getDiscountRate = @getDiscountRate; % <-------------------------------------- FINISH
 			
 			% Create variables
 			obj.varList.participantLevel = {'m','c', 'r', 'alpha','epsilon'};
