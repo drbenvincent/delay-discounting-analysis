@@ -260,7 +260,7 @@ classdef CODA
 		
 		
 		function [samples] = getSamplesAtIndex(obj, index, fieldsToGet)
-			assert(iscell(fieldsToGet),'fieldsToGet must be a cell array')
+			assert(iscellstr(fieldsToGet))
 			% get all the samples for a given value of the 3rd dimension of
 			% samples. Dimensions are:
 			% 1. mcmc chain number
@@ -279,7 +279,7 @@ classdef CODA
 		end
 		
 		function [samplesMatrix] = getSamplesFromParticipantAsMatrix(obj, participant, fieldsToGet)
-			assert(iscell(fieldsToGet),'fieldsToGet must be a cell array')
+			assert(iscellstr(fieldsToGet))
 			% TODO: This function is doing the same thing as getSamplesAtIndex() ???
 			for field = each(fieldsToGet)
 				try
@@ -292,22 +292,18 @@ classdef CODA
 		end
 		
 		function [samples] = getSamples(obj, fieldsToGet)
-			% This will not flatten across chains
-			%			assert(iscell(fieldsToGet),'fieldsToGet must be a cell array')
-			for field = each(fieldsToGet)
-				if isfield(obj.samples,field)
-					samples.(field) = obj.samples.(field);
-				end
-			end
+			% Doesn't flatten across chains
+			assert(iscellstr(fieldsToGet))
+			fieldsToGet = ismember(fieldnames(obj.samples), fieldsToGet);
+			samples		= filterFields(fieldsToGet, obj.samples);
 		end
 		
 		function [samplesMatrix] = getSamplesAsMatrix(obj, fieldsToGet)
-			[samples] = obj.getSamples(fieldsToGet);
-			% flatten across chains
-			for field = each(fieldsToGet)
-				samples.(field) = vec(samples.(field));
-			end
-			[samplesMatrix] = struct2Matrix(samples);
+			% TODO: assumes same number of elements in each requested
+			% field, otherwise samplesMatrix will error at attempting to be
+			% a ragged matix
+			samples = flattenChains(obj.samples, fieldsToGet);
+			samplesMatrix = struct2Matrix(samples);
 		end
 		
 		function [columnVector] = getStats(obj, field, variable)
@@ -361,19 +357,9 @@ classdef CODA
 	% -----------------------------------------------------------------
 	methods (Static)
 		function obj = buildFromStanFit(stanFitObject)
-			% Call this function as a constructor when you have a StanFit
-			% object, produced by MatlabStan.
-			
-			% convert StanFit object into samples structure
-			samples = stanFitObject.extract('collapseChains', false,...
-				'permuted', false);
-			
-			% TODO: calculate stats here
-			stats = computeStats(samples);
-			
-			% call the constructor
-			
-			obj = CODA(samples, stats);
+			samples = stanFitObject.extract('collapseChains', false, 'permuted', false);
+			stats	= computeStats(samples);
+			obj		= CODA(samples, stats);
 		end
 	end
 	
@@ -383,28 +369,14 @@ classdef CODA
 	% But we do not need tests to constrain the way how these
 	% implementation details work.
 	
-	
 	methods(Static, Access = private)
 		
 		function [new_samples] = flattenChains(samples, fieldsToGet)
-			% collapse the first 2 dimensions of samples (number of MCMC
-			% chains, number of MCMC samples)
-			for field = each(fieldsToGet)
-				temp = samples.(field);
-				oldDims = size(temp);
-				switch numel(oldDims)
-					case{2}
-						% only dealing with one participant
-						new_samples.(field) = vec(temp);
-					case{3}
-						% dealing with multiple participants
-						newDims = [oldDims(1)*oldDims(2) oldDims(3)];
-						new_samples.(field) = reshape(temp, newDims);
-					case{4}
-						newDims = [oldDims(1)*oldDims(2) oldDims(3) oldDims(4)];
-						new_samples.(field) = reshape(temp, newDims);
-				end
-			end
+			assert(isstruct(samples))
+			assert(iscellstr(fieldsToGet))
+			fieldsToGet = ismember(fieldnames(samples), fieldsToGet);
+			samples		= filterFields(fieldsToGet, samples);
+			new_samples = structfun(@collapseFirstTwoColumnsOfMatrix, samples, 'UniformOutput', false);
 		end
 		
 	end
