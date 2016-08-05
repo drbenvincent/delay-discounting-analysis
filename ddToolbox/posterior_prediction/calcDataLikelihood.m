@@ -1,0 +1,6 @@
+function dataLikelihood = calcDataLikelihood(responses, predicted)
+% Responses are Bernoulli distributed: a special case of the Binomial with 1 event.
+dataLikelihood = prod(binopdf(responses, ...
+	ones(size(responses)),...
+	predicted));
+end
