@@ -39,7 +39,6 @@ classdef Model
 	methods (Access = public)
 		
 		function obj = Model(data, varargin)
-			
 			% Input parsing ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			p = inputParser;
 			p.StructExpand = false;
@@ -61,8 +60,7 @@ classdef Model
 			for n=1:numel(fields)
 				obj.(fields{n}) = p.Results.(fields{n});
 			end
-			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			
+			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~			
 		end
 		
 		
@@ -123,6 +121,8 @@ classdef Model
 			% scalar, we don't yet have support for vector or matrix
 			% model variables.
 			
+			CREDIBLE_INTERVAL = 0.95;
+			
 			%% Make table 1 (model variable info)
 			paramEstimateTable = obj.mcmc.exportParameterEstimates(...
 				obj.varList.participantLevel,... %obj.varList.groupLevel,...
@@ -135,8 +135,7 @@ classdef Model
 			postPredTable = makePostPredTable();
 			
 			%% Horizontally join the tables
-			finalTable = join(paramEstimateTable, postPredTable,...
-				'Keys','RowNames');
+			finalTable = join(paramEstimateTable, postPredTable, 'Keys','RowNames');
 			display(finalTable)
 			
 			%% Export to textfile
@@ -152,13 +151,15 @@ classdef Model
 				% Calculate point estimates of perceptPredicted. use the point
 				% estimate type that the user specified
 				pointEstFunc = str2func(obj.pointEstimateType);
-				percentPredicted = cellfun(pointEstFunc, {obj.postPred.percentPredictedDistribution})';
+				percentPredicted = cellfun(pointEstFunc,...
+					{obj.postPred.percentPredictedDistribution})';
 				
 				% Check if HDI of percentPredicted overlaps with 0.5
-				hdiFunc = @(x) HDIofSamples(x, 0.95); % Using mcmc-utils-matlab package
+				hdiFunc = @(x) HDIofSamples(x, CREDIBLE_INTERVAL); % Using mcmc-utils-matlab package
 				warningFunc = @(x) x(1) < 0.5;
 				warnOnHDI = @(x) warningFunc( hdiFunc(x) );
-				warning_percent_predicted = cellfun( warnOnHDI, {obj.postPred.percentPredictedDistribution})';
+				warning_percent_predicted = cellfun( warnOnHDI,...
+					{obj.postPred.percentPredictedDistribution})';
 				
 				% make table
 				postPredTable = table(ppScore,...
@@ -306,7 +307,7 @@ classdef Model
 			end
 			
 			% gather cross-experiment data for univariate stats
-			alldata.shouldExportPlots =obj.shouldExportPlots;
+			alldata.shouldExportPlots = obj.shouldExportPlots;
 			alldata.variables	= obj.varList.participantLevel;
 			alldata.IDnames		= obj.data.getIDnames('all');
 			alldata.saveFolder	= obj.saveFolder;
