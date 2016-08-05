@@ -36,8 +36,7 @@ classdef Data
 			try
 				table();
 			catch
-				error( strcat('ERROR: This version of Matlab does not support the Table data type. ',...
-					'You will need to call DataLegacy() instead of Data().'))
+				error('This version of Matlab does not support the Table data type.')
 			end
 			obj.dataFolder = dataFolder;
 			display('You have created a Data object')
@@ -58,7 +57,7 @@ classdef Data
 			obj.nParticipants		= numel(fnames);
 			obj.nRealParticipants	= numel(fnames);
 			obj.filenames			= fnames;
-			obj.IDnames				= obj.extractFilenames(fnames);
+			obj.IDnames				= path2filename(fnames);
 			obj.participantLevel	= obj.buildParticipantTables(fnames);
 			obj.exportGroupDataFile();
 			obj.totalTrials			= height( obj.buildGroupDataTable() );
@@ -170,57 +169,22 @@ classdef Data
 	
 	methods (Access = private)
 		
-		function IDnames = extractFilenames(obj, fnames)
-			for n=1:obj.nParticipants
-				[~,IDnames{n},~] = fileparts(fnames{n}); % just get filename
-			end
-		end
-		
 		function participantLevel = buildParticipantTables(obj, fnames)
 			% return a structure of tables
 						
-			for n=1:obj.nParticipants
+			for pIndex=1:obj.nParticipants
 				% read from disk
 				participantTable = readtable(...
-					fullfile(obj.dataFolder, fnames{n}),...
+					fullfile(obj.dataFolder, fnames{pIndex}),...
 					'delimiter', 'tab');
 				% Add participant ID column
-				participantTable = obj.appendParticipantIDcolumn(participantTable, n);
+				participantTable = appendTableColOfVals(participantTable, pIndex);
 				% Ensure PA, PB, DA, DB cols present
 				participantTable = obj.ensureAllColsPresent(participantTable);
 				
 				% Add to struct
-				participantLevel(n).table = participantTable;
-				participantLevel(n).trialsForThisParticant = height(participantTable);
-			end
-		end
-		
-		function participantTable = ensureAllColsPresent(obj, participantTable)
-			
-			% Ensure columns PA and PB exist, assuming P=1 if they do not. This
-			% could be the case if we've done a pure delay discounting
-			% experiment and not bothered to store the fact that rewards have
-			% 100% of delivery. If they did not, then we would have stored the
-			% vales of PA and PB.
-			if ~obj.isColumnPresent(participantTable, 'PA')
-				PA = ones( height(participantTable), 1);
-				participantTable = [participantTable table(PA)];
-			end
-			if ~obj.isColumnPresent(participantTable, 'PB')
-				PB = ones( height(participantTable), 1);
-				participantTable = [participantTable table(PB)];
-			end
-			% Ensure columns DA and DB exist, assuming D=0 if they do not. This
-			% could be the case if we ran a pure probability discounting
-			% experiment, and didn't bother storing the fact that DA and DB
-			% were immediate rewards.
-			if ~obj.isColumnPresent(participantTable, 'DA')
-				DA = zeros( height(participantTable), 1);
-				participantTable = [participantTable table(DA)];
-			end
-			if ~obj.isColumnPresent(participantTable, 'DB')
-				DB = ones( zeros(participantTable), 1);
-				participantTable = [participantTable table(DB)];
+				participantLevel(pIndex).table = participantTable;
+				participantLevel(pIndex).trialsForThisParticant = height(participantTable);
 			end
 		end
 		
@@ -231,15 +195,25 @@ classdef Data
 	end
 	
 	methods(Static, Access = private)
-		
-		function pTable = appendParticipantIDcolumn(pTable, n)
-			ID = ones( height(pTable), 1) * n;
-			pTable = [pTable table(ID)];
+				
+		function participantTable = ensureAllColsPresent(participantTable)
+			
+			% Ensure columns PA and PB exist, assuming P=1 if they do not. This
+			% could be the case if we've done a pure delay discounting
+			% experiment and not bothered to store the fact that rewards have
+			% 100% of delivery. If they did not, then we would have stored the
+			% vales of PA and PB.
+			participantTable = ensureColumnsPresentInTable(participantTable,...
+				{'PA',1, 'PB',1});
+			
+			% Ensure columns DA and DB exist, assuming D=0 if they do not. This
+			% could be the case if we ran a pure probability discounting
+			% experiment, and didn't bother storing the fact that DA and DB
+			% were immediate rewards.
+			participantTable = ensureColumnsPresentInTable(participantTable,...
+				{'DA',0, 'DB',0});
 		end
-		
-		function isPresent = isColumnPresent(table, columnName)
-			isPresent = sum(strcmp(table.Properties.VariableNames,columnName))~=0;
-		end
+
 		
 	end
 	
