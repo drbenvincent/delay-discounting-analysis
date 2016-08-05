@@ -2,9 +2,9 @@ classdef ModelHierarchicalLogK < Model
 	%ModelHierarchical A model to estimate the magnitide effect
 	%   Detailed explanation goes here
 
-	properties
+	properties (Access = private)
+		getDiscountRate
 	end
-
 
 	methods (Access = public)
 
@@ -13,7 +13,7 @@ classdef ModelHierarchicalLogK < Model
 
 			obj.modelType		= 'hierarchicalLogK';
 			obj.discountFuncType = 'logk';
-			obj.getDiscountRate = @getDiscountRate; % <-------------------------------------- FINISH
+			obj.getDiscountRate = @getLogDiscountRate; % <-------------------------------------- FINISH
 
 			% Create variables
 			obj.varList.participantLevel = {'logk','alpha','epsilon'};

@@ -3,9 +3,9 @@ classdef ModelSeparateME < Model
 	%	Models a number of participants, but they are all treated as independent.
 	%	There is no group-level estimation.
 	
-	properties (Access = protected)
+	properties (Access = private)
+		getDiscountRate
 	end
-	
 	
 	methods (Access = public)
 		
@@ -14,7 +14,7 @@ classdef ModelSeparateME < Model
 			
 			obj.modelType = 'separateME';
 			obj.discountFuncType = 'me';
-			obj.getDiscountRate = @getDiscountRate; % <-------------------------------------- FINISH
+			obj.getDiscountRate = @getLogDiscountRate; % <-------------------------------------- FINISH
 			
 			% Create variables
 			obj.varList.participantLevel = {'m', 'c','alpha','epsilon'};

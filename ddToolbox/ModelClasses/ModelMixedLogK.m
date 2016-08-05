@@ -2,9 +2,9 @@ classdef ModelMixedLogK < Model
 	%ModelHierarchical A model to estimate the magnitide effect
 	%   Detailed explanation goes here
 
-	properties
+	properties (Access = private)
+		getDiscountRate
 	end
-
 
 	methods (Access = public)
 
@@ -14,7 +14,7 @@ classdef ModelMixedLogK < Model
 
 			obj.modelType = 'mixedLogK';
 			obj.discountFuncType = 'logk';
-			obj.getDiscountRate = @getDiscountRate; % <-------------------------------------- FINISH
+			obj.getDiscountRate = @getLogDiscountRate; % <-------------------------------------- FINISH
 
 			% Create variables
 			obj.varList.participantLevel = {'logk','alpha','epsilon'};
