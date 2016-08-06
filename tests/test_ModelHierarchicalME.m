@@ -72,7 +72,7 @@ classdef test_ModelHierarchicalME < matlab.unittest.TestCase
 				'mcmcParams', struct('nsamples', 10^3,...
 				'chains', 2,...
 				'nburnin', 100));
-			model.coda.plotMCMCchains({'m'})
+			model.coda.trellisplots({'m'})
 		end
 		
 		function can_plot_multiple_chains_with_coda(testCase)
@@ -82,7 +82,7 @@ classdef test_ModelHierarchicalME < matlab.unittest.TestCase
 				'mcmcParams', struct('nsamples', 10^3,...
 				'chains', 2,...
 				'nburnin', 100));
-			model.coda.plotMCMCchains({'m', 'c'})
+			model.coda.trellisplots({'m', 'c'})
 		end
 		
 		

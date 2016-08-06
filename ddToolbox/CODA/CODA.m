@@ -28,11 +28,7 @@ classdef CODA
 		
 		% TODO: REMOVE OR MAKE IT GENERAL
 		function paramEstimateTable = exportParameterEstimates(obj,...
-				level1varNames, IDname, saveFolder, pointEstimateType, varargin)
-			% make a Table. Rows correspond to "IDname", columns
-			% correspond to those in "level1varNames".
-			% Note: some variables may not have an entry for the
-			% "unobserved participant".
+				variablesRequested, rowNames, saveFolder, pointEstimateType, varargin)
 			
 			p = inputParser;
 			p.FunctionName = mfilename;
@@ -41,18 +37,18 @@ classdef CODA
 			p.addRequired('saveFolder',@ischar);
 			p.addParameter('includeGroupEstimates',false, @islogical);
 			p.addParameter('includeCI',false, @islogical);
-			p.parse(level1varNames, IDname, saveFolder,  varargin{:});
+			p.parse(variablesRequested, rowNames, saveFolder,  varargin{:});
 			
 			% TODO: act on includeCI preference. Ie get, or do not get CI's.
 			
-			colHeaderNames = createColumnHeaders(level1varNames, p.Results.includeCI, pointEstimateType);
+			colHeaderNames = createColumnHeaders(variablesRequested, p.Results.includeCI, pointEstimateType);
 			
 			% TODO: FIX THIS FAFF TO DEAL WITH POSSIBLE VECTOR/MATRIX
 			% VARIABLES
 			errorFlag = false;
-			tableEntries = NaN(numel(IDname), numel(colHeaderNames));
+			tableEntries = NaN(numel(rowNames), numel(colHeaderNames));
 			for n = 1:numel(colHeaderNames)
-				vals = obj.grabParamEstimates(level1varNames(n), p.Results.includeCI, pointEstimateType);
+				vals = obj.grabParamEstimates(variablesRequested(n), p.Results.includeCI, pointEstimateType);
 				if size(vals,2)>1
 					warning('CANNOT DEAL WITH VECTOR/MATRIX? VARIABLES YET')
 					errorFlag = true;
@@ -64,7 +60,7 @@ classdef CODA
 			if ~errorFlag
 				paramEstimateTable = array2table(tableEntries,...
 					'VariableNames',colHeaderNames,...
-					'RowNames', IDname);
+					'RowNames', rowNames);
 			else
 				warning('non-scalar model variables detected: Can''t export these in a table yet')
 				% return an empty table
@@ -83,10 +79,15 @@ classdef CODA
 			end
 		end
 		
+		% -----------------------------------------------------------------
+		% PUBLIC PLOTTING METHODS
+		% -----------------------------------------------------------------
 		
 		function trellisplots(obj, variablesToPlot)
 			assert(iscellstr(variablesToPlot))
-			for n = 1:numel(variablesToPlot)
+			
+			
+			for n = 1:numel(variablesToPlot) % TODO: REMOVE THIS LOOP BY RECURSIVELY OPERATING ON variablesToPlot
 				figure
 				latex_fig(16, 12,10)
 				mcmcsamples = obj.getSamples(variablesToPlot(n));
@@ -116,20 +117,10 @@ classdef CODA
 					%% DISTRIBUTION PLOT
 					hHist = subplot(rows,6,row*6);
 					
-					densityplot(hHist, mcmcsamples(:,:,row))
+					obj.densityplot(hHist, mcmcsamples(:,:,row))
 				end
 				linkaxes(hChain,'x')
 			end
-			
-			
-			function densityplot(targetAxisHandle, samples)
-				% TODO: make targetAxisHandle an optional input
-				if ~isempty(targetAxisHandle)
-					subplot(targetAxisHandle)
-				end
-				mcmc.UnivariateDistribution(samples(:)); % using my plot tools package
-			end
-			
 		end
 		
 		
@@ -151,10 +142,19 @@ classdef CODA
 			
 			%% Add Rhat string
 			if ~isempty(rhat), addRhatStringToFigure(targetAxisHandle, rhat), end
-			
 		end
 		
 		
+		function densityplot(obj, targetAxisHandle, samples)
+			% TODO: make targetAxisHandle an optional input
+			if ~isempty(targetAxisHandle)
+				subplot(targetAxisHandle)
+			end
+			% using my plot tools package
+			mcmc.UnivariateDistribution(samples',...
+				'plotStyle','hist',...
+				'plotHDI',false);
+		end
 		
 		
 		% -----------------------------------------------------------------
@@ -220,6 +220,8 @@ classdef CODA
 		end
 		
 		function [columnVector] = getStats(obj, field, variable)
+			
+			% check requested field exists in stats
 			try
 				if isempty(variable)
 					columnVector = obj.stats.(field);
