@@ -1,5 +1,12 @@
 function plotDiscountFunction(plotdata)
 
+
+% checks
+if isempty(plotdata.samples.posterior.logk) || any(isnan(plotdata.samples.posterior.logk(:)))
+	warning('invalid or no logk samples provided')
+	return
+end
+
 %% High level plot logic
 plotFunction()
 if ~isempty(plotdata.data.rawdata)

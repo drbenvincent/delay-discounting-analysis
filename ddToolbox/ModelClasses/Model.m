@@ -1,9 +1,11 @@
 classdef Model
 	%Model Base class to provide basic functionality
 	
-	properties 
+	% Allow acces to these via Model, but we still only get access to these
+	% class's public interface.
+	properties (SetAccess = protected, GetAccess = public)
 		coda % handle to coda object
-		data % handle to Data class (dependency is injected from outside)
+		data % handle to Data class
 	end
 	
 	properties (SetAccess = protected, GetAccess = protected)

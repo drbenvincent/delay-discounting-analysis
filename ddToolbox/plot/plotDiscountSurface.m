@@ -1,5 +1,16 @@
 function [logB,D,AB] = plotDiscountSurface(plotdata)
 
+
+% checks
+if isempty(plotdata.samples.posterior.m)...
+		|| any(isnan(plotdata.samples.posterior.m(:)))...
+		|| isempty(plotdata.samples.posterior.c)...
+		|| any(isnan(plotdata.samples.posterior.c(:)))
+	warning('invalid or no (m,c) samples provided')
+	return
+end
+
+
 %% Calculate point estimates
 mcBivariate = mcmc.BivariateDistribution(plotdata.samples.posterior.m, plotdata.samples.posterior.c,...
 	'shouldPlot',false,...
@@ -7,6 +18,8 @@ mcBivariate = mcmc.BivariateDistribution(plotdata.samples.posterior.m, plotdata.
 mc = mcBivariate.(plotdata.pointEstimateType);
 m = mc(1);
 c = mc(2);
+
+
 
 global pow
 
