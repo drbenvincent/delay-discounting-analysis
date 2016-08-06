@@ -86,40 +86,49 @@ classdef CODA
 		function trellisplots(obj, variablesToPlot)
 			assert(iscellstr(variablesToPlot))
 			
-			
-			for n = 1:numel(variablesToPlot) % TODO: REMOVE THIS LOOP BY RECURSIVELY OPERATING ON variablesToPlot
+
+			for n = 1:numel(variablesToPlot) % TODO: REMOVE THIS LOOP BY A MAP ?
+				
+				% sort figure out
 				figure
 				latex_fig(16, 12,10)
+				
+				% get info
 				mcmcsamples = obj.getSamples(variablesToPlot(n));
 				mcmcsamples = mcmcsamples.(variablesToPlot{n});
 				[chains,Nsamples,rows] = size(mcmcsamples);
-				hChain=[];
 				rhat_all = obj.getStats('Rhat', variablesToPlot{n});
-				for row=1:rows
-					
-					%% TRACEPLOT
-					% select the right subplot
+				
+				% create geometry
+				for row = 1:rows
+					% traceplot
 					start = (6*row)-(6-1);
-					hChain(row) = subplot(rows,6,[start:(start-1)+(6-1)]);
-					
-					% ~~~~~~
-					obj.traceplot(hChain(row), mcmcsamples(:,:,row), variablesToPlot{n}, rhat_all(row));
-					% ~~~~~~
-					
-					box off
-					if row~=rows
-						set(gca,'XTick',[])
-					end
-					if row==rows
-						xlabel('MCMC sample')
-					end
-					
-					%% DISTRIBUTION PLOT
-					hHist = subplot(rows,6,row*6);
-					
-					obj.densityplot(hHist, mcmcsamples(:,:,row))
+					axis_handle(row, 1) = subplot(rows,6,[start:(start-1)+(6-1)]);
+					% density plot
+					axis_handle(row, 2) = subplot(rows,6,row*6);
 				end
-				linkaxes(hChain,'x')
+				
+				% call the plot functions
+				for row = 1:rows
+					obj.traceplot(axis_handle(row, 1),...
+						mcmcsamples(:,:,row),...
+						variablesToPlot{n},...
+						rhat_all(row));
+					
+					obj.densityplot(axis_handle(row, 2),...
+						mcmcsamples(:,:,row))
+				end
+				
+				%x tick only on bottom plot
+				set(axis_handle([1:end-1], 1),'XTick',[])
+				axis_handle(rows, 1).XLabel.String = 'MCMC sample';
+				
+				
+				% link y-axes of all traceplots
+				linkaxes(axis_handle(:,1),'y')
+				
+				% link x-axis of all density plots
+				linkaxes(axis_handle(:,2),'x')
 			end
 		end
 		
@@ -132,10 +141,12 @@ classdef CODA
 			assert(ishandle(targetAxisHandle))
 			assert(size(samples,3)==1)
 			
-			subplot(targetAxisHandle)
+			subplot(targetAxisHandle,...
+				'box', 'off')
 			
 			%% plot
-			h = plot(samples', 'LineWidth',0.5);
+			h = plot(samples',...
+				'LineWidth',0.5);
 			
 			%% format
 			ylabel(sprintf('$$ %s $$', paramString), 'Interpreter','latex')
