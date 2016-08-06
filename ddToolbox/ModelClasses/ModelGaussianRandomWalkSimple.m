@@ -78,7 +78,7 @@ classdef ModelGaussianRandomWalkSimple < Model
 			warning('SORT THIS PLOT FUNCTION OUT!')
 
 			%% Corner plot of group-level params
-			posteriorSamples = obj.mcmc.getSamplesAsMatrix({'varInc','alpha','epsilon'});
+			posteriorSamples = obj.coda.getSamplesAsMatrix({'varInc','alpha','epsilon'});
 			varLabals = {'varInc','alpha','epsilon'};
 
 			figure(87)
@@ -86,9 +86,9 @@ classdef ModelGaussianRandomWalkSimple < Model
 				varLabals,...
 				'pointEstimateType','mean');
 			drawnow
-			myExport('triplot',...
-				'saveFolder', obj.saveFolder,...
-				'prefix', 'group')
+% 			myExport('triplot',...
+% 				'saveFolder', obj.saveFolder,...
+% 				'prefix', 'group')
 
 
 			%% Plot indifference functions for each participant
@@ -112,9 +112,9 @@ classdef ModelGaussianRandomWalkSimple < Model
 				uni = mcmc.UnivariateDistribution(obj.AUC_DATA(p).AUCsamples,...
 					'xLabel', 'AUC');
 
-				myExport('discountfunction',...
-					'saveFolder', obj.saveFolder,...
-					'prefix', personInfo.participantName)
+% 				myExport('discountfunction',...
+% 					'saveFolder', obj.saveFolder,...
+% 					'prefix', personInfo.participantName)
 			end
 		end
 
@@ -128,7 +128,7 @@ classdef ModelGaussianRandomWalkSimple < Model
 
 			% Create a structure with all the useful info about a person
 			% p = person number
-			participantName = obj.data.IDname{p};
+			participantName = obj.data.getIDnames(p);
 			try
 				parts = strsplit(participantName,'-');
 				personStruct.participantName = strjoin(parts(1:2),'-');
@@ -143,8 +143,9 @@ classdef ModelGaussianRandomWalkSimple < Model
 
 
 		function dfSamples = extractDiscountFunctionSamples(obj, personNumber)
-			[chains, samples, participants, nDelays] = size(obj.mcmc.samples.discountFraction);
-			personSamples = squeeze(obj.mcmc.samples.discountFraction(:,:,personNumber,:));
+			samples = obj.coda.getSamples({'discountFraction'});
+			[chains, nSamples, participants, nDelays] = size(samples.discountFraction);
+			personSamples = squeeze(samples.discountFraction(:,:,personNumber,:));
 			% collapse over chains
 			for d=1:nDelays
 				dfSamples(:,d) = vec(personSamples(:,:,d));
@@ -187,7 +188,7 @@ classdef ModelGaussianRandomWalkSimple < Model
 			for p=1:obj.data.nParticipants
 				dfSamples = obj.extractDiscountFunctionSamples(p);
 				obj.AUC_DATA(p).AUCsamples = calculateAUC(delays,dfSamples, false);
-				obj.AUC_DATA(p).name  = obj.data.participantFilenames{p};
+				obj.AUC_DATA(p).name  = obj.data.getIDnames(p);
 			end
 		end
 

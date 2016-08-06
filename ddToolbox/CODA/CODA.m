@@ -193,7 +193,7 @@ classdef CODA
 		function [samplesMatrix] = getSamplesAsMatrix(obj, fieldsToGet)
 			% TODO: this makes assumptions, which are not true. Add checks,
 			% or robustify.
-			samplesMatrix = struct2Matrix( flattenChains(obj.samples, fieldsToGet) );
+			samplesMatrix = struct2Matrix( obj.flattenChains(obj.samples, fieldsToGet) );
 		end
 		
 		function [columnVector] = getStats(obj, field, variable)
