@@ -5,7 +5,7 @@ classdef test_allFilesInFolder < matlab.unittest.TestCase
 	
 	methods (Test, TestTags = {'Unit'})
 		
-		function allFilesInFolder_1(testCase)
+		function test1(testCase)
 			results = allFilesInFolder(pwd, 'm');
 			testCase.verifyTrue( iscellstr(results) )
 		end

@@ -24,7 +24,7 @@ classdef test_ModelHierarchicalME < matlab.unittest.TestCase
 	
 	methods (Test)
 		
-		function defaultInferenceWithModelHierarchicalME(testCase)
+		function fitHierarchicalME(testCase)
 			
 			testCase.assertInstanceOf(testCase.data,'Data')
 			
@@ -65,7 +65,7 @@ classdef test_ModelHierarchicalME < matlab.unittest.TestCase
 		end
 		
 		
-		function can_plot_chains_with_coda(testCase)
+		function coda_plot_chains(testCase)
 			model = ModelHierarchicalME(testCase.data,...
 				'saveFolder', 'unit test output',...
 				'shouldPlot','no',...
@@ -75,7 +75,7 @@ classdef test_ModelHierarchicalME < matlab.unittest.TestCase
 			model.coda.trellisplots({'m'})
 		end
 		
-		function can_plot_multiple_chains_with_coda(testCase)
+		function coda_plot_mulitple_chains(testCase)
 			model = ModelHierarchicalME(testCase.data,...
 				'saveFolder', 'unit test output',...
 				'shouldPlot','no',...

@@ -5,7 +5,7 @@ classdef test_magnitudeEffect < matlab.unittest.TestCase
 	
 	methods (Test, TestTags = {'Unit'})
 		
-		function test_scalar_input(testCase)
+		function scalar_input(testCase)
 			m = 0;
 			c = randn*10;
 			k = magnitudeEffect(100, [m c]);

@@ -48,7 +48,7 @@ classdef test_NonParametricModels < matlab.unittest.TestCase
 	
 	methods (Test)
 		
-		function doInferenceWithModel_default_sampler(testCase, model)
+		function defaultSampler(testCase, model)
 			% make model
 			makeModelFunction = str2func(model);
 
@@ -67,7 +67,7 @@ classdef test_NonParametricModels < matlab.unittest.TestCase
 % 			testCase.assertError
 % 		end
 		
-		function doInferenceWithModel_with_N_chains(testCase, model, chains)
+		function nChains(testCase, model, chains)
 			% make model
 			makeModelFunction = str2func(model);
 			
@@ -82,7 +82,7 @@ classdef test_NonParametricModels < matlab.unittest.TestCase
 		end
 		
 		
-		function doInferenceWithModel_specified_sampler(testCase, model, sampler)
+		function specifiedSampler(testCase, model, sampler)
 			% make model
 			makeModelFunction = str2func(model);
 			model = makeModelFunction(testCase.data,...
@@ -95,7 +95,7 @@ classdef test_NonParametricModels < matlab.unittest.TestCase
 			% TODO: DO AN ACTUAL TEST HERE !!!!!!!!!!!!!!!!!!!!!!
 		end
 		
-		function does_plotting_work(testCase, model, sampler)
+		function plot(testCase, model, sampler)
 			% make model
 			makeModelFunction = str2func(model);
 			model = makeModelFunction(testCase.data,...

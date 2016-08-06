@@ -5,7 +5,7 @@ classdef test_ensureFolderExists < matlab.unittest.TestCase
 	
 	methods (Test, TestTags = {'Unit'})
 		
-		function ensureFolderExists_nonexistant(testCase)
+		function doesNotExist(testCase)
 			testFolderToMake = 'thisFolderDoesNotExist';
 			results = ensureFolderExists(testFolderToMake);
 			sucess = (exist(testFolderToMake,'dir')==7);
@@ -14,7 +14,7 @@ classdef test_ensureFolderExists < matlab.unittest.TestCase
 			rmdir(testFolderToMake)
 		end
 		
-		function ensureFolderExists_existant(testCase)
+		function doesExist(testCase)
 			current_location = pwd;
 			results = ensureFolderExists(current_location);
 			testCase.verifyTrue(results)

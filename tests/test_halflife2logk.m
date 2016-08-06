@@ -12,19 +12,19 @@ classdef test_halflife2logk < matlab.unittest.TestCase
 			testCase.verifyEqual( exp(logk), 1/halflife, 'RelTol', 0.001)
 		end
 		
-		function test_mistake1(testCase)
+		function mistake1(testCase)
 			halflife = 50;
 			logk = halflife2logk(halflife);
 			testCase.verifyNotEqual( exp(logk), halflife)
 		end
 		
-		function test_mistake2(testCase)
+		function mistake2(testCase)
 			halflife = 50;
 			logk = halflife2logk(halflife);
 			testCase.verifyNotEqual( logk, 1/halflife)
 		end
 		
-		function test_halflifeZero(testCase)
+		function halflifeZero(testCase)
 			halflife = 0;
 			logk = halflife2logk(halflife);
 			testCase.verifyTrue( isinf(logk) )

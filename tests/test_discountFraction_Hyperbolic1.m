@@ -5,7 +5,7 @@ classdef test_discountFraction_Hyperbolic1 < matlab.unittest.TestCase
 	
 	methods (Test, TestTags = {'Unit'})
 		
-		function test_scalar_input(testCase)
+		function scalarInput(testCase)
 			
 			k		= 1/365;
 			delay	= 365;

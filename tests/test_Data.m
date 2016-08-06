@@ -26,7 +26,7 @@ classdef test_Data < matlab.unittest.TestCase
 	
 	methods (Test)
 		
-		function create_with_no_files(testCase)
+		function createWithNoFiles(testCase)
 			temp = Data(testCase.datapath);
 			testCase.assumeClass(temp,'Data')
 		end

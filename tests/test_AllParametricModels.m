@@ -36,29 +36,29 @@ classdef test_AllParametricModels < matlab.unittest.TestCase
 	end
 	
 	
-	methods (Test, TestTags = {'Unit'})
-	
-		% This is fine, just that it takes a long time to test given the
-		% default number of samples.
-% 		function make_model_zeroArguments(testCase, model)
-% 			makeModelFunction = str2func(model);
-% 			created_model = makeModelFunction(testCase.data);
-% 			testCase.assertInstanceOf(created_model, model)
-% 		end
-			
-% We don't just make models any more
-% 		function make_model_withPointEstimateType(testCase, model, pointEstimateType)
-% 			makeModelFunction = str2func(model);
-% 			created_model = makeModelFunction(testCase.data,...
-% 				'pointEstimateType', pointEstimateType);
-% 			testCase.assertInstanceOf(created_model, model)
-% 		end
-		
-	end
+% 	methods (Test, TestTags = {'Unit'})
+% 	
+% 		% This is fine, just that it takes a long time to test given the
+% 		% default number of samples.
+% % 		function make_model_zeroArguments(testCase, model)
+% % 			makeModelFunction = str2func(model);
+% % 			created_model = makeModelFunction(testCase.data);
+% % 			testCase.assertInstanceOf(created_model, model)
+% % 		end
+% 			
+% % We don't just make models any more
+% % 		function make_model_withPointEstimateType(testCase, model, pointEstimateType)
+% % 			makeModelFunction = str2func(model);
+% % 			created_model = makeModelFunction(testCase.data,...
+% % 				'pointEstimateType', pointEstimateType);
+% % 			testCase.assertInstanceOf(created_model, model)
+% % 		end
+% 		
+% 	end
 	
 	methods (Test)
 		
-		function doInferenceWithModel_default_sampler(testCase, model)
+		function defaultSampler(testCase, model)
 			% make model
 			makeModelFunction = str2func(model);
 			
@@ -71,7 +71,7 @@ classdef test_AllParametricModels < matlab.unittest.TestCase
 			% TODO: DO AN ACTUAL TEST HERE !!!!!!!!!!!!!!!!!!!!!!
 		end
 		
-		function doInferenceWithModel_with_N_chains(testCase, model, chains)
+		function nChains(testCase, model, chains)
 			% make model
 			makeModelFunction = str2func(model);
 			
@@ -86,7 +86,7 @@ classdef test_AllParametricModels < matlab.unittest.TestCase
 		end
 		
 		
-		function doInferenceWithModel_specified_sampler(testCase, model, sampler)
+		function specifiedSampler(testCase, model, sampler)
 			% make model
 			makeModelFunction = str2func(model);
 			model = makeModelFunction(testCase.data,...
@@ -101,7 +101,7 @@ classdef test_AllParametricModels < matlab.unittest.TestCase
 		end
 		
 		
-		function does_plotting_work(testCase, model, sampler)
+		function plot(testCase, model, sampler)
 			% make model
 			makeModelFunction = str2func(model);
 			model = makeModelFunction(testCase.data,...
