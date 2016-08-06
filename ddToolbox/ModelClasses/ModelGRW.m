@@ -15,7 +15,7 @@ classdef ModelGRW < Model
 		function obj = ModelGRW(data, varargin)
 			obj = obj@Model(data, varargin{:});
 
-			obj.modelType		= 'mixedGRWsimple';
+			obj.modelType		= 'mixedGRW';
 			obj.discountFuncType = 'nonparametric';
 
 			obj.varList.participantLevel = {'discountFraction'};
@@ -88,19 +88,37 @@ classdef ModelGRW < Model
 			
 			close all
 			warning('SORT THIS PLOT FUNCTION OUT!')
+			
+			%% Plot functions that use data from all participants
+			%figUnivariateSummary( obj.alldata )
+			
 
-			%% Corner plot of group-level params
-			posteriorSamples = obj.coda.getSamplesAsMatrix({'varInc','alpha','epsilon'});
-			varLabals = {'varInc','alpha','epsilon'};
-
-			figure(87)
-			mcmc.TriPlotSamples(posteriorSamples,...
-				varLabals,...
-				'pointEstimateType','mean');
-			drawnow
-% 			myExport('triplot',...
-% 				'saveFolder', obj.saveFolder,...
-% 				'prefix', 'group')
+			%% Plots, one per participant
+			%arrayfun(@figParticipant, obj.pdata, obj.participantFigPlotFuncs) % multi-panel fig
+			% TODO: replace this loop with use of partials
+			% 			partial = @(x) figParticipant(x, obj.participantFigPlotFuncs);
+			% 			arrayfun(partial, obj.pdata)
+			for p=1:numel(obj.pdata)
+				figParticipant(obj.participantFigPlotFuncs, obj.pdata(p));
+			end
+			
+			arrayfun(@plotTriPlotWrapper, obj.pdata) % corner plot of posterior
+			arrayfun(@figPosteriorPrediction, obj.pdata) % posterior prediction plot
+			
+			
+			
+% 			%% Corner plot of group-level params
+% 			posteriorSamples = obj.coda.getSamplesAsMatrix({'varInc','alpha','epsilon'});
+% 			varLabals = {'varInc','alpha','epsilon'};
+% 
+% 			figure(87)
+% 			mcmc.TriPlotSamples(posteriorSamples,...
+% 				varLabals,...
+% 				'pointEstimateType','mean');
+% 			drawnow
+% % 			myExport('triplot',...
+% % 				'saveFolder', obj.saveFolder,...
+% % 				'prefix', 'group')
 
 
 			%% Plot indifference functions for each participant
@@ -124,9 +142,9 @@ classdef ModelGRW < Model
 				uni = mcmc.UnivariateDistribution(obj.AUC_DATA(p).AUCsamples,...
 					'xLabel', 'AUC');
 
-% 				myExport('discountfunction',...
-% 					'saveFolder', obj.saveFolder,...
-% 					'prefix', personInfo.participantName)
+				myExport('discountfunction',...
+					'saveFolder', obj.saveFolder,...
+					'prefix', personInfo.participantName)
 			end
 		end
 

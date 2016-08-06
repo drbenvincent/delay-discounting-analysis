@@ -10,9 +10,7 @@ demo/parameterEstimates_nonHierarchical.txt
 
 demo/temp.data.R
 
-demo/output-1.csv
-
-demo/output-2.csv
+demo/*.csv
 
 *.hpp
 
@@ -20,14 +18,13 @@ ddToolbox/models/hierarchicalME
 
 ddToolbox/models/hierarchicalLogK
 
-demo/data/groupLevelData/COMBINED_DATA.txt
+*/COMBINED_DATA.txt
 
-demo-nonparametric/data/groupLevelData/COMBINED_DATA.txt
+*/temp.mat
 
 demo-nonparametric/figs
-demo/output-3.csv
 
-demo/output-4.csv
+
 
 ddToolbox/models/mixedLogK
 
@@ -41,33 +38,23 @@ ddToolbox/models/mixedME
 
 ddToolbox/models/separateME
 
-demo/tests/temp.mat
 
 demo/tests/figs
 
 tests/integration_tests/figs
 tests/integration_tests/temp.mat
 
-tests/temp.mat
 
 tests/figs/
-ddToolbox/models/hierarchicalMEupdated
 
 figs/
+
 output-1.csv
 
 output-2.csv
 
 temp.data.R
 
-demo/datasets/kirby/groupLevelData/COMBINED_DATA.txt
-
-demo/datasets/kirby/groupLevelData/COMBINED_DATA.txt
-
-demo/datasets/kirby/groupLevelData/COMBINED_DATA.txt
-
-demo/datasets/kirby/groupLevelData/COMBINED_DATA.txt
-
-demo/datasets/kirby/groupLevelData/COMBINED_DATA.txt
 
 *.stan~
+
