@@ -1,6 +1,11 @@
 function codaObject = sampleWithMatjags(...
 	modelFilename, observedData, mcmcparams, initialParameters, monitorparams)
 
+assert(ischar(modelFilename))
+assert(isstruct(observedData))
+assert(isstruct(mcmcparams))
+assert(isstruct(initialParameters))
+assert(iscellstr(monitorparams))
 
 %% sampler-specific preparation +++++++++++++++++++++++
 startParallelPool()

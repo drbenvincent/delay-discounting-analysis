@@ -1,6 +1,9 @@
 function codaObject = sampleWithMatlabStan(...
 	modelFilename, observedData, mcmcparams, ~, ~)
 
+assert(ischar(modelFilename))
+assert(isstruct(observedData))
+assert(isstruct(mcmcparams))
 
 stan_home = '~/cmdstan-2.11.0';
 

@@ -1,8 +1,5 @@
 function plotDiscountFunction(plotdata)
 
-% TODO: This should be an indepedent function, provided as an input
-discountFraction = @(k,D) bsxfun(@rdivide, 1, 1 + (bsxfun(@times, k, D) ) );
-
 %% High level plot logic
 plotFunction()
 if ~isempty(plotdata.data.rawdata)
@@ -62,7 +59,7 @@ formatAxes()
 		
 		% provide the point estimated calculated above (on logk) rather than k,
 		% because of numerical problems.
-		mcmc.PosteriorPrediction1D(discountFraction,...
+		mcmc.PosteriorPrediction1D(@discountFraction_Hyperbolic1,... %<-------- pass function in as a parameter?
 			'xInterp',D,...
 			'samples',exp(plotdata.samples.posterior.logk),...
 			'ciType','examples',...
