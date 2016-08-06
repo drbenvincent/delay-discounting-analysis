@@ -2,8 +2,8 @@
 % We need experimental paradigms that try to pinpoint the indifference
 % point for a set number of delays.
 
-classdef ModelGaussianRandomWalkSimple < Model
-	%ModelGaussianRandomWalkSimple
+classdef ModelGRW < Model
+	%ModelGRW
 
 	properties
 		AUC_DATA
@@ -12,7 +12,7 @@ classdef ModelGaussianRandomWalkSimple < Model
 
 	methods (Access = public)
 
-		function obj = ModelGaussianRandomWalkSimple(data, varargin)
+		function obj = ModelGRW(data, varargin)
 			obj = obj@Model(data, varargin{:});
 
 			obj.modelType		= 'mixedGRWsimple';

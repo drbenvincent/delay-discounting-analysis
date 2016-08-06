@@ -10,7 +10,7 @@ classdef test_NonParametricModels < matlab.unittest.TestCase
 	end
 	
 	properties (TestParameter)
-		model = {'ModelGaussianRandomWalkSimple'}
+		model = {'ModelGRW'}
 		pointEstimateType = {'mean','median','mode'}
 		sampler = {'jags', 'stan'} % TODO: ADD STAN
 		chains = {2,3}
@@ -87,10 +87,26 @@ classdef test_NonParametricModels < matlab.unittest.TestCase
 			makeModelFunction = str2func(model);
 			model = makeModelFunction(testCase.data,...
 				'saveFolder', 'unit test output',...
+				'sampler', sampler,...
+				'shouldPlot','no',...
 				'mcmcParams', struct('nsamples', 10^2,...
 									 'chains', 2,...
-									 'nburnin', 100),...
+									 'nburnin', 100));
+			% TODO: DO AN ACTUAL TEST HERE !!!!!!!!!!!!!!!!!!!!!!
+		end
+		
+		function does_plotting_work(testCase, model, sampler)
+			% make model
+			makeModelFunction = str2func(model);
+			model = makeModelFunction(testCase.data,...
+				'saveFolder', 'unit test output',...
+				'sampler', sampler,...
+				'mcmcParams', struct('nsamples', 100,...
+				'chains', 2,...
+				'nburnin', 100),...
 				'shouldPlot','no');
+			model.plot('shouldExportPlots', false);
+			
 			% TODO: DO AN ACTUAL TEST HERE !!!!!!!!!!!!!!!!!!!!!!
 		end
 		
@@ -98,6 +114,8 @@ classdef test_NonParametricModels < matlab.unittest.TestCase
 		function teardown(testCase)
 			% we are in the tests folder
 			rmdir('figs','s')
+			delete('*.R')
+			delete('*.csv')
 		end
 		
 	end

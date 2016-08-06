@@ -328,11 +328,8 @@ classdef Model
 			% TODO - the point is to guide them into what to do next
 			methods(obj)
 		end
-		
-		
 
 		
-
 		function obj = addUnobservedParticipant(obj, str)
 			% TODO: Check we need this
 			obj.data = obj.data.add_unobserved_participant(str);	% add name (eg 'GROUP')
