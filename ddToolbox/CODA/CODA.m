@@ -84,7 +84,7 @@ classdef CODA
 		end
 		
 		
-		function plotMCMCchains(obj, variablesToPlot)
+		function trellisplots(obj, variablesToPlot)
 			assert(iscellstr(variablesToPlot))
 			for n = 1:numel(variablesToPlot)
 				figure
@@ -95,43 +95,66 @@ classdef CODA
 				hChain=[];
 				rhat_all = obj.getStats('Rhat', variablesToPlot{n});
 				for row=1:rows
-					hChain(row) = intPlotChain(mcmcsamples(:,:,row), row, rows, variablesToPlot{n}, rhat_all(row));
-					intPlotDistribution(mcmcsamples(:,:,row), row, rows)
+					
+					%% TRACEPLOT
+					% select the right subplot
+					start = (6*row)-(6-1);
+					hChain(row) = subplot(rows,6,[start:(start-1)+(6-1)]);
+					
+					% ~~~~~~
+					obj.traceplot(hChain(row), mcmcsamples(:,:,row), variablesToPlot{n}, rhat_all(row));
+					% ~~~~~~
+					
+					box off
+					if row~=rows
+						set(gca,'XTick',[])
+					end
+					if row==rows
+						xlabel('MCMC sample')
+					end
+					
+					%% DISTRIBUTION PLOT
+					hHist = subplot(rows,6,row*6);
+					
+					densityplot(hHist, mcmcsamples(:,:,row))
 				end
 				linkaxes(hChain,'x')
 			end
 			
-			function hChain = intPlotChain(samples, row, rows, paramString, rhat)
-				assert(size(samples,3)==1)
-				% select the right subplot
-				start = (6*row)-(6-1);
-				hChain = subplot(rows,6,[start:(start-1)+(6-1)]);
-				% plot
-				h = plot(samples', 'LineWidth',0.5);
-				% format
-				ylabel(sprintf('$$ %s $$', paramString), 'Interpreter','latex')
-				str = sprintf('$$ \\hat{R} = %1.5f$$', rhat);
-				hText = addTextToFigure('T',str, 10, 'latex');
-				if rhat<1.01
-					hText.BackgroundColor=[1 1 1 0.7];
-				else
-					hText.BackgroundColor=[1 0 0 0.7];
-				end
-				box off
-				if row~=rows
-					set(gca,'XTick',[])
-				end
-				if row==rows
-					xlabel('MCMC sample')
-				end
-			end
 			
-			function intPlotDistribution(samples, row, rows)
-				hHist = subplot(rows,6,row*6);
+			function densityplot(targetAxisHandle, samples)
+				% TODO: make targetAxisHandle an optional input
+				if ~isempty(targetAxisHandle)
+					subplot(targetAxisHandle)
+				end
 				mcmc.UnivariateDistribution(samples(:)); % using my plot tools package
 			end
 			
 		end
+		
+		
+		function traceplot(obj, targetAxisHandle, samples, paramString, rhat)
+			% TODO: make targetAxisHandle an optional input
+			
+			assert(ischar(paramString))
+			assert(isscalar(rhat))
+			assert(ishandle(targetAxisHandle))
+			assert(size(samples,3)==1)
+			
+			subplot(targetAxisHandle)
+			
+			%% plot
+			h = plot(samples', 'LineWidth',0.5);
+			
+			%% format
+			ylabel(sprintf('$$ %s $$', paramString), 'Interpreter','latex')
+			
+			%% Add Rhat string
+			if ~isempty(rhat), addRhatStringToFigure(targetAxisHandle, rhat), end
+			
+		end
+		
+		
 		
 		
 		% -----------------------------------------------------------------

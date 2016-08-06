@@ -54,7 +54,7 @@ function [model] = run_me()
 % >> model.plot()
 %
 % You can inspect MCMC chains for diagnostic purposes by:
-% >> model.plotMCMCchains({'m','c'})
+% >> model.trellisplots({'m','c'})
 %
 % If you analysed your data with a model which accounts for the magnitude
 % effect, then you may want to work out what the discount rate, log(k),
@@ -82,11 +82,11 @@ function [model] = run_me()
 
 % --------- USE THE CODE BELOW AS A TEMPLATE FOR YOUR OWN ANALYSES --------
 
-% USERS TO REPLACE THIS CODE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% USERS TO REPLACE THIS CODE... ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 path_of_this_mfile = strrep(which(mfilename),[mfilename '.m'],'');
 toolbox_path = fullfile(path_of_this_mfile,'..','ddToolbox');
 datapath = fullfile(path_of_this_mfile,'datasets','kirby');
-% WITH THIS (update the paths as appropriate) ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% ...WITH THIS (update the paths as appropriate) ~~~~~~~~~~~~~~~~~~~~~~~~~~
 % addpath('~/git-local/delay-discounting-analysis/ddToolbox')
 % datapath = '~/git-local/delay-discounting-analysis/demo/data';
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -96,15 +96,14 @@ addpath(toolbox_path)
 ddAnalysisSetUp();
 
 % Do an analysis
-model = ModelMixedME(...
+model = ModelHierarchicalME_MVNORM(...
 	Data(datapath, 'files', allFilesInFolder(datapath, 'txt')),...
 	'saveFolder', 'analysis_with_hierarchical_magnitude_effect',...
 	'pointEstimateType','median',...
-	'sampler', 'stan',...
+	'sampler', 'jags',...
 	'shouldPlot', 'no',...
 	'mcmcParams', struct('nsamples', 10^2,...
 						 'chains', 2,...
 	 					 'nburnin', 100));
 
-
-%model.plot()
+% model.plot('shouldExportPlots', false)

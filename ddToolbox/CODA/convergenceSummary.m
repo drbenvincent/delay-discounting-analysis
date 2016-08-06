@@ -9,7 +9,6 @@ assert(isstruct(Rhat))
 assert(ischar(saveFolder))
 assert(iscellstr(IDnames))
 
-R_HAT_THRESHOLD = 1.01;
 
 [fid, fname] = setupTextFile(saveFolder, 'ConvergenceReport.txt');
 %MCMCParameterReport();
@@ -73,7 +72,7 @@ fprintf('Convergence report saved in:\n\t%s\n\n',fname)
 		end
 		
 		function checkRhatExceedThreshold(RhatValues)
-			if any(RhatValues>R_HAT_THRESHOLD)
+			if any(RhatValues > RHAT_THRESHOLD() )
 				isRhatThresholdExceeded = true;
 				logInfo(fid,'(WARNING: poor convergence)');
 			end
