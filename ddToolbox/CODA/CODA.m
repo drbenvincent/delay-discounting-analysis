@@ -7,6 +7,10 @@ classdef CODA
 		stats	% structure. Fields correspond to stats, subfield correspond to variables
 	end
 	
+	properties (GetAccess = public, SetAccess = private)
+		variableNames % cell array of variables
+	end
+	
 	% NOTE TO SELF: These public methods need to be seen as interfaces to
 	% the outside world that are implementation-independent. So thought
 	% needs to be given to public methods.
@@ -23,32 +27,38 @@ classdef CODA
 			
 			obj.samples = samples;
 			obj.stats = stats;
+			obj.variableNames = fieldnames(samples);
 		end
 		
-		
-		% TODO: REMOVE OR MAKE IT GENERAL
 		function paramEstimateTable = exportParameterEstimates(obj,...
 				variablesRequested, rowNames, saveFolder, pointEstimateType, varargin)
 			
 			p = inputParser;
 			p.FunctionName = mfilename;
-			p.addRequired('level1varNames',@iscellstr);
+			p.addRequired('variablesRequested',@iscellstr);
 			p.addRequired('IDname',@iscellstr);
 			p.addRequired('saveFolder',@ischar);
 			p.addParameter('includeGroupEstimates',false, @islogical);
+			p.addParameter('pointEstimateType','mean', @(x)any(strcmp(x,{'mean','median','mode'})));
 			p.addParameter('includeCI',false, @islogical);
 			p.parse(variablesRequested, rowNames, saveFolder,  varargin{:});
 			
 			% TODO: act on includeCI preference. Ie get, or do not get CI's.
 			
-			colHeaderNames = createColumnHeaders(variablesRequested, p.Results.includeCI, pointEstimateType);
+			colHeaderNames = createColumnHeaders(...
+				p.Results.variablesRequested,...
+				p.Results.includeCI,...
+				p.Results.pointEstimateType);
 			
 			% TODO: FIX THIS FAFF TO DEAL WITH POSSIBLE VECTOR/MATRIX
 			% VARIABLES
 			errorFlag = false;
 			tableEntries = NaN(numel(rowNames), numel(colHeaderNames));
 			for n = 1:numel(colHeaderNames)
-				vals = obj.grabParamEstimates(variablesRequested(n), p.Results.includeCI, pointEstimateType);
+				vals = obj.grabParamEstimates(...
+					p.Results.variablesRequested(n),...
+					p.Results.includeCI,...
+					p.Results.pointEstimateType);
 				if size(vals,2)>1
 					warning('CANNOT DEAL WITH VECTOR/MATRIX? VARIABLES YET')
 					errorFlag = true;
@@ -123,9 +133,8 @@ classdef CODA
 				set(axis_handle([1:end-1], 1),'XTick',[])
 				axis_handle(rows, 1).XLabel.String = 'MCMC sample';
 				
-				
 				% link y-axes of all traceplots
-				linkaxes(axis_handle(:,1),'y')
+				linkaxes(axis_handle(:,1),'xy')
 				
 				% link x-axis of all density plots
 				linkaxes(axis_handle(:,2),'x')
@@ -141,12 +150,12 @@ classdef CODA
 			assert(ishandle(targetAxisHandle))
 			assert(size(samples,3)==1)
 			
-			subplot(targetAxisHandle,...
-				'box', 'off')
+			subplot(targetAxisHandle)
 			
 			%% plot
 			h = plot(samples',...
 				'LineWidth',0.5);
+			box off
 			
 			%% format
 			ylabel(sprintf('$$ %s $$', paramString), 'Interpreter','latex')
@@ -183,7 +192,6 @@ classdef CODA
 				end
 			end
 		end
-		
 		
 		function [samples] = getSamplesAtIndex(obj, index, fieldsToGet)
 			assert(iscellstr(fieldsToGet))
@@ -225,14 +233,12 @@ classdef CODA
 		end
 		
 		function [samplesMatrix] = getSamplesAsMatrix(obj, fieldsToGet)
-			% TODO: this makes assumptions, which are not true. Add checks,
-			% or robustify.
+			% TODO: this makes assumptions, which are not true. Add checks or robustify.
 			samplesMatrix = struct2Matrix( obj.flattenChains(obj.samples, fieldsToGet) );
 		end
 		
 		function [columnVector] = getStats(obj, field, variable)
-			
-			% check requested field exists in stats
+			% TODO: check requested field exists in stats
 			try
 				if isempty(variable)
 					columnVector = obj.stats.(field);
@@ -251,7 +257,6 @@ classdef CODA
 				pointEstimates.(var) = temp(n);
 			end
 		end
-		
 		
 		function [predicted] = getParticipantPredictedResponses(obj, ind)
 			% ind is a binary valued vector indicating the trials

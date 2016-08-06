@@ -6,6 +6,9 @@ subplot(targetAxisHandle)
 
 str = sprintf('$$ \\hat{R} = %1.5f$$', rhat);
 
+
+% TODO: This fails if we pan and zoom. Maybe add it at a fixed relative
+% subplot position?
 hText = addTextToFigure('T',str, 10, 'latex');
 
 % visual warning if threshold exceeded
