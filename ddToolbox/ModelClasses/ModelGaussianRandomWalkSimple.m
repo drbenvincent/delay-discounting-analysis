@@ -73,7 +73,19 @@ classdef ModelGaussianRandomWalkSimple < Model
 
 
 
-		function plot(obj) % overriding from Model base class
+		function plot(obj, varargin) % overriding from Model base class
+			% parse inputs
+			p = inputParser;
+			p.FunctionName = mfilename;
+			p.addParameter('shouldExportPlots', true, @islogical);
+			p.parse(varargin{:});
+			
+			% act on inputs
+			obj.alldata.shouldExportPlots = p.Results.shouldExportPlots;
+			for n=1:numel(obj.pdata)
+				obj.pdata(n).shouldExportPlots = p.Results.shouldExportPlots;
+			end
+			
 			close all
 			warning('SORT THIS PLOT FUNCTION OUT!')
 
