@@ -1,6 +1,9 @@
 function [posteriorMean,lh] = calculateLogK_ConditionOnReward(reward, params, plotFlag)
     assert(isscalar(reward),'reward should be a scalar')
 	lh=[];
+	
+	% TODO: add tests
+	
 % 	% -----------------------------------------------------------
 % 	% log(k) = m * log(B) + c
 % 	% k = exp( m * log(B) + c )

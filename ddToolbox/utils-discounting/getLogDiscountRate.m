@@ -1,5 +1,9 @@
 function logKSamples = getLogDiscountRate(varargin)
 
+% TODO FINISH THIS FUNCTION !!!
+
+% TODO: ADD UNIT TESTS
+
 % Extract and plot P( log(k) | reward)
 warning('THIS METHOD IS A TOTAL MESS - PLAN THIS AGAIN FROM SCRATCH')
 conditionalDiscountRates_ParticipantLevel(reward, plotFlag)
