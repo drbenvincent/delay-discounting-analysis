@@ -94,12 +94,12 @@ classdef ModelGRW < Model
 			
 
 			%% Plots, one per participant
-			%arrayfun(@figParticipant, obj.pdata, obj.participantFigPlotFuncs) % multi-panel fig
+			%arrayfun(@figExperiment, obj.pdata, obj.participantFigPlotFuncs) % multi-panel fig
 			% TODO: replace this loop with use of partials
-			% 			partial = @(x) figParticipant(x, obj.participantFigPlotFuncs);
+			% 			partial = @(x) figExperiment(x, obj.participantFigPlotFuncs);
 			% 			arrayfun(partial, obj.pdata)
 			for p=1:numel(obj.pdata)
-				figParticipant(obj.participantFigPlotFuncs, obj.pdata(p));
+				figExperiment(obj.participantFigPlotFuncs, obj.pdata(p));
 			end
 			
 			arrayfun(@plotTriPlotWrapper, obj.pdata) % corner plot of posterior

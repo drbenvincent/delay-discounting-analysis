@@ -1,4 +1,4 @@
-function figParticipant(plotFuncs, plotdata)
+function figExperiment(plotFuncs, plotdata)
 
 assert(isstruct(plotdata))
 assert(iscell(plotFuncs))
