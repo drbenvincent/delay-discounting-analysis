@@ -14,7 +14,7 @@ classdef Data
 		dataFolder	% path to folder containing data files
 		filenames	% filename, including extension
 		IDnames		% filename, but no extension
-		participantLevel  % structure containing a table for each participant
+		experiment  % structure containing a table for each experiment
 		%groupTable        % table of A, DA, B, DB, R, ID, PA, PB
 	end
 
@@ -58,7 +58,7 @@ classdef Data
 			obj.nRealExperimentFiles	= numel(fnames);
 			obj.filenames			= fnames;
 			obj.IDnames				= path2filename(fnames);
-			obj.participantLevel	= obj.buildParticipantTables(fnames);
+			obj.experiment	          = obj.buildExperimentTables(fnames);
 			obj.exportGroupDataFile();
 			obj.totalTrials			= height( obj.buildGroupDataTable() );
 
@@ -90,11 +90,11 @@ classdef Data
 			index = obj.nExperimentFiles;
 
 			% set all fields to empty
-			fields = fieldnames(obj.participantLevel);
+			fields = fieldnames(obj.experiment);
 			for n=1:numel(fields)
 				% TODO: this currently needs to be empty ([]) but would be
 				% better if it was also able to coe being set as NaN.
-				obj.participantLevel(index).(fields{n}) = [];
+				obj.experiment(index).(fields{n}) = [];
 			end
 
 			obj.unobservedPartipantPresent = true;
@@ -110,32 +110,32 @@ classdef Data
 			%  - A, B, DA, DB, R, ID (all column vectors)
 			%  - trialsForThisParticant (a single value)
 
-			dataStruct = table2struct(obj.participantLevel(participant).table,...
+			dataStruct = table2struct(obj.experiment(participant).table,...
 				'ToScalar',true);
 
 			dataStruct.trialsForThisParticant =...
-				obj.participantLevel(participant).trialsForThisParticant;
+				obj.experiment(participant).trialsForThisParticant;
 		end
 
 		function R = getParticipantResponses(obj, p)
-			R = obj.participantLevel(p).table.R;
+			R = obj.experiment(p).table.R;
 		end
 
 		function nTrials = getTrialsForThisParticant(obj, p)
-			nTrials = obj.participantLevel(p).trialsForThisParticant;
+			nTrials = obj.experiment(p).trialsForThisParticant;
 		end
 
 		function pTable = getRawDataTableForParticipant(obj, p)
 			% return a Table of raw data
-			pTable = obj.participantLevel(p).table;
+			pTable = obj.experiment(p).table;
 		end
 
 		function all_data = get_all_data_table(obj)
 			% Create long data table of all participants
-			all_data = obj.participantLevel(:).table;
+			all_data = obj.experiment(:).table;
 			if obj.nExperimentFiles > 1
 				for p = 2:obj.nExperimentFiles
-					all_data = [all_data; obj.participantLevel(p).table];
+					all_data = [all_data; obj.experiment(p).table];
 				end
 			end
 		end
@@ -169,48 +169,48 @@ classdef Data
 
 	methods (Access = private)
 
-		function participantLevel = buildParticipantTables(obj, fnames)
+		function experiment = buildExperimentTables(obj, fnames)
 			% return a structure of tables
 
 			for pIndex=1:obj.nExperimentFiles
 				% read from disk
-				participantTable = readtable(...
+				experimentTable = readtable(...
 					fullfile(obj.dataFolder, fnames{pIndex}),...
 					'delimiter', 'tab');
 				% Add participant ID column
-				participantTable = appendTableColOfVals(participantTable, pIndex);
+				experimentTable = appendTableColOfVals(experimentTable, pIndex);
 				% Ensure PA, PB, DA, DB cols present
-				participantTable = obj.ensureAllColsPresent(participantTable);
+				experimentTable = obj.ensureAllColsPresent(experimentTable);
 
 				% Add to struct
-				participantLevel(pIndex).table = participantTable;
-				participantLevel(pIndex).trialsForThisParticant = height(participantTable);
+				experiment(pIndex).table = experimentTable;
+				experiment(pIndex).trialsForThisParticant = height(experimentTable);
 			end
 		end
 
 		function groupTable = buildGroupDataTable(obj)
-			groupTable = vertcat(obj.participantLevel(:).table);
+			groupTable = vertcat(obj.experiment(:).table);
 		end
 
 	end
 
 	methods(Static, Access = private)
 
-		function participantTable = ensureAllColsPresent(participantTable)
+		function experimentTable = ensureAllColsPresent(experimentTable)
 
 			% Ensure columns PA and PB exist, assuming P=1 if they do not. This
 			% could be the case if we've done a pure delay discounting
 			% experiment and not bothered to store the fact that rewards have
 			% 100% of delivery. If they did not, then we would have stored the
 			% vales of PA and PB.
-			participantTable = ensureColumnsPresentInTable(participantTable,...
+			experimentTable = ensureColumnsPresentInTable(experimentTable,...
 				{'PA',1, 'PB',1});
 
 			% Ensure columns DA and DB exist, assuming D=0 if they do not. This
 			% could be the case if we ran a pure probability discounting
 			% experiment, and didn't bother storing the fact that DA and DB
 			% were immediate rewards.
-			participantTable = ensureColumnsPresentInTable(participantTable,...
+			experimentTable = ensureColumnsPresentInTable(experimentTable,...
 				{'DA',0, 'DB',0});
 		end
 
