@@ -1,16 +1,23 @@
 model{
 
 # priors over group M mean
-groupMmu_MEAN <- -0.243
-groupMmu_PRECISION <- 1/( (0.027*10)^2)
+groupMmu_MEAN          <- -0.243
+groupMmu_PRECISION     <- 1/( (0.027*10)^2)
 # priors over group M sigma
-groupMsigma_MEAN <- 0.072
-groupMsigma_PRECISION <- 1/( (0.025*10)^2)
+groupMsigma_MEAN       <- 0.072
+groupMsigma_PRECISION  <- 1/( (0.025*10)^2)
 
 
 # slope (uninformative, see Appendix A)
 groupMmu        ~ dnorm(groupMmu_MEAN, groupMmu_PRECISION)
 groupMsigma     ~ dnorm(groupMsigma_MEAN, groupMsigma_PRECISION) T(0,)
+
+# Create a prior over m, unattached from the data ~~~~~~~~~~~~~~~~~~~~~~~~~
+# This is to demonstrate full-Bayesian hypothesis testing
+m_prior				~ dnorm(groupMmu_prior, 1/(groupMsigma_prior^2))
+groupMmu_prior      ~ dnorm(groupMmu_MEAN, groupMmu_PRECISION)
+groupMsigma_prior   ~ dnorm(groupMsigma_MEAN, groupMsigma_PRECISION) T(0,)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # intercept
 groupCmu        ~ dnorm(0, 1/(10000^2))

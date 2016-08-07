@@ -17,7 +17,7 @@ classdef ModelHierarchicalME < Model
 			
 			% Create variables
 			obj.varList.participantLevel = {'m', 'c', 'alpha', 'epsilon'};
-			obj.varList.monitored = {'m', 'c', 'alpha', 'epsilon', 'Rpostpred', 'P'};
+			obj.varList.monitored = {'m', 'c', 'alpha', 'epsilon', 'Rpostpred', 'P', 'm_prior'};
 			
 			obj = obj.addUnobservedParticipant('GROUP');
 			
