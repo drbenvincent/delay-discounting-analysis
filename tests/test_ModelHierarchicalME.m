@@ -8,6 +8,7 @@ classdef test_ModelHierarchicalME < matlab.unittest.TestCase
 		mcmcSamples = 10^2
 		chains = 2
 		tempSaveName = 'temp.mat'
+		savePath = 'unit test output'
 	end
 	
 	%% CLASS-LEVEL SETUP/TEARDOWN -----------------------------------------
@@ -24,6 +25,7 @@ classdef test_ModelHierarchicalME < matlab.unittest.TestCase
 		function setupModel(testCase)
 			% so we can re-use it without having to fit again
 			testCase.model = ModelHierarchicalME(testCase.data,...
+				'savePath', testCase.savePath,...
 				'mcmcParams', struct('nsamples', 10^2,...
 				'chains', 2,...
 				'nburnin', 100),...
@@ -32,9 +34,9 @@ classdef test_ModelHierarchicalME < matlab.unittest.TestCase
 	end
 	
 	methods(TestClassTeardown)
-		function onexit(testCase)
+		function on_exit(testCase)
 			% we are in the tests folder
-			rmdir('figs','s')
+			rmdir(fullfile('tests',testCase.savePath),'s')
 			delete('temp.mat')
 			close all
 		end
