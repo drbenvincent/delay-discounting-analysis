@@ -1,12 +1,26 @@
-function logKSamples = getLogDiscountRate(varargin)
+function logKSamples = getLogDiscountRate(modelObject, reward, varargin)
 
 % TODO FINISH THIS FUNCTION !!!
 
 % TODO: ADD UNIT TESTS
 
-% Extract and plot P( log(k) | reward)
-warning('THIS METHOD IS A TOTAL MESS - PLAN THIS AGAIN FROM SCRATCH')
-conditionalDiscountRates_ParticipantLevel(reward, plotFlag)
+plotFlag = 1;
+
+nExperimentFiles = modelObject.data.nExperimentFiles;
+
+for p = 1:nExperimentFiles
+	
+	% get samples of (m, c)
+	params(:,1) = modelObject.coda.getSamplesFromExperimentAsMatrix(p, {'m'});
+	params(:,2) = modelObject.coda.getSamplesFromExperimentAsMatrix(p, {'c'});
+	
+	% calculate logk = m * log(reward) + c
+	[posteriorMean(p), lh(p)] =...
+		calculateLogK_ConditionOnReward(reward, params, plotFlag);
+	
+end
+
+logKSamples = []; % TODO: RETURN SAMPLES!!!!!!
 
 if plotFlag
 	removeYaxis
@@ -17,20 +31,34 @@ end
 end
 
 
+function [posteriorMean,lh] = calculateLogK_ConditionOnReward(reward, params, plotFlag)
+assert(isscalar(reward),'reward should be a scalar')
+lh=[];
 
+kSamples	= magnitudeEffect(reward, params);
+logKsamples = log(kSamples);
 
-function conditionalDiscountRates_ParticipantLevel(obj, reward, plotFlag)
-nExperimentFiles = obj.data.nExperimentFiles;
-for p = 1:nExperimentFiles
-	params(:,1) = obj.mcmc.getSamplesFromExperimentAsMatrix(p, {'m'});
-	params(:,2) = obj.mcmc.getSamplesFromExperimentAsMatrix(p, {'c'});
-	% ==============================================
-	[posteriorMean(p), lh(p)] =...
-		calculateLogK_ConditionOnReward(reward, params, plotFlag);
-	% ==============================================
+[xi] = makeXIvalues(logKsamples);
+
+[f,xi] = ksdensity(logKsamples, xi, 'function', 'pdf');
+
+posteriorMode = xi( argmax(f) );
+posteriorMean = mean(logKsamples);
+
+if plotFlag
+	figure(1)
+	lh = plot(xi,f);
+	hold on
+	drawnow
 end
-warning('GET THESE NUMBERS PRINTED TO SCREEN')
-% 			logkCondition = array2table([posteriorMode'],...
-% 				'VariableNames',{'logK_posteriorMode'},...)
-% 				'RowNames', num2cell([1:nExperimentFiles]) )
+
+end
+
+function [xi] = makeXIvalues(samples)
+% create a set of x values based on the range of samples, but add some padding
+[~,X] = hist(samples);
+range = X(end)-X(1);
+Xpadded(1) = X(1) - range/2;
+Xpadded(2) = X(end) + range/2;
+xi = linspace(Xpadded(1), Xpadded(2), 1000);
 end

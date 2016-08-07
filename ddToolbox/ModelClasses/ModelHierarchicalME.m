@@ -2,8 +2,8 @@ classdef ModelHierarchicalME < Model
 	%ModelHierarchicalME A model to estimate the magnitide effect
 	%   Detailed explanation goes here
 	
-	properties (Access = private)
-		getDiscountRate
+	properties (Access = public) % TODO: set access not public
+		getLogDiscountRate % function handle
 	end
 	
 	methods (Access = public)
@@ -13,7 +13,8 @@ classdef ModelHierarchicalME < Model
 			
 			obj.modelType			= 'hierarchicalME';
 			obj.discountFuncType	= 'me';
-			obj.getDiscountRate = @getLogDiscountRate; % <-------------------------------------- FINISH
+			
+			obj.getLogDiscountRate = @(reward) getLogDiscountRate(obj, reward); % <-------------------------------------- FINISH
 			
 			% Create variables
 			obj.varList.participantLevel = {'m', 'c', 'alpha', 'epsilon'};
