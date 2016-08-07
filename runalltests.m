@@ -44,8 +44,17 @@ suite.table
 % result = runner.run(suite);
 
 
+%% Get siri to tell me results
+nPassed = sum([suite.Passed]==1);
+nFailed = sum([suite.Passed]==0);
+nTests = numel(suite);
+if failed == 0
+	report_str = sprintf('All %d tests passed. Winning', nTests);
+else
+	report_str = sprintf('%d tests passed, %d tests failed', nPassed, nFailed);
+end
 
-
+speak(report_str)
 
 
 
