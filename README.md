@@ -8,7 +8,7 @@ Vincent, B., T. (in press) **[Hierarchical Bayesian estimation and hypothesis te
 
 This toolbox aims to be a complete solution for the analysis of experimental data from discounting tasks.
 
-## Key features:
+Key features:
 
 * Publication quality figures.
 * Bayesian estimates of discounting parameters, complete with credible intervals.
@@ -21,8 +21,12 @@ This toolbox aims to be a complete solution for the analysis of experimental dat
 * Explicit modelling of participant errors provides more robust parameter estimates of discounting parameters.
 * Posterior predictive checks help evaluate model goodness and data exclusion decisions.
 
-## [Documentation](https://github.com/drbenvincent/delay-discounting-analysis/wiki) and help.
-Go to the [wiki](https://github.com/drbenvincent/delay-discounting-analysis/wiki) for full instructions.
+## Documentation and help.
+Go to the [wiki Documentation](https://github.com/drbenvincent/delay-discounting-analysis/wiki) for full instructions.
+
+Please use the [GitHub Issues](https://github.com/drbenvincent/delay-discounting-analysis/issues) feature to ask question, report a bug, or request a feature. You'll need a GitHub account to do this, which isn't very hard to set up.
+
+But you could always email me or tweet me [@inferenceLab](https://twitter.com/inferencelab) instead.
 
 
 ## Installation and use
@@ -35,9 +39,6 @@ The commands use to get your analysis up and running are quite quick and easy. A
 
 ### Read the research paper
 Vincent, B., T. (in press) [Hierarchical Bayesian estimation and hypothesis testing for delay discounting tasks](http://link.springer.com/article/10.3758%2Fs13428-015-0672-2), Behavior Research Methods. doi:10.3758/s13428-015-0672-2
-
-### Get in touch
-Please use the [GitHub Issues](https://github.com/drbenvincent/delay-discounting-analysis/issues) feature to ask question, report a bug, or request a feature. You'll need a GitHub account to do this, which isn't very hard to set up. But you could always email me instead.
 
 ### Videos
 Click below to follow through to youtube videos...
