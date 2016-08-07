@@ -62,7 +62,7 @@ classdef Data
 			obj.exportGroupDataFile();
 			obj.totalTrials			= height( obj.buildGroupDataTable() );
 
-			display('The following participant-level data files were imported:')
+			display('The following data files were imported:')
 			display(fnames')
 		end
 
@@ -103,18 +103,18 @@ classdef Data
 
 		% PUBLIC GET METHODS ==============================================
 
-		function dataStruct = getParticipantData(obj,participant)
-			% grabs data just from one participant.
+		function dataStruct = getExperimentData(obj,experiment)
+			% grabs data just from one experiment.
 			% OUTPUTS:
 			% a structure with fields
 			%  - A, B, DA, DB, R, ID (all column vectors)
 			%  - trialsForThisParticant (a single value)
 
-			dataStruct = table2struct(obj.experiment(participant).table,...
+			dataStruct = table2struct(obj.experiment(experiment).table,...
 				'ToScalar',true);
 
 			dataStruct.trialsForThisParticant =...
-				obj.experiment(participant).trialsForThisParticant;
+				obj.experiment(experiment).trialsForThisParticant;
 		end
 
 		function R = getParticipantResponses(obj, p)
@@ -177,7 +177,7 @@ classdef Data
 				experimentTable = readtable(...
 					fullfile(obj.dataFolder, fnames{pIndex}),...
 					'delimiter', 'tab');
-				% Add participant ID column
+				% Add ID column
 				experimentTable = appendTableColOfVals(experimentTable, pIndex);
 				% Ensure PA, PB, DA, DB cols present
 				experimentTable = obj.ensureAllColsPresent(experimentTable);

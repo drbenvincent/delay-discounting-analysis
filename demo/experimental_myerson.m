@@ -39,7 +39,7 @@ for n=1:myData.nExperimentFiles
 	subplot(z,z,n)
 
 	% get participant data
-	data = myData.getParticipantData(n);
+	data = myData.getExperimentData(n);
 
 	% Calculate kindif column
 	data.logkindiff = log( ((data.B ./ data.A)-1) ./ data.DB );

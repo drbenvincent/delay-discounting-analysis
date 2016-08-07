@@ -125,7 +125,7 @@ classdef ModelGRW < Model
 			obj.calcAUCscores()
 			for p=1:obj.data.nExperimentFiles
 				% Extract info about a person for plotting purposes
-				personInfo = obj.getParticipantData(p);
+				personInfo = obj.getExperimentData(p);
 
 				% Plotting
 				figure(1), clf
@@ -152,7 +152,7 @@ classdef ModelGRW < Model
 
 
 
-		function personStruct = getParticipantData(obj, p)
+		function personStruct = getExperimentData(obj, p)
 
 			obj = calcAUCscores(obj); % TODO: This is put here as a quick fix.
 
@@ -167,7 +167,7 @@ classdef ModelGRW < Model
 			end
 			personStruct.delays = obj.observedData.uniqueDelays;
 			personStruct.dfSamples = obj.extractDiscountFunctionSamples(p);
-			personStruct.data = obj.data.getParticipantData(p);
+			personStruct.data = obj.data.getExperimentData(p);
 			personStruct.AUCsamples = obj.AUC_DATA(p).AUCsamples;
 		end
 
