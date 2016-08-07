@@ -146,7 +146,7 @@ classdef Data
 				switch whatIwant
 					case{'all'}
 						names = obj.IDnames;
-					case{'participants'}
+					case{'experiments'}
 						names = obj.IDnames([1:obj.nRealExperimentFiles]);
 					case{'group'}
 						if ~obj.unobservedPartipantPresent

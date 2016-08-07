@@ -1,4 +1,4 @@
-classdef test_excludeTheseParticipants < matlab.unittest.TestCase
+classdef test_excludeThese < matlab.unittest.TestCase
 	
 	properties
 	end
@@ -8,14 +8,14 @@ classdef test_excludeTheseParticipants < matlab.unittest.TestCase
 		function test1(testCase)
 			fnames = {'apple', 'bananna', 'cucumber', 'dog', 'spatula'};
 			exclude = {'dog', 'spatula'};
-			result = excludeTheseParticipants(fnames, exclude);
+			result = excludeThese(fnames, exclude);
 			testCase.verifyTrue( numel(result)==3 )
 		end
 		
 		function test2(testCase)
 			fnames = {'apple', 'bananna', 'cucumber', 'dog', 'spatula'};
 			exclude = {};
-			result = excludeTheseParticipants(fnames, exclude);
+			result = excludeThese(fnames, exclude);
 			testCase.verifyTrue( numel(result)==5 )
 		end
 		

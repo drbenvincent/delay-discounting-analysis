@@ -41,7 +41,7 @@ classdef test_Data < matlab.unittest.TestCase
 		end
 		
 		function getIDnames_participants(testCase)
-			IDnames = testCase.data.getIDnames('participants');
+			IDnames = testCase.data.getIDnames('experiments');
 		end
 	
 % 		function getIDnames_unobserved(testCase)
