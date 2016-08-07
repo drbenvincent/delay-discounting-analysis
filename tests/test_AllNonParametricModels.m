@@ -1,4 +1,4 @@
-classdef test_NonParametricModels < matlab.unittest.TestCase
+classdef test_AllNonParametricModels < matlab.unittest.TestCase
 	% test that we can instantiate all of the specified model classes. This
 	% uses Matlab's Parameterized Testing:
 	% http://uk.mathworks.com/help/matlab/matlab_prog/create-basic-parameterized-test.html
@@ -7,6 +7,8 @@ classdef test_NonParametricModels < matlab.unittest.TestCase
 	
 	properties
 		data
+		saveName = 'temp.mat'
+		savePath = tempname(); % matlab auto-generated temp folders
 	end
 	
 	properties (TestParameter)
@@ -16,8 +18,11 @@ classdef test_NonParametricModels < matlab.unittest.TestCase
 		chains = {2,3}
 	end
 	
+	
+	%% CLASS-LEVEL SETUP/TEARDOWN -----------------------------------------
+	
 	methods (TestClassSetup)
-		function setup(testCase)
+		function setupData(testCase)
 			% assuming this is running on my maching
 			addpath('~/git-local/delay-discounting-analysis/ddToolbox')
 			datapath = '~/git-local/delay-discounting-analysis/demo/datasets/non-parametric';
@@ -28,56 +33,46 @@ classdef test_NonParametricModels < matlab.unittest.TestCase
 		end
 	end
 	
+	methods(TestClassTeardown)
+		function remove_temp_folder(testCase)
+			rmdir(testCase.savePath,'s')
+		end
+		function on_exit(testCase)
+			delete('temp.mat')
+		end
+		function close_figs(testCase)
+			close all
+		end
+	end
 	
-% 	methods (Test, TestTags = {'Unit'})
-% 		
-% 		function make_model_zeroArguments(testCase, model)
-% 			makeModelFunction = str2func(model);
-% 			created_model = makeModelFunction(testCase.data);
-% 			testCase.assertInstanceOf(created_model, model)
-% 		end
-% 			
-% 		function make_model_withPointEstimateType(testCase, model, pointEstimateType)
-% 			makeModelFunction = str2func(model);
-% 			created_model = makeModelFunction(testCase.data,...
-% 				'pointEstimateType', pointEstimateType);
-% 			testCase.assertInstanceOf(created_model, model)
-% 		end
-% 		
-% 	end
+	
+	%% THE ACTUAL TESTS ---------------------------------------------------
+	
 	
 	methods (Test)
 		
 		function defaultSampler(testCase, model)
 			% make model
 			makeModelFunction = str2func(model);
-
+			
 			model = makeModelFunction(testCase.data,...
-				'savePath', 'unit test output',...
+				'savePath', testCase.savePath,...
 				'mcmcParams', struct('nsamples', 10^2,...
-									 'chains', 2,...
-									 'nburnin', 100),...
+				'chains', 2,...
+				'nburnin', 100),...
 				'shouldPlot','no');
 			% TODO: DO AN ACTUAL TEST HERE !!!!!!!!!!!!!!!!!!!!!!
 		end
 		
-		% TODO
-% 		function singleChainRequestedShouldError(testCase)
-% 			
-% 			testCase.assertError
-% 		end
-		
 		function nChains(testCase, model, chains)
 			% make model
 			makeModelFunction = str2func(model);
-			
 			model = makeModelFunction(testCase.data,...
-				'savePath', 'unit test output',...
+				'savePath', testCase.savePath,...
 				'mcmcParams', struct('nsamples', 10^2,...
-									'chains', 2,...
-									'nburnin', 100),...
+				'chains', chains,...
+				'nburnin', 100),...
 				'shouldPlot','no');
-			
 			% TODO: DO AN ACTUAL TEST HERE !!!!!!!!!!!!!!!!!!!!!!
 		end
 		
@@ -86,36 +81,13 @@ classdef test_NonParametricModels < matlab.unittest.TestCase
 			% make model
 			makeModelFunction = str2func(model);
 			model = makeModelFunction(testCase.data,...
-				'savePath', 'unit test output',...
+				'savePath', testCase.savePath,...
 				'sampler', sampler,...
 				'shouldPlot','no',...
 				'mcmcParams', struct('nsamples', 10^2,...
-									 'chains', 2,...
-									 'nburnin', 100));
-			% TODO: DO AN ACTUAL TEST HERE !!!!!!!!!!!!!!!!!!!!!!
-		end
-		
-		function plot(testCase, model, sampler)
-			% make model
-			makeModelFunction = str2func(model);
-			model = makeModelFunction(testCase.data,...
-				'savePath', 'unit test output',...
-				'sampler', sampler,...
-				'mcmcParams', struct('nsamples', 100,...
 				'chains', 2,...
-				'nburnin', 100),...
-				'shouldPlot','no');
-			model.plot('shouldExportPlots', false);
-			
+				'nburnin', 100));
 			% TODO: DO AN ACTUAL TEST HERE !!!!!!!!!!!!!!!!!!!!!!
-		end
-		
-		
-		function teardown(testCase)
-			% we are in the tests folder
-			rmdir('figs','s')
-			delete('*.R')
-			delete('*.csv')
 		end
 		
 	end
