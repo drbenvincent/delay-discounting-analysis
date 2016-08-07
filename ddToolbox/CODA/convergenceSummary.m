@@ -26,24 +26,24 @@ fprintf('Convergence report saved in:\n\t%s\n\n',fname)
 
 	function printRhatInformation(IDnames)
 		% TODO: export this in a longform table ?
-		nParticipants = numel(IDnames);
-		
+		nExperimentFiles = numel(IDnames);
+
 		isRhatThresholdExceeded = false;
 		varNames = fieldnames(Rhat);
-		
+
 		for n = 1:numel(varNames)
 			% skip posterior predictive variables
 			if strcmp(varNames{n},'Rpostpred'), continue, end
 			RhatValues = Rhat.(varNames{n});
-			
+
 			% conditions
 			isVectorOfParticipants = @(x,p) isvector(x) && numel(x)==p;
-			isVecorForEachParticipant = @(x,p) ismatrix(x) && size(x,1)==p;
-			
+			isVectorForEachParticipant = @(x,p) ismatrix(x) && size(x,1)==p;
+
 			if isscalar(RhatValues)
 				logInfo(fid,'\nRhat for: %s\t',varNames{n});
 				logInfo(fid,'%2.5f', RhatValues);
-			elseif isVectorOfParticipants(RhatValues,nParticipants)
+			elseif isVectorOfParticipants(RhatValues,nExperimentFiles)
 				logInfo(fid,'\nRhat for: %s\n',varNames{n});
 				for i=1:numel(IDnames)
 					logInfo(fid,'%s:\t', IDnames{i}); % participant name
@@ -51,7 +51,7 @@ fprintf('Convergence report saved in:\n\t%s\n\n',fname)
 					checkRhatExceedThreshold(RhatValues(i));
 					logInfo(fid,'\n');
 				end
-			elseif isVecorForEachParticipant(RhatValues,nParticipants)
+			elseif isVectorForEachParticipant(RhatValues,nExperimentFiles)
 				logInfo(fid,'\nRhat for: %s\n',varNames{n});
 				for i=1:numel(IDnames)
 					logInfo(fid,'%s\t', IDnames{i}); % participant name
@@ -61,7 +61,7 @@ fprintf('Convergence report saved in:\n\t%s\n\n',fname)
 				end
 			end
 		end
-		
+
 		if isRhatThresholdExceeded
 			logInfo(fid,'\n\n\n**** WARNING: convergence issues :( ****\n\n\n')
 			% Uncomment this line if you want auditory feedback
@@ -70,7 +70,7 @@ fprintf('Convergence report saved in:\n\t%s\n\n',fname)
 		else
 			logInfo(fid,'\n\n\n**** No convergence issues :) ****\n\n\n')
 		end
-		
+
 		function checkRhatExceedThreshold(RhatValues)
 			if any(RhatValues > RHAT_THRESHOLD() )
 				isRhatThresholdExceeded = true;

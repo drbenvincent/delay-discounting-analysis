@@ -20,8 +20,8 @@ end
 
 
 function conditionalDiscountRates_ParticipantLevel(obj, reward, plotFlag)
-nParticipants = obj.data.nParticipants;
-for p = 1:nParticipants
+nExperimentFiles = obj.data.nExperimentFiles;
+for p = 1:nExperimentFiles
 	params(:,1) = obj.mcmc.getSamplesFromParticipantAsMatrix(p, {'m'});
 	params(:,2) = obj.mcmc.getSamplesFromParticipantAsMatrix(p, {'c'});
 	% ==============================================
@@ -32,5 +32,5 @@ end
 warning('GET THESE NUMBERS PRINTED TO SCREEN')
 % 			logkCondition = array2table([posteriorMode'],...
 % 				'VariableNames',{'logK_posteriorMode'},...)
-% 				'RowNames', num2cell([1:nParticipants]) )
+% 				'RowNames', num2cell([1:nExperimentFiles]) )
 end

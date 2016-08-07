@@ -4,7 +4,7 @@ classdef Data
 	properties (GetAccess = public, SetAccess = private)
 		% Ensure all properties here are NOT going to change, even if the
 		% inner workings of this class change.
-		nParticipants		% includes optional unobserved participant
+		nExperimentFiles		% includes optional unobserved participant
 		nRealParticipants	% only includes number of real experiment files
 		totalTrials
 		unobservedPartipantPresent %<--- not sure if we want this exposed or not
@@ -54,7 +54,7 @@ classdef Data
 		function obj = importAllFiles(obj, fnames)
 			assert( iscellstr(fnames), 'fnames should be a cell array of filenames')
 			
-			obj.nParticipants		= numel(fnames);
+			obj.nExperimentFiles		= numel(fnames);
 			obj.nRealParticipants	= numel(fnames);
 			obj.filenames			= fnames;
 			obj.IDnames				= path2filename(fnames);
@@ -86,8 +86,8 @@ classdef Data
 			
 			obj.IDnames{obj.nRealParticipants+1} = str;
 			
-			obj.nParticipants = obj.nParticipants + 1;
-			index = obj.nParticipants;
+			obj.nExperimentFiles = obj.nExperimentFiles + 1;
+			index = obj.nExperimentFiles;
 			
 			% set all fields to empty
 			fields = fieldnames(obj.participantLevel);
@@ -133,8 +133,8 @@ classdef Data
 		function all_data = get_all_data_table(obj)
 			% Create long data table of all participants
 			all_data = obj.participantLevel(:).table;
-			if obj.nParticipants > 1
-				for p = 2:obj.nParticipants
+			if obj.nExperimentFiles > 1
+				for p = 2:obj.nExperimentFiles
 					all_data = [all_data; obj.participantLevel(p).table];
 				end
 			end
@@ -172,7 +172,7 @@ classdef Data
 		function participantLevel = buildParticipantTables(obj, fnames)
 			% return a structure of tables
 						
-			for pIndex=1:obj.nParticipants
+			for pIndex=1:obj.nExperimentFiles
 				% read from disk
 				participantTable = readtable(...
 					fullfile(obj.dataFolder, fnames{pIndex}),...

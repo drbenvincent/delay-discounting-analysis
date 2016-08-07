@@ -12,7 +12,7 @@ figure(12), clf
 
 %% REAL EXPERIMENT DATA
 % build samples
-for p = 1:data.nParticipants
+for p = 1:data.nExperimentFiles
 	logkSamples(:,p) = mcmcContainer.getSamplesFromParticipantAsMatrix(p, {'logk'});
 end
 
@@ -27,8 +27,8 @@ axis tight
 participantAxisBounds = axis;
 
 %% GROUP LEVEL (UNOBSERVED PARTICIPANT)
-%if size(logkSamples,2) == data.nParticipants+1
-groupLogkSamples = logkSamples(:,data.nParticipants);
+%if size(logkSamples,2) == data.nExperimentFiles+1
+groupLogkSamples = logkSamples(:,data.nExperimentFiles);
 
 if data.unobservedPartipantPresent && ~any(isnan(groupLogkSamples))
 	mcmc.UnivariateDistribution(groupLogkSamples,...

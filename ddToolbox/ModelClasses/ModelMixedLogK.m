@@ -33,7 +33,7 @@ classdef ModelMixedLogK < Model
 		
 		function initialParams = setInitialParamValues(obj, nchains)
 			% Generate initial values of the leaf nodes
-			nParticipants = obj.data.nParticipants;
+			nExperimentFiles = obj.data.nExperimentFiles;
 			for chain = 1:nchains
 				initialParams(chain).groupW             = rand;
 				initialParams(chain).groupALPHAmu		= rand*100;

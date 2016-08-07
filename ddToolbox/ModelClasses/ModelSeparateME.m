@@ -30,12 +30,12 @@ classdef ModelSeparateME < Model
 		
 		function initialParams = setInitialParamValues(obj, nchains)
 			% Generate initial values of the leaf nodes
-			nParticipants = obj.data.nParticipants;
+			nExperimentFiles = obj.data.nExperimentFiles;
 			for chain = 1:nchains
-				initialParams(chain).m			= normrnd(-0.243,2, [nParticipants,1]);
-				initialParams(chain).c			= normrnd(0,10, [nParticipants,1]);
-				initialParams(chain).alpha		= abs(normrnd(0.01,10, [nParticipants,1]));
-				initialParams(chain).epsilon	= 0.1 + rand([nParticipants,1])/10;
+				initialParams(chain).m			= normrnd(-0.243,2, [nExperimentFiles,1]);
+				initialParams(chain).c			= normrnd(0,10, [nExperimentFiles,1]);
+				initialParams(chain).alpha		= abs(normrnd(0.01,10, [nExperimentFiles,1]));
+				initialParams(chain).epsilon	= 0.1 + rand([nExperimentFiles,1])/10;
 			end
 		end
 		

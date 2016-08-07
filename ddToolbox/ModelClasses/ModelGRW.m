@@ -49,11 +49,11 @@ classdef ModelGRW < Model
 		function initialParams = setInitialParamValues(obj, nchains)
 			% Generate initial values of the leaf nodes
 			%nTrials = size(obj.data.observedData.A,2);
-			nParticipants = obj.data.nParticipants;
+			nExperimentFiles = obj.data.nExperimentFiles;
 			nUniqueDelays = numel(obj.observedData.uniqueDelays);
 
 			for chain = 1:nchains
-				initialParams(chain).discountFraction = normrnd(1, 0.1, [nParticipants, nUniqueDelays]);
+				initialParams(chain).discountFraction = normrnd(1, 0.1, [nExperimentFiles, nUniqueDelays]);
 			end
 			% TODO: have a function called discountFraction and pass it
 			% into this initialParam maker loop
@@ -123,7 +123,7 @@ classdef ModelGRW < Model
 
 			%% Plot indifference functions for each participant
 			obj.calcAUCscores()
-			for p=1:obj.data.nParticipants
+			for p=1:obj.data.nExperimentFiles
 				% Extract info about a person for plotting purposes
 				personInfo = obj.getParticipantData(p);
 
@@ -215,7 +215,7 @@ classdef ModelGRW < Model
 			%obj.observedData = obj.constructObservedDataForMCMC( obj.data.get_all_data_table() ); % TODO: do this in base-class
 
 			delays = obj.observedData.uniqueDelays;
-			for p=1:obj.data.nParticipants
+			for p=1:obj.data.nExperimentFiles
 				dfSamples = obj.extractDiscountFunctionSamples(p);
 				obj.AUC_DATA(p).AUCsamples = calculateAUC(delays,dfSamples, false);
 				obj.AUC_DATA(p).name  = obj.data.getIDnames(p);

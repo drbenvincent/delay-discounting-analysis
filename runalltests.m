@@ -48,7 +48,7 @@ suite.table
 nPassed = sum([suite.Passed]==1);
 nFailed = sum([suite.Passed]==0);
 nTests = numel(suite);
-if failed == 0
+if nFailed == 0
 	report_str = sprintf('All %d tests passed. Winning', nTests);
 else
 	report_str = sprintf('%d tests passed, %d tests failed', nPassed, nFailed);

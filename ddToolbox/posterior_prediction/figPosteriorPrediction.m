@@ -16,7 +16,7 @@ latex_fig(16, 9, 6)
 
 subplot(2,2,1)
 pp_plotTrials()
-%if p<obj.data.nParticipants, set(gca,'XTick',[]), end
+%if p<obj.data.nExperimentFiles, set(gca,'XTick',[]), end
 
 subplot(2,2,2)
 pp_plotGOFdistribution()

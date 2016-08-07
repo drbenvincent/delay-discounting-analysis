@@ -14,7 +14,7 @@ probMass = 0.5;
 figure(12), clf
 
 % build samples
-for p = 1:data.nParticipants
+for p = 1:data.nExperimentFiles
 	m(:,p) = mcmcContainer.getSamplesFromParticipantAsMatrix(p, {'m'});
 	c(:,p) = mcmcContainer.getSamplesFromParticipantAsMatrix(p, {'c'});
 end
@@ -32,7 +32,7 @@ mcBivariateParticipants = mcmc.BivariateDistribution(...
 
 % TODO: enable this functionality in BivariateDistribution
 % % plot numbers
-% for p = 1:data.nParticipants
+% for p = 1:data.nExperimentFiles
 % 	text(mcBivariate.mode(1),mcBivariate.mode(2),...
 % 		sprintf('%d',p),...
 % 		'HorizontalAlignment','center',...
@@ -46,10 +46,10 @@ axis tight
 participantAxisBounds = axis;
 
 %% plot unobserved participant (ie group level) if they exist
-m_group = m(:,data.nParticipants);
-c_group = c(:,data.nParticipants);
+m_group = m(:,data.nExperimentFiles);
+c_group = c(:,data.nExperimentFiles);
 if ~any(isnan(m(:,end))) && ~any(isnan(m_group)) && ~any(isnan(c_group))% do we have (m,c) samples for the group-level?
-	%if size(m,2) == data.nParticipants + 1
+	%if size(m,2) == data.nExperimentFiles + 1
 	if data.unobservedPartipantPresent
 		mcBivariateGroup = mcmc.BivariateDistribution(...
 			m_group,...

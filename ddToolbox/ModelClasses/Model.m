@@ -260,7 +260,7 @@ classdef Model
 			% The idea being we can just pass pdata(n) to a plot function
 			% and it has all the information it needs
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			nRealExperiments = obj.data.nParticipants;
+			nRealExperiments = obj.data.nExperimentFiles;
 			nExperimentsIncludingUnobserved = numel(obj.data.getIDnames('all')); % TODO: replace with different get method
 			
 			pdata(1:nExperimentsIncludingUnobserved) = struct; % preallocation
