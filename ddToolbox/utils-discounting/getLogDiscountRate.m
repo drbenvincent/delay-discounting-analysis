@@ -22,8 +22,8 @@ end
 function conditionalDiscountRates_ParticipantLevel(obj, reward, plotFlag)
 nExperimentFiles = obj.data.nExperimentFiles;
 for p = 1:nExperimentFiles
-	params(:,1) = obj.mcmc.getSamplesFromParticipantAsMatrix(p, {'m'});
-	params(:,2) = obj.mcmc.getSamplesFromParticipantAsMatrix(p, {'c'});
+	params(:,1) = obj.mcmc.getSamplesFromExperimentAsMatrix(p, {'m'});
+	params(:,2) = obj.mcmc.getSamplesFromExperimentAsMatrix(p, {'c'});
 	% ==============================================
 	[posteriorMean(p), lh(p)] =...
 		calculateLogK_ConditionOnReward(reward, params, plotFlag);

@@ -13,7 +13,7 @@ figure(12), clf
 %% REAL EXPERIMENT DATA
 % build samples
 for p = 1:data.nExperimentFiles
-	logkSamples(:,p) = mcmcContainer.getSamplesFromParticipantAsMatrix(p, {'logk'});
+	logkSamples(:,p) = mcmcContainer.getSamplesFromExperimentAsMatrix(p, {'logk'});
 end
 
 uniG1 = mcmc.UnivariateDistribution(logkSamples(:,[1:data.nRealExperimentFiles]),...

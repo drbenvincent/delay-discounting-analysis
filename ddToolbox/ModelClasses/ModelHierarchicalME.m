@@ -47,7 +47,7 @@ classdef ModelHierarchicalME < Model
 		
 		function conditionalDiscountRates_GroupLevel(obj, reward, plotFlag)
 			GROUP = obj.data.nExperimentFiles; % last participant is our unobserved
-			params = obj.mcmc.getSamplesFromParticipantAsMatrix(GROUP, {'m','c'});
+			params = obj.mcmc.getSamplesFromExperimentAsMatrix(GROUP, {'m','c'});
 			[posteriorMean, lh] = calculateLogK_ConditionOnReward(reward, params, plotFlag);
 			lh.LineWidth = 3;
 			lh.Color= 'k';

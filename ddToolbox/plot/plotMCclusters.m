@@ -15,8 +15,8 @@ figure(12), clf
 
 % build samples
 for p = 1:data.nExperimentFiles
-	m(:,p) = mcmcContainer.getSamplesFromParticipantAsMatrix(p, {'m'});
-	c(:,p) = mcmcContainer.getSamplesFromParticipantAsMatrix(p, {'c'});
+	m(:,p) = mcmcContainer.getSamplesFromExperimentAsMatrix(p, {'m'});
+	c(:,p) = mcmcContainer.getSamplesFromExperimentAsMatrix(p, {'c'});
 end
 
 %% plot all actual participants
