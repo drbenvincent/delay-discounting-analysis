@@ -1,4 +1,4 @@
-function convergenceSummary(Rhat, saveFolder, IDnames)
+function convergenceSummary(Rhat, savePath, IDnames)
 % TODO: export Rhat stats in the form of a Table. Would need a
 % table for participant-level variables. This would now include
 % a "group" unobserved participant. But we may also have other
@@ -6,11 +6,11 @@ function convergenceSummary(Rhat, saveFolder, IDnames)
 % have to go into a separate table.
 
 assert(isstruct(Rhat))
-assert(ischar(saveFolder))
+assert(ischar(savePath))
 assert(iscellstr(IDnames))
 
 
-[fid, fname] = setupTextFile(saveFolder, 'ConvergenceReport.txt');
+[fid, fname] = setupTextFile(savePath, 'ConvergenceReport.txt');
 %MCMCParameterReport();
 printRhatInformation(IDnames);
 fclose(fid);

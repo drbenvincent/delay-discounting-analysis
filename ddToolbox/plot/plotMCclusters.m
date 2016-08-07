@@ -1,4 +1,4 @@
-function plotMCclusters(mcmcContainer, data, col, pointEstimateType, saveFolder, modelType, shouldExportPlots)
+function plotMCclusters(mcmcContainer, data, col, pointEstimateType, savePath, modelType, shouldExportPlots)
 
 % TODO:
 % remove input:
@@ -67,8 +67,7 @@ set(gca,'XAxisLocation','origin',...
 drawnow
 
 if shouldExportPlots
-	myExport('summary_plot',...
-		'saveFolder', saveFolder,...
+	myExport(savePath, 'summary_plot',...
 		'suffix', modelType)
 end
 

@@ -1,6 +1,6 @@
-function [fid, fname] = setupTextFile(saveFolder, filename)
-    ensureFolderExists(fullfile('figs',saveFolder)) %<--- TODO remove hard coding of 'figs'?
-    fname = fullfile('figs',saveFolder,filename);
+function [fid, fname] = setupTextFile(savePath, filename)
+    ensureFolderExists(fullfile('figs',savePath)) %<--- TODO remove hard coding of 'figs'?
+    fname = fullfile('figs',savePath,filename);
     fid=fopen(fname,'w');
     assert(fid~=-1)
 return

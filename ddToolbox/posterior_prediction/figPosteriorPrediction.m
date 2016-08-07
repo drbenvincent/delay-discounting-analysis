@@ -12,6 +12,7 @@ end
 % MAIN FUNCTION TO PRODUCE MUTLI-PANEL FIGURE
 
 figure(1), colormap(gray), clf
+latex_fig(16, 9, 6)
 
 subplot(2,2,1)
 pp_plotTrials()
@@ -29,10 +30,8 @@ pp_ploptPercentPredictedDistribution()
 % Export figure
 drawnow
 if data.shouldExportPlots
-	latex_fig(16, 9, 6)
-	myExport('PosteriorPredictive',...
-		'saveFolder',data.saveFolder,...
-		'prefix', data.IDname,...
+	myExport(data.savePath, 'PosteriorPredictive',...
+		'prefix', data.IDname{:},...
 		'suffix', data.modelType)
 end
 

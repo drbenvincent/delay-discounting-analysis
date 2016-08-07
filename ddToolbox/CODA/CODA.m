@@ -31,17 +31,17 @@ classdef CODA
 		end
 		
 		function paramEstimateTable = exportParameterEstimates(obj,...
-				variablesRequested, rowNames, saveFolder, pointEstimateType, varargin)
+				variablesRequested, rowNames, savePath, pointEstimateType, varargin)
 			
 			p = inputParser;
 			p.FunctionName = mfilename;
 			p.addRequired('variablesRequested',@iscellstr);
 			p.addRequired('IDname',@iscellstr);
-			p.addRequired('saveFolder',@ischar);
+			p.addRequired('savePath',@ischar);
 			p.addParameter('includeGroupEstimates',false, @islogical);
 			p.addParameter('pointEstimateType','mean', @(x)any(strcmp(x,{'mean','median','mode'})));
 			p.addParameter('includeCI',false, @islogical);
-			p.parse(variablesRequested, rowNames, saveFolder,  varargin{:});
+			p.parse(variablesRequested, rowNames, savePath,  varargin{:});
 			
 			% TODO: act on includeCI preference. Ie get, or do not get CI's.
 			

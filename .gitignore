@@ -8,7 +8,7 @@ figs/
 
 
 demo/figs/*
-
+demo/output/*
 
 */temp.mat
 
@@ -22,6 +22,8 @@ demo/parameterEstimates_methodspaper-kirby27.txt
 demo/parameterEstimates_nonHierarchical.txt
 
 demo/*.csv
+
+
 
 ddToolbox/models/hierarchicalME
 

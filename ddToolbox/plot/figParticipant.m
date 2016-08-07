@@ -5,6 +5,7 @@ assert(iscell(plotFuncs))
 isa(plotFuncs{1},'function_handle')
 
 fh = figure('Name', ['participant: ' plotdata.IDname{:}]);
+latex_fig(16, 12, 5)
 
 subplot_handles = create_subplots(numel(plotFuncs), 'row');
 
@@ -14,10 +15,8 @@ arrayfun(@(n) apply_plot_function_to_subplot_handle(plotFuncs{n}, subplot_handle
 drawnow
 
 if plotdata.shouldExportPlots
-	latex_fig(16, 18, 4)
-	myExport('fig',...
-		'saveFolder', plotdata.saveFolder,...
-		'prefix', plotdata.IDname,...
+	myExport(plotdata.savePath, 'expt',...
+		'prefix', plotdata.IDname{:},...
 		'suffix', plotdata.modelType);
 end
 

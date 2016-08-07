@@ -10,7 +10,7 @@ classdef Model
 	
 	properties (SetAccess = protected, GetAccess = protected)
 		samplerType
-		saveFolder
+		savePath
 		discountFuncType
 		pointEstimateType
 				
@@ -44,7 +44,7 @@ classdef Model
 			% Required
 			p.addRequired('data', @(x) isa(x,'Data'));
 			% Optional preferences
-			p.addParameter('saveFolder','my_analysis', @isstr);
+			p.addParameter('savePath',tempname, @isstr);
 			p.addParameter('pointEstimateType','mode',@(x) any(strcmp(x,{'mean','median','mode'})));
 			p.addParameter('shouldPlot', 'no', @(x) any(strcmp(x,{'yes','no'})));
 			p.addParameter('shouldExportPlots', true, @islogical);
@@ -99,7 +99,7 @@ classdef Model
 			
 			%% Post-sampling activities (common to all models) ------------
 			obj.postPred = obj.calcPosteriorPredictive();
-			convergenceSummary(obj.coda.getStats('Rhat',[]), obj.saveFolder, obj.data.getIDnames('all'))
+			convergenceSummary(obj.coda.getStats('Rhat',[]), obj.savePath, obj.data.getIDnames('all'))
 			obj.parameterEstimateTable = obj.exportParameterEstimates();
 			[obj.pdata, obj.alldata] = obj.packageUpDataForPlotting();
 			if ~strcmp(obj.shouldPlot,'no')
@@ -124,7 +124,7 @@ classdef Model
 			paramEstimateTable = obj.coda.exportParameterEstimates(...
 				obj.varList.participantLevel,... %obj.varList.groupLevel,...
 				obj.data.getIDnames('all'),...
-				obj.saveFolder,...
+				obj.savePath,...
 				obj.pointEstimateType,...
 				varargin{:});
 			
@@ -136,10 +136,10 @@ classdef Model
 			display(finalTable)
 			
 			%% Export to textfile
-			savePath = fullfile('figs',...
-				obj.saveFolder,...
+			tempSavePath = fullfile(...
+				obj.savePath,...
 				['parameterEstimates_Posterior_' obj.pointEstimateType '.csv']);
-			exportTable(finalTable, savePath);
+			exportTable(finalTable, tempSavePath);
 			
 			function postPredTable = makePostPredTable()
 				% Create table of posterior prediction measures
@@ -199,7 +199,7 @@ classdef Model
 				obj.data,...
 				[1 0 0],...
 				obj.pointEstimateType,...
-				obj.saveFolder,...
+				obj.savePath,...
 				obj.modelType,...
 				p.Results.shouldExportPlots)
 			
@@ -281,7 +281,7 @@ classdef Model
 				% other misc info
 				pdata(p).pointEstimateType	= obj.pointEstimateType;
 				pdata(p).discountFuncType	= obj.discountFuncType;
-				pdata(p).saveFolder			= obj.saveFolder;
+				pdata(p).savePath			= obj.savePath;
 				pdata(p).modelType			= obj.modelType;
 				pdata(p).shouldExportPlots  = obj.shouldExportPlots;
 			end
@@ -290,7 +290,7 @@ classdef Model
 			alldata.shouldExportPlots = obj.shouldExportPlots;
 			alldata.variables	= obj.varList.participantLevel;
 			alldata.IDnames		= obj.data.getIDnames('all');
-			alldata.saveFolder	= obj.saveFolder;
+			alldata.savePath	= obj.savePath;
 			alldata.modelType	= obj.modelType;
 			for v = alldata.variables
 				alldata.(v{:}).hdi =...

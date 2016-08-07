@@ -1,4 +1,4 @@
-function plotLOGKclusters(mcmcContainer, data, col, pointEstimateType, saveFolder, modelType, shouldExportPlots)
+function plotLOGKclusters(mcmcContainer, data, col, pointEstimateType, savePath, modelType, shouldExportPlots)
 
 % TODO:
 % remove input:
@@ -47,7 +47,7 @@ drawnow
 
 if shouldExportPlots
 	myExport('summary_plot',...
-		'saveFolder', saveFolder,...
+		'savePath', savePath,...
 		'suffix', modelType)
 end
 
