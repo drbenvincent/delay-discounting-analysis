@@ -20,7 +20,7 @@ classdef ModelSeparateLogK < Model
 			obj.varList.monitored = {'logk','alpha','epsilon', 'Rpostpred', 'P'};
 
 			%% Plotting
-			obj.participantFigPlotFuncs		= make_experimentFigPlotFuncs_LogK();
+			obj.experimentFigPlotFuncs		= make_experimentFigPlotFuncs_LogK();
 			obj.plotFuncs.clusterPlotFunc	= @plotLOGKclusters; 
 
 			% MUST CALL THIS METHOD AT THE END OF ALL MODEL-SUBCLASS CONSTRUCTORS

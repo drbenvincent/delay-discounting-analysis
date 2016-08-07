@@ -18,7 +18,7 @@ classdef Model
 		parameterEstimateTable
 		pdata		% experiment level data for plotting
 		alldata		% cross-experiment level data for plotting
-		participantFigPlotFuncs
+		experimentFigPlotFuncs
 		mcmcParams % structure of user-supplied params
 		
 		% User supplied preferences
@@ -204,12 +204,12 @@ classdef Model
 				p.Results.shouldExportPlots)
 			
 			%% Plots, one per participant
-			%arrayfun(@figExperiment, obj.pdata, obj.participantFigPlotFuncs) % multi-panel fig
+			%arrayfun(@figExperiment, obj.pdata, obj.experimentFigPlotFuncs) % multi-panel fig
 			% TODO: replace this loop with use of partials
-			% 			partial = @(x) figExperiment(x, obj.participantFigPlotFuncs);
+			% 			partial = @(x) figExperiment(x, obj.experimentFigPlotFuncs);
 			% 			arrayfun(partial, obj.pdata)
 			for p=1:numel(obj.pdata)
-				figExperiment(obj.participantFigPlotFuncs, obj.pdata(p));
+				figExperiment(obj.experimentFigPlotFuncs, obj.pdata(p));
 			end
 			
 			arrayfun(@plotTriPlotWrapper, obj.pdata) % corner plot of posterior

@@ -26,17 +26,17 @@ classdef ModelGRW < Model
 
 			% Define plotting functions for the participant mult-panel
 			% figure
-			obj.participantFigPlotFuncs{1} = @(plotdata) mcmc.BivariateDistribution(plotdata.samples.posterior.epsilon,...
+			obj.experimentFigPlotFuncs{1} = @(plotdata) mcmc.BivariateDistribution(plotdata.samples.posterior.epsilon,...
 				plotdata.samples.posterior.alpha,...
 				'xLabel','error rate, $\epsilon$',...
 				'ylabel','comparison accuity, $\alpha$',...
 				'pointEstimateType', plotdata.pointEstimateType,...
 				'plotStyle', 'hist');
 
-			obj.participantFigPlotFuncs{2} = @(plotdata) plotPsychometricFunc(plotdata.samples, plotdata.pointEstimateType);
+			obj.experimentFigPlotFuncs{2} = @(plotdata) plotPsychometricFunc(plotdata.samples, plotdata.pointEstimateType);
 
 			% TODO: FIX THIS
-			%obj.participantFigPlotFuncs{3} = @(personInfo) plotDiscountFunctionGRW(personInfo,  [50 95]);
+			%obj.experimentFigPlotFuncs{3} = @(personInfo) plotDiscountFunctionGRW(personInfo,  [50 95]);
 
 			% Decorate the object with appropriate plot functions
 			obj.plotFuncs.clusterPlotFunc = @() []; % null func
@@ -94,12 +94,12 @@ classdef ModelGRW < Model
 			
 
 			%% Plots, one per participant
-			%arrayfun(@figExperiment, obj.pdata, obj.participantFigPlotFuncs) % multi-panel fig
+			%arrayfun(@figExperiment, obj.pdata, obj.experimentFigPlotFuncs) % multi-panel fig
 			% TODO: replace this loop with use of partials
-			% 			partial = @(x) figExperiment(x, obj.participantFigPlotFuncs);
+			% 			partial = @(x) figExperiment(x, obj.experimentFigPlotFuncs);
 			% 			arrayfun(partial, obj.pdata)
 			for p=1:numel(obj.pdata)
-				figExperiment(obj.participantFigPlotFuncs, obj.pdata(p));
+				figExperiment(obj.experimentFigPlotFuncs, obj.pdata(p));
 			end
 			
 			arrayfun(@plotTriPlotWrapper, obj.pdata) % corner plot of posterior
