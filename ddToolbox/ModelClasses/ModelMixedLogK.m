@@ -24,7 +24,7 @@ classdef ModelMixedLogK < Model
 			obj = obj.addUnobservedParticipant('GROUP');
 			
 			%% Plotting
-			obj.participantFigPlotFuncs		= make_participantFigPlotFuncs_LogK();
+			obj.participantFigPlotFuncs		= make_experimentFigPlotFuncs_LogK();
 			obj.plotFuncs.clusterPlotFunc	= @plotLOGKclusters;
 
 			% MUST CALL THIS METHOD AT THE END OF ALL MODEL-SUBCLASS CONSTRUCTORS

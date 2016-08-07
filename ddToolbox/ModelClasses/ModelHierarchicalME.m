@@ -22,7 +22,7 @@ classdef ModelHierarchicalME < Model
 			obj = obj.addUnobservedParticipant('GROUP');
 			
 			%% Plotting stuff
-			obj.participantFigPlotFuncs		= make_participantFigPlotFuncs_ME();
+			obj.participantFigPlotFuncs		= make_experimentFigPlotFuncs_ME();
 			obj.plotFuncs.clusterPlotFunc	= @plotMCclusters;
 			
 			% MUST CALL THIS METHOD AT THE END OF ALL MODEL-SUBCLASS CONSTRUCTORS

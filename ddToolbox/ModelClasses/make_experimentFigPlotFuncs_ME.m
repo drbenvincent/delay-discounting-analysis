@@ -1,4 +1,4 @@
-function participantFigPlotFuncs = make_participantFigPlotFuncs_ME()
+function participantFigPlotFuncs = make_experimentFigPlotFuncs_ME()
 % Define plotting functions for the participant mult-panel
 % figure
 participantFigPlotFuncs{1} = @(plotdata) mcmc.BivariateDistribution(plotdata.samples.posterior.epsilon(:), plotdata.samples.posterior.alpha(:),...
