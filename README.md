@@ -1,48 +1,45 @@
 # Hierarchical Bayesian estimation and hypothesis testing for delay discounting tasks
 
+Vincent, B., T. (in press) **[Hierarchical Bayesian estimation and hypothesis testing for delay discounting tasks](http://link.springer.com/article/10.3758%2Fs13428-015-0672-2)**, Behavior Research Methods. doi:10.3758/s13428-015-0672-2
 
-This repository contains the code for the paper:
+[![Issue Stats](http://issuestats.com/github/drbenvincent/delay-discounting-analysis/badge/issue?style=flat-square)](http://issuestats.com/github/drbenvincent/delay-discounting-analysis)
 
-**Vincent, B., T. (in press) [Hierarchical Bayesian estimation and hypothesis testing for delay discounting tasks](http://link.springer.com/article/10.3758%2Fs13428-015-0672-2), Behavior Research Methods. doi:10.3758/s13428-015-0672-2**
+## What does this toolbox do?
 
-# What does this do?
+This toolbox aims to be a complete solution for the analysis of experimental data from discounting tasks.
 
-This code conducts Bayesian estimation and hypothesis testing on data obtained from delay discounting (aka inter-temporal choice) experiments.
+## Key features:
 
-![](img/overview.png)
+* Publication quality figures.
+* Bayesian estimates of discounting parameters, complete with credible intervals.
+* Parameters exported to a `.csv` file for analysis in [JASP](https://jasp-stats.org).
+* Interpretable results via the 1-parameter hyperbolic discount function.
+* Optionally use hierarchical inference to improve participant-level estimates.
+* Estimate either:
+  * Discount rates, log(k), from the 1-parameter hyperbolic model.
+  * the magnitude effect, how discount rates vary as a function of reward magnitude.
+* Explicit modelling of participant errors provides more robust parameter estimates of discounting parameters.
+* Posterior predictive checks help evaluate model goodness and data exclusion decisions.
 
-# [Documentation](https://github.com/drbenvincent/delay-discounting-analysis/wiki) and help.
+## [Documentation](https://github.com/drbenvincent/delay-discounting-analysis/wiki) and help.
 Go to the [wiki](https://github.com/drbenvincent/delay-discounting-analysis/wiki) for full instructions.
 
 
-# Key features:
+## Installation and use
+Getting up and running is relatively easy, although Matlab can be a bit clunky in terms of package installation. See the [full installation instructions](https://github.com/drbenvincent/delay-discounting-analysis/wiki/1.-Getting-Started) on the wiki.
 
-* Know how confident you are in delay discounting parameters from the posterior distributions calculated.
-* Easily interpretable results due to using the 1-parameter hyperbolic discount function.
-* Improved accuracy of delay discounting parameter estimates using hierarchical Bayesian estimation. Trial-level responses, and participant- and group-level parameters are all modelled.
-* A variety of models are provided to:
-  * Estimate discount rates, log(k).
-  * Estimate the magnitude effect; how discount rate varies as a function of reward magnitude.
-* Explicit modelling of participant errors provides more robust parameter estimates of discounting parameters.
+The commands use to get your analysis up and running are quite quick and easy. A [demo is provided](https://github.com/drbenvincent/delay-discounting-analysis/tree/master/demo) to show how to use the toolbox with your own data.
 
-# Easy to use!
-The commands use to get your analysis up and running are quite quick and easy. Here is a minimum working example of the demo provided:
 
-```matlab
-cd('~/git-local/delay-discounting-analysis/demo')
-toolboxPath = setToolboxPath('~/git-local/delay-discounting-analysis/ddToolbox')
-myData = Data('data');
-myData.loadDataFiles({'AC-kirby27-DAYS.txt','CS-kirby27-DAYS.txt','NA-kirby27-DAYS.txt','SB-kirby27-DAYS.txt','bv-kirby27.txt','rm-kirby27.txt','vs-kirby27.txt','BL-kirby27.txt','EP-kirby27.txt','JR-kirby27.txt','KA-kirby27.txt','LJ-kirby27.txt','LY-kirby27.txt','SK-kirby27.txt','VD-kirby27.txt'});
-savePath = 'methodspaper-kirby27';
-model = ModelHierarchicalME(toolboxPath, 'JAGS', myData, savePath);
-model.conductInference();
-model.exportParameterEstimates();
-model.plot();
-```
-# Get in touch
+## More information
+
+### Read the research paper
+Vincent, B., T. (in press) [Hierarchical Bayesian estimation and hypothesis testing for delay discounting tasks](http://link.springer.com/article/10.3758%2Fs13428-015-0672-2), Behavior Research Methods. doi:10.3758/s13428-015-0672-2
+
+### Get in touch
 Please use the [GitHub Issues](https://github.com/drbenvincent/delay-discounting-analysis/issues) feature to ask question, report a bug, or request a feature. You'll need a GitHub account to do this, which isn't very hard to set up. But you could always email me instead.
 
-# Videos
+### Videos
 Click below to follow through to youtube videos...
 
 **Summary of using the code**
