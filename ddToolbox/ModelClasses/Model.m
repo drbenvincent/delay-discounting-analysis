@@ -246,7 +246,7 @@ classdef Model
 				observedData.participantIndexList = unique(all_data.ID);
 			end
 			
-			observedData.nRealParticipants	= max(all_data.ID);
+			observedData.nRealExperimentFiles	= max(all_data.ID);
 			observedData.totalTrials		= height(all_data);
 			% protected method which can be over-ridden by model sub-classes
 			observedData = obj.addititional_model_specific_ObservedData(observedData);
@@ -308,7 +308,7 @@ classdef Model
 			
 			display('Calculating posterior predictive measures...')
 			
-			for p = 1:obj.data.nRealParticipants;
+			for p = 1:obj.data.nRealExperimentFiles;
 				% get data 
 				trialIndOfThisParicipant	= obj.observedData.ID==p;
 				responses_inferredPB		= obj.coda.getPChooseDelayed(trialIndOfThisParicipant);

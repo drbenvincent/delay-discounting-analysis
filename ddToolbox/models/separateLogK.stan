@@ -11,19 +11,19 @@ functions {
 
 data {
   int <lower=1> totalTrials;
-  int <lower=1> nRealParticipants;
+  int <lower=1> nRealExperimentFiles;
   vector[totalTrials] A;
   vector[totalTrials] B;
   vector<lower=0>[totalTrials] DA;
   vector<lower=0>[totalTrials] DB;
   int <lower=0,upper=1> R[totalTrials];
-  int <lower=0,upper=nRealParticipants> ID[totalTrials];
+  int <lower=0,upper=nRealExperimentFiles> ID[totalTrials];
 }
 
 parameters {
-  vector[nRealParticipants] logk;
-  vector<lower=0>[nRealParticipants] alpha;
-  vector<lower=0,upper=0.5>[nRealParticipants] epsilon;
+  vector[nRealExperimentFiles] logk;
+  vector<lower=0>[nRealExperimentFiles] alpha;
+  vector<lower=0,upper=0.5>[nRealExperimentFiles] epsilon;
 }
 
 transformed parameters {

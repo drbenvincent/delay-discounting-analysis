@@ -15,13 +15,13 @@ functions {
 
 data {
   int <lower=1> totalTrials;
-  int <lower=1> nRealParticipants;
+  int <lower=1> nRealExperimentFiles;
   vector[totalTrials] A;
   vector[totalTrials] B;
   vector<lower=0>[totalTrials] DA;
   vector<lower=0>[totalTrials] DB;
   int <lower=0,upper=1> R[totalTrials];
-  int <lower=0,upper=nRealParticipants> ID[totalTrials];
+  int <lower=0,upper=nRealExperimentFiles> ID[totalTrials];
 }
 
 transformed data {
@@ -36,19 +36,19 @@ transformed data {
 parameters {
   real m_mu;
   real <lower=0> m_sigma;
-  vector[nRealParticipants+1] m;
+  vector[nRealExperimentFiles+1] m;
 
   real c_mu;
   real <lower=0> c_sigma;
-  vector[nRealParticipants+1] c;
+  vector[nRealExperimentFiles+1] c;
 
   real alpha_mu;
   real <lower=0> alpha_sigma;
-  vector<lower=0>[nRealParticipants+1] alpha;
+  vector<lower=0>[nRealExperimentFiles+1] alpha;
 
   real <lower=0,upper=1> omega;
   real <lower=0> kappa;
-  vector<lower=0,upper=0.5>[nRealParticipants+1] epsilon;
+  vector<lower=0,upper=0.5>[nRealExperimentFiles+1] epsilon;
 }
 
 transformed parameters {

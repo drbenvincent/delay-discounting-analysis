@@ -18,7 +18,7 @@ groupK          <- groupKminus2+2
 
 
 
-for (p in 1:(nRealParticipants)){      # FIX FOR UNOBSERVED PARTICIPANT
+for (p in 1:(nRealExperimentFiles)){      # FIX FOR UNOBSERVED PARTICIPANT
 
     precision[p,1] ~ dgamma(0.001,0.001)
     precision[p,2] ~ dgamma(0.001,0.001)

@@ -22,12 +22,12 @@ groupKminus2    ~ dgamma(0.01,0.01) # concentration parameter
 groupK          <- groupKminus2+2
 
 # Participant-level parameters
-for (p in 1:nRealParticipants){
+for (p in 1:nRealExperimentFiles){
 	m[p]        ~ dnorm(groupMmu, 1/(groupMsigma^2))
 	c[p]        ~ dnorm(groupCmu, 1/(groupCsigma^2))
 }
 
-for (p in 1:(nRealParticipants+1)){ # +1 for unobserved participant
+for (p in 1:(nRealExperimentFiles+1)){ # +1 for unobserved participant
 	epsilon[p]  ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
 	alpha[p]    ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
 }
