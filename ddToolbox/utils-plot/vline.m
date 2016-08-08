@@ -1,34 +1,34 @@
-function out=vline(v, varargin)
-%HLINE  Adds a horizontal/vertical line to current figure
-%  hline(h) adds horizontal line at h
-%  hline([],v) adds vertical line at v
-%
-% hline(h, 'Color','r', ) 
+function h = vline(x_val, varargin)
+% Benjamin T. Vincent
 
-% Marko Laine <marko.laine@fmi.fi>
-% $Revision: 1.4 $  $Date: 2012/09/27 11:47:36 $
+h.fig		= gcf;
+h.axis		= get(gcf,'CurrentAxes');
 
-ax=get(gcf,'CurrentAxes');
-ylim=get(ax,'YLim');
-xlim=get(ax,'Xlim');
+%% Draw the line
+h.line = line([x_val x_val], get(h.axis,'Ylim'));
 
-% if isempty(h)
-    h=line([v v], ylim); % vertical line
-% else
-%   h=line(xlim, [h h]); % horizontal line
-%end
+%% Create callbacks
+h.pan = pan(h.fig);
+h.pan.ActionPostCallback = @callback_adjust_hline;
 
-% Apply default formatting
-set(h,'Color','r');
-set(h,'LineStyle','-');
-set(h,'LineWidth',0.5);
+h.zoom = zoom(h.fig);
+h.zoom.ActionPostCallback = @callback_adjust_hline;
+
+%% Formatting
+set(h.line, 'Color','r');
+set(h.line, 'LineStyle','-');
+set(h.line, 'LineWidth',0.5);
 
 % Apply formatting provided
-temp = set(h,varargin{:});
+set(h.line, varargin{:});
 
 % send the line to the back
-uistack(h,'bottom');
+uistack(h.line, 'bottom');
 
-if nargout>0
-   out=h;
+%% Callback
+
+	function callback_adjust_hline(obj, event_obj)
+		h.line.YData = event_obj.Axes.YLim;
+	end
+
 end
