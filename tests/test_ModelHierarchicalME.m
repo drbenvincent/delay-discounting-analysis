@@ -37,9 +37,9 @@ classdef test_ModelHierarchicalME < matlab.unittest.TestCase
 		function remove_temp_folder(testCase)
 			rmdir(testCase.savePath,'s')
 		end
-		function on_exit(testCase)
-			delete('temp.mat')
-		end
+% 		function on_exit(testCase)
+% 			delete('temp.mat')
+% 		end
 		function close_figs(testCase)
 			close all
 		end
