@@ -5,9 +5,21 @@ assert(iscell(plotFuncs))
 isa(plotFuncs{1},'function_handle')
 
 fh = figure('Name', ['participant: ' plotdata.IDname{:}]);
-latex_fig(16, 12, 5)
 
-subplot_handles = create_subplots(numel(plotFuncs), 'row');
+
+% create a single row of figures ~~~~~~~~~~~~~~~~~~~~~~~~
+%latex_fig(16, 8, 5)
+%subplot_handles = create_subplots(numel(plotFuncs), 'row');
+
+% alternatively use a grid style ~~~~~~~~~~~~~~~~~~~~~~~~
+latex_fig(12, 10, 5)
+cols = 4;
+rows = 2;
+subplot_handles(1) = subplot(rows, cols, 1);
+subplot_handles(2) = subplot(rows, cols, 2);
+subplot_handles(3) = subplot(rows, cols, 5);
+subplot_handles(4) = subplot(rows, cols, 6);
+subplot_handles(5) = subplot(1, 2, 2);
 
 arrayfun(@(n) apply_plot_function_to_subplot_handle(plotFuncs{n}, subplot_handles(n), plotdata),...
 	[1:numel(plotFuncs)])
