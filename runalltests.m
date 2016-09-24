@@ -1,4 +1,4 @@
-%RUNALLTESTS
+%runalltests
 % A script to run the tests
 %
 % Manually run specific tests like this...
