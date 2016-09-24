@@ -27,5 +27,6 @@ end
 end
 
 function matchFound = isStringMatch(str,pattern)
-matchFound = any(~cellfun('isempty',strfind(str,pattern)));
+matchFound = any(~cellfun('isempty',strfind(str,char(pattern))));
+% 2015a throws error without pattern being a char (ie need char(pattern)).
 end

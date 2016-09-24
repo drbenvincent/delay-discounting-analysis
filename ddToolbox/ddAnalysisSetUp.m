@@ -9,11 +9,7 @@ full = mfilename('fullpath');
 cd(toolboxPath)
 
 % Add subdirectories to Matlab path
-try
-	addSubFoldersToPath()
-catch
-	error('Some error in adding toolbox subpaths')
-end
+addSubFoldersToPath()
 
 % Ensure dependencies are installed and up-to-date.
 dependencies={...
