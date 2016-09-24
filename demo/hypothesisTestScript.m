@@ -5,11 +5,20 @@ function hypothesisTestScript(modelObject)
 % In this example, we test the hypothesis that the group level slope (G^m)
 % is less than one.
 
-figure
+assert(isa(modelObject,'ModelHierarchicalME'),...
+	'This example script is designed to work with models of type "ModelHierarchicalME".')
 
-% extract the samples from the variables of interest
-priorSamples = modelObject.mcmc.getSamplesAsMatrix({'m_group_prior'});
-posteriorSamples = modelObject.mcmc.getSamplesAsMatrix({'m_group'});
+% extract prior samples
+priorSamples = modelObject.coda.getSamplesAsMatrix({'m_prior'});
+
+% extract group-level posterior samples
+assert(modelObject.data.unobservedPartipantPresent)
+index_of_unobserved_participant = modelObject.data.nExperimentFiles;
+posteriorSamples = modelObject.coda.getSamplesFromExperimentAsMatrix(...
+	index_of_unobserved_participant,{'m'});
+
+
+figure
 
 %% METHOD 1 - Hypothesis test
 subplot(1,2,1)

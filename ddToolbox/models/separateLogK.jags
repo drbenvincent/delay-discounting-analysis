@@ -1,0 +1,25 @@
+model{
+
+# mean half-life of 50 days from a sample from my lab, with a std of ~2.5. Note k = 1/halflife.
+logk_MEAN      <- log(1/50)
+logk_PRECISION <- 1/(2.5^2)
+
+for (p in 1:nRealExperimentFiles){
+	logk[p]     ~ dnorm(logk_MEAN, logk_PRECISION)
+	epsilon[p]  ~ dbeta(1.1 , 10.9) T(,0.5)
+	alpha[p]    ~ dexp(0.01)
+}
+
+for (t in 1:length(ID)) {
+	# calculate present subjective value for each reward
+	VA[t] <- A[t] / (1+(exp(logk[ID[t]])*DA[t]))
+	VB[t] <- B[t] / (1+(exp(logk[ID[t]])*DB[t]))
+
+	# Psychometric function
+	P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * phi( (VB[t]-VA[t]) / alpha[ID[t]] )
+
+	R[t]           ~ dbern(P[t])      # likelihood of actual response
+	Rpostpred[t]   ~ dbern(P[t])      # posterior predicted response
+}
+
+}

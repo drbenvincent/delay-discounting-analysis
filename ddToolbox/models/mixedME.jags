@@ -1,0 +1,54 @@
+# NO:  hierarchical inference on (m,c)
+# YES: hierarchical inference on alpha, epsilon
+
+
+model{
+
+# slope (m)
+groupMmu        <- -0.243
+groupMsigma     <- 0.5
+
+# intercept (c)
+groupCmu        <- 0
+groupCsigma     <- 10
+
+# comparison acuity (alpha)
+groupALPHAmu        ~ dunif(0,100)
+groupALPHAsigma     ~ dunif(0,100)
+
+# error rates (epsilon)
+groupW          ~ dbeta(1.1, 10.9)  # mode for lapse rate
+groupKminus2    ~ dgamma(0.01,0.01) # concentration parameter
+groupK          <- groupKminus2+2
+
+# Participant-level parameters
+for (p in 1:nRealExperimentFiles){
+	m[p]        ~ dnorm(groupMmu, 1/(groupMsigma^2))
+	c[p]        ~ dnorm(groupCmu, 1/(groupCsigma^2))
+}
+
+for (p in 1:(nRealExperimentFiles+1)){ # +1 for unobserved participant
+	epsilon[p]  ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
+	alpha[p]    ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
+}
+
+#  neither phi() nor exp() can be vectorised
+
+for (t in 1:length(ID)) {
+	# Calculate log discount rate for each reward
+	lkA[t] <- m[ID[t]]*log(abs(A[t]))+c[ID[t]]
+	lkB[t] <- m[ID[t]]*log(abs(B[t]))+c[ID[t]]
+
+	# calculate present subjective value for each reward
+	VA[t] <- A[t] / (1+(exp(lkA[t])*DA[t]))
+	VB[t] <- B[t] / (1+(exp(lkB[t])*DB[t]))
+
+	# Psychometric function
+	P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * phi( (VB[t]-VA[t]) / alpha[ID[t]] )
+
+	# response likelihood
+	R[t]         ~ dbern(P[t]) # likelihood of actual response
+	Rpostpred[t] ~ dbern(P[t]) # posterior predicted response
+}
+
+}

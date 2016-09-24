@@ -1,0 +1,26 @@
+model{
+
+for (p in 1:nRealExperimentFiles){
+	m[p]       ~ dnorm(-0.243, 1/(100^2))  # dnorm(-0.243, 1/(0.072^2))
+	c[p]       ~ dnorm(0, 1/(1000^2))      # dnorm(0, 1/(1000^2))
+	alpha[p]   ~ dexp(0.01)
+	epsilon[p] ~ dbeta(1.1, 10.9) T(,0.5)
+}
+
+for (t in 1:length(ID)) {
+	# MAGNITUDE EFFECT: what is log(k) on this trial?
+	lkA[t] <- m[ID[t]]*log(abs(A[t]))+c[ID[t]]
+	lkB[t] <- m[ID[t]]*log(abs(B[t]))+c[ID[t]]
+
+	# calculate present subjective value for each reward
+	VA[t] <- A[t] / (1+(exp(lkA[t])*DA[t]))
+	VB[t] <- B[t] / (1+(exp(lkB[t])*DB[t]))
+
+	# Psychometric function
+	P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * phi( (VB[t]-VA[t]) / alpha[ID[t]] )
+
+	R[t]         ~ dbern(P[t]) # likelihood of actual response
+	Rpostpred[t] ~ dbern(P[t]) # posterior predicted response
+}
+
+}

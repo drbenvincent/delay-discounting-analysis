@@ -1,27 +1,64 @@
-demo/figs/*
-demo/data/methodspaper-kirby27.txt
+*.hpp
+
+*.stan~
+
 *.m~
 
-demo/parameterEstimates_methodspaper-kirby27.txt
+figs/
+
+
+demo/figs/*
+demo/output/*
+
+*/temp.mat
+
+*/COMBINED_DATA.txt
+
+
+demo/data/methodspaper-kirby27.txt
 
 demo/parameterEstimates_methodspaper-kirby27.txt
 
 demo/parameterEstimates_nonHierarchical.txt
 
-demo/temp.data.R
+demo/*.csv
 
-demo/output-1.csv
 
-demo/output-2.csv
-
-*.hpp
 
 ddToolbox/models/hierarchicalME
 
 ddToolbox/models/hierarchicalLogK
 
-demo/data/groupLevelData/COMBINED_DATA.txt
-
-demo-nonparametric/data/groupLevelData/COMBINED_DATA.txt
-
 demo-nonparametric/figs
+
+ddToolbox/models/mixedLogK
+
+ddToolbox/models/mixedLogK
+
+ddToolbox/models/separateLogK
+
+workspace_SLOC.txt
+
+ddToolbox/models/mixedME
+
+ddToolbox/models/separateME
+
+demo/tests/figs
+
+tests/figs/
+
+output-1.csv
+
+output-2.csv
+
+temp.data.R
+
+
+
+
+
+demo/datasets/non-parametric/groupLevelData/COMBINED_DATA.txt
+
+demo/datasets/kirby/groupLevelData/COMBINED_DATA.txt
+
+tests/tests/grw_test/ConvergenceReport.txt
