@@ -78,6 +78,9 @@ classdef Model
 			defaultMCMCParams.nsamples		= 10^4; % represents TOTAL number of samples we want
 			
 			% update with any user-supplied options
+			if isfield(obj.mcmcParams, 'chains')
+				error('Please pass in ''nchains'', not ''chains''.')
+			end
 			mcmcparams = kwargify(defaultMCMCParams, obj.mcmcParams);
 			
 			obj.observedData = obj.constructObservedDataForMCMC( obj.data.get_all_data_table() );
@@ -226,6 +229,16 @@ classdef Model
 		
 	end
 	
+	% GETTERS
+	
+	methods
+
+		function nChains = get_nChains(obj)
+			nChains = obj.mcmcParams.nchains;
+		end
+		
+	end
+	
 	
 	methods (Access = protected)
 		
@@ -336,6 +349,7 @@ classdef Model
 			% TODO: Check we need this
 			obj.data = obj.data.add_unobserved_participant(str);	% add name (eg 'GROUP')
 		end
+		
 	end
 	
 	methods (Static, Access = protected)
