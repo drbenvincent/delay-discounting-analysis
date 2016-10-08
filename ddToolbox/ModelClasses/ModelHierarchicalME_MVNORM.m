@@ -31,18 +31,18 @@ classdef ModelHierarchicalME_MVNORM < Model
 
 			obj.experimentFigPlotFuncs{2} = @(plotdata) plotPsychometricFunc(plotdata.samples, plotdata.pointEstimateType);
 
-			obj.experimentFigPlotFuncs{3} = @(plotdata) mcmc.UnivariateDistribution(plotdata.samples.posterior.r(:),...
-				'xLabel', 'r');
+% 			obj.experimentFigPlotFuncs{3} = @(plotdata) mcmc.UnivariateDistribution(plotdata.samples.posterior.r(:),...
+% 				'xLabel', 'r');
 
-			obj.experimentFigPlotFuncs{4} = @(plotdata) mcmc.BivariateDistribution(plotdata.samples.posterior.m(:), plotdata.samples.posterior.c(:),...
+			obj.experimentFigPlotFuncs{3} = @(plotdata) mcmc.BivariateDistribution(plotdata.samples.posterior.m(:), plotdata.samples.posterior.c(:),...
 				'xLabel','slope, $m$',...
 				'ylabel','intercept, $c$',...
 				'pointEstimateType',plotdata.pointEstimateType,...
 				'plotStyle', 'hist');
 
-			obj.experimentFigPlotFuncs{5} = @(plotdata) plotMagnitudeEffect(plotdata.samples, plotdata.pointEstimateType);
+			obj.experimentFigPlotFuncs{4} = @(plotdata) plotMagnitudeEffect(plotdata.samples, plotdata.pointEstimateType);
 
-			obj.experimentFigPlotFuncs{6} = @(plotdata) plotDiscountSurface(plotdata);
+			obj.experimentFigPlotFuncs{5} = @(plotdata) plotDiscountSurface(plotdata);
 
 			% Decorate the object with appropriate plot functions
 			obj.plotFuncs.clusterPlotFunc = @plotMCclusters;
