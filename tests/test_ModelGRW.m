@@ -1,7 +1,7 @@
 classdef test_ModelGRW < matlab.unittest.TestCase
 	% Test the example code (run_me.m) I've provided to demonstrate using the
 	% software.
-	
+
 	properties
 		data
 		%mcmcSamples = 10^4
@@ -10,29 +10,29 @@ classdef test_ModelGRW < matlab.unittest.TestCase
 		model
 		savePath = tempname(); % matlab auto-generated temp folders
 	end
-	
+
 	%% CLASS-LEVEL SETUP/TEARDOWN -----------------------------------------
-	
+
 	methods (TestClassSetup)
 		function setupData(testCase)
 			% assuming this is running on my machine
 			%addpath('~/git-local/delay-discounting-analysis/ddToolbox')
 			datapath = '~/git-local/delay-discounting-analysis/demo/datasets/non-parametric';
-			
+
 			filesToAnalyse={'BD1.txt', 'BD2.txt', 'BD3.txt', 'BD4.txt', 'BD5.txt', 'BD6.txt'};
 			testCase.data = Data(datapath, 'files', filesToAnalyse);
 		end
-		
+
 		function setupModel(testCase)
 			testCase.model = ModelGRW(testCase.data,...
 				'savePath', testCase.savePath,...
 				'shouldPlot','no',...
 				'mcmcParams', struct('nsamples', 10^3,...
-									'chains', 2,...
+									'nchains', 2,...
 									'nburnin', 100));
 		end
 	end
-	
+
 	methods(TestClassTeardown)
 		function remove_temp_folder(testCase)
 			rmdir(testCase.savePath,'s')
@@ -44,17 +44,16 @@ classdef test_ModelGRW < matlab.unittest.TestCase
 			close all
 		end
 	end
-	
-	
+
+
 	%% THE ACTUAL TESTS ---------------------------------------------------
-	
-	
+
+
 	methods (Test)
-		
+
 		function plot(testCase)
 			testCase.model.plot('shouldExportPlots', true)
 		end
-		
+
 	end
 end
-
