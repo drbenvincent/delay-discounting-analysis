@@ -16,5 +16,8 @@ experimentFigPlotFuncs{3} = @(plotdata) mcmc.UnivariateDistribution(plotdata.sam
 	'pointEstimateType', plotdata.pointEstimateType,...
 	'axisSquare', true);
 
-experimentFigPlotFuncs{4} = @(plotdata) plotDiscountFunction(plotdata);
+%experimentFigPlotFuncs{4} = {};
+
+experimentFigPlotFuncs{5} = @(plotdata) plotDiscountFunction(plotdata);
+
 end

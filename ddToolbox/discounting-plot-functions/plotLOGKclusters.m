@@ -46,8 +46,7 @@ axis(participantAxisBounds)
 drawnow
 
 if shouldExportPlots
-	myExport('summary_plot',...
-		'savePath', savePath,...
+	myExport(savePath, 'summary_plot',...
 		'suffix', modelType)
 end
 
