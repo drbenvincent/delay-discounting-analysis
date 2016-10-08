@@ -2,7 +2,8 @@ function plotDiscountFunction(plotdata)
 
 
 % checks
-if isempty(plotdata.samples.posterior.logk) || any(isnan(plotdata.samples.posterior.logk(:)))
+if isempty(plotdata.samples.posterior.logk)...
+		|| any(isnan(plotdata.samples.posterior.logk(:)))
 	warning('invalid or no logk samples provided')
 	return
 end
@@ -26,7 +27,7 @@ formatAxes()
 		
 		% plot
 		for i=1:numel(x)
-			h = plot(x(i), y(i),'o');
+			h = plot(y(i), z(i),'o');
 			h.Color='k';
 			h.MarkerFaceColor=[1 1 1] .* (1-markerCol(i));
 			h.MarkerSize = markerSize(i)+4;
