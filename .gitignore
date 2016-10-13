@@ -53,14 +53,13 @@ output-2.csv
 
 temp.data.R
 
-
-
-
-
 demo/datasets/non-parametric/groupLevelData/COMBINED_DATA.txt
 
 demo/datasets/kirby/groupLevelData/COMBINED_DATA.txt
 
 tests/tests/grw_test/ConvergenceReport.txt
 
+
 output/*
+
+demo/datasets/test_data/groupLevelData/COMBINED_DATA.txt

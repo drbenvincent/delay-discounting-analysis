@@ -8,7 +8,7 @@
 import matlab.unittest.TestSuite;
 
 % optional
-import matlab.unittest.plugins.CodeCoveragePlugin 
+%import matlab.unittest.plugins.CodeCoveragePlugin 
 
 % if we want to create a suite by suite = TestSuite.fromPackage('tests');
 %import matlab.unittest.TestRunner 

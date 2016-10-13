@@ -30,7 +30,7 @@ classdef Data
 			p = inputParser;
 			p.addRequired('dataFolder',@isstr);
 			p.FunctionName = mfilename;
-			p.addParameter('files',[],@iscellstr);
+			p.addParameter('files',[],@(x) iscellstr(x)|ischar(x));
 			p.parse(dataFolder, varargin{:});
 
 			try
@@ -59,6 +59,8 @@ classdef Data
 			obj.filenames			= fnames;
 			obj.IDnames				= path2filename(fnames);
 			obj.experiment	          = obj.buildExperimentTables(fnames);
+			obj.validateData();
+			obj = obj.removeMissingResponseTrials();
 			obj.exportGroupDataFile();
 			obj.totalTrials			= height( obj.buildGroupDataTable() );
 
@@ -169,6 +171,30 @@ classdef Data
 
 	methods (Access = private)
 
+		function obj = validateData(obj)
+			% return a structure of tables
+
+			for pIndex=1:obj.nExperimentFiles
+				validate(obj.experiment(pIndex).table)
+			end
+			
+			function validate(aTable)
+				assert(any(aTable.DA >= 0), 'Entries of DA must be greater than or equal to zero')
+				assert(any(aTable.DB >= 0), 'Entries of DA must be greater than or equal to zero')
+				assert(any(aTable.DA <= aTable.DB), 'For any given trial (row) DA must be less than or equal to DB')
+				assert(any(aTable.PA > 0 | aTable.PA < 1), 'PA must be between 0 and 1')
+				assert(any(aTable.PB > 0 | aTable.PB < 1), 'PA must be between 0 and 1')
+			end
+		end
+		
+		function obj = removeMissingResponseTrials(obj)
+			for pIndex=1:obj.nExperimentFiles
+				current_table = obj.experiment(pIndex).table;
+				obj.experiment(pIndex).table = current_table(~isnan(current_table.R),:);
+				obj.experiment(pIndex).trialsForThisParticant = height(obj.experiment(pIndex).table);
+			end
+		end
+		
 		function experiment = buildExperimentTables(obj, fnames)
 			% return a structure of tables
 
