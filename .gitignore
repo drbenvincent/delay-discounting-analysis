@@ -62,3 +62,5 @@ demo/datasets/non-parametric/groupLevelData/COMBINED_DATA.txt
 demo/datasets/kirby/groupLevelData/COMBINED_DATA.txt
 
 tests/tests/grw_test/ConvergenceReport.txt
+
+demo/datasets/test_data/groupLevelData/COMBINED_DATA.txt
