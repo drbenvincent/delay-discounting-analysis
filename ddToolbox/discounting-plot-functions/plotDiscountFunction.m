@@ -9,17 +9,35 @@ if isempty(plotdata.samples.posterior.logk)...
 end
 
 %% High level plot logic
+
+% Plot the discount function, regardless
 plotFunction()
-if ~isempty(plotdata.data.rawdata)
-	%opts.maxlogB	= max( abs(p.Results.data.B) );
-	maxD = max(plotdata.data.rawdata.DB);
-	plotData();
+
+% We need to decide what kind of data plotting we are doing, based upon
+% whether we have front-end delays or not, etc.
+
+if ~front_end_delays_present()
+	
+	if ~isempty(plotdata.data.rawdata)
+		%opts.maxlogB	= max( abs(p.Results.data.B) );
+		maxD = max(plotdata.data.rawdata.DB);
+		plotData();
+	else
+		% base delay scale (x-axis) on median logk
+		maxD = logk2halflife( median(plotdata.samples.posterior.logk) ) *2;
+	end
+
 else
-	% base delay scale (x-axis) on median logk
-	maxD = logk2halflife( median(plotdata.samples.posterior.logk) ) *2;
+	% front-end delays present, so don't plot data
 end
+
+
 formatAxes()
 
+
+	function truefalse = front_end_delays_present()
+		truefalse = any(plotdata.data.rawdata.DA>0);
+	end
 
 	function plotData()
 		hold on
@@ -82,4 +100,24 @@ formatAxes()
 		% 				semilogx(D, AB);
 	end
 
+end
+
+
+function [x,y,z,markerCol,markerSize] = convertDataIntoMarkers(data)
+% find unique experimental designs
+D=[abs(data.A), abs(data.B), data.DA, data.DB];
+[C, ia, ic] = unique(D,'rows');
+% loop over unique designs (ic)
+for n=1:max(ic)
+	% binary set of which trials this design was used on
+	myset=ic==n;
+	% markerSize = number of times this design has been run
+	markerSize(n) = sum(myset);
+	% Colour = proportion of times participant chose immediate for that design
+	markerCol(n) = sum(data.R(myset)==0) ./ markerSize(n);
+	
+	x(n) = abs(data.B( ia(n) )); % £B
+	y(n) = data.DB( ia(n) ); % delay to get £B
+	z(n) = abs(data.A( ia(n) )) ./ abs(data.B( ia(n) ));
+end
 end
