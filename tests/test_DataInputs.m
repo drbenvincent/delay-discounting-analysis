@@ -56,6 +56,18 @@ classdef test_DataInputs < matlab.unittest.TestCase
 			testCase.verifyFalse(noError, 'This test should fail, but it didn''t)')
 		end
 		
+		function column_order(testCase)
+			testCase.data = Data(testCase.datapath, 'files', {'different_column_order.txt'});
+			
+			model = ModelSeparateLogK(testCase.data,...
+				'savePath', tempname(),...
+				'mcmcParams', struct('nsamples', 10^2,...
+				'nchains', 2,...
+				'nburnin', 100),...
+				'shouldPlot','no');
+		end
+		
+		
 	end
 	
 end
