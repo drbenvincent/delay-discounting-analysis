@@ -67,3 +67,7 @@ demo/datasets/test_data/groupLevelData/COMBINED_DATA.txt
 tests/output/*
 
 tests/matlab.mat
+
+temp/ConvergenceReport.txt
+
+temp/parameterEstimates_Posterior_mode.csv
