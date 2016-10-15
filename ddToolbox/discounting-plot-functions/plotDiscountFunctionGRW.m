@@ -1,7 +1,9 @@
-function plotDiscountFunctionGRW(personInfo, intervals)
+function plotDiscountFunctionGRW(personInfo)
 % Create a plot to visualise a discount function, from the Gaussian Random
 % Walk model. Includes posterior predictive distribution of indifference
 % points and the behavioural data.
+
+intervals = [50 95];
 
 %% visualise the posterior predictive indifference points
 ribbon_plot(personInfo.delays, personInfo.dfSamples, intervals)

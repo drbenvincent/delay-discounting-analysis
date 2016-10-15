@@ -5,7 +5,9 @@ assert(ischar(modelFilename))
 assert(isstruct(observedData))
 assert(isstruct(mcmcparams))
 
-stan_home = '~/cmdstan-2.11.0';
+% YOU TO SET THIS TO WHERE YOU INSTALLED CMDSTAN ------
+stan_home = '~/cmdstan-2.12.0';
+% -----------------------------------------------------
 
 %% sampler-specific preparation ++++++++++++++++++++
 stan_model = StanModel('file', modelFilename,...

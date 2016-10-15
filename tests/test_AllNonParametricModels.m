@@ -62,6 +62,8 @@ classdef test_AllNonParametricModels < matlab.unittest.TestCase
 				'nburnin', 100),...
 				'shouldPlot','no');
 			% TODO: DO AN ACTUAL TEST HERE !!!!!!!!!!!!!!!!!!!!!!
+			
+			model.plot('shouldExportPlots', true)
 		end
 		
 		function nChains(testCase, model, chains)
