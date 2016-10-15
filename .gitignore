@@ -65,3 +65,5 @@ output/*
 demo/datasets/test_data/groupLevelData/COMBINED_DATA.txt
 
 tests/output/*
+
+tests/matlab.mat

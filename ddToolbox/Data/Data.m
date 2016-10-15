@@ -59,8 +59,8 @@ classdef Data
 			obj.filenames			= fnames;
 			obj.IDnames				= path2filename(fnames);
 			obj.experiment	          = obj.buildExperimentTables(fnames);
-			obj.validateData();
 			obj = obj.removeMissingResponseTrials();
+			obj.validateData();
 			obj.exportGroupDataFile();
 			obj.totalTrials			= height( obj.buildGroupDataTable() );
 
@@ -184,6 +184,10 @@ classdef Data
 				assert(any(aTable.DA <= aTable.DB), 'For any given trial (row) DA must be less than or equal to DB')
 				assert(any(aTable.PA > 0 | aTable.PA < 1), 'PA must be between 0 and 1')
 				assert(any(aTable.PB > 0 | aTable.PB < 1), 'PA must be between 0 and 1')
+				assert(all(aTable.R <=1 ), 'Data:AssertionFailed', 'Values of R must be either 0 or 1')
+				assert(all(aTable.R >=0 ), 'Data:AssertionFailed', 'Values of R must be either 0 or 1')
+				assert(all(rem(aTable.R,1)==0), 'Data:AssertionFailed', 'Values of R must be either 0 or 1')
+				assert(all(isnumeric(aTable.R)), 'Data:AssertionFailed', 'Values of R must be either 0 or 1')
 			end
 		end
 		
