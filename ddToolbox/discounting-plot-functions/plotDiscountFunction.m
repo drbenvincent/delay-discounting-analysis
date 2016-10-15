@@ -19,16 +19,19 @@ plotFunction()
 if ~isempty(plotdata.data.rawdata)
 	%opts.maxlogB	= max( abs(p.Results.data.B) );
 	maxD = max(plotdata.data.rawdata.DB);
+	
+	if ~front_end_delays_present()
+		plotData();
+	else
+		% front-end delays present, so don't plot data
+	end
+	
 else
 	% base delay scale (x-axis) on median logk
 	maxD = logk2halflife( median(plotdata.samples.posterior.logk) ) *2;
 end
 
-if ~front_end_delays_present()
-	plotData();
-else
-	% front-end delays present, so don't plot data
-end
+
 
 formatAxes()
 
