@@ -5,13 +5,12 @@ assert(ischar(modelFilename))
 assert(isstruct(observedData))
 assert(isstruct(mcmcparams))
 
-% YOU TO SET THIS TO WHERE YOU INSTALLED CMDSTAN ------
-stan_home = '~/cmdstan-2.12.0';
-% -----------------------------------------------------
-
 %% sampler-specific preparation ++++++++++++++++++++
+% NOTE: mstan.stan_home() function defined in the repo 'MatlabStan' which was
+% downloaded to your default matlab directory. This is findable by typing:
+% >> getenv('HOME')
 stan_model = StanModel('file', modelFilename,...
-	'stan_home', stan_home);
+	'stan_home', mstan.stan_home());
 display('COMPILING STAN MODEL...')
 tic
 stan_model.compile();
@@ -27,7 +26,7 @@ obj.stanFit = stan_model.sampling(...
 	'iter', ceil( mcmcparams.nsamples / mcmcparams.nchains),...		% iter = number of MCMC samples
 	'chains', mcmcparams.nchains,...
 	'verbose', true,...
-	'stan_home', stan_home);
+	'stan_home', mstan.stan_home() );
 % block command window access until sampling finished
 obj.stanFit.block();
 toc
