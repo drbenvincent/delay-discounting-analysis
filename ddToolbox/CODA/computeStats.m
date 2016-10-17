@@ -16,12 +16,12 @@ stats = struct('Rhat',[], 'mean', [], 'median', [], 'std', [],...
 for v=1:length(variable_names)
 	var_name = variable_names{v};
 	var_samples = all_samples.(var_name);
-	
+
 	sz = size(var_samples);
 	Nchains = sz(1);
 	Nsamples = sz(2);
 	dims = ndims(var_samples);
-	
+
 	% Calculate stats
 	switch dims
 		case{2} % scalar
@@ -31,7 +31,7 @@ for v=1:length(variable_names)
 			stats.std.(var_name)	= std( var_samples(:) );
 			[stats.ci_low.(var_name), stats.ci_high.(var_name)] = calcCI(var_samples(:));
 			[stats.hdi_low.(var_name), stats.hdi_high.(var_name)] = calcHDI(var_samples(:));
-			
+
 		case{3} % vector
 			for n=1:sz(3)
 				stats.mode.(var_name)(n)	= calcMode( vec(var_samples(:,:,n)) );
@@ -67,20 +67,20 @@ for v=1:length(variable_names)
 			stats.hdi_low.(var_name) = [];
 			stats.hdi_high.(var_name) = [];
 	end
-	
+
 	%% "estimated potential scale reduction" statistics due to Gelman and Rubin.
 	Rhat = calcRhat();
 	if ~isnan(Rhat)
 		stats.Rhat.(var_name) = squeeze(Rhat);
 	end
-	
+
 end
 
 
 	function Rhat = calcRhat()
 		st_mean_per_chain = mean(var_samples, 2);
 		st_mean_overall   = mean(st_mean_per_chain, 1);
-		
+
 		if Nchains > 1
 			B = (Nsamples/Nchains-1) * ...
 				sum((st_mean_per_chain - repmat(st_mean_overall, [Nchains,1])).^2);
@@ -102,7 +102,7 @@ end
 		high = squeeze(ci_samples_overall_high);
 	end
 
-	function [low, high] = 	calcHDI(reshaped_samples)
+	function [low, high] = calcHDI(reshaped_samples)
 		% get the 95% highest density intervals of the posterior
 		[hdi] = HDIofSamples(reshaped_samples, 0.95);
 		low = squeeze(hdi(1));

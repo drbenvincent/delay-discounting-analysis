@@ -2,6 +2,10 @@ classdef CODA
 	%CODA Summary of this class goes here
 	%   Detailed explanation goes here
 
+    % TODO: Check presence of my mcmc-utils code as the plotting relies upon it.
+
+    % TODO: make this general, and create a seperate, project-specific subclass with additional methods if I need to do that
+
 	properties (GetAccess = private, SetAccess = private)
 		samples % structure. Fields correspond to variables.
 		stats	% structure. Fields correspond to stats, subfield correspond to variables
@@ -18,6 +22,9 @@ classdef CODA
 	% These public methods need to be covered by tests.
 
 	methods (Access = public)
+
+        % TODO: be able to create just from samples.
+        % TODO: add a makeFromJAGS alternative constructor, just like we have one for Stan
 
 		function obj = CODA(samples, stats) % constructor
 			% This is the main constructor function.
@@ -285,6 +292,7 @@ classdef CODA
 	% -----------------------------------------------------------------
 	methods (Static)
 		function obj = buildFromStanFit(stanFitObject)
+            % TODO: add an assert about the type of object being passed in
 			samples = stanFitObject.extract('collapseChains', false, 'permuted', false);
 			stats	= computeStats(samples);
 			obj		= CODA(samples, stats);
