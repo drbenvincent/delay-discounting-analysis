@@ -1,4 +1,4 @@
-function [group1, group2] = demo_group_comparison()
+function [group1, group2, comparison] = demo_group_comparison()
 %demo_group_comparison
 % The approch for group comparisons is very simple. Run a model to do
 % parameter estimation, separately for each group. Then compare group-level
@@ -14,9 +14,9 @@ ddAnalysisSetUp();
 %% Define common parameters.
 % There's no need to do this as a separate step, but it helps to ensure
 % both models are fit with the same parameters
-mcmcparams = struct('nsamples', 1000,...
+mcmcparams = struct('nsamples', 10000,...
 	'nchains', 4,...
-	'nburnin', 100);
+	'nburnin', 2000);
 pointEstimateType = 'median';
 					 
 %% Analyse group 1 
@@ -61,6 +61,7 @@ group_logk_difference = group1_estimates.logk - group2_estimates.logk;
 %
 % but we can use my mcmc-utils-matlab repository code...
 
+figure
 mcmc.UnivariateDistribution(group_logk_difference,...
 	'XLabel','group 1 - group 2 ($\log(k)$)',...
 	'pointEstimateType', pointEstimateType,...
@@ -72,3 +73,4 @@ title('Differences in group level $\log(k)$', 'Interpreter','latex')
 % (ie no group difference) or not.
 
 
+comparison.group_logk_difference = group_logk_difference;
