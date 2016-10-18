@@ -71,3 +71,5 @@ tests/matlab.mat
 temp/ConvergenceReport.txt
 
 temp/parameterEstimates_Posterior_mode.csv
+
+demo/datasets/group_comparison/group1/groupLevelData/COMBINED_DATA.txt

@@ -201,7 +201,8 @@ classdef CODA
 		end
 
 		function [samples] = getSamplesAtIndex(obj, index, fieldsToGet)
-			assert(iscellstr(fieldsToGet))
+			assert(iscellstr(fieldsToGet),'arguments needs to be a cell array of strings')
+			assert(isnumeric(index), 'argument needs to be numeric')
 			% get all the samples for a given value of the 3rd dimension of
 			% samples. Dimensions are:
 			% 1. mcmc chain number
