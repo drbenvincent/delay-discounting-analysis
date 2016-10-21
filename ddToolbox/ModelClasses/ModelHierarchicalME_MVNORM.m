@@ -76,16 +76,7 @@ classdef ModelHierarchicalME_MVNORM < Model
 		end
 
 	end
-
-	methods (Access = protected)
-
-		function obj = calcDerivedMeasures(obj)
-
-			% convert mc to m and c
-			%beep
-		end
-
-	end
+	
 
 	methods (Static)
 		function initialParams = setInitialParamValues(nchains)

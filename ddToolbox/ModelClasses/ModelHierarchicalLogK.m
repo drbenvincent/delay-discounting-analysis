@@ -39,12 +39,6 @@ classdef ModelHierarchicalLogK < Model
 
 	end
 
-	methods (Access = protected)
-
-		function obj = calcDerivedMeasures(obj)
-		end
-
-	end
 	
 	methods (Static)
 		

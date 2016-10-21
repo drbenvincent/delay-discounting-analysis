@@ -8,6 +8,7 @@ classdef Model
 		data % handle to Data class
 	end
 	
+	%% Private properties
 	properties (SetAccess = protected, GetAccess = protected)
 		samplerType
 		savePath
@@ -30,9 +31,7 @@ classdef Model
 		observedData
 	end
 	
-	methods(Abstract, Access = protected)
-		calcDerivedMeasures(obj)
-	end
+
 	
 	methods (Access = public)
 		
@@ -221,7 +220,7 @@ classdef Model
 			
 		
 		
-		% MIDDLE-MAN METHODS ================================================
+		%% Public MIDDLE-MAN METHODS 
 		
 		function obj = plotMCMCchains(obj,vars)
 			obj.coda.plotMCMCchains(vars);
@@ -229,7 +228,7 @@ classdef Model
 		
 	end
 	
-	% GETTERS
+	%%  GETTERS
 	
 	methods
 
@@ -239,6 +238,7 @@ classdef Model
 		
 	end
 	
+	%% Protected methods
 	
 	methods (Access = protected)
 		
@@ -312,8 +312,11 @@ classdef Model
 				alldata.(v{:}).pointEstVal =...
 					obj.coda.getStats(obj.pointEstimateType, v{:});
 			end
+			
 		end
 		
+		function obj = calcDerivedMeasures(obj)
+		end
 		
 		function postPred = calcPosteriorPredictive(obj)
 			%calcPosteriorPredictive Calculate various posterior predictive measures.

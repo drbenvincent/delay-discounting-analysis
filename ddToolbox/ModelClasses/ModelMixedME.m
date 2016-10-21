@@ -55,12 +55,6 @@ classdef ModelMixedME < Model
 
 	end
 
-	methods (Access = protected)
-
-		function obj = calcDerivedMeasures(obj)
-		end
-
-	end
 	
 	methods (Static)
 		function initialParams = setInitialParamValues(nchains) % TODO: make static method
