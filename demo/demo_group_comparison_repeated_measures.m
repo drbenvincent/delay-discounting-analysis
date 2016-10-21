@@ -56,6 +56,8 @@ for p=1:n_participants
 	differences(:,p) = person_group1_estimate.logk - person_group2_estimate.logk;
 end
 
+% TODO: maybe automate plots of parameter differences of each participant
+
 mcmc.UnivariateDistribution(differences,...
 	'XLabel','group 1 - group 2 ($\log(k)$)',...
 	'plotHDI',false)

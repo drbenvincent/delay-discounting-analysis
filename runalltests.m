@@ -56,8 +56,7 @@ end
 
 speak(report_str)
 
-
-
+close all
 
 % %% just run unit tests
 % % Learn more about using TAGS here:
