@@ -1,48 +1,24 @@
-classdef ModelHierarchicalLogK < Model
-	%ModelHierarchical A model to estimate the magnitide effect
-	%   Detailed explanation goes here
-
-	properties (Access = private)
-		getDiscountRate % function handle
-	end
+classdef ModelHierarchicalLogK < Hierarchical1
+	%ModelHierarchical A model to estimate the log discount rate, according to the 1-parameter hyperbolic discount function.
+    %  All parameters are estimated hierarchically.
 
 	methods (Access = public)
 
 		function obj = ModelHierarchicalLogK(data, varargin)
-			obj = obj@Model(data, varargin{:});
-
-			obj.modelFilename		= 'hierarchicalLogK';
-			obj.discountFuncType = 'hyperbolic1';
-			obj.getDiscountRate = @getLogDiscountRate; % <-------------------------------------- FINISH
-
-			% Create variables
-			obj.varList.participantLevel = {'logk','alpha','epsilon'};
-			obj.varList.monitored = {'logk','alpha','epsilon', 'Rpostpred', 'P'};
-
-			obj = obj.addUnobservedParticipant('GROUP');
-
-			%% Plotting
-			obj.experimentFigPlotFuncs		= make_experimentFigPlotFuncs_LogK();
-			obj.plotFuncs.clusterPlotFunc	= @plotLOGKclusters;
-
-			% MUST CALL THIS METHOD AT THE END OF ALL MODEL-SUBCLASS CONSTRUCTORS
-			obj = obj.conductInference();
-		end
-
-		function conditionalDiscountRates(obj, reward, plotFlag)
-			error('Not applicable to this model that calculates log(k)')
-		end
-
-		function conditionalDiscountRates_GroupLevel(obj, reward, plotFlag)
-			error('Not applicable to this model that calculates log(k)')
-		end
+			obj = obj@Hierarchical1(data, varargin{:});
+            obj.modelFilename = 'hierarchicalLogK';
+            obj = obj.addUnobservedParticipant('GROUP');
+            
+            % MUST CALL THIS METHOD AT THE END OF ALL MODEL-SUBCLASS CONSTRUCTORS
+            obj = obj.conductInference();
+        end
 
 	end
 
 	
-	methods (Static)
+	methods 
 		
-		function initialParams = setInitialParamValues(nchains)
+		function initialParams = setInitialParamValues(obj, nchains)
 			% Generate initial values of the root nodes
 			for chain = 1:nchains
 				initialParams(chain).groupLogKmu		= normrnd(log(1/50),1);
@@ -52,6 +28,7 @@ classdef ModelHierarchicalLogK < Model
 				initialParams(chain).groupALPHAsigma	= rand*5;
 			end
 		end
+        
 	end
 
 end
