@@ -1,11 +1,11 @@
-classdef ModelMixedME < Hierarchical1MagEffect
+classdef ModelMixedME < Hyperbolic1MagEffect
 	%ModelHierarchicalME A model to estimate the magnitide effect
 	%   Detailed explanation goes here
 
 	methods (Access = public)
 
 		function obj = ModelMixedME(data, varargin)
-			obj = obj@Hierarchical1MagEffect(data, varargin{:});
+			obj = obj@Hyperbolic1MagEffect(data, varargin{:});
 			obj.modelFilename = 'mixedME';
 
 			obj = obj.addUnobservedParticipant('GROUP');

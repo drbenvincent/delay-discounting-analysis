@@ -1,5 +1,5 @@
-classdef (Abstract) Hierarchical1MagEffect < Model
-	%Hierarchical1MagEffect  Hierarchical1MagEffect is a subclass of Model for examining the 1-parameter hyperbolic discounting function.
+classdef (Abstract) Hyperbolic1MagEffect < Model
+	%Hyperbolic1MagEffect  Hyperbolic1MagEffect is a subclass of Model for examining the 1-parameter hyperbolic discounting function.
 
     properties (Access = private)
 		getDiscountRate % function handle
@@ -7,7 +7,7 @@ classdef (Abstract) Hierarchical1MagEffect < Model
 
 	methods (Access = public)
 
-		function obj = Hierarchical1MagEffect(data, varargin)
+		function obj = Hyperbolic1MagEffect(data, varargin)
 			obj = obj@Model(data, varargin{:});
 
 			obj.discountFuncType = 'me';

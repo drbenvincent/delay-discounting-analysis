@@ -1,10 +1,10 @@
-classdef ModelHierarchicalME_MVNORM < Hierarchical1MagEffect
+classdef ModelHierarchicalME_MVNORM < Hyperbolic1MagEffect
 	%ModelHierarchicalME_MVNORM A model to estimate the magnitide effect. It models (m,c) as drawn from a bivariate Normal distribution.
 
 	methods (Access = public)
 
 		function obj = ModelHierarchicalME_MVNORM(data, varargin)
-			obj = obj@Hierarchical1MagEffect(data, varargin{:});
+			obj = obj@Hyperbolic1MagEffect(data, varargin{:});
 			obj.modelFilename = 'hierarchicalMEmvnorm';
 
 			% Create variables ~~~~~~~~~

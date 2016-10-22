@@ -1,5 +1,5 @@
-classdef (Abstract) Hierarchical1 < Model
-	%Hierarchical1  Hierarchical1 is a subclass of Model for examining the 1-parameter hyperbolic discounting function.
+classdef (Abstract) Hyperbolic1 < Model
+	%Hyperbolic1  Hyperbolic1 is a subclass of Model for examining the 1-parameter hyperbolic discounting function.
 
 	properties (Access = private)
 		getDiscountRate % function handle
@@ -7,7 +7,7 @@ classdef (Abstract) Hierarchical1 < Model
 
 	methods (Access = public)
 
-		function obj = Hierarchical1(data, varargin)
+		function obj = Hyperbolic1(data, varargin)
 			obj = obj@Model(data, varargin{:});
 
 			obj.modelFilename		= 'hierarchicalLogK';

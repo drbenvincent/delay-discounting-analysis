@@ -2,12 +2,12 @@
 % We need experimental paradigms that try to pinpoint the indifference
 % point for a set number of delays.
 
-classdef ModelNonParametric < NonParametric
-	%ModelNonParametric
+classdef ModelSeparateNonParametric < NonParametric
+	%ModelSeparateNonParametric
 
 	methods (Access = public)
 
-		function obj = ModelNonParametric(data, varargin)
+		function obj = ModelSeparateNonParametric(data, varargin)
 			obj = obj@NonParametric(data, varargin{:});
 			obj.modelFilename = 'separateNonParametric';
 

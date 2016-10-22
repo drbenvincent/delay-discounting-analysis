@@ -1,4 +1,4 @@
-classdef ModelSeparateME < Hierarchical1MagEffect
+classdef ModelSeparateME < Hyperbolic1MagEffect
 	%ModelSeperate A model to estimate the magnitide effect.
 	%	Models a number of participants, but they are all treated as independent.
 	%	There is no group-level estimation.
@@ -6,7 +6,7 @@ classdef ModelSeparateME < Hierarchical1MagEffect
 	methods (Access = public)
 		
 		function obj = ModelSeparateME(data, varargin)
-			obj = obj@Hierarchical1MagEffect(data, varargin{:});
+			obj = obj@Hyperbolic1MagEffect(data, varargin{:});
 			obj.modelFilename = 'separateME';
 			
 			% MUST CALL THIS METHOD AT THE END OF ALL MODEL-SUBCLASS CONSTRUCTORS
