@@ -29,7 +29,7 @@ classdef ModelSeparateME < Model
 		end
 		
 		function initialParams = setInitialParamValues(obj, nchains)
-			% Generate initial values of the leaf nodes
+			% Generate initial values of the root nodes
 			nExperimentFiles = obj.data.nExperimentFiles;
 			for chain = 1:nchains
 				initialParams(chain).m			= normrnd(-0.243,2, [nExperimentFiles,1]);

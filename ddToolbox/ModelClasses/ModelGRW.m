@@ -47,7 +47,7 @@ classdef ModelGRW < Model
 
 
 		function initialParams = setInitialParamValues(obj, nchains)
-			% Generate initial values of the leaf nodes
+			% Generate initial values of the root nodes
 			%nTrials = size(obj.data.observedData.A,2);
 			nExperimentFiles = obj.data.nExperimentFiles;
 			nUniqueDelays = numel(obj.observedData.uniqueDelays);

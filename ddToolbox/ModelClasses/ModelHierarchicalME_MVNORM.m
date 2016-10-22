@@ -80,7 +80,7 @@ classdef ModelHierarchicalME_MVNORM < Model
 
 	methods (Static)
 		function initialParams = setInitialParamValues(nchains)
-			% Generate initial values of the leaf nodes
+			% Generate initial values of the root nodes
 			for chain = 1:nchains
 				%obj.initialParams(chain).r				= -0.2 + randn/10;
 				%obj.initialParams(chain).mc_mu			= [(rand-0.5)*2 randn*5];

@@ -60,7 +60,7 @@ classdef ModelHierarchicalME < Model
 	methods (Static)
 		
 		function initialParams = setInitialParamValues(nchains)
-			% Generate initial values of the leaf nodes
+			% Generate initial values of the root nodes
 			for chain = 1:nchains
 				initialParams(chain).groupMmu		= normrnd(-0.243,10);
 				initialParams(chain).groupMsigma	= rand*10;

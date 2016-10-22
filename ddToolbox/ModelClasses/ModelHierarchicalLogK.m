@@ -3,7 +3,7 @@ classdef ModelHierarchicalLogK < Model
 	%   Detailed explanation goes here
 
 	properties (Access = private)
-		getDiscountRate
+		getDiscountRate % function handle
 	end
 
 	methods (Access = public)
@@ -43,7 +43,7 @@ classdef ModelHierarchicalLogK < Model
 	methods (Static)
 		
 		function initialParams = setInitialParamValues(nchains)
-			% Generate initial values of the leaf nodes
+			% Generate initial values of the root nodes
 			for chain = 1:nchains
 				initialParams(chain).groupLogKmu		= normrnd(log(1/50),1);
 				initialParams(chain).groupLogKsigma		= rand*5;

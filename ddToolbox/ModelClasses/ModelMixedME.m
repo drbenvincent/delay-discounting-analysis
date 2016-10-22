@@ -58,7 +58,7 @@ classdef ModelMixedME < Model
 	
 	methods (Static)
 		function initialParams = setInitialParamValues(nchains) % TODO: make static method
-			% Generate initial values of the leaf nodes
+			% Generate initial values of the root nodes
 			for chain = 1:nchains
 				initialParams(chain).groupW			= rand;
 				initialParams(chain).groupALPHAmu	= rand*10;
