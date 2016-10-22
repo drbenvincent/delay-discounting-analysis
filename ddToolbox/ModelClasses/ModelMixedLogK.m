@@ -1,36 +1,20 @@
-classdef ModelMixedLogK < Model
-	%ModelHierarchical A model to estimate the magnitide effect
-	%   Detailed explanation goes here
-
-	properties (Access = private)
-		getDiscountRate % function handle?
-	end
+classdef ModelMixedLogK < Hierarchical1
+	%ModelMixedLogK A model to estimate the log discount rate, according to the 1-parameter hyperbolic discount function.
+	%  SOME parameters are estimated hierarchically.
 
 	methods (Access = public)
-
 		function obj = ModelMixedLogK(data, varargin)
-
-			obj = obj@Model(data, varargin{:});
-
+			obj = obj@Hierarchical1(data, varargin{:});
 			obj.modelFilename = 'mixedLogK';
-			obj.discountFuncType = 'hyperbolic1';
-			obj.getDiscountRate = @getLogDiscountRate; % <-------------------------------------- FINISH
-
-			% Create variables
-			obj.varList.participantLevel = {'logk','alpha','epsilon'};
-			obj.varList.monitored = {'logk','alpha','epsilon',...
-				'Rpostpred', 'P'};
-
-			obj = obj.addUnobservedParticipant('GROUP');
-
-			%% Plotting
-			obj.experimentFigPlotFuncs		= make_experimentFigPlotFuncs_LogK();
-			obj.plotFuncs.clusterPlotFunc	= @plotLOGKclusters;
-
-			% MUST CALL THIS METHOD AT THE END OF ALL MODEL-SUBCLASS CONSTRUCTORS
-			obj = obj.conductInference();
+            obj = obj.addUnobservedParticipant('GROUP');
+            
+            % MUST CALL THIS METHOD AT THE END OF ALL MODEL-SUBCLASS CONSTRUCTORS
+            obj = obj.conductInference();
 		end
-
+    end
+    
+    methods 
+    
 		function initialParams = setInitialParamValues(obj, nchains)
 			% Generate initial values of the root nodes
 			nExperimentFiles = obj.data.nExperimentFiles;
@@ -40,16 +24,7 @@ classdef ModelMixedLogK < Model
 				initialParams(chain).groupALPHAsigma	= rand*100;
 			end
 		end
-
-		function conditionalDiscountRates(obj, reward, plotFlag)
-			error('Not applicable to this model that calculates log(k)')
-		end
-
-		function conditionalDiscountRates_GroupLevel(obj, reward, plotFlag)
-			error('Not applicable to this model that calculates log(k)')
-		end
-
-
+        
 	end
 
 end

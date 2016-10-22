@@ -1,32 +1,20 @@
-classdef ModelSeparateME < Model
+classdef ModelSeparateME < Hierarchical1MagEffect
 	%ModelSeperate A model to estimate the magnitide effect.
 	%	Models a number of participants, but they are all treated as independent.
 	%	There is no group-level estimation.
 	
-	properties (Access = private)
-		getDiscountRate
-	end
-	
 	methods (Access = public)
 		
 		function obj = ModelSeparateME(data, varargin)
-			obj = obj@Model(data, varargin{:});
-			
+			obj = obj@Hierarchical1MagEffect(data, varargin{:});
 			obj.modelFilename = 'separateME';
-			obj.discountFuncType = 'me';
-			obj.getDiscountRate = @getLogDiscountRate; % <-------------------------------------- FINISH
-			
-			% Create variables
-			obj.varList.participantLevel = {'m', 'c','alpha','epsilon'};
-			obj.varList.monitored = {'m', 'c','alpha','epsilon', 'Rpostpred', 'P'};
-			
-			%% Plotting stuff
-			obj.experimentFigPlotFuncs		= make_experimentFigPlotFuncs_ME();
-			obj.plotFuncs.clusterPlotFunc	= @plotMCclusters;
 			
 			% MUST CALL THIS METHOD AT THE END OF ALL MODEL-SUBCLASS CONSTRUCTORS
 			obj = obj.conductInference();
 		end
+    end
+    
+    methods
 		
 		function initialParams = setInitialParamValues(obj, nchains)
 			% Generate initial values of the root nodes

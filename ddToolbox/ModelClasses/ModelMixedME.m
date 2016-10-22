@@ -1,63 +1,24 @@
-classdef ModelMixedME < Model
+classdef ModelMixedME < Hierarchical1MagEffect
 	%ModelHierarchicalME A model to estimate the magnitide effect
 	%   Detailed explanation goes here
-
-	properties (Access = private)
-		getDiscountRate
-	end
 
 	methods (Access = public)
 
 		function obj = ModelMixedME(data, varargin)
-			obj = obj@Model(data, varargin{:});
-
-			obj.modelFilename			= 'mixedME';
-			obj.discountFuncType	= 'hyperbolic1_magnitude_effect';
-			obj.getDiscountRate = @getLogDiscountRate; % <-------------------------------------- FINISH
-
-			% Create variables
-			obj.varList.participantLevel = {'m', 'c', 'alpha', 'epsilon'};
-			obj.varList.monitored = {'m', 'c','alpha','epsilon', 'Rpostpred', 'P'};
+			obj = obj@Hierarchical1MagEffect(data, varargin{:});
+			obj.modelFilename = 'mixedME';
 
 			obj = obj.addUnobservedParticipant('GROUP');
-			
-			%% Plotting stuff
-			obj.experimentFigPlotFuncs		= make_experimentFigPlotFuncs_ME();
-			obj.plotFuncs.clusterPlotFunc	= @plotMCclusters;
 
 			% MUST CALL THIS METHOD AT THE END OF ALL MODEL-SUBCLASS CONSTRUCTORS
 			obj = obj.conductInference();
 		end
 
-
-		%% ******** SORT OUT WHERE THESE AND OTHER FUNCTIONS SHOULD BE *************
-		function obj = conditionalDiscountRates(obj, reward, plotFlag)
-			% For group level and all participants, extract and plot P( log(k) | reward)
-			warning('THIS METHOD IS A TOTAL MESS - PLAN THIS AGAIN FROM SCRATCH')
-			obj.conditionalDiscountRates_ParticipantLevel(reward, plotFlag)
-			obj.conditionalDiscountRates_GroupLevel(reward, plotFlag)
-			if plotFlag % FORMATTING OF FIGURE
-				mcmc.removeYaxis()
-				title(sprintf('$P(\\log(k)|$reward=$\\pounds$%d$)$', reward),'Interpreter','latex')
-				xlabel('$\log(k)$','Interpreter','latex')
-				axis square
-				%legend(lh.DisplayName)
-			end
-		end
-
-		function conditionalDiscountRates_GroupLevel(obj, reward, plotFlag)
-			GROUP = obj.data.nExperimentFiles; % last participant is our unobserved
-			params = obj.mcmc.getSamplesFromExperimentAsMatrix(GROUP, {'m','c'});
-			[posteriorMean, lh] = calculateLogK_ConditionOnReward(reward, params, plotFlag);
-			lh.LineWidth = 3;
-			lh.Color= 'k';
-		end
-
-	end
-
-	
-	methods (Static)
-		function initialParams = setInitialParamValues(nchains) % TODO: make static method
+    end
+    
+    methods
+		
+		function initialParams = setInitialParamValues(obj, nchains) 
 			% Generate initial values of the root nodes
 			for chain = 1:nchains
 				initialParams(chain).groupW			= rand;
