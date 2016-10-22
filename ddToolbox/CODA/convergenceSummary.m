@@ -42,25 +42,19 @@ for n = 1:numel(varNames)
 	end
 end
 
-isRhatThresholdExceeded = false;
 for n = 1:numel(varNames)
-	if any(RhatValues > RHAT_THRESHOLD() )
-		isRhatThresholdExceeded = true;
-		break
+	if any(RhatValues > RHAT_THRESHOLD())
+		logInfo(fid,'\n\n\n**** WARNING: convergence issues :( ****\n\n\n')
+		% Uncomment if you want auditory feedback
+		% try
+		%	speak('there were some convergence issues')
+		% catch
+		%	beep
+		% end
 	end
-end
-
-if isRhatThresholdExceeded
-	logInfo(fid,'\n\n\n**** WARNING: convergence issues :( ****\n\n\n')
-	% Uncomment if you want auditory feedback
-	% try
-	%	speak('there were some convergence issues')
-	% catch
-	%	beep
-	% end
-else
 	logInfo(fid,'\n\n\n**** No convergence issues :) ****\n\n\n')
 end
+
 
 
 
@@ -74,7 +68,7 @@ end
 	end
 
 	% ------------------------------------------------------
-	% TODO: refactor this into a single function?
+	% TODO: refactor these into a single function?
 	function print_scalar
 		logInfo(fid,'%2.5f', RhatValues);
 		printConvergenceAchivedOrNot(RhatValues);

@@ -3,7 +3,7 @@ classdef ModelMixedLogK < Model
 	%   Detailed explanation goes here
 
 	properties (Access = private)
-		getDiscountRate
+		getDiscountRate % function handle?
 	end
 
 	methods (Access = public)
@@ -22,7 +22,7 @@ classdef ModelMixedLogK < Model
 				'Rpostpred', 'P'};
 
 			obj = obj.addUnobservedParticipant('GROUP');
-			
+
 			%% Plotting
 			obj.experimentFigPlotFuncs		= make_experimentFigPlotFuncs_LogK();
 			obj.plotFuncs.clusterPlotFunc	= @plotLOGKclusters;
@@ -30,7 +30,7 @@ classdef ModelMixedLogK < Model
 			% MUST CALL THIS METHOD AT THE END OF ALL MODEL-SUBCLASS CONSTRUCTORS
 			obj = obj.conductInference();
 		end
-		
+
 		function initialParams = setInitialParamValues(obj, nchains)
 			% Generate initial values of the leaf nodes
 			nExperimentFiles = obj.data.nExperimentFiles;
@@ -40,7 +40,7 @@ classdef ModelMixedLogK < Model
 				initialParams(chain).groupALPHAsigma	= rand*100;
 			end
 		end
-		
+
 		function conditionalDiscountRates(obj, reward, plotFlag)
 			error('Not applicable to this model that calculates log(k)')
 		end

@@ -4,26 +4,26 @@
 
 classdef ModelNonParametric < Model
 	%ModelGRW
-	
+
 	properties
 		AUC_DATA
 	end
-	
-	
+
+
 	methods (Access = public)
-		
+
 		function obj = ModelNonParametric(data, varargin)
 			obj = obj@Model(data, varargin{:});
-			
+
 			obj.modelType		= 'separateNonParametric';
 			obj.discountFuncType = 'nonparametric';
-			
+
 			obj.varList.participantLevel = {'discountFraction'};
 			% TODO: remove varList as a property of Model base class.
 			obj.varList.monitored = {'discountFraction', 'alpha', 'epsilon', 'Rpostpred', 'P'};
-			
+
 			%obj.observedData = obj.addititionalObservedData( obj.observedData );
-			
+
 			% Define plotting functions for the participant mult-panel figure
 			obj.experimentFigPlotFuncs{1} = @(plotdata) mcmc.BivariateDistribution(...
 				plotdata.samples.posterior.epsilon,...
@@ -32,71 +32,67 @@ classdef ModelNonParametric < Model
 				'ylabel','comparison accuity, $\alpha$',...
 				'pointEstimateType', plotdata.pointEstimateType,...
 				'plotStyle', 'hist');
-			
+
 			obj.experimentFigPlotFuncs{2} = @(plotdata) plotPsychometricFunc(plotdata.samples, plotdata.pointEstimateType);
-			
+
 			% TODO: FIX THIS
 			%obj.experimentFigPlotFuncs{3} = @(personInfo) plotDiscountFunctionGRW(personInfo,  [50 95]);
-			
+
 			% Decorate the object with appropriate plot functions
 			obj.plotFuncs.clusterPlotFunc = @() []; % null func
-			
+
 			% MUST CALL THIS METHOD AT THE END OF ALL MODEL-SUBCLASS CONSTRUCTORS
 			obj = obj.conductInference();
 		end
-		
-		
+
+
 		function initialParams = setInitialParamValues(obj, nchains)
 			% Generate initial values of the leaf nodes
 			%nTrials = size(obj.data.observedData.A,2);
 			nExperimentFiles = obj.data.nExperimentFiles;
 			nUniqueDelays = numel(obj.observedData.uniqueDelays);
-			
+
 			for chain = 1:nchains
 				initialParams(chain).discountFraction = normrnd(1, 0.1, [nExperimentFiles, nUniqueDelays]);
 			end
 			% TODO: have a function called discountFraction and pass it
 			% into this initialParam maker loop
 		end
-		
-		
+
+
 		function conditionalDiscountRates(obj, reward, plotFlag)
 			error('Not applicable to this model')
 		end
-		
-		
+
+
 		function conditionalDiscountRates_GroupLevel(obj, reward, plotFlag)
 			error('Not applicable to this model')
 		end
-		
+
 	end
-	
-	
+
+
 	methods (Access = protected)
-		
-		function obj = calcDerivedMeasures(obj)
-			obj = obj.calcAUCscores();
-		end
-		
-		function obj = calcAUCscores(obj)
-			% TODO: TOTAL FUDGE. THIS SHOULD BE DONE ELSEWHERE
-			%obj.observedData = obj.constructObservedDataForMCMC( obj.data.get_all_data_table() ); % TODO: do this in base-class
-			delays = obj.observedData.uniqueDelays;
-			for p=1:obj.data.nExperimentFiles
-				dfSamples = obj.extractDiscountFunctionSamples(p);
-				obj.AUC_DATA(p).AUCsamples = calculateAUC(delays,dfSamples, false);
-				obj.AUC_DATA(p).name  = obj.data.getIDnames(p);
-			end
-		end
-		
+
+        function obj = calcDerivedMeasures(obj)
+            % Calculate AUC scores
+            for p = 1:obj.data.nExperimentFiles
+                obj.AUC_DATA(p).AUCsamples =...
+                 calculateAUC(obj.observedData.uniqueDelays,...
+                 obj.extractDiscountFunctionSamples(p),...
+                 false);
+                obj.AUC_DATA(p).name  = obj.data.getIDnames(p);
+            end
+        end
+
 	end
-	
-	
+
+
 	methods (Static, Access = protected)
 		function observedData = addititional_model_specific_ObservedData(observedData)
 			observedData.uniqueDelays = sort(unique(observedData.DB))';
 			observedData.delayLookUp = calcDelayLookup();
-			
+
 			function delayLookUp = calcDelayLookup()
 				delayLookUp = observedData.DB;
 				for n=1: numel(observedData.uniqueDelays)
@@ -106,48 +102,47 @@ classdef ModelNonParametric < Model
 			end
 		end
 	end
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
+
+
+
+
 	methods (Access = public)
-		
+
 		function plot(obj, varargin) % overriding from Model base class
 			% parse inputs
 			p = inputParser;
 			p.FunctionName = mfilename;
 			p.addParameter('shouldExportPlots', true, @islogical);
 			p.parse(varargin{:});
-			
+
 			% act on inputs
 			obj.alldata.shouldExportPlots = p.Results.shouldExportPlots;
 			for n=1:numel(obj.pdata)
 				obj.pdata(n).shouldExportPlots = p.Results.shouldExportPlots;
 			end
-			
+
 			close all
 			warning('SORT THIS PLOT FUNCTION OUT!')
-			
-			
+
+
 			%% WORKS
 			arrayfun(@figPosteriorPrediction, obj.pdata) % posterior prediction plot
-			
-			
+
+
 			% Plot indifference functions for each participant
-			obj.calcAUCscores()
 			for p=1:obj.data.nExperimentFiles
 				% Extract info about a person for plotting purposes
 				personInfo = obj.getExperimentData(p);
-				
+
 				% Plotting
 				figure(1), clf
-				
+
 				subplot(1,2,1) % TODO: PUT THIS PLOT IN THE PARTICIPANT PLOT FUNCTIONS
 				intervals = [50 95];
 				plotDiscountFunctionGRW(personInfo)
@@ -155,12 +150,12 @@ classdef ModelNonParametric < Model
 				%set(gca,'XScale','log')
 				%axis tight
 				%axis square
-				
+
 				subplot(1,2,2)
 				uni = mcmc.UnivariateDistribution(obj.AUC_DATA(p).AUCsamples,...
 					'xLabel', 'AUC');
 				drawnow
-				
+
 				if obj.shouldExportPlots
 					myExport(obj.savePath,...
 						'discountfunction',...
@@ -172,10 +167,10 @@ classdef ModelNonParametric < Model
 				% 					'savePath', obj.savePath,...
 				% 					'prefix', personInfo.participantName)
 			end
-			
-			
+
+
 			%% DOES NOT WORK
-			
+
 			% 			for p=1:obj.data.nExperimentFiles
 			% 				personInfo = obj.getExperimentData(p);
 			% 				plotDiscountFunctionGRW(personInfo)
@@ -201,16 +196,13 @@ classdef ModelNonParametric < Model
 			% 		end
 			%
 			%
-			
+
 		end
-		
-		
-		
-		
+
+
+
+
 		function personStruct = getExperimentData(obj, p)
-			
-			obj = calcAUCscores(obj); % TODO: This is put here as a quick fix.
-			
 			% Create a structure with all the useful info about a person
 			% p = person number
 			participantName = obj.data.getIDnames(p);
@@ -225,9 +217,9 @@ classdef ModelNonParametric < Model
 			personStruct.data = obj.data.getExperimentData(p);
 			personStruct.AUCsamples = obj.AUC_DATA(p).AUCsamples;
 		end
-		
-		
-		
+
+
+
 		function dfSamples = extractDiscountFunctionSamples(obj, personNumber)
 			samples = obj.coda.getSamples({'discountFraction'});
 			[chains, nSamples, participants, nDelays] = size(samples.discountFraction);
@@ -237,8 +229,8 @@ classdef ModelNonParametric < Model
 				dfSamples(:,d) = vec(personSamples(:,:,d));
 			end
 		end
-		
-		
+
+
 		% 		function observedData = constructObservedDataForMCMC(obj, all_data)
 		% 			%% Call superclass method to prepare the core data
 		% 			observedData = constructObservedDataForMCMC@Model(obj, all_data);
@@ -255,12 +247,12 @@ classdef ModelNonParametric < Model
 		% 				end
 		% 			end
 		% 		end
-		
+
 	end
-	
-	
+
+
 	methods (Static)
-		
+
 		%% FYI
 		% 			% **** Observed variables below are for the Gaussian Random
 		% 			% Walk model ****
@@ -297,7 +289,7 @@ classdef ModelNonParametric < Model
 		% % 			end
 		% % 			obj.observedData.delayLookUp = temp;
 		% 		end
-		
+
 	end
-	
+
 end

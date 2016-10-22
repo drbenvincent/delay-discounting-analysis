@@ -40,7 +40,7 @@ classdef ModelGRW < Model
 
 			% Decorate the object with appropriate plot functions
 			obj.plotFuncs.clusterPlotFunc = @() []; % null func
-			
+
 			% MUST CALL THIS METHOD AT THE END OF ALL MODEL-SUBCLASS CONSTRUCTORS
 			obj = obj.conductInference();
 		end
@@ -79,19 +79,19 @@ classdef ModelGRW < Model
 			p.FunctionName = mfilename;
 			p.addParameter('shouldExportPlots', true, @islogical);
 			p.parse(varargin{:});
-			
+
 			% act on inputs
 			obj.alldata.shouldExportPlots = p.Results.shouldExportPlots;
 			for n=1:numel(obj.pdata)
 				obj.pdata(n).shouldExportPlots = p.Results.shouldExportPlots;
 			end
-			
+
 			close all
 			warning('SORT THIS PLOT FUNCTION OUT!')
-			
+
 			%% Plot functions that use data from all participants
 			%figUnivariateSummary( obj.alldata )
-			
+
 
 			%% Plots, one per participant
 			%arrayfun(@figExperiment, obj.pdata, obj.experimentFigPlotFuncs) % multi-panel fig
@@ -101,16 +101,16 @@ classdef ModelGRW < Model
 			for p=1:numel(obj.pdata)
 				figExperiment(obj.experimentFigPlotFuncs, obj.pdata(p));
 			end
-			
+
 			arrayfun(@plotTriPlotWrapper, obj.pdata) % corner plot of posterior
 			arrayfun(@figPosteriorPrediction, obj.pdata) % posterior prediction plot
-			
-			
-			
+
+
+
 % 			%% Corner plot of group-level params
 % 			posteriorSamples = obj.coda.getSamplesAsMatrix({'varInc','alpha','epsilon'});
 % 			varLabals = {'varInc','alpha','epsilon'};
-% 
+%
 % 			figure(87)
 % 			mcmc.TriPlotSamples(posteriorSamples,...
 % 				varLabals,...
@@ -206,18 +206,12 @@ classdef ModelGRW < Model
 	methods (Access = protected)
 
 		function obj = calcDerivedMeasures(obj)
-			obj = obj.calcAUCscores();
-		end
-
-		function obj = calcAUCscores(obj)
-
-			% TODO: TOTAL FUDGE. THIS SHOULD BE DONE ELSEWHERE
-			%obj.observedData = obj.constructObservedDataForMCMC( obj.data.get_all_data_table() ); % TODO: do this in base-class
-
-			delays = obj.observedData.uniqueDelays;
-			for p=1:obj.data.nExperimentFiles
-				dfSamples = obj.extractDiscountFunctionSamples(p);
-				obj.AUC_DATA(p).AUCsamples = calculateAUC(delays,dfSamples, false);
+			% Calculate AUC scores
+			for p = 1:obj.data.nExperimentFiles
+				obj.AUC_DATA(p).AUCsamples =...
+                 calculateAUC(obj.observedData.uniqueDelays,...
+                 obj.extractDiscountFunctionSamples(p),...
+                 false);
 				obj.AUC_DATA(p).name  = obj.data.getIDnames(p);
 			end
 		end
