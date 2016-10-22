@@ -63,7 +63,7 @@ function [model] = run_me()
 %
 % You can get access to samples using code such as the following. They will
 % be returned into a structure:
-% >> samples = model.mcmc.getSamples({'m','c','alpha','epsilon'});
+% >> samples = model.coda.getSamples({'m','c','alpha','epsilon'});
 %
 %
 % You can do many things with the samples. By way of example, you could

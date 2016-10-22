@@ -64,3 +64,15 @@ demo/datasets/kirby/groupLevelData/COMBINED_DATA.txt
 tests/tests/grw_test/ConvergenceReport.txt
 
 demo/datasets/test_data/groupLevelData/COMBINED_DATA.txt
+
+tests/output/logk_analysis/ConvergenceReport.txt
+
+tests/output/logk_analysis/parameterEstimates_Posterior_median.csv
+
+tests/output/me_analysis/parameterEstimates_Posterior_median.csv
+
+tests/output/me_analysis/ConvergenceReport.txt
+
+tests/output/my_analysis/ConvergenceReport.txt
+
+tests/output/my_analysis/parameterEstimates_Posterior_median.csv
