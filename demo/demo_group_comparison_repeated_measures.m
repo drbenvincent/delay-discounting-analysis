@@ -4,7 +4,7 @@ function [group1, group2] = demo_group_comparison_repeated_measures()
 % parameter estimation, separately for each group. Then compare group-level
 % discounting parameters.
 
-warning('Code below this point is under active development')
+error('Code below this point is under active development')
 
 path_of_this_mfile = strrep(which(mfilename),[mfilename '.m'],'');
 toolbox_path = fullfile(path_of_this_mfile,'..','ddToolbox');

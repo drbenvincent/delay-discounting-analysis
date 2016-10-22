@@ -1,24 +1,29 @@
-function [group1, group2, comparison] = demo_group_comparison()
+function [group1, group2, group1_minus_group2] = demo_group_comparison()
 %demo_group_comparison
-% The approch for group comparisons is very simple. Run a model to do
-% parameter estimation, separately for each group. Then compare group-level
-% discounting parameters.
+% This analysis script provides a demonstration of how you can compare two
+% different groups. The approach for group comparisons is very simple. 
+%   1) Run a model to do parameter estimation for group 1. 
+%   2) Run a model to do parameter estimation for group 2.
+%   3) Then compare group-level parameters.
 %
-% THIS IS NOT REPEATED MEASURES
+% THIS IS NOT A REPEATED MEASURES COMPARISON. We are just comparing group 
+% level parameter estimates.
 
-path_of_this_mfile = strrep(which(mfilename),[mfilename '.m'],'');
-toolbox_path = fullfile(path_of_this_mfile,'..','ddToolbox');
+% define a cell array of the variables you want to compare
+variables_of_interest = {'logk', 'epsilon'};
 
 % Run setup routine
+path_of_this_mfile = strrep(which(mfilename),[mfilename '.m'],'');
+toolbox_path = fullfile(path_of_this_mfile,'..','ddToolbox');
 addpath(toolbox_path)
 ddAnalysisSetUp();
 
 %% Define common parameters.
 % There's no need to do this as a separate step, but it helps to ensure
 % both models are fit with the same parameters
-mcmcparams = struct('nsamples', 10000,...
+mcmcparams = struct('nsamples', 5000,...
 	'nchains', 4,...
-	'nburnin', 2000);
+	'nburnin', 1000);
 pointEstimateType = 'median';
 					 
 %% Analyse group 1 
@@ -44,36 +49,12 @@ group2 = ModelHierarchicalLogK(...
 	'mcmcParams', mcmcparams);
 
 %% Compare group level parameter estimates (NOT repeated-measures)
-% ******* NOTE THAT THIS CODE WILL BE IMPROVED AND SIMPLIFIED, BUT THIS IS
-% ENOUGH TO GET THINGS WORKING FOR GROUP-LEVEL COMPARISONS ****************
+group_level_participant_index = 11; % <--------------------------- FIX ME!!
+group1_minus_group2 = group_comparison(...
+	group1,...
+	group2,...
+	variables_of_interest,...
+	group_level_participant_index,...
+	pointEstimateType);
 
-% Now we extract the mcmc samples of the group level log(k).
-% Note that the group level inferences are modelled (basically) as an
-% unobserved participant who is coded as 'number of participants + 1' So
-% you need to get this number right for your dataset.
-group_level_participant_index = 11;
-
-group1_estimates = group1.coda.getSamplesAtIndex(group_level_participant_index, {'logk'}); 
-group2_estimates = group2.coda.getSamplesAtIndex(group_level_participant_index, {'logk'});
-
-group_logk_difference = group1_estimates.logk - group2_estimates.logk;
-
-% You could now plot this distribution of differences very simply as:
-% >>  hist(group_logk_difference, 31)
-%
-% but we can use my mcmc-utils-matlab repository code...
-
-figure
-mcmc.UnivariateDistribution(group_logk_difference,...
-	'XLabel','group 1 - group 2 ($\log(k)$)',...
-	'pointEstimateType', pointEstimateType,...
-	'shouldPlotPointEstimate', true)
-title('Differences in group level $\log(k)$', 'Interpreter','latex')
-
-% Now you can make decisions about whether there are group level
-% differences based upon whether the 95% credible region overlaps with zero
-% (ie no group difference) or not.
-
-
-comparison.group_logk_difference = group_logk_difference;
 end
