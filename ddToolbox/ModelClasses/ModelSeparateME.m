@@ -12,7 +12,7 @@ classdef ModelSeparateME < Model
 		function obj = ModelSeparateME(data, varargin)
 			obj = obj@Model(data, varargin{:});
 			
-			obj.modelType = 'separateME';
+			obj.modelFilename = 'separateME';
 			obj.discountFuncType = 'me';
 			obj.getDiscountRate = @getLogDiscountRate; % <-------------------------------------- FINISH
 			

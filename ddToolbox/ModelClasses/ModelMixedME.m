@@ -11,8 +11,8 @@ classdef ModelMixedME < Model
 		function obj = ModelMixedME(data, varargin)
 			obj = obj@Model(data, varargin{:});
 
-			obj.modelType			= 'mixedME';
-			obj.discountFuncType	= 'me';
+			obj.modelFilename			= 'mixedME';
+			obj.discountFuncType	= 'hyperbolic1_magnitude_effect';
 			obj.getDiscountRate = @getLogDiscountRate; % <-------------------------------------- FINISH
 
 			% Create variables

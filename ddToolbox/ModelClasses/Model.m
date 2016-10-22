@@ -23,8 +23,7 @@ classdef Model
 		mcmcParams % structure of user-supplied params
 
 		% User supplied preferences
-		modelType % string (ie modelType.jags, or modelType.stan)
-
+		modelFilename % string (ie modelFilename.jags, or modelFilename.stan)
 		varList
 		plotFuncs % structure of function handles
 		shouldPlot, shouldExportPlots
@@ -86,7 +85,7 @@ classdef Model
 
 			% do the sampling and get a CODA object back ~~~~~~~~~~~~
 			obj.coda = samplerFunction(...
-				makeProbModelsPath(obj.modelType, lower(obj.samplerType)),...
+				makeProbModelsPath(obj.modelFilename, lower(obj.samplerType)),...
 				obj.observedData,...
 				mcmcparams,...
 				obj.setInitialParamValues(mcmcparams.nchains),... % TODO not really a "set" method
@@ -205,7 +204,7 @@ classdef Model
 				[1 0 0],...
 				obj.pointEstimateType,...
 				obj.savePath,...
-				obj.modelType,...
+				obj.modelFilename,...
 				p.Results.shouldExportPlots)
 
 
@@ -306,7 +305,7 @@ classdef Model
 				pdata(p).pointEstimateType	= obj.pointEstimateType;
 				pdata(p).discountFuncType	= obj.discountFuncType;
 				pdata(p).savePath			= obj.savePath;
-				pdata(p).modelType			= obj.modelType;
+				pdata(p).modelFilename			= obj.modelFilename;
 				pdata(p).shouldExportPlots  = obj.shouldExportPlots;
 			end
 
@@ -315,7 +314,7 @@ classdef Model
 			alldata.variables	= obj.varList.participantLevel;
 			alldata.IDnames		= obj.data.getIDnames('all');
 			alldata.savePath	= obj.savePath;
-			alldata.modelType	= obj.modelType;
+			alldata.modelFilename	= obj.modelFilename;
 			for v = alldata.variables
 				alldata.(v{:}).hdi =...
 					[obj.coda.getStats('hdi_low',v{:}),... % TODO: ERROR - expecting a vector to be returned

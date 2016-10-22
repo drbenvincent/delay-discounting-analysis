@@ -11,8 +11,8 @@ classdef ModelHierarchicalLogK < Model
 		function obj = ModelHierarchicalLogK(data, varargin)
 			obj = obj@Model(data, varargin{:});
 
-			obj.modelType		= 'hierarchicalLogK';
-			obj.discountFuncType = 'logk';
+			obj.modelFilename		= 'hierarchicalLogK';
+			obj.discountFuncType = 'hyperbolic1';
 			obj.getDiscountRate = @getLogDiscountRate; % <-------------------------------------- FINISH
 
 			% Create variables

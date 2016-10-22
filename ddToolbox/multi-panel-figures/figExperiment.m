@@ -29,7 +29,7 @@ drawnow
 if plotdata.shouldExportPlots
 	myExport(plotdata.savePath, 'expt',...
 		'prefix', plotdata.IDname{:},...
-		'suffix', plotdata.modelType);
+		'suffix', plotdata.modelFilename);
 end
 
 close(fh)

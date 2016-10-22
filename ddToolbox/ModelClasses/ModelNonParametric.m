@@ -15,7 +15,7 @@ classdef ModelNonParametric < Model
 		function obj = ModelNonParametric(data, varargin)
 			obj = obj@Model(data, varargin{:});
 
-			obj.modelType		= 'separateNonParametric';
+			obj.modelFilename		= 'separateNonParametric';
 			obj.discountFuncType = 'nonparametric';
 
 			obj.varList.participantLevel = {'discountFraction'};
@@ -159,7 +159,7 @@ classdef ModelNonParametric < Model
 				if obj.shouldExportPlots
 					myExport(obj.savePath,...
 						'discountfunction',...
-						'suffix', obj.modelType,...
+						'suffix', obj.modelFilename,...
 						'prefix', num2str(p))
 				end
 

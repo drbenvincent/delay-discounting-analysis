@@ -9,7 +9,7 @@ classdef ModelHierarchicalMEUpdated < ModelHierarchicalME
 
 		function obj = ModelHierarchicalMEUpdated(data, varargin)
 			obj = obj@ModelHierarchicalME(data, varargin{:});
-			obj.modelType = 'hierarchicalMEupdated';
+			obj.modelFilename = 'hierarchicalMEupdated';
 		end
 
 	end

@@ -15,7 +15,7 @@ classdef ModelGRW < Model
 		function obj = ModelGRW(data, varargin)
 			obj = obj@Model(data, varargin{:});
 
-			obj.modelType		= 'mixedGRW';
+			obj.modelFilename		= 'mixedGRW';
 			obj.discountFuncType = 'nonparametric';
 
 			obj.varList.participantLevel = {'discountFraction'};

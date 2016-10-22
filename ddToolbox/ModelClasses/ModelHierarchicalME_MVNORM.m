@@ -11,8 +11,8 @@ classdef ModelHierarchicalME_MVNORM < Model
 		function obj = ModelHierarchicalME_MVNORM(data, varargin)
 			obj = obj@Model(data, varargin{:});
 
-			obj.modelType			= 'hierarchicalMEmvnorm';
-			obj.discountFuncType	= 'me';
+			obj.modelFilename			= 'hierarchicalMEmvnorm';
+			obj.discountFuncType	= 'hyperbolic1_magnitude_effect';
 			obj.getDiscountRate = @getLogDiscountRate; % <-------------------------------------- FINISH
 
 			% Create variables

@@ -12,8 +12,8 @@ classdef ModelMixedLogK < Model
 
 			obj = obj@Model(data, varargin{:});
 
-			obj.modelType = 'mixedLogK';
-			obj.discountFuncType = 'logk';
+			obj.modelFilename = 'mixedLogK';
+			obj.discountFuncType = 'hyperbolic1';
 			obj.getDiscountRate = @getLogDiscountRate; % <-------------------------------------- FINISH
 
 			% Create variables

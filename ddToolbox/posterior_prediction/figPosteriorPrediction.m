@@ -32,7 +32,7 @@ drawnow
 if data.shouldExportPlots
 	myExport(data.savePath, 'PosteriorPredictive',...
 		'prefix', data.IDname{:},...
-		'suffix', data.modelType)
+		'suffix', data.modelFilename)
 end
 
 	function pp_plotGOFdistribution()

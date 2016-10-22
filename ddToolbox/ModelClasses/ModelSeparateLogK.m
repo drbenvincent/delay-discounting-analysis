@@ -11,8 +11,8 @@ classdef ModelSeparateLogK < Model
 		function obj = ModelSeparateLogK(data, varargin)
 			obj = obj@Model(data, varargin{:});
 
-			obj.modelType = 'separateLogK';
-			obj.discountFuncType = 'logk';
+			obj.modelFilename = 'separateLogK';
+			obj.discountFuncType = 'hyperbolic1';
 			obj.getDiscountRate = @getLogDiscountRate; % <-------------------------------------- FINISH
 
 			% Create variables

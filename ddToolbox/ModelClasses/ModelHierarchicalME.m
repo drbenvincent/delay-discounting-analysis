@@ -11,8 +11,8 @@ classdef ModelHierarchicalME < Model
 		function obj = ModelHierarchicalME(data, varargin)
 			obj = obj@Model(data, varargin{:});
 			
-			obj.modelType			= 'hierarchicalME';
-			obj.discountFuncType	= 'me';
+			obj.modelFilename			= 'hierarchicalME';
+			obj.discountFuncType	= 'hyperbolic1_magnitude_effect';
 			
 			obj.getLogDiscountRate = @(reward) getLogDiscountRate(obj, reward); % <-------------------------------------- FINISH
 			
