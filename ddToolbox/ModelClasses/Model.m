@@ -131,34 +131,37 @@ classdef (Abstract) Model
 				['parameterEstimates_Posterior_' obj.pointEstimateType '.csv']);
 			exportTable(finalTable, tempSavePath);
 
-			function postPredTable = makePostPredTable()
-				% Create table of posterior prediction measures
-				% Add mean score (log ratio of model vs control)
-				ppScore = [obj.postPred(:).score]';
-				% Calculate point estimates of perceptPredicted. use the point
-				% estimate type that the user specified
-				pointEstFunc = str2func(obj.pointEstimateType);
-				percentPredicted = cellfun(pointEstFunc,...
-					{obj.postPred.percentPredictedDistribution})';
 
-				% Check if HDI of percentPredicted overlaps with 0.5
-				hdiFunc = @(x) HDIofSamples(x, CREDIBLE_INTERVAL);
-				warningFunc = @(x) x(1) < 0.5;
-				warnOnHDI = @(x) warningFunc( hdiFunc(x) );
-				warning_percent_predicted = cellfun( warnOnHDI,...
-					{obj.postPred.percentPredictedDistribution})';
-
-				% make table
-				postPredTable = table(ppScore,...
-					percentPredicted,...
-					warning_percent_predicted,...
+			function postPredTable = makePostPredTable()				
+				postPredTable = table([obj.postPred(:).score]',...
+					calc_percent_predicted_point_estimate(),...
+					any_percent_predicted_warnings(),...
 					'RowNames', obj.data.getIDnames('experiments'));
+				
 				if obj.data.unobservedPartipantPresent
 					% add extra row of NaN's on the bottom for the unobserved participant
 					unobserved = table(NaN, NaN, NaN,...
 						'RowNames', obj.data.getIDnames('group'),...
 						'VariableNames', postPredTable.Properties.VariableNames);
+					
 					postPredTable = [postPredTable; unobserved];
+				end
+				
+				function percentPredicted = calc_percent_predicted_point_estimate()
+					% Calculate point estimates of perceptPredicted. use the point
+					% estimate type that the user specified
+					pointEstFunc = str2func(obj.pointEstimateType);
+					percentPredicted = cellfun(pointEstFunc,...
+						{obj.postPred.percentPredictedDistribution})';
+				end
+				
+				function pp_warning = any_percent_predicted_warnings()
+                    ppLowerThreshold = 0.5;
+					hdiFunc = @(x) HDIofSamples(x, CREDIBLE_INTERVAL);
+					warningFunc = @(x) x(1) < ppLowerThreshold;
+					warnOnHDI = @(x) warningFunc( hdiFunc(x) );
+					pp_warning = cellfun( warnOnHDI,...
+						{obj.postPred.percentPredictedDistribution})';
 				end
 
 			end
