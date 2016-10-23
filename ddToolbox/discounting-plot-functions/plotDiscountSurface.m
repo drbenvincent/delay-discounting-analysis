@@ -1,5 +1,6 @@
 function [logB,D,AB] = plotDiscountSurface(plotdata)
 
+% TODO: This plotting function will break if there is any change to the arrangement of data in plotdata structure.
 % checks
 if isempty(plotdata.samples.posterior.m)...
 		|| any(isnan(plotdata.samples.posterior.m(:)))...
@@ -9,24 +10,11 @@ if isempty(plotdata.samples.posterior.m)...
 	return
 end
 
-%% Calculate point estimates
-mcBivariate = mcmc.BivariateDistribution(plotdata.samples.posterior.m, plotdata.samples.posterior.c,...
-	'shouldPlot',false,...
-	'pointEstimateType', plotdata.pointEstimateType);
-mc = mcBivariate.(plotdata.pointEstimateType);
-m = mc(1);
-c = mc(2);
-
 global pow
 
 %% High level plot logic
-
 plotSurface()
-
-if ~isempty(plotdata.data.rawdata) && ~front_end_delays_present()
-	plotData(); 
-end
-
+plotData(); 
 formatAxes()
 
 
@@ -36,6 +24,15 @@ formatAxes()
 
 	function plotSurface()
 		
+        %% Calculate point estimates
+        mcBivariate = mcmc.BivariateDistribution(plotdata.samples.posterior.m, plotdata.samples.posterior.c,...
+        	'shouldPlot',false,...
+        	'pointEstimateType', plotdata.pointEstimateType);
+        mc = mcBivariate.(plotdata.pointEstimateType);
+        m = mc(1);
+        c = mc(2);
+        
+        
 		try
 			maxlogB = max( abs( plotdata.data.rawdata.B) );
 			maxD = max(plotdata.data.rawdata.DB);
@@ -71,6 +68,11 @@ formatAxes()
 	end
 
 	function plotData()
+        
+        if isempty(plotdata.data.rawdata) || front_end_delays_present()
+            return
+        end
+        
 		hold on
 		%maxlogB = max( abs( plotdata.data.rawdata.B) );
 		%maxD = max(plotdata.data.rawdata.DB);

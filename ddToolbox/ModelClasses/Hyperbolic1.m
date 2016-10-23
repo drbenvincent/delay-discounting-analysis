@@ -18,7 +18,6 @@ classdef (Abstract) Hyperbolic1 < Model
 			obj.varList.participantLevel = {'logk','alpha','epsilon'};
 			obj.varList.monitored = {'logk','alpha','epsilon', 'Rpostpred', 'P'};
 
-			% obj = obj.addUnobservedParticipant('GROUP');
 
 			%% Plotting
 			obj.experimentFigPlotFuncs		= make_experimentFigPlotFuncs_LogK();
@@ -33,7 +32,7 @@ classdef (Abstract) Hyperbolic1 < Model
 		function conditionalDiscountRates_GroupLevel(obj, reward, plotFlag)
 			error('Not applicable to this model that calculates log(k)')
 		end
-
+        
 	end
 
 	

@@ -1,6 +1,6 @@
 function plotDiscountFunction(plotdata)
 
-
+% TODO: This plotting function will break if there is any change to the arrangement of data in plotdata structure.
 % checks
 if isempty(plotdata.samples.posterior.logk)...
 		|| any(isnan(plotdata.samples.posterior.logk(:)))
@@ -9,52 +9,56 @@ if isempty(plotdata.samples.posterior.logk)...
 end
 
 %% High level plot logic
-
-% Plot the discount function, regardless
 plotFunction()
-
-% We need to decide what kind of data plotting we are doing, based upon
-% whether we have front-end delays or not, etc.
-	
-if ~isempty(plotdata.data.rawdata)
-	%opts.maxlogB	= max( abs(p.Results.data.B) );
-	maxD = max(plotdata.data.rawdata.DB);
-	
-	if ~front_end_delays_present()
-		plotData();
-	else
-		% front-end delays present, so don't plot data
-	end
-	
-else
-	% base delay scale (x-axis) on median logk
-	maxD = logk2halflife( median(plotdata.samples.posterior.logk) ) *2;
-end
-
-
-
+plotData();
 formatAxes()
 
 
-	function truefalse = front_end_delays_present()
-		truefalse = any(plotdata.data.rawdata.DA>0);
-	end
+
+
 
 	function plotData()
-		hold on
-		[x,y,z, markerCol,markerSize] = convertDataIntoMarkers(plotdata.data.rawdata);
-		
-		% plot
-		for i=1:numel(x)
-			h = plot(y(i), z(i),'o');
-			h.Color='k';
-			h.MarkerFaceColor=[1 1 1] .* (1-markerCol(i));
-			h.MarkerSize = markerSize(i)+4;
-			hold on
-		end
+        
+        % We need to decide what kind of data plotting we are doing, based upon
+        % whether we have front-end delays or not, etc.
+        	
+        if isempty(plotdata.data.rawdata) || front_end_delays_present()
+            return
+        end
+            
+        % DO PLOTTING OF DATA ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        hold on
+        [x,y,z, markerCol,markerSize] = convertDataIntoMarkers(plotdata.data.rawdata);
+        
+        % plot
+        for i=1:numel(x)
+            h = plot(y(i), z(i),'o');
+            h.Color='k';
+            h.MarkerFaceColor=[1 1 1] .* (1-markerCol(i));
+            h.MarkerSize = markerSize(i)+4;
+            hold on
+        end
+        % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        
 	end
 
+    
+    % TODO: make this a method in Data...
+    function truefalse = front_end_delays_present()
+		truefalse = any(plotdata.data.rawdata.DA>0);
+	end
+    
+    
 	function formatAxes()
+        
+        if ~isempty(plotdata.data.rawdata)
+        	%opts.maxlogB	= max( abs(p.Results.data.B) );
+        	maxD = max(plotdata.data.rawdata.DB);
+        else
+            % base delay scale (x-axis) on median logk
+        	maxD = logk2halflife( median(plotdata.samples.posterior.logk) ) *2;
+        end
+        
 		axis tight
 		xlabel('delay, $D^B$', 'interpreter','Latex')
 		xlim([0 maxD*1.1])
@@ -103,6 +107,7 @@ formatAxes()
 
 end
 
+% TODO: shouldn't this be a separate function that all data plotting functions can use?
 
 function [x,y,z,markerCol,markerSize] = convertDataIntoMarkers(data)
 % find unique experimental designs

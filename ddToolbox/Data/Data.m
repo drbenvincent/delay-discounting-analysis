@@ -1,6 +1,8 @@
 classdef Data
 	%Data A class to load and handle data
 
+    % TODO: STOP EXPOSING THE IMPLEMENTATION DETAILS, MAKE THESE PROPERTIES PRIVATE 
+    % AND INSTEAD PROVIDE SOME GE
 	properties (GetAccess = public, SetAccess = private)
 		% Ensure all properties here are NOT going to change, even if the
 		% inner workings of this class change.
@@ -161,6 +163,11 @@ classdef Data
 				names = obj.IDnames(whatIwant);
 			end
 		end
+        
+        function output = getEverythingAboutAnExperiment(obj, ind)
+            % return a structure of everything about the data file 'ind'
+            
+        end
 
 	end
 

@@ -90,12 +90,17 @@ classdef (Abstract) Model
 
 			%% Post-sampling activities (common to all models) ------------
 			obj.postPred = obj.calcPosteriorPredictive();
-			convergenceSummary(obj.coda.getStats('Rhat',[]), obj.savePath, obj.data.getIDnames('all'))
-			obj.parameterEstimateTable = obj.exportParameterEstimates();
-			[obj.pdata, obj.alldata] = obj.packageUpDataForPlotting();
-			if ~strcmp(obj.shouldPlot,'no')
+			
+            convergenceSummary(obj.coda.getStats('Rhat',[]), obj.savePath, obj.data.getIDnames('all'))
+			
+            obj.parameterEstimateTable = obj.exportParameterEstimates();
+			
+            [obj.pdata, obj.alldata] = obj.packageUpDataForPlotting();
+			
+            if ~strcmp(obj.shouldPlot,'no')
 				obj.plot( 'shouldExportPlots', obj.shouldExportPlots )
 			end
+            
 			obj.tellUserAboutPublicMethods()
 		end
 
