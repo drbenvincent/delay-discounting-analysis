@@ -16,7 +16,7 @@ classdef ModelSeparateME < Hyperbolic1MagEffect
     
     methods
 		
-		function initialParams = setInitialParamValues(obj, nchains)
+		function initialParams = initialiseChainValues(obj, nchains)
 			% Generate initial values of the root nodes
 			nExperimentFiles = obj.data.nExperimentFiles;
 			for chain = 1:nchains

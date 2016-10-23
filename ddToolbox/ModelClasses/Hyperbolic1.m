@@ -38,7 +38,7 @@ classdef (Abstract) Hyperbolic1 < Model
 
 	
 	methods (Abstract)
-		setInitialParamValues
+		initialiseChainValues
     end
 
 end

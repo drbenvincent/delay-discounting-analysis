@@ -51,7 +51,7 @@ classdef (Abstract) Hyperbolic1MagEffect < Model
 
 	
 	methods (Abstract)
-		setInitialParamValues
+		initialiseChainValues
     end
 
 end

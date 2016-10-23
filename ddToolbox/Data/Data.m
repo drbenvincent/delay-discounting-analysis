@@ -95,7 +95,7 @@ classdef Data
 			fields = fieldnames(obj.experiment);
 			for n=1:numel(fields)
 				% TODO: this currently needs to be empty ([]) but would be
-				% better if it was also able to coe being set as NaN.
+				% better if it was also able to cope being set as NaN.
 				obj.experiment(index).(fields{n}) = [];
 			end
 

@@ -42,7 +42,7 @@ classdef (Abstract) NonParametric < Model
 
 	
 	methods (Abstract)
-		setInitialParamValues
+		initialiseChainValues
     end
     
     methods (Access = protected)

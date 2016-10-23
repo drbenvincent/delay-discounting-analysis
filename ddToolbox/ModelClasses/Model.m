@@ -1,4 +1,4 @@
-classdef Model
+classdef (Abstract) Model
 	%Model Base class to provide basic functionality
 
 	% Allow acces to these via Model, but we still only get access to these
@@ -62,36 +62,26 @@ classdef Model
 
 		function obj = conductInference(obj)
 
-			switch obj.samplerType
-				case{'jags'}
-					samplerFunction = @sampleWithMatjags;
-				case{'stan'}
-					samplerFunction = @sampleWithMatlabStan;
-			end
-
-			% set default parameters
-			defaultMCMCParams.doparallel	= 1;
-			defaultMCMCParams.nburnin		= 1000;
-			defaultMCMCParams.nchains		= 2;
-			defaultMCMCParams.nsamples		= 10^4; % represents TOTAL number of samples we want
-
-			% update with any user-supplied options
-			if isfield(obj.mcmcParams, 'chains')
-				error('Please pass in ''nchains'', not ''chains''.')
-			end
-			mcmcparams = kwargify(defaultMCMCParams, obj.mcmcParams);
-
+            % pre-sampling preparation
+			samplerFunction = obj.selectSampler(obj.samplerType);
+			mcmcparams = obj.parse_mcmcparams(obj.mcmcParams);
 			obj.observedData = obj.constructObservedDataForMCMC( obj.data.get_all_data_table() );
 
-			% do the sampling and get a CODA object back ~~~~~~~~~~~~
+            % sampling
 			obj.coda = samplerFunction(...
 				makeProbModelsPath(obj.modelFilename, lower(obj.samplerType)),...
 				obj.observedData,...
 				mcmcparams,...
-				obj.setInitialParamValues(mcmcparams.nchains),... % TODO not really a "set" method
+				obj.initialiseChainValues(mcmcparams.nchains),...
 				obj.varList.monitored);
-			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+            % post-sampling activities
+			obj = obj.postSamplingActivities();
+	
+		end
+
+		function obj = postSamplingActivities(obj)
+			
 			%% Post-sampling activities (for model sub-classes) -----------
 			% If a model has additional measures that need to be calculated
 			% from the MCMC samples, then we can do by overriding this
@@ -108,7 +98,6 @@ classdef Model
 			end
 			obj.tellUserAboutPublicMethods()
 		end
-
 
 		function finalTable = exportParameterEstimates(obj, varargin)
 			% Ideally, we are going to make a table. Each row is a
@@ -245,6 +234,16 @@ classdef Model
 
 	end
 
+
+
+
+
+
+
+
+
+
+
 	%% Protected methods
 
 	methods (Access = protected)
@@ -370,6 +369,28 @@ classdef Model
 		function observedData = addititional_model_specific_ObservedData(observedData)
 			% KEEP THIS HERE. IT IS OVER-RIDDEN IN SOME MODEL SUB-CLASSES
 		end
+        
+        function samplerFunction = selectSampler(samplerType)
+            switch samplerType
+            case{'jags'}
+                samplerFunction = @sampleWithMatjags;
+            case{'stan'}
+                samplerFunction = @sampleWithMatlabStan;
+            end
+        end
+        
+        function mcmcparams = parse_mcmcparams(mcmcParams)
+            defaultMCMCParams.doparallel	= 1;
+            defaultMCMCParams.nburnin		= 1000;
+            defaultMCMCParams.nchains		= 2;
+            defaultMCMCParams.nsamples		= 10^4; % represents TOTAL number of samples we want
+            % update with any user-supplied options
+            if isfield(mcmcParams, 'chains')
+                error('Please pass in ''nchains'', not ''chains''.')
+            end
+            mcmcparams = kwargify(defaultMCMCParams, mcmcParams);
+        end
+        
 	end
 
 end

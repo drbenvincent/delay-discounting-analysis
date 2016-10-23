@@ -18,7 +18,7 @@ classdef ModelHierarchicalLogK < Hyperbolic1
 	
 	methods 
 		
-		function initialParams = setInitialParamValues(obj, nchains)
+		function initialParams = initialiseChainValues(obj, nchains)
 			% Generate initial values of the root nodes
 			for chain = 1:nchains
 				initialParams(chain).groupLogKmu		= normrnd(log(1/50),1);

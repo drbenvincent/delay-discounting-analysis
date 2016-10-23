@@ -15,7 +15,7 @@ classdef ModelSeparateNonParametric < NonParametric
 			obj = obj.conductInference();
 		end
 
-		function initialParams = setInitialParamValues(obj, nchains)
+		function initialParams = initialiseChainValues(obj, nchains)
 			% Generate initial values of the root nodes
 			%nTrials = size(obj.data.observedData.A,2);
 			nExperimentFiles = obj.data.nExperimentFiles;

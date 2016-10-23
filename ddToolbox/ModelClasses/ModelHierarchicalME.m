@@ -18,7 +18,7 @@ classdef ModelHierarchicalME < Hyperbolic1MagEffect
         
     methods
         
-		function initialParams = setInitialParamValues(obj, nchains)
+		function initialParams = initialiseChainValues(obj, nchains)
 			% Generate initial values of the root nodes
 			for chain = 1:nchains
 				initialParams(chain).groupMmu		= normrnd(-0.243,10);
