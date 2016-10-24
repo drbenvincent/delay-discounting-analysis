@@ -24,7 +24,7 @@ classdef (Abstract) Hyperbolic1MagEffect < Model
 
 		end
 
-        %% ******** CHECK THESE WORK ACROSS HIERARCHICAL / MIXED / SEPARATE MODELS *************
+        %% TODO ******** CHECK THESE WORK ACROSS HIERARCHICAL / MIXED / SEPARATE MODELS *************
         function obj = conditionalDiscountRates(obj, reward, plotFlag)
             % For group level and all participants, extract and plot P( log(k) | reward)
             warning('THIS METHOD IS A TOTAL MESS - PLAN THIS AGAIN FROM SCRATCH')

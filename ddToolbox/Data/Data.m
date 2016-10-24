@@ -168,7 +168,20 @@ classdef Data
             % return a structure of everything about the data file 'ind'
             
         end
-
+		
+		function participantIndexList = getParticipantIndexList(obj)
+			% A vector of [1,...P] where P is the number of
+			% participants. BUT hierarchical models will have an extra
+			% (unobserved) participant, so we need to be sensitive to
+			% whether this exists of not
+			all_data = obj.get_all_data_table();
+			if obj.unobservedPartipantPresent
+				participantIndexList = [unique(all_data.ID) ; max(unique(all_data.ID))+1];
+			else
+				participantIndexList = unique(all_data.ID);
+			end
+		end
+		
 	end
 
 	% PRIVATE =============================================================

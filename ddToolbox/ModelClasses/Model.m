@@ -65,7 +65,7 @@ classdef (Abstract) Model
             % pre-sampling preparation
 			samplerFunction = obj.selectSampler(obj.samplerType);
 			mcmcparams = obj.parse_mcmcparams(obj.mcmcParams);
-			obj.observedData = obj.constructObservedDataForMCMC( obj.data.get_all_data_table() );
+			obj.observedData = obj.constructObservedDataForMCMC();
 
             % sampling
 			obj.coda = samplerFunction(...
@@ -256,25 +256,15 @@ classdef (Abstract) Model
 
 	methods (Access = protected)
 
-		function observedData = constructObservedDataForMCMC(obj, all_data)
+		function observedData = constructObservedDataForMCMC(obj)
 			% This function can be overridden by model subclasses, however
 			% we still expect them to call this model baseclass method to
 			% set up the core data (unlikely to change across models).
-			assert(istable(all_data), 'all_data must be a table')
+			all_data = obj.data.get_all_data_table();
 			observedData = table2struct(all_data, 'ToScalar',true);
-
-			% Pass in a vector of [1,...P] where P is the number of
-			% participants. BUT hierarchical models will have an extra
-			% (unobserved) participant, so we need to be sensitive to
-			% whether this exists of not
-			if obj.data.unobservedPartipantPresent
-				observedData.participantIndexList = [unique(all_data.ID) ; max(unique(all_data.ID))+1];
-			else
-				observedData.participantIndexList = unique(all_data.ID);
-			end
-
-			observedData.nRealExperimentFiles	= max(all_data.ID);
-			observedData.totalTrials		= height(all_data);
+            observedData.participantIndexList = obj.data.getParticipantIndexList();
+			observedData.nRealExperimentFiles = max(all_data.ID);
+			observedData.totalTrials = height(all_data);
 			% protected method which can be over-ridden by model sub-classes
 			observedData = obj.addititional_model_specific_ObservedData(observedData);
 		end
