@@ -17,7 +17,7 @@ classdef ModelMixedLogK < Hyperbolic1
     
 		function initialParams = initialiseChainValues(obj, nchains)
 			% Generate initial values of the root nodes
-			nExperimentFiles = obj.data.nExperimentFiles;
+			nExperimentFiles = obj.data.getNExperimentFiles();
 			for chain = 1:nchains
 				initialParams(chain).groupW             = rand;
 				initialParams(chain).groupALPHAmu		= rand*100;

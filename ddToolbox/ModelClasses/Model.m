@@ -143,7 +143,7 @@ classdef (Abstract) Model
 					any_percent_predicted_warnings(),...
 					'RowNames', obj.data.getIDnames('experiments'));
 				
-				if obj.data.unobservedPartipantPresent
+				if obj.data.isUnobservedPartipantPresent()
 					% add extra row of NaN's on the bottom for the unobserved participant
 					unobserved = table(NaN, NaN, NaN,...
 						'RowNames', obj.data.getIDnames('group'),...
@@ -263,7 +263,7 @@ classdef (Abstract) Model
 			all_data = obj.data.get_all_data_table();
 			observedData = table2struct(all_data, 'ToScalar',true);
             observedData.participantIndexList = obj.data.getParticipantIndexList();
-			observedData.nRealExperimentFiles = max(all_data.ID);
+			observedData.nRealExperimentFiles = obj.data.getNRealExperimentFiles();
 			observedData.totalTrials = height(all_data);
 			% protected method which can be over-ridden by model sub-classes
 			observedData = obj.addititional_model_specific_ObservedData(observedData);
@@ -280,13 +280,13 @@ classdef (Abstract) Model
 			% The idea being we can just pass pdata(n) to a plot function
 			% and it has all the information it needs
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			nRealExperiments = obj.data.nExperimentFiles;
+			nRealExperiments = obj.data.getNExperimentFiles();
 			nExperimentsIncludingUnobserved = numel(obj.data.getIDnames('all')); % TODO: replace with different get method
 
 			pdata(1:nExperimentsIncludingUnobserved) = struct; % preallocation
 			for p = 1:nExperimentsIncludingUnobserved
 				% gather data from this experiment
-				pdata(p).data.totalTrials				= obj.data.totalTrials;
+				pdata(p).data.totalTrials				= obj.data.getTotalTrials;
 				pdata(p).IDname							= obj.data.getIDnames(p);
 				pdata(p).data.trialsForThisParticant	= obj.data.getTrialsForThisParticant(p);
 				pdata(p).data.rawdata					= obj.data.getRawDataTableForParticipant(p);
@@ -331,7 +331,7 @@ classdef (Abstract) Model
 
 			display('Calculating posterior predictive measures...')
 
-			for p = 1:obj.data.nRealExperimentFiles;
+			for p = 1:obj.data.getNRealExperimentFiles()
 				% get data
 				trialIndOfThisParicipant	= obj.observedData.ID==p;
 				responses_inferredPB		= obj.coda.getPChooseDelayed(trialIndOfThisParicipant);
@@ -339,9 +339,9 @@ classdef (Abstract) Model
 				responses_predicted			= obj.coda.getParticipantPredictedResponses(trialIndOfThisParicipant);
 
 				% Calculate metrics
-				postPred(p).score							= calcPostPredOverallScore(responses_predicted, responses_actual);
-				postPred(p).GOF_distribtion					= calcGoodnessOfFitDistribution(responses_inferredPB, responses_actual);
-				postPred(p).percentPredictedDistribution	= calcPercentResponsesCorrectlyPredicted(responses_inferredPB, responses_actual);
+				postPred(p).score = calcPostPredOverallScore(responses_predicted, responses_actual);
+				postPred(p).GOF_distribtion	= calcGoodnessOfFitDistribution(responses_inferredPB, responses_actual);
+				postPred(p).percentPredictedDistribution = calcPercentResponsesCorrectlyPredicted(responses_inferredPB, responses_actual);
 				% Store
 				postPred(p).responses_actual	= responses_actual;
 				postPred(p).responses_predicted = responses_predicted;

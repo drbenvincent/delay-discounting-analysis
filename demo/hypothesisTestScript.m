@@ -13,7 +13,7 @@ priorSamples = modelObject.coda.getSamplesAsMatrix({'m_prior'});
 
 % extract group-level posterior samples
 assert(modelObject.data.unobservedPartipantPresent)
-index_of_unobserved_participant = modelObject.data.nExperimentFiles;
+index_of_unobserved_participant = modelObject.data.getNExperimentFiles();
 posteriorSamples = modelObject.coda.getSamplesFromExperimentAsMatrix(...
 	index_of_unobserved_participant,{'m'});
 

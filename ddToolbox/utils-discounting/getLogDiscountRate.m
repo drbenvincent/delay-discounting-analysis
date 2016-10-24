@@ -6,7 +6,7 @@ function logKSamples = getLogDiscountRate(modelObject, reward, varargin)
 
 plotFlag = 1;
 
-nExperimentFiles = modelObject.data.nExperimentFiles;
+nExperimentFiles = modelObject.data.getNExperimentFiles();
 
 for p = 1:nExperimentFiles
 	

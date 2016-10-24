@@ -16,7 +16,7 @@ classdef ModelSeparateLogK < Hyperbolic1
     
 		function initialParams = initialiseChainValues(obj, nchains)
             % Generate initial values of the root nodes
-			nExperimentFiles = obj.data.nExperimentFiles;
+			nExperimentFiles = obj.data.getNExperimentFiles();
 			for chain = 1:nchains
 				initialParams(chain).logk = normrnd(log(1/365),10, [nExperimentFiles,1]);
 				initialParams(chain).epsilon = 0.1 + rand([nExperimentFiles,1])/10;

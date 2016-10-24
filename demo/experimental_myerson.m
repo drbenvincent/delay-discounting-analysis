@@ -33,9 +33,9 @@ myData.loadDataFiles(fnames);
 
 %% test plotting
 figure(1), clf
-z = ceil(sqrt(myData.nExperimentFiles));
+z = ceil(sqrt(myData.getNExperimentFiles()));
 
-for n=1:myData.nExperimentFiles
+for n=1:myData.getNExperimentFiles()
 	subplot(z,z,n)
 
 	% get participant data

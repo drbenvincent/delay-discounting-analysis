@@ -49,7 +49,7 @@ classdef (Abstract) NonParametric < Model
 
         function obj = calcDerivedMeasures(obj)
             % Calculate AUC scores
-            for p = 1:obj.data.nExperimentFiles
+            for p = 1:obj.data.getNExperimentFiles()
                 obj.AUC_DATA(p).AUCsamples =...
                  calculateAUC(obj.observedData.uniqueDelays,...
                  obj.extractDiscountFunctionSamples(p),...
@@ -86,7 +86,7 @@ classdef (Abstract) NonParametric < Model
 
 
 			% Plot indifference functions for each participant
-			for p=1:obj.data.nExperimentFiles
+			for p=1:obj.data.getNExperimentFiles()
 				% Extract info about a person for plotting purposes
 				personInfo = obj.getExperimentData(p);
 
@@ -121,7 +121,7 @@ classdef (Abstract) NonParametric < Model
 
 			%% DOES NOT WORK
 
-			% 			for p=1:obj.data.nExperimentFiles
+			% 			for p=1:obj.data.getNExperimentFiles()
 			% 				personInfo = obj.getExperimentData(p);
 			% 				plotDiscountFunctionGRW(personInfo)
 			% 			end

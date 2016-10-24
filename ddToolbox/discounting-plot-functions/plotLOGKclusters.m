@@ -12,11 +12,11 @@ figure(12), clf
 
 %% REAL EXPERIMENT DATA
 % build samples
-for p = 1:data.nExperimentFiles
+for p = 1:data.getNExperimentFiles()
 	logkSamples(:,p) = mcmcContainer.getSamplesFromExperimentAsMatrix(p, {'logk'});
 end
 
-uniG1 = mcmc.UnivariateDistribution(logkSamples(:,[1:data.nRealExperimentFiles]),...
+uniG1 = mcmc.UnivariateDistribution(logkSamples(:,[1:data.getNRealExperimentFiles()]),...
     'xLabel', '$\log(k)$',...
     'plotHDI', false,...
 	'pointEstimateType', pointEstimateType,...
@@ -27,10 +27,9 @@ axis tight
 participantAxisBounds = axis;
 
 %% GROUP LEVEL (UNOBSERVED PARTICIPANT)
-%if size(logkSamples,2) == data.nExperimentFiles+1
-groupLogkSamples = logkSamples(:,data.nExperimentFiles);
+groupLogkSamples = logkSamples(:,data.getNExperimentFiles());
 
-if data.unobservedPartipantPresent && ~any(isnan(groupLogkSamples))
+if data.isUnobservedPartipantPresent() && ~any(isnan(groupLogkSamples))
 	mcmc.UnivariateDistribution(groupLogkSamples,...
 		'xLabel', '$\log(k)$',...
 		'plotHDI', false,...

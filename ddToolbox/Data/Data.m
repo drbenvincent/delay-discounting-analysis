@@ -1,23 +1,16 @@
 classdef Data
 	%Data A class to load and handle data
 
-    % TODO: STOP EXPOSING THE IMPLEMENTATION DETAILS, MAKE THESE PROPERTIES PRIVATE 
-    % AND INSTEAD PROVIDE SOME GE
-	properties (GetAccess = public, SetAccess = private)
-		% Ensure all properties here are NOT going to change, even if the
-		% inner workings of this class change.
-		nExperimentFiles		% includes optional unobserved participant
-		nRealExperimentFiles	% only includes number of real experiment files
-		totalTrials
-		unobservedPartipantPresent %<--- not sure if we want this exposed or not
-	end
-
 	properties (GetAccess = private, SetAccess = private)
 		dataFolder	% path to folder containing data files
 		filenames	% filename, including extension
 		IDnames		% filename, but no extension
 		experiment  % structure containing a table for each experiment
 		%groupTable        % table of A, DA, B, DB, R, ID, PA, PB
+        totalTrials
+        unobservedPartipantPresent
+        nExperimentFiles		% includes optional unobserved participant
+		nRealExperimentFiles	% only includes number of real experiment files
 	end
 
 	% NOTE TO SELF: These public methods need to be seen as interfaces to
@@ -26,7 +19,7 @@ classdef Data
 	%
 	% These public methods need to be covered by tests.
 
-	methods (Access = public)
+	methods
 
 		function obj = Data(dataFolder, varargin)
 			p = inputParser;
@@ -51,20 +44,20 @@ classdef Data
 		end
 
 
-		% PUBLIC SET METHODS ==============================================
+		% PUBLIC METHODS ==============================================
 
 		function obj = importAllFiles(obj, fnames)
 			assert( iscellstr(fnames), 'fnames should be a cell array of filenames')
 
-			obj.nExperimentFiles		= numel(fnames);
-			obj.nRealExperimentFiles	= numel(fnames);
-			obj.filenames			= fnames;
-			obj.IDnames				= path2filename(fnames);
-			obj.experiment	          = obj.buildExperimentTables(fnames);
-			obj = obj.removeMissingResponseTrials();
+			obj.nExperimentFiles		 = numel(fnames);
+			obj.nRealExperimentFiles	 = numel(fnames);
+			obj.filenames			     = fnames;
+			obj.IDnames				     = path2filename(fnames);
+			obj.experiment	             = obj.buildExperimentTables(fnames);
+			obj.experiment               = obj.removeMissingResponseTrials();
 			obj.validateData();
 			obj.exportGroupDataFile();
-			obj.totalTrials			= height( obj.buildGroupDataTable() );
+			obj.totalTrials			     = height( obj.buildGroupDataTable() );
 
 			display('The following data files were imported:')
 			display(fnames')
@@ -181,7 +174,25 @@ classdef Data
 				participantIndexList = unique(all_data.ID);
 			end
 		end
-		
+        
+        function totalTrials = getTotalTrials(obj)
+            totalTrials = obj.totalTrials;
+        end
+        
+        function bool = isUnobservedPartipantPresent(obj)
+            bool = obj.unobservedPartipantPresent;
+        end
+        
+        function int = getNExperimentFiles(obj)
+            % includes optional unobserved participant
+            int = obj.nExperimentFiles;
+        end
+        
+        function int = getNRealExperimentFiles(obj)
+            % only includes number of real experiment files
+            int = obj.nRealExperimentFiles;
+        end
+        
 	end
 
 	% PRIVATE =============================================================
@@ -194,7 +205,7 @@ classdef Data
 		function obj = validateData(obj)
 			% return a structure of tables
 
-			for pIndex=1:obj.nExperimentFiles
+			for pIndex = 1:obj.nExperimentFiles
 				validate(obj.experiment(pIndex).table)
 			end
 			
@@ -211,18 +222,18 @@ classdef Data
 			end
 		end
 		
-		function obj = removeMissingResponseTrials(obj)
-			for pIndex=1:obj.nExperimentFiles
+		function experiment = removeMissingResponseTrials(obj)
+			for pIndex = 1:obj.nExperimentFiles
 				current_table = obj.experiment(pIndex).table;
-				obj.experiment(pIndex).table = current_table(~isnan(current_table.R),:);
-				obj.experiment(pIndex).trialsForThisParticant = height(obj.experiment(pIndex).table);
+				experiment(pIndex).table = current_table(~isnan(current_table.R),:);
+				experiment(pIndex).trialsForThisParticant = height(experiment(pIndex).table);
 			end
 		end
 		
 		function experiment = buildExperimentTables(obj, fnames)
 			% return a structure of tables
 
-			for pIndex=1:obj.nExperimentFiles
+			for pIndex = 1:obj.nExperimentFiles
 				% read from disk
 				experimentTable = readtable(...
 					fullfile(obj.dataFolder, fnames{pIndex}),...

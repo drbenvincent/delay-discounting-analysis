@@ -18,7 +18,7 @@ classdef ModelSeparateNonParametric < NonParametric
 		function initialParams = initialiseChainValues(obj, nchains)
 			% Generate initial values of the root nodes
 			%nTrials = size(obj.data.observedData.A,2);
-			nExperimentFiles = obj.data.nExperimentFiles;
+			nExperimentFiles = obj.data.getNExperimentFiles();
 			nUniqueDelays = numel(obj.observedData.uniqueDelays);
 
 			for chain = 1:nchains
