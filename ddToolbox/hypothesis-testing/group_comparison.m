@@ -1,4 +1,4 @@
-function group1_minus_group2 = group_comparison(group1, group2, vars, group_level_participant_index, pointEstimateType)
+function group1_minus_group2 = group_comparison(group1, group2, vars, pointEstimateType)
 % group1_minus_group2 = group_comparison(group1, group2, {'logk'}, 11)
 
 % input validation
@@ -8,16 +8,15 @@ assert(iscellstr(vars))
 assert(any(strcmp(pointEstimateType,{'mean','median','mode'})))
 
 % grab estimates for all requested variables, into a structure
-group1_estimates = group1.coda.getSamplesAtIndex(group_level_participant_index, vars);
-group2_estimates = group2.coda.getSamplesAtIndex(group_level_participant_index, vars);
+group1_estimates = group1.getGroupLevelSamples(vars);
+group2_estimates = group2.getGroupLevelSamples(vars);
 
 % compute the difference
 for var = vars
 	group1_minus_group2.(var{:}) = group1_estimates.(var{:}) - group2_estimates.(var{:});
 end
 
-
-%% Parameter Estimation approach
+%% METHOD 1: Parameter Estimation approach
 % Now you can make decisions about whether there are group level
 % differences based upon whether the 95% credible region overlaps with zero
 % (ie no group difference) or not.
@@ -38,8 +37,15 @@ end
 
 
 
-%% Hypothesis testing approach
+%% METHOD 2: Hypothesis testing approach
 % TODO: BAYESIAN HYPOTHESIS TESTING
 
+
+%% MERTHOD 3: Estimation with point estimates
+% TODO: 
+
+% 1. Extract point estimates.
+% 2. Run frequentist comparison in Matlab
+% 3. Export a .csv file of point estimate for analysis in JAGS
 
 end

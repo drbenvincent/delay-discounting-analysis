@@ -220,7 +220,7 @@ classdef CODA
 				end
 			end
 		end
-
+		
 		function [samplesMatrix] = getSamplesFromExperimentAsMatrix(obj, experiment, fieldsToGet)
 			assert(iscellstr(fieldsToGet))
 			% TODO: This function is doing the same thing as getSamplesAtIndex() ???

@@ -156,6 +156,19 @@ classdef Data
 				names = obj.IDnames(whatIwant);
 			end
 		end
+		
+		function isPresent = isUnobservedPartipantPresent(obj)
+			isPresent = obj.unobservedPartipantPresent;
+		end
+		
+		function index = getIndexOfUnobservedParticipant(obj)
+			if obj.unobservedPartipantPresent
+				index = numel(obj.IDnames);
+			else
+				% no group-level 'unobserved participant'
+				index = [];
+			end
+		end
         
         function output = getEverythingAboutAnExperiment(obj, ind)
             % return a structure of everything about the data file 'ind'
@@ -177,11 +190,7 @@ classdef Data
         
         function totalTrials = getTotalTrials(obj)
             totalTrials = obj.totalTrials;
-        end
-        
-        function bool = isUnobservedPartipantPresent(obj)
-            bool = obj.unobservedPartipantPresent;
-        end
+		end
         
         function int = getNExperimentFiles(obj)
             % includes optional unobserved participant

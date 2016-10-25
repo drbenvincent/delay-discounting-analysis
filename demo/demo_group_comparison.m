@@ -10,7 +10,7 @@ function [group1, group2, group1_minus_group2] = demo_group_comparison()
 % level parameter estimates.
 
 % define a cell array of the variables you want to compare
-variables_of_interest = {'logk', 'epsilon'};
+variables_of_interest = {'logk'};
 
 % Run setup routine
 path_of_this_mfile = strrep(which(mfilename),[mfilename '.m'],'');
@@ -48,13 +48,15 @@ group2 = ModelHierarchicalLogK(...
 	'shouldExportPlots', false,...
 	'mcmcParams', mcmcparams);
 
-%% Compare group level parameter estimates (NOT repeated-measures)
-group_level_participant_index = 11; % <--------------------------- FIX ME!!
+
+%% Do the comparison
+% ****** NOTE: this works but is under development, so the exact way we
+% invoke model comparison is likely to change in the future ******
 group1_minus_group2 = group_comparison(...
 	group1,...
 	group2,...
 	variables_of_interest,...
-	group_level_participant_index,...
 	pointEstimateType);
+
 
 end
