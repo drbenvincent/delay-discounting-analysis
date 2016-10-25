@@ -9,7 +9,10 @@ classdef ModelHierarchicalME < Hyperbolic1MagEffect
 			obj.modelFilename = 'hierarchicalME';
 			
 			obj = obj.addUnobservedParticipant('GROUP');
-			
+            
+            % additional variable for this model 
+            obj.varList.monitored{end+1} = 'm_prior';
+            			
 			% MUST CALL THIS METHOD AT THE END OF ALL MODEL-SUBCLASS CONSTRUCTORS
 			obj = obj.conductInference();
 		end
