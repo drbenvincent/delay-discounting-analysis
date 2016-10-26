@@ -10,6 +10,7 @@ nExperimentFiles = modelObject.data.getNExperimentFiles();
 
 for p = 1:nExperimentFiles
 	
+    % TODO: VIOLATES LAW OF DEMETER?
 	% get samples of (m, c)
 	params(:,1) = modelObject.coda.getSamplesFromExperimentAsMatrix(p, {'m'});
 	params(:,2) = modelObject.coda.getSamplesFromExperimentAsMatrix(p, {'c'});
@@ -23,6 +24,10 @@ end
 logKSamples = []; % TODO: RETURN SAMPLES!!!!!!
 
 if plotFlag
+    figure(1)
+    lh = plot(xi,f);
+    hold on
+    
 	removeYaxis
 	title(sprintf('$P(\\log(k)|$reward=$\\pounds$%d$)$', reward),'Interpreter','latex')
 	xlabel('$\log(k)$','Interpreter','latex')
@@ -44,13 +49,6 @@ logKsamples = log(kSamples);
 
 posteriorMode = xi( argmax(f) );
 posteriorMean = mean(logKsamples);
-
-if plotFlag
-	figure(1)
-	lh = plot(xi,f);
-	hold on
-	drawnow
-end
 
 end
 
