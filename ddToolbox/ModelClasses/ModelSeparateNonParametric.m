@@ -22,7 +22,7 @@ classdef ModelSeparateNonParametric < NonParametric
 			nUniqueDelays = numel(obj.observedData.uniqueDelays);
 
 			for chain = 1:nchains
-				initialParams(chain).discountFraction = normrnd(1, 0.1, [nExperimentFiles, nUniqueDelays]);
+				initialParams(chain).discountFraction = unifrnd(0, 2, [nExperimentFiles, nUniqueDelays]);
 			end
 			% TODO: have a function called discountFraction and pass it
 			% into this initialParam maker loop

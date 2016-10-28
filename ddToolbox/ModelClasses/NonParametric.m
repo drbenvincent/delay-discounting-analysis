@@ -31,7 +31,7 @@ classdef (Abstract) NonParametric < Model
 			obj.experimentFigPlotFuncs{2} = @(plotdata) plotPsychometricFunc(plotdata.samples, plotdata.pointEstimateType);
             
             % TODO: FIX THIS
-            %obj.experimentFigPlotFuncs{3} = @(personInfo) plotDiscountFunctionGRW(personInfo,  [50 95]);
+            %obj.experimentFigPlotFuncs{3} = @(personInfo) plotDiscountFunctionNonParametric(personInfo,  [50 95]);
 
             % Decorate the object with appropriate plot functions
             obj.plotFuncs.clusterPlotFunc = @() []; % null func
@@ -95,7 +95,7 @@ classdef (Abstract) NonParametric < Model
 
 				subplot(1,2,1) % TODO: PUT THIS PLOT IN THE PARTICIPANT PLOT FUNCTIONS
 				intervals = [50 95];
-				plotDiscountFunctionGRW(personInfo)
+				plotDiscountFunctionNonParametric(personInfo)
 				latex_fig(16, 14, 4)
 				%set(gca,'XScale','log')
 				%axis tight
@@ -104,6 +104,7 @@ classdef (Abstract) NonParametric < Model
 				subplot(1,2,2)
 				uni = mcmc.UnivariateDistribution(obj.AUC_DATA(p).AUCsamples,...
 					'xLabel', 'AUC');
+				xlim([0 2])
 				drawnow
 
 				if obj.shouldExportPlots
@@ -118,12 +119,19 @@ classdef (Abstract) NonParametric < Model
 				% 					'prefix', personInfo.participantName)
 			end
 
+			figure
+			% cluster plot of all AUC values
+			for n=1:numel(obj.AUC_DATA)
+				AUC_SAMPLES(:,n) = obj.AUC_DATA(n).AUCsamples;
+			end
+			mcmc.UnivariateDistribution(AUC_SAMPLES,...
+				'xLabel', 'AUC');
 
 			%% DOES NOT WORK
 
 			% 			for p=1:obj.data.getNExperimentFiles()
 			% 				personInfo = obj.getExperimentData(p);
-			% 				plotDiscountFunctionGRW(personInfo)
+			% 				plotDiscountFunctionNonParametric(personInfo)
 			% 			end
 			%
 			%

@@ -7,7 +7,7 @@ Note: my `fig_*.m` files in this repo compose together multiple atomic plots int
 ## `plotDiscountFunction`
 Plots discount functions :)
 
-## `plotDiscountFunctionGRW`
+## `plotDiscountFunctionNonParametric`
 Plots a discount function for my Gaussian Random Walk model
 
 ## `plotDiscountingData`

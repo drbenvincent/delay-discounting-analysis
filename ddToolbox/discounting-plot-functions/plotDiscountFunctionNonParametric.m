@@ -1,4 +1,4 @@
-function plotDiscountFunctionGRW(personInfo)
+function plotDiscountFunctionNonParametric(personInfo)
 % Create a plot to visualise a discount function, from the Gaussian Random
 % Walk model. Includes posterior predictive distribution of indifference
 % points and the behavioural data.
