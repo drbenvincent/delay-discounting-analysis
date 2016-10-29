@@ -72,7 +72,7 @@ classdef (Abstract) NonParametric < Model
 			p.parse(varargin{:});
 
 			% act on inputs
-			obj.alldata.shouldExportPlots = p.Results.shouldExportPlots;
+			obj.shouldExportPlots = p.Results.shouldExportPlots;
 			for n=1:numel(obj.pdata)
 				obj.pdata(n).shouldExportPlots = p.Results.shouldExportPlots;
 			end

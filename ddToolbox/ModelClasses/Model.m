@@ -19,7 +19,7 @@ classdef (Abstract) Model
 		postPred
 		parameterEstimateTable
 		pdata		% experiment level data for plotting
-		alldata		% cross-experiment level data for plotting
+		%alldata		% cross-experiment level data for plotting
 		experimentFigPlotFuncs
 		mcmcParams % structure of user-supplied params
 		
@@ -98,7 +98,7 @@ classdef (Abstract) Model
 			
 			obj.parameterEstimateTable = obj.exportParameterEstimates();
 			
-			[obj.pdata, obj.alldata] = obj.packageUpDataForPlotting();
+			[obj.pdata] = obj.packageUpDataForPlotting();
 			
 			if ~strcmp(obj.shouldPlot,'no')
 				obj.plot( 'shouldExportPlots', obj.shouldExportPlots )
@@ -188,15 +188,30 @@ classdef (Abstract) Model
 			p.parse(varargin{:});
 			
 			% act on inputs
-			obj.alldata.shouldExportPlots = p.Results.shouldExportPlots;
+			
 			for n=1:numel(obj.pdata)
 				obj.pdata(n).shouldExportPlots = p.Results.shouldExportPlots;
 			end
 			
 			%% Plot functions that use data from all participants ==============
 			
-			% plot -------------------------------------------------------------
-			figUnivariateSummary( obj.alldata )
+			% TODO --------------------------------------------------------
+			% gather cross-experiment data for univariate sta
+			alldata.shouldExportPlots = p.Results.shouldExportPlots;
+			alldata.shouldExportPlots	= obj.shouldExportPlots;
+			alldata.variables			= obj.varList.participantLevel;
+			alldata.filenames			= obj.data.getIDnames('all');
+			alldata.savePath			= obj.savePath;
+			alldata.modelFilename		= obj.modelFilename;
+			for v = alldata.variables
+				alldata.(v{:}).hdi =...
+					[obj.coda.getStats('hdi_low',v{:}),... % TODO: ERROR - expecting a vector to be returned
+					obj.coda.getStats('hdi_high',v{:})]; % TODO: ERROR - expecting a vector to be returned
+				alldata.(v{:}).pointEstVal =...
+					obj.coda.getStats(obj.pointEstimateType, v{:});
+			end
+			% -------------------------------------------------------------
+			figUnivariateSummary(alldata)
 			
 			% plot -------------------------------------------------------------
 			% TODO: pass in obj.alldata or obj.pdata rather than all these args
@@ -211,16 +226,6 @@ classdef (Abstract) Model
 			
 			
 			%% Plots, one per participant ======================================
-			%arrayfun(@figExperiment, obj.pdata, obj.experimentFigPlotFuncs) % multi-panel fig
-			% TODO: replace this loop with use of partials
-			% 			partial = @(x) figExperiment(x, obj.experimentFigPlotFuncs);
-			% 			arrayfun(partial, obj.pdata)
-			% plot -------------------------------------------------------------
-% 			for p=1:numel(obj.pdata)
-% 				figExperiment(obj.experimentFigPlotFuncs, obj.pdata(p));
-% 			end
-
-			%% NEW CODE TO DO EXPERIMENT PLOTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			obj.experimentPlot();
 			
 			
@@ -289,7 +294,7 @@ classdef (Abstract) Model
 		end
 		
 		
-		function [pdata, alldata] = packageUpDataForPlotting(obj)
+		function [pdata] = packageUpDataForPlotting(obj)
 			
 			% TODO: This is currently an intermediate step on the journey of code simplification. Really, what we should do is just directly go to participant / group / condition objects, which have their own data and plot methods.
 			
@@ -325,19 +330,19 @@ classdef (Abstract) Model
 				pdata(p).shouldExportPlots  = obj.shouldExportPlots;
 			end
 			
-			% gather cross-experiment data for univariate stats
-			alldata.shouldExportPlots = obj.shouldExportPlots;
-			alldata.variables	= obj.varList.participantLevel;
-			alldata.filenames		= obj.data.getIDnames('all');
-			alldata.savePath	= obj.savePath;
-			alldata.modelFilename	= obj.modelFilename;
-			for v = alldata.variables
-				alldata.(v{:}).hdi =...
-					[obj.coda.getStats('hdi_low',v{:}),... % TODO: ERROR - expecting a vector to be returned
-					obj.coda.getStats('hdi_high',v{:})]; % TODO: ERROR - expecting a vector to be returned
-				alldata.(v{:}).pointEstVal =...
-					obj.coda.getStats(obj.pointEstimateType, v{:});
-			end
+% 			% gather cross-experiment data for univariate stats
+% 			alldata.shouldExportPlots = obj.shouldExportPlots;
+% 			alldata.variables	= obj.varList.participantLevel;
+% 			alldata.filenames		= obj.data.getIDnames('all');
+% 			alldata.savePath	= obj.savePath;
+% 			alldata.modelFilename	= obj.modelFilename;
+% 			for v = alldata.variables
+% 				alldata.(v{:}).hdi =...
+% 					[obj.coda.getStats('hdi_low',v{:}),... % TODO: ERROR - expecting a vector to be returned
+% 					obj.coda.getStats('hdi_high',v{:})]; % TODO: ERROR - expecting a vector to be returned
+% 				alldata.(v{:}).pointEstVal =...
+% 					obj.coda.getStats(obj.pointEstimateType, v{:});
+% 			end
 			
 		end
 		
