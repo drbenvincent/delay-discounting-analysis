@@ -6,7 +6,7 @@ K_PRECISION <- 1/(0.001)
 
 
 for (p in 1:(nRealExperimentFiles)){
-	k[p]        ~ dnorm(K_MEAN, K_PRECISION) T(0,)
+	k[p]        ~ dnorm(K_MEAN, K_PRECISION)
     epsilon[p]  ~ dbeta(1.1 , 10.9) T(,0.5)
 	alpha[p]    ~ dexp(0.01)
 }

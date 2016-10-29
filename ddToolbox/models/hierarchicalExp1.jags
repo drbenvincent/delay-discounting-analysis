@@ -15,7 +15,7 @@ groupK          <- groupKminus2+2
 
 for (p in 1:(nRealExperimentFiles+1)){ # +1 for unobserved participant
 	# small constant (0.0001) added below to avoid numerical problems.
-	k[p]        ~ dnorm(groupKmu, 1/((groupKsigma+0.0001)^2)) T(0,)
+	k[p]        ~ dnorm(groupKmu, 1/((groupKsigma+0.0001)^2))
 	epsilon[p]  ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
 	alpha[p]    ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
 }

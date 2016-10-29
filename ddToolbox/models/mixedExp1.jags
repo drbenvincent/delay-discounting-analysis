@@ -15,7 +15,7 @@ groupKminus2    ~ dgamma(0.5,0.5) # concentration parameter ## UPDATED SINCE PAP
 groupK          <- groupKminus2+2
 
 for (p in 1:nRealExperimentFiles){
-	k[p]        ~ dnorm(K_MEAN, K_PRECISION) T(0,)
+	k[p]        ~ dnorm(K_MEAN, K_PRECISION)
 }
 
 for (p in 1:(nRealExperimentFiles+1)){ # +1 for unobserved participant
