@@ -23,6 +23,9 @@ classdef MagnitudeEffectFunction < DeterministicFunction
 			xlabel('reward magnitude', 'interpreter','latex')
 			ylabel('discount rate, $k$', 'interpreter','latex')
             title('Magnitude Effect')
+			
+			box off
+			axis square
 		end
 		
         function [k, logk] = eval(obj, x)			

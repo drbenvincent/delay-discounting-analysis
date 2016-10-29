@@ -1,6 +1,7 @@
 model{
 
-groupKmu      ~ dnorm( 0.005 ,1/(0.001^2))
+# TODO: CURRENTLY GUESSTIMATING THESE HYPERPARAMETERS!
+groupKmu      ~ dnorm( 0.01 ,1/(0.001^2))
 groupKsigma    ~ dgamma(0.1,0.1)
 
 # comparison acuity (alpha)

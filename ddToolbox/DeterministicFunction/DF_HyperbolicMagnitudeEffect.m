@@ -29,6 +29,7 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
 			zlabel('discount factor', 'interpreter','latex')
 			
 			title('** discount surface here **')
+			box off
 		end
         
         

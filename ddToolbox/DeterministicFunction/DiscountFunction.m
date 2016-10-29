@@ -11,6 +11,6 @@ classdef (Abstract) DiscountFunction < DeterministicFunction
     
     methods (Abstract)
 
-    end
+	end
 	
 end

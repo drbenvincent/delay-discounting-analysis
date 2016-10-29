@@ -23,6 +23,11 @@ classdef DF_NonParametric < DiscountFunction
 			
 			xlabel('delay $D^B$', 'interpreter','latex')
 			ylabel('discount factor', 'interpreter','latex')
+			
+			set(gca,'Xlim', [0 max(x.delay)],...
+				'box', 'off')
+			
+			axis square
 		end
         
         

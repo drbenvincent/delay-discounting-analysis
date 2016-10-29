@@ -11,13 +11,15 @@ classdef PsychometricFunction < DeterministicFunction
 		end
         
         function plot(obj)
-			x = [-100:1:100];
+			x = [-100:0.5:100];
 			
 			plot(x, obj.eval(x), 'k')
 			
 			xlabel('$V^B-V^A$', 'interpreter','latex')
 			ylabel('P(choose delayed)', 'interpreter','latex')
-            title('Psychometric function')
+            %title('Psychometric function')
+			box off
+			axis square
 		end
 		
         function y = eval(obj, x)

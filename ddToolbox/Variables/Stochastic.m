@@ -154,7 +154,7 @@ classdef Stochastic < handle
 			hold on
 			%for n=1:obj.N
 			try
-				hPost(n)=histogram(obj.samples(:),...
+				histogram(obj.samples(:),...
 					'Normalization','pdf',...
 					'EdgeColor','none',...
 					'FaceColor',obj.plot_options.col,...
@@ -229,7 +229,7 @@ classdef Stochastic < handle
 			p.addParameter('FaceAlpha',0.2,@isscalar);
 			p.addParameter('patchProperties',{'FaceAlpha',0.8},@iscell);
 			p.addParameter('plotHDI',true,@islogical);
-			p.addParameter('axisSquare',false,@islogical);
+			p.addParameter('axisSquare',true,@islogical);
 			
 			p.parse(varargin{:});
 			
