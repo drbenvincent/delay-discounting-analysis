@@ -11,8 +11,7 @@ classdef (Abstract) NonParametric < Model
 		function obj = NonParametric(data, varargin)
 			obj = obj@Model(data, varargin{:});
 
-			obj.discountFuncType = 'nonparametric';
-			
+			obj.dfClass = @DF_NonParametric;
 
             % Create variables
 			obj.varList.participantLevel = {'discountFraction'};
@@ -27,6 +26,7 @@ classdef (Abstract) NonParametric < Model
 				'ylabel','comparison accuity, $\alpha$',...
 				'pointEstimateType', plotdata.pointEstimateType,...
 				'plotStyle', 'hist');
+
 
 			obj.experimentFigPlotFuncs{2} = @(plotdata) plotPsychometricFunc(plotdata.samples, plotdata.pointEstimateType);
             

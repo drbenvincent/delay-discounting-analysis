@@ -3,8 +3,9 @@ classdef Data
 
 	properties (GetAccess = private, SetAccess = private)
 		dataFolder	% path to folder containing data files
-		filenames	% filename, including extension
-		IDnames		% filename, but no extension
+		filenames_full	% filename, including extension
+		filenames		% filename, but no extension
+        participantIDs  
 		experiment  % structure containing a table for each experiment
 		%groupTable        % table of A, DA, B, DB, R, ID, PA, PB
         totalTrials
@@ -51,8 +52,9 @@ classdef Data
 
 			obj.nExperimentFiles		 = numel(fnames);
 			obj.nRealExperimentFiles	 = numel(fnames);
-			obj.filenames			     = fnames;
-			obj.IDnames				     = path2filename(fnames);
+			obj.filenames_full			 = fnames;
+			obj.filenames				 = path2filename(fnames);
+            obj.participantIDs		     = path2participantID(fnames);
 			obj.experiment	             = obj.buildExperimentTables(fnames);
 			obj.experiment               = obj.removeMissingResponseTrials();
 			obj.validateData();
@@ -81,7 +83,7 @@ classdef Data
 				error('Have already added unobserved participant')
 			end
 
-			obj.IDnames{obj.nRealExperimentFiles+1} = str;
+			obj.filenames{obj.nRealExperimentFiles+1} = str;
 
 			obj.nExperimentFiles = obj.nExperimentFiles + 1;
 			index = obj.nExperimentFiles;
@@ -142,18 +144,18 @@ classdef Data
 			if ischar(whatIwant)
 				switch whatIwant
 					case{'all'}
-						names = obj.IDnames;
+						names = obj.filenames;
 					case{'experiments'}
-						names = obj.IDnames([1:obj.nRealExperimentFiles]);
+						names = obj.filenames([1:obj.nRealExperimentFiles]);
 					case{'group'}
 						if ~obj.unobservedPartipantPresent
 							error('Asking for group-level (unobserved) participant, but they do not exist')
 						end
-						names = obj.IDnames(end);
+						names = obj.filenames(end);
 				end
 			elseif isnumeric(whatIwant)
 				% assume we want to index into IDnames
-				names = obj.IDnames(whatIwant);
+				names = obj.filenames(whatIwant);
 			end
 		end
 		
@@ -163,7 +165,7 @@ classdef Data
 		
 		function index = getIndexOfUnobservedParticipant(obj)
 			if obj.unobservedPartipantPresent
-				index = numel(obj.IDnames);
+				index = numel(obj.filenames);
 			else
 				% no group-level 'unobserved participant'
 				index = [];
@@ -200,6 +202,14 @@ classdef Data
         function int = getNRealExperimentFiles(obj)
             % only includes number of real experiment files
             int = obj.nRealExperimentFiles;
+		end
+        
+		function names = getParticipantNames(obj)
+			names = obj.participantIDs;
+		end
+		
+        function uniqueNames = getUniqueParticipantNames(obj)
+            uniqueNames = unique(obj.participantIDs);
         end
         
 	end

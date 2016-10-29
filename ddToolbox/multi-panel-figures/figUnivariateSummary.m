@@ -38,7 +38,7 @@ end
 
 	function participantNames = makeParticipantNames()
 		variables = alldata.variables;
-		participantNames = alldata.IDnames;
+		participantNames = alldata.filenames;
 		
 		% just get the participant ID. We assume the filenames are coded as:
 		% <ID>-<other information>.txt

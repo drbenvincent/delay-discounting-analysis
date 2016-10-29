@@ -7,7 +7,6 @@ classdef ModelHierarchicalME < Hyperbolic1MagEffect
 		function obj = ModelHierarchicalME(data, varargin)
 			obj = obj@Hyperbolic1MagEffect(data, varargin{:});
 			obj.modelFilename = 'hierarchicalME';
-			
 			obj = obj.addUnobservedParticipant('GROUP');
             
             % additional variable for this model 

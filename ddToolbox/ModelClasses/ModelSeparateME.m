@@ -8,7 +8,6 @@ classdef ModelSeparateME < Hyperbolic1MagEffect
 		function obj = ModelSeparateME(data, varargin)
 			obj = obj@Hyperbolic1MagEffect(data, varargin{:});
 			obj.modelFilename = 'separateME';
-			
 			% MUST CALL THIS METHOD AT THE END OF ALL MODEL-SUBCLASS CONSTRUCTORS
 			obj = obj.conductInference();
 		end

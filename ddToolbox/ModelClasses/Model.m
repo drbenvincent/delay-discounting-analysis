@@ -10,6 +10,7 @@ classdef (Abstract) Model
 	
 	%% Private properties
 	properties (SetAccess = protected, GetAccess = protected)
+        dfClass % function handle to DiscountFunction class
 		samplerType
 		savePath
 		discountFuncType
@@ -199,14 +200,14 @@ classdef (Abstract) Model
 			
 			% plot -------------------------------------------------------------
 			% TODO: pass in obj.alldata or obj.pdata rather than all these args
-			obj.plotFuncs.clusterPlotFunc(...
-				obj.coda,...
-				obj.data,...
-				[1 0 0],...
-				obj.pointEstimateType,...
-				obj.savePath,...
-				obj.modelFilename,...
-				p.Results.shouldExportPlots)
+% 			obj.plotFuncs.clusterPlotFunc(...
+% 				obj.coda,...
+% 				obj.data,...
+% 				[1 0 0],...
+% 				obj.pointEstimateType,...
+% 				obj.savePath,...
+% 				obj.modelFilename,...
+% 				p.Results.shouldExportPlots)
 			
 			
 			%% Plots, one per participant ======================================
@@ -215,14 +216,18 @@ classdef (Abstract) Model
 			% 			partial = @(x) figExperiment(x, obj.experimentFigPlotFuncs);
 			% 			arrayfun(partial, obj.pdata)
 			% plot -------------------------------------------------------------
-			for p=1:numel(obj.pdata)
-				figExperiment(obj.experimentFigPlotFuncs, obj.pdata(p));
-			end
+% 			for p=1:numel(obj.pdata)
+% 				figExperiment(obj.experimentFigPlotFuncs, obj.pdata(p));
+% 			end
+
+			%% NEW CODE TO DO EXPERIMENT PLOTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			obj.experimentPlot();
 			
-			% plot -------------------------------------------------------------
+			
+			% plot --------------------------------------------------------
 			arrayfun(@plotTriPlotWrapper, obj.pdata)
 			
-			% plot -------------------------------------------------------------
+			% plot --------------------------------------------------------
 			arrayfun(@figPosteriorPrediction, obj.pdata)
 		end
 		
@@ -256,7 +261,7 @@ classdef (Abstract) Model
 		
 	end
 	
-	
+    
 	
 	
 	
@@ -323,7 +328,7 @@ classdef (Abstract) Model
 			% gather cross-experiment data for univariate stats
 			alldata.shouldExportPlots = obj.shouldExportPlots;
 			alldata.variables	= obj.varList.participantLevel;
-			alldata.IDnames		= obj.data.getIDnames('all');
+			alldata.filenames		= obj.data.getIDnames('all');
 			alldata.savePath	= obj.savePath;
 			alldata.modelFilename	= obj.modelFilename;
 			for v = alldata.variables

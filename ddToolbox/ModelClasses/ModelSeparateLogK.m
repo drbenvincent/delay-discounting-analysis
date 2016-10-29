@@ -23,7 +23,7 @@ classdef ModelSeparateLogK < Hyperbolic1
 				initialParams(chain).alpha = abs(normrnd(0.01,10,[nExperimentFiles,1]));
 			end
 		end
-
+		
 	end
 	
 end

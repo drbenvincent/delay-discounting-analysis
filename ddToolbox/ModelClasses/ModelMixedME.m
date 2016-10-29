@@ -7,7 +7,6 @@ classdef ModelMixedME < Hyperbolic1MagEffect
 		function obj = ModelMixedME(data, varargin)
 			obj = obj@Hyperbolic1MagEffect(data, varargin{:});
 			obj.modelFilename = 'mixedME';
-
 			obj = obj.addUnobservedParticipant('GROUP');
 
 			% MUST CALL THIS METHOD AT THE END OF ALL MODEL-SUBCLASS CONSTRUCTORS
