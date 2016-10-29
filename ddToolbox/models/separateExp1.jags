@@ -1,0 +1,29 @@
+model{
+
+# TODO: CURRENTLY GUESSTIMATING THESE HYPERPARAMETERS!
+K_MEAN      <- 0.001
+K_PRECISION <- 1/(0.001)
+
+
+for (p in 1:(nRealExperimentFiles)){
+	k[p]        ~ dnorm(K_MEAN, K_PRECISION) T(0,)
+    epsilon[p]  ~ dbeta(1.1 , 10.9) T(,0.5)
+	alpha[p]    ~ dexp(0.01)
+}
+
+#  neither phi() nor exp() can be vectorised
+
+for (t in 1:length(ID)) {
+	# calculate present subjective value for each reward
+    VA[t] <- A[t] / (exp(-k[ID[t]]*DA[t]))
+	VB[t] <- B[t] / (exp(-k[ID[t]]*DB[t]))
+
+	# Psychometric function
+	P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * phi( (VB[t]-VA[t]) / alpha[ID[t]] )
+
+	# response likelihood
+	R[t]         ~ dbern(P[t]) # likelihood of actual response
+	Rpostpred[t] ~ dbern(P[t]) # posterior predicted response
+}
+
+}

@@ -1,0 +1,37 @@
+model{
+
+groupKmu      ~ dnorm( 0.005 ,1/(0.001^2))
+groupKsigma    ~ dgamma(0.1,0.1)
+
+# comparison acuity (alpha)
+groupALPHAmu        ~ dnorm(0,1/(100^2)) T(0,)
+groupALPHAsigma     ~ dunif(0,100) 
+
+# error rates (epsilon)
+groupW          ~ dbeta(1.1, 10.9)  # mode for lapse rate
+groupKminus2    ~ dgamma(0.5,0.5) # concentration parameter ## UPDATED SINCE PAPER
+groupK          <- groupKminus2+2
+
+for (p in 1:(nRealExperimentFiles+1)){ # +1 for unobserved participant
+	# small constant (0.0001) added below to avoid numerical problems.
+	k[p]        ~ dnorm(groupKmu, 1/((groupKsigma+0.0001)^2)) T(0,)
+	epsilon[p]  ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
+	alpha[p]    ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
+}
+
+#  neither phi() nor exp() can be vectorised
+
+for (t in 1:length(ID)) {
+	# calculate present subjective value for each reward
+	VA[t] <- A[t] / (exp(-k[ID[t]]*DA[t]))
+	VB[t] <- B[t] / (exp(-k[ID[t]]*DB[t]))
+
+	# Psychometric function
+	P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * phi( (VB[t]-VA[t]) / alpha[ID[t]] )
+
+	# response likelihood
+	R[t]         ~ dbern(P[t]) # likelihood of actual response
+	Rpostpred[t] ~ dbern(P[t]) # posterior predicted response
+}
+
+}
