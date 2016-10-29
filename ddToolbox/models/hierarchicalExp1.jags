@@ -23,8 +23,8 @@ for (p in 1:(nRealExperimentFiles+1)){ # +1 for unobserved participant
 
 for (t in 1:length(ID)) {
 	# calculate present subjective value for each reward
-	VA[t] <- A[t] / (exp(-k[ID[t]]*DA[t]))
-	VB[t] <- B[t] / (exp(-k[ID[t]]*DB[t]))
+	VA[t] <- A[t] * (exp(-k[ID[t]]*DA[t]))
+	VB[t] <- B[t] * (exp(-k[ID[t]]*DB[t]))
 
 	# Psychometric function
 	P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * phi( (VB[t]-VA[t]) / alpha[ID[t]] )
