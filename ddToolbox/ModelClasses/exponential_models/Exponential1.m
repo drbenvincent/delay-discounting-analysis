@@ -38,16 +38,11 @@ classdef (Abstract) Exponential1 < Model
 				latex_fig(12, 10, 3)
 
 				%%  Set up psychometric function
-				
-				% TODO: easier object construction by passing in structure of
-				% params
-				psycho = PsychometricFunction();
-				samples = obj.coda.getSamplesAtIndex(ind,{'alpha','epsilon'});
-				psycho.addSamples('alpha', samples.alpha )
-				psycho.addSamples('epsilon', samples.epsilon )
+				psycho = PsychometricFunction('samples', obj.coda.getSamplesAtIndex(ind,{'alpha','epsilon'}));
 				
 				%% plot bivariate distribution of alpha, epsilon
 				subplot(1,4,1)
+				samples = obj.coda.getSamplesAtIndex(ind,{'alpha','epsilon'});
 				mcmc.BivariateDistribution(...
 					samples.epsilon(:),...
 					samples.alpha(:),...
@@ -62,9 +57,7 @@ classdef (Abstract) Exponential1 < Model
 				psycho.plot()
 				
 				%% Set up discount function
-				discountFunction = DF_Exponential1();
-				samples = obj.coda.getSamplesAtIndex(ind,{'k'});
-				discountFunction.addSamples('k', samples.k )
+				discountFunction = DF_Exponential1('samples', obj.coda.getSamplesAtIndex(ind,{'k'}) );
 				
 				%% plot distribution of k
 				subplot(1,4,3)

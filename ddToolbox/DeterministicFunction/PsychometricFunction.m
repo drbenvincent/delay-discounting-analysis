@@ -3,11 +3,25 @@ classdef PsychometricFunction < DeterministicFunction
 	
 	methods (Access = public)
 		
-		function obj = PsychometricFunction()
+		function obj = PsychometricFunction(varargin)
             obj = obj@DeterministicFunction();
 			
+			% create Stochastic objects
 			obj.theta.alpha = Stochastic('alpha');
 			obj.theta.epsilon = Stochastic('epsilon');
+			
+			% Input parsing ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			p = inputParser;
+			p.StructExpand = false;
+			p.addParameter('samples',struct(), @isstruct)
+			p.parse(varargin{:});
+			
+			fieldnames = fields(p.Results.samples);
+			% Add any provided samples
+			for n = 1:numel(fieldnames)
+				obj.theta.(fieldnames{n}).addSamples( p.Results.samples.(fieldnames{n}) )
+			end
+			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		end
         
         function plot(obj)

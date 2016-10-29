@@ -31,14 +31,9 @@ classdef (Abstract) Hyperbolic1MagEffect < Model
 				latex_fig(12, 10, 3)
 
 				%%  Set up psychometric function
-				
-				% TODO: easier object construction by passing in structure of
-				% params
-				psycho = PsychometricFunction();
 				samples = obj.coda.getSamplesAtIndex(ind,{'alpha','epsilon'});
-				psycho.addSamples('alpha', samples.alpha )
-				psycho.addSamples('epsilon', samples.epsilon )
-				
+				psycho = PsychometricFunction('samples', samples);
+			
 				%% plot bivariate distribution of alpha, epsilon
 				subplot(1,5,1)
 				mcmc.BivariateDistribution(...
@@ -55,11 +50,9 @@ classdef (Abstract) Hyperbolic1MagEffect < Model
 				psycho.plot()
 				
 				%% Set up magnitude effect function
-				me = MagnitudeEffectFunction();
 				samples = obj.coda.getSamplesAtIndex(ind,{'m','c'});
-				me.addSamples('m', samples.m )
-				me.addSamples('c', samples.c )
-				
+				me = MagnitudeEffectFunction('samples', samples);
+
 				%% plot (m,c) distribution
 				subplot(1,5,3)
 				% TODO: replace with new bivariate class
@@ -77,10 +70,9 @@ classdef (Abstract) Hyperbolic1MagEffect < Model
 				me.plot()
 				
 				%% Set up and plot discount surface
-				discountFunction = DF_HyperbolicMagnitudeEffect();
 				samples = obj.coda.getSamplesAtIndex(ind,{'m','c'});
-				discountFunction.addSamples('m', samples.m )
-				discountFunction.addSamples('c', samples.m  )
+				discountFunction = DF_HyperbolicMagnitudeEffect('samples', samples );
+				
 				subplot(1,5,5)
 				discountFunction.plot()
 				

@@ -3,11 +3,24 @@ classdef MagnitudeEffectFunction < DeterministicFunction
 	
 	methods (Access = public)
 		
-		function obj = MagnitudeEffectFunction()
+		function obj = MagnitudeEffectFunction(varargin)
             obj = obj@DeterministicFunction();
 			
 			obj.theta.m = Stochastic('m');
 			obj.theta.c = Stochastic('c');
+			
+			% Input parsing ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			p = inputParser;
+			p.StructExpand = false;
+			p.addParameter('samples',struct(), @isstruct)
+			p.parse(varargin{:});
+			
+			fieldnames = fields(p.Results.samples);
+			% Add any provided samples
+			for n = 1:numel(fieldnames)
+				obj.theta.(fieldnames{n}).addSamples( p.Results.samples.(fieldnames{n}) )
+			end
+			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		end
         
         function plot(obj)

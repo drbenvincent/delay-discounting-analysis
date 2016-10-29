@@ -41,13 +41,8 @@ classdef (Abstract) Hyperbolic1 < Model
 				latex_fig(12, 10, 3)
 
 				%%  Set up psychometric function
-				
-				% TODO: easier object construction by passing in structure of
-				% params
-				psycho = PsychometricFunction();
 				samples = obj.coda.getSamplesAtIndex(ind,{'alpha','epsilon'});
-				psycho.addSamples('alpha', samples.alpha )
-				psycho.addSamples('epsilon', samples.epsilon )
+				psycho = PsychometricFunction('samples', samples);
 				
 				%% plot bivariate distribution of alpha, epsilon
 				subplot(1,4,1)
@@ -67,9 +62,8 @@ classdef (Abstract) Hyperbolic1 < Model
 				psycho.plot()
 				
 				%% Set up log k discount function
-				discountFunction = DF_Hyperbolic1();
 				samples = obj.coda.getSamplesAtIndex(ind,{'logk'});
-				discountFunction.addSamples('logk', samples.logk )
+				discountFunction = DF_Hyperbolic1('samples', samples);
 				
 				%% plot log(k) distribution
 				subplot(1,4,3)
@@ -78,7 +72,6 @@ classdef (Abstract) Hyperbolic1 < Model
 				%% plot discount function
 				subplot(1,4,4)
 				discountFunction.plot()
-				
 				
 				if obj.shouldExportPlots
 					myExport(obj.savePath, 'expt',...

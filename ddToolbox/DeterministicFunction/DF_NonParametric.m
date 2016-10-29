@@ -45,7 +45,11 @@ classdef DF_NonParametric < DiscountFunction
             % 	% use new array broadcasting in 2016b
             % 	discountFraction = exp( - obj.theta.k.samples .* x.delay );
             % end
-        end
+		end
+		
+		function calcAUC(obj)
+			
+		end
         
 	end
 
