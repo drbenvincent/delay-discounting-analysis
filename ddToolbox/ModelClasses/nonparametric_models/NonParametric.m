@@ -51,17 +51,19 @@ classdef (Abstract) NonParametric < Model
 
 			close all
 
+			% EXPERIMENT PLOT ==================================================
+            obj.experimentPlot();
+			
             % POSTERIOR PREDICTION PLOTS =======================================
 			arrayfun(@figPosteriorPrediction, obj.pdata) % posterior prediction plot
 			
 			%% TODO...
-            
             % FOREST PLOT OF AUC VALUES ========================================
+            % TODO: Think about plotting this with GRAMM
+            % https://github.com/piermorel/gramm
+            %
             %figUnivariateSummary(alldata)
-
-            % EXPERIMENT PLOT ==================================================
-            obj.experimentPlot();
-
+			
 		end
         
         
@@ -101,6 +103,7 @@ classdef (Abstract) NonParametric < Model
                 %% plot distribution of AUC
                 subplot(1,4,3)
                 discountFunction.AUC.plot()
+				xlim([0 2])
                 
                 %% plot discount function
                 subplot(1,4,4)

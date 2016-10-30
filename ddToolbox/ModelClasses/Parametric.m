@@ -43,8 +43,10 @@ classdef (Abstract) Parametric < Model
 					obj.coda.getStats(obj.pointEstimateType, v{:});
 			end
 			% -------------------------------------------------------------
-			% TODO: this is only appropriate for parametric models
-			figUnivariateSummary(alldata)
+			% TODO: Think about plotting this with GRAMM
+            % https://github.com/piermorel/gramm
+            figUnivariateSummary(alldata)
+            
 			
 			% plot -------------------------------------------------------------
 			% TODO: pass in obj.alldata or obj.pdata rather than all these args

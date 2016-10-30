@@ -25,7 +25,12 @@ for (p in participantIndexList){
 
     # PRIOR OVER DISCOUNT FRACTION
 	for (d in 1:length(uniqueDelays)) {
-		discountFraction[p,d] ~ dnorm( 1, 1/ 1^2) T(0,)
+		
+        # 'safe' prior, centred on 1, with a large variance, but truncated
+        discountFraction[p,d] ~ dnorm( 1, 1/ 1^2) T(0,5)
+        
+        # normal prior (centred on 1) but whose variance increases with delay
+        #discountFraction[p,d] ~ dnorm( 1, 1/(0.000001 + (0.01 * uniqueDelays[d]) )) T(0,5)
 	}
 }
 
