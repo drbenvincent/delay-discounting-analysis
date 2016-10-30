@@ -30,47 +30,70 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
 
 		
 		function plot(obj)
-			x.delay = [1:365];
-			x.reward = [10:100:1000];
+			
+			pointEstimateType = 'median'
+			
+			%% Calculate point estimates
+			mcBivariate = mcmc.BivariateDistribution(...
+				obj.theta.m.samples,...
+				obj.theta.c.samples,...
+				'shouldPlot',false,...
+				'pointEstimateType', pointEstimateType);
+			mc = mcBivariate.(pointEstimateType);
+			m = mc(1);
+			c = mc(2);
             
-			% TODO
-			%discountFraction = obj.evalDiscountFraction(x);
-			%plot(x.delay, discountFraction', 'k')
 			
-			xlabel('$|reward|$', 'interpreter','latex')
-			ylabel('delay $D^B$', 'interpreter','latex')
-			zlabel('discount factor', 'interpreter','latex')
+			% 					try
+			% 			maxlogB = max( abs( plotdata.data.rawdata.B) );
+			% 			maxD = max(plotdata.data.rawdata.DB);
+			% 		catch
+			maxlogB = 100;
+			maxD = 365;
+			% 					end
+		
+					
 			
-			title('** discount surface here **')
-			box off
+			%% x-axis = b
+			% *** TODO: DOCUMENT WHAT THIS DOES ***
+			nIndifferenceLines = 10;
+			pow=1; while maxlogB > 10^pow; pow=pow+1; end
+			logbvec=log(logspace(1, pow, nIndifferenceLines));
+			
+			%% y-axis = d
+			dvec=linspace(0, maxD, 100);
+			
+			%% z-axis (AB)
+			[logB,D] = meshgrid(logbvec,dvec); % create x,y (b,d) grid values
+			k		= exp(m .* logB + c); % magnitude effect
+			AB		= 1 ./ (1 + k.*D); % hyperbolic discount function
+			B = exp(logB);
+			
+			%% PLOT
+			hmesh = mesh(B,D,AB);
+			% shading
+			hmesh.FaceColor		='interp';
+			hmesh.FaceAlpha		=0.7;
+			% edges
+			hmesh.MeshStyle		='column';
+			hmesh.EdgeColor		='k';
+			hmesh.EdgeAlpha		=1;
+			
+			
+			obj.formatAxes(pow)
 		end
         
         
         function discountFraction = eval(obj, x) 
             % When we evaluate, we want to know the discount fraction.
             % Because this is the 1-parameter hyperbolic discount function,
-            % we need to calculate 
-            
+            % we need to calculate a point estimate for (m,c)
 			
-			% Step 1: calculate discount rates, using the
-			% MagnitudeEffectFunction class
-			
-			me = MagnitudeEffectFunction();
-			me.addSamples('m', obj.theta.m.samples )
-			me.addSamples('c', obj.theta.c.samples )
-			
-			rewards = logspace(0,3,100);
-			[k, logk] = me.eval(rewards)
-
-			
-			% TODO...
-            
-            % Calculate discount fraction
         end
         
 	end
     
-    methods (Access = private)
+    methods (Access = protected)
     
         % NOTE: this is the function we want to use in order to calculate discount rate, for a given reward magnitude
         
@@ -86,7 +109,25 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
         
         % function logk = calcLogK_conditional_upon_reward(obj, reward)
         %     [~,logk] = magnitudeEffect(obj, reward)
-        % end
-    end
-
+		% end
+		
+		
+		function formatAxes(obj, pow)
+			box off
+			view([-45, 34])
+			axis vis3d
+			axis tight
+			axis square
+			zlim([0 1])
+			set(gca,'YDir','reverse')
+			set(gca,'XScale','log')
+			set(gca,'XTick',logspace(1,pow,pow-1+1))
+			
+			xlabel('$|reward|$', 'interpreter','latex')
+			ylabel('delay $D^B$', 'interpreter','latex')
+			zlabel('discount factor', 'interpreter','latex')
+		end
+		
+	end
+	
 end
