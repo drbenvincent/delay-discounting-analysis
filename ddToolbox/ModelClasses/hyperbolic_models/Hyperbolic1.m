@@ -1,4 +1,4 @@
-classdef (Abstract) Hyperbolic1 < Model
+classdef (Abstract) Hyperbolic1 < Parametric
 	%Hyperbolic1  Hyperbolic1 is a subclass of Model for examining the 1-parameter hyperbolic discounting function.
 	
 	properties (Access = private)
@@ -8,7 +8,7 @@ classdef (Abstract) Hyperbolic1 < Model
 	methods (Access = public)
 		
 		function obj = Hyperbolic1(data, varargin)
-			obj = obj@Model(data, varargin{:});
+			obj = obj@Parametric(data, varargin{:});
 			
 			obj.dfClass = @DF_Hyperbolic1;
 			
@@ -16,8 +16,8 @@ classdef (Abstract) Hyperbolic1 < Model
 			obj.varList.participantLevel = {'logk','alpha','epsilon'};
 			obj.varList.monitored = {'logk','alpha','epsilon', 'Rpostpred', 'P'};
 			
-			% %% Plotting
-			% obj.plotFuncs.clusterPlotFunc	= @plotLOGKclusters;
+			%% Plotting
+			obj.plotFuncs.clusterPlotFunc	= @plotLOGKclusters;
 			
 		end
 		

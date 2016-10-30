@@ -1,5 +1,4 @@
-classdef (Abstract) Exponential1 < Model
-	%Exponential1  This is a subclass of Model for examining the 1-parameter exponential discounting function.
+classdef (Abstract) Exponential1 < Parametric
 
 	properties (Access = private)
 		getDiscountRate % function handle
@@ -8,7 +7,7 @@ classdef (Abstract) Exponential1 < Model
 	methods (Access = public)
 
 		function obj = Exponential1(data, varargin)
-			obj = obj@Model(data, varargin{:});
+			obj = obj@Parametric(data, varargin{:});
             
             obj.dfClass = @DF_Exponential1;
 
@@ -16,8 +15,8 @@ classdef (Abstract) Exponential1 < Model
 			obj.varList.participantLevel = {'k','alpha','epsilon'};
 			obj.varList.monitored = {'k','alpha','epsilon', 'Rpostpred', 'P'};
 
-			% %% Plotting
-			% obj.plotFuncs.clusterPlotFunc	= @plotExpclusters;
+			%% Plotting
+			obj.plotFuncs.clusterPlotFunc	= @plotExpclusters;
 
 		end
 

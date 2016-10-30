@@ -1,4 +1,4 @@
-classdef (Abstract) Hyperbolic1MagEffect < Model
+classdef (Abstract) Hyperbolic1MagEffect < Parametric
 	%Hyperbolic1MagEffect  Hyperbolic1MagEffect is a subclass of Model for examining the 1-parameter hyperbolic discounting function.
 
     properties (Access = private)
@@ -8,7 +8,7 @@ classdef (Abstract) Hyperbolic1MagEffect < Model
 	methods (Access = public)
 
 		function obj = Hyperbolic1MagEffect(data, varargin)
-			obj = obj@Model(data, varargin{:});
+			obj = obj@Parametric(data, varargin{:});
 
             obj.dfClass = @DF_HyperbolicMagnitudeEffect;
             
@@ -16,8 +16,8 @@ classdef (Abstract) Hyperbolic1MagEffect < Model
 			obj.varList.participantLevel = {'m', 'c','alpha','epsilon'};
 			obj.varList.monitored = {'m', 'c','alpha','epsilon', 'Rpostpred', 'P'};
 
-            % %% Plotting stuff
-			% obj.plotFuncs.clusterPlotFunc	= @plotMCclusters;
+            %% Plotting stuff
+			obj.plotFuncs.clusterPlotFunc	= @plotMCclusters;
 
 		end
 		
