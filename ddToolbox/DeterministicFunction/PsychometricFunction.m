@@ -27,7 +27,14 @@ classdef PsychometricFunction < DeterministicFunction
         function plot(obj)
 			x = [-100:0.5:100];
 			
-			plot(x, obj.eval(x), 'k')
+			try
+				plot(x, obj.eval(x), '-', 'Color',[0.5 0.5 0.5 0.1])
+			catch 
+				% backward compatability
+				plot(x, obj.eval(x), '-', 'Color',[0.5 0.5 0.5])
+			end
+			
+			
 			
 			xlabel('$V^B-V^A$', 'interpreter','latex')
 			ylabel('P(choose delayed)', 'interpreter','latex')

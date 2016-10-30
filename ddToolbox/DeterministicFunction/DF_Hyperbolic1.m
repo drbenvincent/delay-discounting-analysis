@@ -32,8 +32,13 @@ classdef DF_Hyperbolic1 < DiscountFunction
         function plot(obj)
 			x = [1:365];
 			
-			% TODO
-			plot(x, obj.eval(x)', 'k-')
+			try
+				plot(x, obj.eval(x)', '-', 'Color',[0.5 0.5 0.5 0.1])
+			catch
+				% backward compatability
+				plot(x, obj.eval(x)', '-', 'Color',[0.5 0.5 0.5])
+			end
+			
 			
 			xlabel('delay $D^B$', 'interpreter','latex')
 			ylabel('discount factor', 'interpreter','latex')

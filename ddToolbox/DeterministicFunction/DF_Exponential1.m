@@ -33,7 +33,13 @@ classdef DF_Exponential1 < DiscountFunction
 			
 			% TODO
 			discountFraction = obj.eval(x);
-			plot(x.delay, discountFraction', 'k')
+			
+			try
+				plot(x.delay, discountFraction, '-', 'Color',[0.5 0.5 0.5 0.1])
+			catch
+				% backward compatability
+				plot(x.delay, discountFraction, '-', 'Color',[0.5 0.5 0.5])
+			end
 			
 			xlabel('delay $D^B$', 'interpreter','latex')
 			ylabel('discount factor', 'interpreter','latex')

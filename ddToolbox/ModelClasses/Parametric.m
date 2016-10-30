@@ -73,4 +73,8 @@ classdef (Abstract) Parametric < Model
 		
 	end
 	
+	methods (Abstract)
+		experimentPlot(obj)
+	end
+	
 end
