@@ -28,10 +28,10 @@ classdef PsychometricFunction < DeterministicFunction
 			x = [-100:0.5:100];
 			
 			try
-				plot(x, obj.eval(x), '-', 'Color',[0.5 0.5 0.5 0.1])
+				plot(x, obj.eval(x, 'nExamples', 100), '-', 'Color',[0.5 0.5 0.5 0.1])
 			catch 
 				% backward compatability
-				plot(x, obj.eval(x), '-', 'Color',[0.5 0.5 0.5])
+				plot(x, obj.eval(x, 'nExamples', 100), '-', 'Color',[0.5 0.5 0.5])
 			end
 			
 			
@@ -43,16 +43,32 @@ classdef PsychometricFunction < DeterministicFunction
 			axis square
 		end
 		
-        function y = eval(obj, x)
+        function y = eval(obj, x, varargin)
+			
+			p = inputParser;
+			p.addRequired('x', @isnumeric);
+			p.addParameter('nExamples', [], @isscalar);
+			p.parse(x, varargin{:});
+			
+			if ~isempty(p.Results.nExamples)
+				% shuffle the deck and pick the top nExamples
+				shuffledExamples = randperm(p.Results.nExamples);
+				ExamplesToPlot = shuffledExamples([1:p.Results.nExamples]);
+			else
+				ExamplesToPlot = 1:numel(obj.theta.c.samples);
+			end
+			
             if verLessThan('matlab','9.1')
             	y = bsxfun(@plus,...
-            		obj.theta.epsilon.samples,...
+            		obj.theta.epsilon.samples(ExamplesToPlot),...
             		bsxfun(@times, ...
-            		(1-2*obj.theta.epsilon.samples),...
-            		normcdf( bsxfun(@rdivide, x, obj.theta.alpha.samples ) , 0, 1)) );
+            		(1-2*obj.theta.epsilon.samples(ExamplesToPlot)),...
+            		normcdf( bsxfun(@rdivide, x, obj.theta.alpha.samples(ExamplesToPlot) ) , 0, 1)) );
             else
             	% use new array broadcasting in 2016b
-            	y = obj.theta.epsilon.samples + (1-2*obj.theta.epsilon.samples) .* normcdf( (x ./ obj.theta.alpha.samples) , 0, 1);
+            	y = obj.theta.epsilon.samples(ExamplesToPlot)...
+					+ (1-2*obj.theta.epsilon.samples(ExamplesToPlot))...
+					.* normcdf( (x ./ obj.theta.alpha.samples(ExamplesToPlot)) , 0, 1);
             end
         end
         

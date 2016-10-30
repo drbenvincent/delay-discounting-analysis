@@ -29,21 +29,21 @@ classdef DF_Exponential1 < DiscountFunction
 
 		
         function plot(obj)
-			x.delay = [1:365];
+			x = [1:365];
 			
 			% TODO
-			discountFraction = obj.eval(x);
+			discountFraction = obj.eval(x, 'nExamples', 100);
 			
 			try
-				plot(x.delay, discountFraction, '-', 'Color',[0.5 0.5 0.5 0.1])
+				plot(x, discountFraction, '-', 'Color',[0.5 0.5 0.5 0.1])
 			catch
 				% backward compatability
-				plot(x.delay, discountFraction, '-', 'Color',[0.5 0.5 0.5])
+				plot(x, discountFraction, '-', 'Color',[0.5 0.5 0.5])
 			end
 			
 			xlabel('delay $D^B$', 'interpreter','latex')
 			ylabel('discount factor', 'interpreter','latex')
-			set(gca,'Xlim', [0 max(x.delay)])
+			set(gca,'Xlim', [0 max(x)])
 			box off
 			axis square
 		end
@@ -51,19 +51,33 @@ classdef DF_Exponential1 < DiscountFunction
         
 
         
-        function discountFraction = eval(obj, x)
+        function discountFraction = eval(obj, x, varargin)
             % evaluate the discount fraction :
             % - at the delays (x.delays)
             % - given the onj.parameters
-            if verLessThan('matlab','9.1')
-            	discountFraction = (bsxfun(@times,...
-                 exp( - obj.theta.k.samples),...
-                 x.delay) );
-            else
-            	% use new array broadcasting in 2016b
-            	discountFraction = exp( - obj.theta.k.samples .* x.delay );
-            end
-        end
+			
+			p = inputParser;
+			p.addRequired('x', @isnumeric);
+			p.addParameter('nExamples', [], @isscalar);
+			p.parse(x, varargin{:});
+			
+			if ~isempty(p.Results.nExamples)
+				% shuffle the deck and pick the top nExamples
+				shuffledExamples = randperm(p.Results.nExamples);
+				ExamplesToPlot = shuffledExamples([1:p.Results.nExamples]);
+			else
+				ExamplesToPlot = 1:numel(obj.theta.c.samples);
+			end
+			
+			if verLessThan('matlab','9.1')
+				discountFraction = (bsxfun(@times,...
+					exp( - obj.theta.k.samples(ExamplesToPlot)),...
+					x) );
+			else
+				% use new array broadcasting in 2016b
+				discountFraction = exp( - obj.theta.k.samples(ExamplesToPlot) .* x );
+			end
+		end
         
 	end
 
