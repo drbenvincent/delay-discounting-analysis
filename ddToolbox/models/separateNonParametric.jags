@@ -18,13 +18,12 @@
 
 model{
 
-# group-level priors
-alpha   ~ dexp(0.01)
-epsilon ~ dbeta(1.1 , 10.9)
-
-
-# PRIOR OVER DISCOUNT FRACTION
+# priors
 for (p in participantIndexList){
+    epsilon[p]  ~ dbeta(1.1 , 10.9) T(,0.5)
+    alpha[p]    ~ dexp(0.01)
+
+    # PRIOR OVER DISCOUNT FRACTION
 	for (d in 1:length(uniqueDelays)) {
 		discountFraction[p,d] ~ dnorm( 1, 1/ 1^2) T(0,)
 	}
@@ -36,7 +35,8 @@ for (t in 1:length(ID)) {
 	VA[t] <- A[t] # NO DELAY FOR A
 	VB[t] <- (B[t]) * discountFraction[ID[t], delayLookUp[t] ]
 
-	P[t] <- epsilon + (1-2*epsilon) * phi( (VB[t]-VA[t]) / alpha )
+    # Psychometric function
+	P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * phi( (VB[t]-VA[t]) / alpha[ID[t]] )
 
 	R[t]         ~ dbern(P[t]) # likelihood of actual response
 	Rpostpred[t] ~ dbern(P[t]) # posterior predicted response

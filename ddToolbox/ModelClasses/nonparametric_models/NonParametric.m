@@ -60,6 +60,8 @@ classdef (Abstract) NonParametric < Model
 
 
 			% Plot indifference functions for each participant =================
+            % TODO: remove this once DF_NonParametric is sorted
+            % TODO: delete the plotDiscountFunctionNonParametric.m file as we won't need it any more
 			for p=1:obj.data.getNExperimentFiles()
 				% Extract info about a person for plotting purposes
 				personInfo = obj.getExperimentData(p);
@@ -88,9 +90,6 @@ classdef (Abstract) NonParametric < Model
 						'prefix', num2str(p))
 				end
 
-				% 				myExport('discountfunction',...
-				% 					'savePath', obj.savePath,...
-				% 					'prefix', personInfo.participantName)
 			end
             
             
@@ -119,12 +118,64 @@ classdef (Abstract) NonParametric < Model
 
 
             % EXPERIMENT PLOT ==================================================
-            
-            % ie alpha/epsilon . PsychometricFunction . AUC . Discount FunctionName
+            obj.experimentPlot();
             
 
 		end
         
+        
+        function experimentPlot(obj)
+            
+            names = obj.data.getIDnames('all');
+            
+            for ind = 1:numel(names)
+                fh = figure('Name', ['participant: ' names{ind}]);
+                latex_fig(12, 10, 3)
+
+                %%  Set up psychometric function
+                psycho = PsychometricFunction('samples', obj.coda.getSamplesAtIndex(ind,{'alpha','epsilon'}));
+                
+                %% plot bivariate distribution of alpha, epsilon
+                subplot(1,4,1)
+                samples = obj.coda.getSamplesAtIndex(ind,{'alpha','epsilon'});
+                mcmc.BivariateDistribution(...
+                    samples.epsilon(:),...
+                    samples.alpha(:),...
+                    'xLabel','error rate, $\epsilon$',...
+                    'ylabel','comparison accuity, $\alpha$',...
+                    'pointEstimateType',obj.pointEstimateType,...
+                    'plotStyle', 'hist',...
+                    'axisSquare', true);
+                
+                %% Plot the psychometric function
+                subplot(1,4,2)
+                psycho.plot()
+                
+                
+                
+                % TODO: do this once DF_NonParametric is finished
+                
+                %% Set up discount function
+                % discountFunction = DF_Exponential1('samples', obj.coda.getSamplesAtIndex(ind,{'k'}) );
+                
+                %% plot distribution of AUC
+                subplot(1,4,3)
+                % discountFunction.plotParameters()
+                
+                %% plot discount function
+                subplot(1,4,4)
+                % discountFunction.plot()
+                
+                drawnow
+                if obj.shouldExportPlots
+                    myExport(obj.savePath, 'expt',...
+                        'prefix', names{ind},...
+                        'suffix', obj.modelFilename);
+                end
+                
+                close(fh)
+            end
+        end
         
         
         

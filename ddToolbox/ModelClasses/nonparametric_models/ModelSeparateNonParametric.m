@@ -23,6 +23,8 @@ classdef ModelSeparateNonParametric < NonParametric
 
 			for chain = 1:nchains
 				initialParams(chain).discountFraction = unifrnd(0, 2, [nExperimentFiles, nUniqueDelays]);
+                initialParams(chain).epsilon = 0.1 + rand([nExperimentFiles,1])/10;
+                initialParams(chain).alpha = abs(normrnd(0.01,10,[nExperimentFiles,1]));
 			end
 			% TODO: have a function called discountFraction and pass it
 			% into this initialParam maker loop
