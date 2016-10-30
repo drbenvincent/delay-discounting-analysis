@@ -27,19 +27,6 @@ classdef (Abstract) NonParametric < Model
 
         
         function obj = calcDerivedMeasures(obj)
-            
-            
-            
-            % TODO : REMOVE THIS AS ONCE  DF_NonParametric IS DONE !!!!!!!!!!!!!!!!!
-            
-            % Calculate AUC scores
-            for p = 1:obj.data.getNExperimentFiles()
-                obj.AUC_DATA(p).AUCsamples =...
-                 calculateAUC(obj.observedData.uniqueDelays,...
-                 obj.extractDiscountFunctionSamples(p),...
-                 false);
-                obj.AUC_DATA(p).name  = obj.data.getIDnames(p);
-            end
         end
 
     end
@@ -64,72 +51,16 @@ classdef (Abstract) NonParametric < Model
 
 			close all
 
-
-% 			% Plot indifference functions for each participant =================
-%             % TODO: remove this once DF_NonParametric is sorted
-%             % TODO: delete the plotDiscountFunctionNonParametric.m file as we won't need it any more
-% 			for p=1:obj.data.getNExperimentFiles()
-%                 
-%                 
-%             
-% 				figure(1), clf
-% 				latex_fig(16, 14, 4)
-% 				
-% 				% Extract info about a person for plotting purposes
-% 				personInfo = obj.getExperimentData(p);
-%                 
-%                 subplot(1,2,1)
-%                 df = DF_NonParametric('delays',personInfo.delays,...
-%                     'theta', personInfo.dfSamples);
-%                     
-%                 df.plot()
-%                 
-% 
-% 				
-% 
-% 				subplot(1,2,2)
-% 				uni = mcmc.UnivariateDistribution(obj.AUC_DATA(p).AUCsamples,...
-% 					'xLabel', 'AUC');
-% 				xlim([0 2])
-% 				drawnow
-% 
-% 				if obj.shouldExportPlots
-% 					myExport(obj.savePath,...
-% 						'discountfunction',...
-% 						'suffix', obj.modelFilename,...
-% 						'prefix', num2str(p))
-% 				end
-% 
-% 			end
-            
-            
             % POSTERIOR PREDICTION PLOTS =======================================
 			arrayfun(@figPosteriorPrediction, obj.pdata) % posterior prediction plot
-            
-            
-            % AUC CLUSTER PLOT =================================================
-			figure
-			% cluster plot of all AUC values
-			for n=1:numel(obj.AUC_DATA)
-				AUC_SAMPLES(:,n) = obj.AUC_DATA(n).AUCsamples;
-			end
-			mcmc.UnivariateDistribution(AUC_SAMPLES,...
-				'xLabel', 'AUC');
-
-
-
-
-
-
+			
 			%% TODO...
             
             % FOREST PLOT OF AUC VALUES ========================================
             %figUnivariateSummary(alldata)
 
-
             % EXPERIMENT PLOT ==================================================
             obj.experimentPlot();
-            
 
 		end
         
@@ -161,19 +92,15 @@ classdef (Abstract) NonParametric < Model
                 subplot(1,4,2)
                 psycho.plot()
                 
-                
-                
-                % TODO: do this once DF_NonParametric is finished
-                
+                                
                 %% Set up discount function
 				personInfo = obj.getExperimentData(ind);
                 discountFunction = DF_NonParametric('delays',personInfo.delays,...
                     'theta', personInfo.dfSamples);
-                    
-                               
+				
                 %% plot distribution of AUC
                 subplot(1,4,3)
-                % discountFunction.plotParameters()
+                discountFunction.AUC.plot()
                 
                 %% plot discount function
                 subplot(1,4,4)
@@ -205,7 +132,6 @@ classdef (Abstract) NonParametric < Model
 			personStruct.delays = obj.observedData.uniqueDelays;
 			personStruct.dfSamples = obj.extractDiscountFunctionSamples(p);
 			personStruct.data = obj.data.getExperimentData(p);
-			personStruct.AUCsamples = obj.AUC_DATA(p).AUCsamples;
 		end
 
 
