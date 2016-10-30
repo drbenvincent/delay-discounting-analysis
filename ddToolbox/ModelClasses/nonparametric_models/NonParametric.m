@@ -10,32 +10,10 @@ classdef (Abstract) NonParametric < Model
 
 		function obj = NonParametric(data, varargin)
 			obj = obj@Model(data, varargin{:});
-
 			obj.dfClass = @DF_NonParametric;
-
             % Create variables
 			obj.varList.participantLevel = {'discountFraction'};
 			obj.varList.monitored = {'discountFraction', 'alpha', 'epsilon', 'Rpostpred', 'P'};
-
-
-            % Define plotting functions for the participant mult-panel figure
-			obj.experimentFigPlotFuncs{1} = @(plotdata) mcmc.BivariateDistribution(...
-				plotdata.samples.posterior.epsilon,...
-				plotdata.samples.posterior.alpha,...
-				'xLabel','error rate, $\epsilon$',...
-				'ylabel','comparison accuity, $\alpha$',...
-				'pointEstimateType', plotdata.pointEstimateType,...
-				'plotStyle', 'hist');
-
-
-			obj.experimentFigPlotFuncs{2} = @(plotdata) plotPsychometricFunc(plotdata.samples, plotdata.pointEstimateType);
-            
-            % TODO: FIX THIS
-            %obj.experimentFigPlotFuncs{3} = @(personInfo) plotDiscountFunctionNonParametric(personInfo,  [50 95]);
-
-            % Decorate the object with appropriate plot functions
-            obj.plotFuncs.clusterPlotFunc = @() []; % null func
-
 		end
 
 	end
@@ -71,21 +49,17 @@ classdef (Abstract) NonParametric < Model
 			p.addParameter('shouldExportPlots', true, @islogical);
 			p.parse(varargin{:});
 
-			% act on inputs
+            obj.pdata = obj.packageUpDataForPlotting();
+
 			obj.shouldExportPlots = p.Results.shouldExportPlots;
 			for n=1:numel(obj.pdata)
 				obj.pdata(n).shouldExportPlots = p.Results.shouldExportPlots;
 			end
 
 			close all
-			warning('SORT THIS PLOT FUNCTION OUT!')
 
 
-			%% WORKS
-			arrayfun(@figPosteriorPrediction, obj.pdata) % posterior prediction plot
-
-
-			% Plot indifference functions for each participant
+			% Plot indifference functions for each participant =================
 			for p=1:obj.data.getNExperimentFiles()
 				% Extract info about a person for plotting purposes
 				personInfo = obj.getExperimentData(p);
@@ -118,7 +92,13 @@ classdef (Abstract) NonParametric < Model
 				% 					'savePath', obj.savePath,...
 				% 					'prefix', personInfo.participantName)
 			end
-
+            
+            
+            % POSTERIOR PREDICTION PLOTS =======================================
+			arrayfun(@figPosteriorPrediction, obj.pdata) % posterior prediction plot
+            
+            
+            % AUC CLUSTER PLOT =================================================
 			figure
 			% cluster plot of all AUC values
 			for n=1:numel(obj.AUC_DATA)
@@ -127,33 +107,21 @@ classdef (Abstract) NonParametric < Model
 			mcmc.UnivariateDistribution(AUC_SAMPLES,...
 				'xLabel', 'AUC');
 
-			%% DOES NOT WORK
 
-			% 			for p=1:obj.data.getNExperimentFiles()
-			% 				personInfo = obj.getExperimentData(p);
-			% 				plotDiscountFunctionNonParametric(personInfo)
-			% 			end
-			%
-			%
-			% 			%% Plot functions that use data from all participants
-			% 			%figUnivariateSummary( obj.alldata )
-			%
-			%
-			% 			%% Plots, one per participant
-			% 			%arrayfun(@figExperiment, obj.pdata, obj.experimentFigPlotFuncs) % multi-panel fig
-			% 			% TODO: replace this loop with use of partials
-			% 			% 			partial = @(x) figExperiment(x, obj.experimentFigPlotFuncs);
-			% 			% 			arrayfun(partial, obj.pdata)
-			% 			for p=1:numel(obj.pdata)
-			% 				figExperiment(obj.experimentFigPlotFuncs, obj.pdata(p));
-			% 			end
-			%
-			% 			arrayfun(@plotTriPlotWrapper, obj.pdata) % corner plot of posterior
-			%
-			%
-			% 		end
-			%
-			%
+
+
+
+
+			%% TODO...
+            
+            % FOREST PLOT OF AUC VALUES ========================================
+            %figUnivariateSummary(alldata)
+
+
+            % EXPERIMENT PLOT ==================================================
+            
+            % ie alpha/epsilon . PsychometricFunction . AUC . Discount FunctionName
+            
 
 		end
         
@@ -205,8 +173,7 @@ classdef (Abstract) NonParametric < Model
 		% 				end
 		% 			end
 		% 		end
-        
-        
+
         
     end
     

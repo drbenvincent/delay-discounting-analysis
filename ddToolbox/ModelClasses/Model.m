@@ -176,67 +176,6 @@ classdef (Abstract) Model
 		end
 		
 		
-		
-% 		function plot(obj, varargin)
-% 			
-% 			% parse inputs
-% 			p = inputParser;
-% 			p.FunctionName = mfilename;
-% 			p.addParameter('shouldExportPlots', true, @islogical);
-% 			p.parse(varargin{:});
-% 			
-% 			[obj.pdata] = obj.packageUpDataForPlotting();
-% 			
-% 			for n=1:numel(obj.pdata)
-% 				obj.pdata(n).shouldExportPlots = p.Results.shouldExportPlots;
-% 			end
-% 			
-% 			%% Plot functions that use data from all participants ==============
-% 			
-% 			% TODO --------------------------------------------------------
-% 			% gather cross-experiment data for univariate sta
-% 			alldata.shouldExportPlots = p.Results.shouldExportPlots;
-% 			alldata.shouldExportPlots	= obj.shouldExportPlots;
-% 			alldata.variables			= obj.varList.participantLevel;
-% 			alldata.filenames			= obj.data.getIDnames('all');
-% 			alldata.savePath			= obj.savePath;
-% 			alldata.modelFilename		= obj.modelFilename;
-% 			for v = alldata.variables
-% 				alldata.(v{:}).hdi =...
-% 					[obj.coda.getStats('hdi_low',v{:}),... % TODO: ERROR - expecting a vector to be returned
-% 					obj.coda.getStats('hdi_high',v{:})]; % TODO: ERROR - expecting a vector to be returned
-% 				alldata.(v{:}).pointEstVal =...
-% 					obj.coda.getStats(obj.pointEstimateType, v{:});
-% 			end
-% 			% -------------------------------------------------------------
-% 			% TODO: this is only appropriate for parametric models
-% 			figUnivariateSummary(alldata)
-% 			
-% 			% plot -------------------------------------------------------------
-% 			% TODO: pass in obj.alldata or obj.pdata rather than all these args
-% 			obj.plotFuncs.clusterPlotFunc(...
-% 				obj.coda,...
-% 				obj.data,...
-% 				[1 0 0],...
-% 				obj.pointEstimateType,...
-% 				obj.savePath,...
-% 				obj.modelFilename,...
-% 				p.Results.shouldExportPlots)
-% 			
-% 			
-% 			%% Plots, one per participant ======================================
-% 			obj.experimentPlot();
-% 			
-% 			
-% 			% plot --------------------------------------------------------
-% 			arrayfun(@plotTriPlotWrapper, obj.pdata)
-% 			
-% 			% plot --------------------------------------------------------
-% 			arrayfun(@figPosteriorPrediction, obj.pdata)
-% 		end
-		
-		
-		
 		%% Public MIDDLE-MAN METHODS
 		
 		function obj = plotMCMCchains(obj,vars)
@@ -292,45 +231,6 @@ classdef (Abstract) Model
 			observedData = obj.addititional_model_specific_ObservedData(observedData);
 		end
 		
-		
-		function [pdata] = packageUpDataForPlotting(obj)
-			
-			% TODO: This is currently an intermediate step on the journey of code simplification. Really, what we should do is just directly go to participant / group / condition objects, which have their own data and plot methods.
-			
-			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			% Package up all information into data structures to be sent
-			% off to plotting functions.
-			% The idea being we can just pass pdata(n) to a plot function
-			% and it has all the information it needs
-			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			nRealExperiments = obj.data.getNExperimentFiles();
-			nExperimentsIncludingUnobserved = numel(obj.data.getIDnames('all')); % TODO: replace with different get method
-			
-			pdata(1:nExperimentsIncludingUnobserved) = struct; % preallocation
-			for p = 1:nExperimentsIncludingUnobserved
-				% constant for all participants
-				pdata(p).data.totalTrials	= obj.data.getTotalTrials;
-				pdata(p).pointEstimateType	= obj.pointEstimateType;
-				pdata(p).discountFuncType	= obj.discountFuncType;
-				pdata(p).savePath			= obj.savePath;
-				pdata(p).modelFilename		= obj.modelFilename;
-				pdata(p).shouldExportPlots  = obj.shouldExportPlots;
-				
-				% custom for each participant
-				pdata(p).IDname							= obj.data.getIDnames(p);
-				pdata(p).data.trialsForThisParticant	= obj.data.getTrialsForThisParticant(p);
-				pdata(p).data.rawdata					= obj.data.getRawDataTableForParticipant(p);
-				% gather posterior prediction info
-				try
-					pdata(p).postPred					= obj.postPred(p);
-				catch
-					pdata(p).postPred					= [];
-				end
-				pdata(p).samples.posterior	= obj.coda.getSamplesAtIndex(p, obj.varList.participantLevel);
-			end
-			
-		end
-		
 		function obj = calcDerivedMeasures(obj)
 		end
 		
@@ -368,6 +268,46 @@ classdef (Abstract) Model
 			% TODO: Check we need this
 			obj.data = obj.data.add_unobserved_participant(str);	% add name (eg 'GROUP')
 		end
+        
+        
+        function [pdata] = packageUpDataForPlotting(obj)
+            
+            % TODO: This is currently an intermediate step on the journey of code simplification. Really, what we should do is just directly go to participant / group / condition objects, which have their own data and plot methods.
+            
+            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            % Package up all information into data structures to be sent
+            % off to plotting functions.
+            % The idea being we can just pass pdata(n) to a plot function
+            % and it has all the information it needs
+            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            nRealExperiments = obj.data.getNExperimentFiles();
+            nExperimentsIncludingUnobserved = numel(obj.data.getIDnames('all')); % TODO: replace with different get method
+            
+            pdata(1:nExperimentsIncludingUnobserved) = struct; % preallocation
+            for p = 1:nExperimentsIncludingUnobserved
+                % constant for all participants
+                pdata(p).data.totalTrials	= obj.data.getTotalTrials;
+                pdata(p).pointEstimateType	= obj.pointEstimateType;
+                pdata(p).discountFuncType	= obj.discountFuncType;
+                pdata(p).savePath			= obj.savePath;
+                pdata(p).modelFilename		= obj.modelFilename;
+                pdata(p).shouldExportPlots  = obj.shouldExportPlots;
+                
+                % custom for each participant
+                pdata(p).IDname							= obj.data.getIDnames(p);
+                pdata(p).data.trialsForThisParticant	= obj.data.getTrialsForThisParticant(p);
+                pdata(p).data.rawdata					= obj.data.getRawDataTableForParticipant(p);
+                % gather posterior prediction info
+                try
+                    pdata(p).postPred					= obj.postPred(p);
+                catch
+                    pdata(p).postPred					= [];
+                end
+                pdata(p).samples.posterior	= obj.coda.getSamplesAtIndex(p, obj.varList.participantLevel);
+            end
+            
+        end
+        
 		
 	end
 	
@@ -375,6 +315,8 @@ classdef (Abstract) Model
 		
 		function observedData = addititional_model_specific_ObservedData(observedData)
 			% KEEP THIS HERE. IT IS OVER-RIDDEN IN SOME MODEL SUB-CLASSES
+			
+			% TODO: can we move this to NonParamtric abstract class?
 		end
 		
 		function samplerFunction = selectSampler(samplerType)

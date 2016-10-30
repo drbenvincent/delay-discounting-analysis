@@ -1,15 +1,13 @@
 classdef (Abstract) Parametric < Model
-
-    properties (Access = private)
-
+	
+	properties (Access = private)
+		
 	end
-
+	
 	methods (Access = public)
-
+		
 		function obj = Parametric(data, varargin)
 			obj = obj@Model(data, varargin{:});
-
-
 		end
 		
 		
@@ -21,7 +19,7 @@ classdef (Abstract) Parametric < Model
 			p.addParameter('shouldExportPlots', true, @islogical);
 			p.parse(varargin{:});
 			
-			[obj.pdata] = obj.packageUpDataForPlotting();
+			obj.pdata = obj.packageUpDataForPlotting();
 			
 			for n=1:numel(obj.pdata)
 				obj.pdata(n).shouldExportPlots = p.Results.shouldExportPlots;
@@ -71,9 +69,6 @@ classdef (Abstract) Parametric < Model
 			arrayfun(@figPosteriorPrediction, obj.pdata)
 		end
 		
-
 	end
-
 	
-
 end
