@@ -96,42 +96,54 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			p.addRequired('reward', @isnumeric);
 			p.addRequired('index', @isscalar);
 			p.addParameter('plot','true',@islogical)
+			p.addParameter('plot_mode','row',@(x)any(strcmp(x,{'row','compact'})))
 			p.parse(reward, index, varargin{:});
 			
 			
 			% create a magnitide effect object
 			samples = obj.coda.getSamplesAtIndex(index,{'m','c'});
 			magEffect = DF_HyperbolicMagnitudeEffect('samples', samples );
-% 			% Evaluate the function at the values in `reward`
-% 			logk_samples = magEffect.eval(reward);
 			
-			% CREATE A STOCHASTIC OBJECT ARRAY AND PASS THIS BACK
+			% Create an array of Stochastic objects to pass back
 			for n=1:numel(reward)
 				logk(n) = Stochastic('logk');
 				logk_samples = magEffect.eval(reward(n));
 				logk(n).addSamples(logk_samples);
 			end
 			
-			reward = [10, 100, 1000];
-			
+			% Plot logic
 			if p.Results.plot
 				figure
 				
-				N = numel(reward) + 1;
-				subplot_handles = create_subplots(N, 'row');
+				% create a vector of subplot handles
+				switch p.Results.plot_mode
+					case{'row'}
+						latex_fig(16, 15, 4)
+						N = numel(reward) + 1;
+						subplot_handles = create_subplots(N, 'row');
+					case{'compact'}
+						latex_fig(16, 8,4)
+						N = 2;
+						subplot_handles = create_subplots(N, 'row');
+						subplot_handles([2:numel(reward)+1]) = subplot_handles(2);
+				end
 				
 				
-				subplot(subplot_handles(1))
+				
 				% PLOT MAGNITUDE EFFECT -----------------------------------
+				subplot(subplot_handles(1))
 				% TODO: once DF_HyperbolicMagnitudeEffect owns a
 				% MagnitudeEffectFunction object, then we can call it
 				% directly?
 				samples = obj.coda.getSamplesAtIndex(index,{'m','c'});
 				me = MagnitudeEffectFunction('samples',samples);
 				me.plot()
+				
 				% PROCESS REWARD VALUES REQUESTED -------------------------
-				hold on
+				% Loop through rewards requested, plotting to the
+				% appropriate subplot
 				for n=1:numel(reward)
+					hold on
 					% plot vertical line on magnitude effect graph --------
 					subplot(subplot_handles(1))
 					vline(reward(n))
@@ -139,8 +151,11 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 					% plot log(k) distribution ----------------------------
 					subplot(subplot_handles(1+n))
 					logk(n).plot();
-					% TODO: fix equation... it's not showing properly 
-					title( sprintf('P(log(k) | reward = %d)',reward(n)) )
+					% TODO: fix equation... it's not showing properly
+					switch p.Results.plot_mode
+						case{'row'}
+							title( sprintf('P(log(k) | reward = %d)',reward(n)) )
+					end
 				end
 				
 			end
