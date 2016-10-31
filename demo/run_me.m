@@ -59,7 +59,8 @@ function [model] = run_me()
 % If you analysed your data with a model which accounts for the magnitude
 % effect, then you may want to work out what the discount rate, log(k),
 % might be for a given reward magnitude. You can do this by:
-% >> conditionalDiscountRateExample(model)
+% >> logk = model.getLogDiscountRate(100,1) % <-------------TODO: MAKE IMPROVEMENTS 
+% >> logk.plot()							% <-------------TODO: MAKE IMPROVEMENTS 
 %
 % You can get access to samples using code such as the following. They will
 % be returned into a structure:
@@ -102,10 +103,10 @@ model = ModelHierarchicalME(...
 	'sampler', 'jags',...
 	'shouldPlot', 'yes',...
 	'shouldExportPlots', true,...
-	'mcmcParams', struct('nsamples', 1000,...
+	'mcmcParams', struct('nsamples', 10000,...
 						 'nchains', 4,...
-	 					 'nburnin', 100));
-
+	 					 'nburnin', 1000));
+					 
 % NOTE:
 % - you will want to increase the 'nburnin' and 'nsamples' when you are
 % running proper analyses. I have provided small numbers here just to
