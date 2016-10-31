@@ -98,6 +98,7 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
     
         % NOTE: this is the function we want to use in order to calculate discount rate, for a given reward magnitude
        
+		% TODO: THIS SHOULD BE DONE WITH A MagnitudeEffectFunction OBJECT
         function [k,logk] = magnitudeEffect(obj, reward)
 			error('who is calling me')  % TODO: ARE WE EVER CALLING THIS?
             if verLessThan('matlab','9.1')
