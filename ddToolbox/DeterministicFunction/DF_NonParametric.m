@@ -1,6 +1,11 @@
 classdef DF_NonParametric < DiscountFunction
 	%DF_NonParametric The classic 1-parameter discount function
 
+	
+	% TODO: I'm not convinced that this is the right place in the
+	% inheritance hierarchy... the non-parametric functions don't have an
+	% eval() method in the same way that the parametric discount functions
+	% do.
 	properties
 		delays   % vector of delays
         AUC      % A Stochastic object
@@ -55,9 +60,6 @@ classdef DF_NonParametric < DiscountFunction
 			
 		end
         
-
-        function eval(obj)
-		end
 		
 		
 		function Z = calcAUC(obj)
@@ -84,6 +86,13 @@ classdef DF_NonParametric < DiscountFunction
 				Z(s) = trapz(x,y(s,:));
 			end
 	
+		end
+		
+	end
+	
+	methods (Static)
+		
+		function function_evaluation()
 		end
 		
 	end

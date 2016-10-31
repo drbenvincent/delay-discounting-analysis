@@ -50,6 +50,8 @@ classdef MagnitudeEffectFunction < DeterministicFunction
             
             set(gca,'XScale','log')
             set(gca,'YScale','log')
+			set(gca,'XTick',logspace(1,6,6))
+			set(gca,'YTick',logspace(-4,0,5))
 			axis tight
 			
 			xlabel('reward magnitude', 'interpreter','latex')
