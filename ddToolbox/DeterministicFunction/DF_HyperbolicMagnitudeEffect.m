@@ -97,8 +97,9 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
     methods (Access = protected)
     
         % NOTE: this is the function we want to use in order to calculate discount rate, for a given reward magnitude
-        
+       
         function [k,logk] = magnitudeEffect(obj, reward)
+			error('who is calling me')  % TODO: ARE WE EVER CALLING THIS?
             if verLessThan('matlab','9.1')
                 logk = bsxfun(@plus, bsxfun(@times, paramValues.m,log(reward)) , paramValues.c);
             else
@@ -131,15 +132,20 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
 		
 	end
 	
+	
 	methods (Static)
 		
-% 		function eval(x)
-% 			% When we evaluate, we want to know the discount fraction.
-% 			% Because this is the 1-parameter hyperbolic discount function,
-% 			% we need to calculate a point estimate for (m,c)
-% 			
-% 		end
+		function logk = function_evaluation(x, theta, ExamplesToPlot)
+			if verLessThan('matlab','9.1')
+				logk = bsxfun(@plus, bsxfun(@times, theta.m.samples(ExamplesToPlot), log(x)) , theta.c.samples(ExamplesToPlot));
+			else
+				% use new array broadcasting in 2016b
+				logk = theta.m.samples(ExamplesToPlot) * log(x) + theta.c.samples(ExamplesToPlot);
+			end
+			%k = exp(logk);
+		end
 		
 	end
+	
 	
 end

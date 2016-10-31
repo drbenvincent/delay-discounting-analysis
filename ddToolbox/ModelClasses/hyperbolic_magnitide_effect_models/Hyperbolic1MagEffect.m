@@ -87,6 +87,28 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 		end
 		
 
+		% MIDDLE-MAN METHOD
+		function logk = getLogDiscountRate(obj, reward, index, varargin)
+			% for models with magnitude effect, we might want to ask for
+			% what the log(k) values are for given reward values
+			p = inputParser;
+			p.FunctionName = mfilename;
+			p.addRequired('reward', @isnumeric);
+			p.addRequired('index', @isscalar);
+			p.parse(reward, index, varargin{:});
+			
+			
+			% create a magnitide effect object
+			samples = obj.coda.getSamplesAtIndex(index,{'m','c'});
+			magEffect = DF_HyperbolicMagnitudeEffect('samples', samples );
+			% Evaluate the function at the values in `reward`
+			logk_samples = magEffect.eval(reward);
+			
+			% CREATE A STOCHASTIC OBJECT AND PASS THIS BACK
+			
+			logk = Stochastic('logk');
+			logk.addSamples(logk_samples);
+		end
 	end
 
 	
