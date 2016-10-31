@@ -92,6 +92,8 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 	
 	methods (Abstract)
 		initialiseChainValues
-    end
+	end
+	
+	
 
 end

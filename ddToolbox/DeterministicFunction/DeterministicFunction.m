@@ -2,6 +2,7 @@ classdef (Abstract) DeterministicFunction
 	%DeterministicFunction A class to deal with deterministic functions with parameters that we have a distribution of samples over.
 	properties
 		theta % Stochastic objects (or object array)
+		nSamples % Scalar. Number of samples we have
 	end
 	
 	properties (Access = private)
@@ -18,6 +19,12 @@ classdef (Abstract) DeterministicFunction
 		
 		function obj = addSamples(obj, paramName, samples)
 			obj.theta.(paramName).addSamples(samples);
+			
+			% TODO: check we have same number samples coming in over all
+			% the variables
+			
+			% define the number of samples
+			obj.nSamples = numel(samples);
 		end
 		
 		function plotParameters(obj)
@@ -36,7 +43,12 @@ classdef (Abstract) DeterministicFunction
     
     methods (Abstract)
 		plot(obj)
-		discountFraction = eval(obj, x)
+		%discountFraction = eval(obj, x)
+		%function_evaluation(obj);
+	end
+	
+	 methods (Abstract, Static)
+		function_evaluation();
 	end
 	
 	methods (Access = protected)
@@ -78,6 +90,34 @@ classdef (Abstract) DeterministicFunction
 			set(gca,'Layer','top');
 			xlabel(obj.name, 'interpreter', 'latex')
 		end
+		
+		
+		function y = eval(obj, x, varargin)
+			p = inputParser;
+			p.addRequired('x', @isnumeric);
+			p.addParameter('nExamples', [], @isscalar);
+			p.parse(x, varargin{:});
+			
+			
+			% TODO: extract this into a "getShuffledValues" utility
+			% function.
+			%% create a vector of indexes into the samples to evaluate
+			n_samples_requested = p.Results.nExamples;
+			n_samples_got = obj.nSamples;
+			n_samples_to_get = min([n_samples_requested n_samples_got]);
+			if ~isempty(n_samples_requested)
+				% shuffle the deck and pick the top nExamples
+				shuffledExamples = randperm(n_samples_to_get);
+				ExamplesToPlot = shuffledExamples([1:n_samples_to_get]);
+			else
+				ExamplesToPlot = 1:n_samples_to_get;
+			end
+			
+			%% Do the function evaluation
+			y = obj.function_evaluation(x, obj.theta, ExamplesToPlot);
+		end
+		
+		
 		
 	end
 end

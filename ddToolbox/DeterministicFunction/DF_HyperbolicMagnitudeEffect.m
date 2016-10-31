@@ -31,6 +31,12 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
 		
 		function plot(obj)
 			
+			% don't plot if we've been given NaN's
+			if any(isnan(obj.theta.m.samples))
+				warning('Not plotting due to NaN''s')
+				return
+			end
+			
 			pointEstimateType = 'median'
 			
 			%% Calculate point estimates
@@ -84,12 +90,7 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
 		end
         
         
-        function discountFraction = eval(obj, x) 
-            % When we evaluate, we want to know the discount fraction.
-            % Because this is the 1-parameter hyperbolic discount function,
-            % we need to calculate a point estimate for (m,c)
-			
-        end
+
         
 	end
     
@@ -127,6 +128,17 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
 			ylabel('delay $D^B$', 'interpreter','latex')
 			zlabel('discount factor', 'interpreter','latex')
 		end
+		
+	end
+	
+	methods (Static)
+		
+% 		function eval(x)
+% 			% When we evaluate, we want to know the discount fraction.
+% 			% Because this is the 1-parameter hyperbolic discount function,
+% 			% we need to calculate a point estimate for (m,c)
+% 			
+% 		end
 		
 	end
 	

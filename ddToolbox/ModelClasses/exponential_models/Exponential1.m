@@ -56,15 +56,25 @@ classdef (Abstract) Exponential1 < Parametric
 				psycho.plot()
 				
 				%% Set up discount function
-				discountFunction = DF_Exponential1('samples', obj.coda.getSamplesAtIndex(ind,{'k'}) );
+				ksamples = obj.coda.getSamplesAtIndex(ind,{'k'});
+				% don't plot if we don't have any samples. This is expected
+				% to happen if we are currently looking at the group-level
+				% unobserved participant and we are analysing a model
+				% without group level inferences (ie the mixed or separate
+				% models)
+				discountFunction = DF_Exponential1('samples', ksamples );
 				
-				%% plot distribution of k
-				subplot(1,4,3)
-				discountFunction.plotParameters()
-				
-				%% plot discount function
-				subplot(1,4,4)
-				discountFunction.plot()
+				% TODO: this checking needs to be implemented in a
+				% smoother, more robust way
+				if ~isempty(ksamples) || ~any(isnan(ksamples))
+					%% plot distribution of k
+					subplot(1,4,3)
+					discountFunction.plotParameters()
+					
+					%% plot discount function
+					subplot(1,4,4)
+					discountFunction.plot()
+				end
 				
 				
 				if obj.shouldExportPlots

@@ -26,10 +26,17 @@ classdef MagnitudeEffectFunction < DeterministicFunction
         function plot(obj)
 			x = logspace(0,3,100);
 			
+			% don't plot if we've been given NaN's
+			if any(isnan(obj.theta.m.samples))
+				warning('Not plotting due to NaN''s')
+				return
+			end
+			
+			
 			% when plotting, we don't want to evaluate and plot ALL samples
 			% of the parameters. Instead we will randomly select some
 			
-            [k, logk] = obj.eval(x, 'nExamples', 100);
+            [k] = obj.eval(x, 'nExamples', 100);
             
 			try
 				plot(x, k, '-', 'Color',[0.5 0.5 0.5 0.1])
@@ -53,33 +60,52 @@ classdef MagnitudeEffectFunction < DeterministicFunction
 			axis square
 		end
 		
-        function [k, logk] = eval(obj, x, varargin)
-			
-			p = inputParser;
-			p.addRequired('x', @isnumeric);
-			p.addParameter('nExamples', [], @isscalar);
-			p.parse(x, varargin{:});
-			
-			if ~isempty(p.Results.nExamples)
-				% shuffle the deck and pick the top nExamples
-				shuffledExamples = randperm(p.Results.nExamples);
-				ExamplesToPlot = shuffledExamples([1:p.Results.nExamples]);
-			else
-				ExamplesToPlot = 1:numel(obj.theta.c.samples);
-			end
-
+%         function [k, logk] = eval(obj, x, varargin)
+% 			
+% 			p = inputParser;
+% 			p.addRequired('x', @isnumeric);
+% 			p.addParameter('nExamples', [], @isscalar);
+% 			p.parse(x, varargin{:});
+% 			
+% 			n_samples_requested = p.Results.nExamples;
+% 			n_samples_got = numel(obj.theta.c.samples);
+% 			n_samples_to_get = min([n_samples_requested n_samples_got]);
+% 			if ~isempty(n_samples_requested)
+% 				% shuffle the deck and pick the top nExamples
+% 				shuffledExamples = randperm(n_samples_requested);
+% 				ExamplesToPlot = shuffledExamples([1:n_samples_to_get]);
+% 			else
+% 				ExamplesToPlot = 1:n_samples_to_get;
+% 			end
+% 
+% 			% x = reward
+%             if verLessThan('matlab','9.1')
+%                 logk = bsxfun(@plus, bsxfun(@times, obj.theta.m.samples(ExamplesToPlot), log(x)) , obj.theta.c.samples(ExamplesToPlot));
+%             else
+%                 % use new array broadcasting in 2016b
+%                 logk = (obj.theta.m.samples(ExamplesToPlot) .* log(x)) + obj.theta.c.samples(ExamplesToPlot);
+%             end
+%             logk = logk';
+%             k = exp(logk);
+%         end
+        
+	end
+	
+		methods (Static)
+		
+		function k = function_evaluation(x, theta, ExamplesToPlot)
 			% x = reward
             if verLessThan('matlab','9.1')
-                logk = bsxfun(@plus, bsxfun(@times, obj.theta.m.samples(ExamplesToPlot), log(x)) , obj.theta.c.samples(ExamplesToPlot));
+                logk = bsxfun(@plus, bsxfun(@times, theta.m.samples(ExamplesToPlot), log(x)) , theta.c.samples(ExamplesToPlot));
             else
                 % use new array broadcasting in 2016b
-                logk = (obj.theta.m.samples(ExamplesToPlot) .* log(x)) + obj.theta.c.samples(ExamplesToPlot);
+                logk = (theta.m.samples(ExamplesToPlot) .* log(x)) + theta.c.samples(ExamplesToPlot);
             end
             logk = logk';
             k = exp(logk);
-        end
-        
-    end
+		end
+		
+	end
 
 	
 end
