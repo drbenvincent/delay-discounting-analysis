@@ -1,4 +1,4 @@
-classdef test_ModelSeparateNonParametric < matlab.unittest.TestCase
+classdef test_ModelNonParametric < matlab.unittest.TestCase
 	% Test the example code (run_me.m) I've provided to demonstrate using the
 	% software.
 
