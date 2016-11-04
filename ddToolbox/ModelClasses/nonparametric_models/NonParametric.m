@@ -122,7 +122,7 @@ classdef (Abstract) NonParametric < Model
         
         
         
-        function personStruct = getExperimentData(obj, p)
+		function personStruct = getExperimentData(obj, p)
 			% Create a structure with all the useful info about a person
 			% p = person number
 			participantName = obj.data.getIDnames(p);
@@ -135,6 +135,27 @@ classdef (Abstract) NonParametric < Model
 			personStruct.delays = obj.observedData.uniqueDelays;
 			personStruct.dfSamples = obj.extractDiscountFunctionSamples(p);
 			personStruct.data = obj.data.getExperimentData(p);
+			
+			% TODO: THIS IS A BOTCH ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			% the model currently assumes all participants have been
+			% tested on the same set of delays. But this is not
+			% necessarily true. So here we need to exclude inferences
+			% about discount fractions for delays that this person was
+			% never tested on.
+			
+			% want to remove:
+			% - columns of personStruct.dfSamples
+			% - personStruct.delays
+			% where this person was not tested on this delay
+			
+			temp = obj.data.getRawDataTableForParticipant(p);
+			delays_tested = unique(temp.DB);
+			
+			keep = ismember(personStruct.delays, delays_tested);
+			
+			personStruct.delays = personStruct.delays(keep);
+			personStruct.dfSamples = personStruct.dfSamples(:,keep);
+			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		end
 
 
