@@ -188,6 +188,21 @@ classdef (Abstract) NonParametric < Model
 		% 			end
 		% 		end
 
+		
+		function [auc] = getAUC(obj)
+			% return AUC measurements. 
+			% This will return an object array of stocastic objects
+			names = obj.data.getIDnames('all');
+
+			for ind = 1:numel(names)
+				personInfo = obj.getExperimentData(ind);
+				discountFunction = DF_NonParametric('delays',personInfo.delays,...
+					'theta', personInfo.dfSamples);
+				
+				% append to object array
+				auc(ind) = discountFunction.AUC;
+			end
+		end
         
     end
     
