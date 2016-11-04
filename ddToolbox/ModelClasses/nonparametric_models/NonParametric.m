@@ -12,8 +12,8 @@ classdef (Abstract) NonParametric < Model
 			obj = obj@Model(data, varargin{:});
 			obj.dfClass = @DF_NonParametric;
             % Create variables
-			obj.varList.participantLevel = {'discountFraction'};
-			obj.varList.monitored = {'discountFraction', 'alpha', 'epsilon', 'Rpostpred', 'P'};
+			obj.varList.participantLevel = {'Rstar'};
+			obj.varList.monitored = {'Rstar', 'alpha', 'epsilon', 'Rpostpred', 'P'};
 		end
 
 	end
@@ -52,7 +52,8 @@ classdef (Abstract) NonParametric < Model
 			close all
 
 			% EXPERIMENT PLOT ==================================================
-            obj.experimentPlot();
+            obj.psychometric_plots();
+			obj.experimentPlot();
 			
             % POSTERIOR PREDICTION PLOTS =======================================
 			arrayfun(@figPosteriorPrediction, obj.pdata) % posterior prediction plot
@@ -90,9 +91,9 @@ classdef (Abstract) NonParametric < Model
                     'plotStyle', 'hist',...
                     'axisSquare', true);
                 
-                %% Plot the psychometric function
-                subplot(1,4,2)
-                psycho.plot()
+%                 %% Plot the psychometric function
+%                 subplot(1,4,2)
+%                 psycho.plot()
                 
                                 
                 %% Set up discount function
@@ -118,8 +119,39 @@ classdef (Abstract) NonParametric < Model
                 
                 close(fh)
             end
-        end
-        
+		end
+		
+		function psychometric_plots(obj)
+			names = obj.data.getIDnames('all');
+			for ind = 1:numel(names) % loop over files
+				fh = figure('Name', ['participant: ' names{ind}]);
+                latex_fig(12, 14, 3)
+				
+				personStruct = getExperimentData(obj, ind);
+				
+				for d = 1:numel(personStruct.delays)
+					
+					subplot(1, numel(personStruct.delays), d)
+					
+					% plot a set of psychometric functions, one for each delay
+					% tested
+					
+					%
+					samples = obj.coda.getSamplesAtIndex(ind,{'alpha','epsilon'});
+					samples.indifference  = personStruct.dfSamples(:,d);
+					psycho = DF_SLICE_PsychometricFunction('samples', samples);
+					psycho.plot()
+					title(['delay = ' num2str(personStruct.delays(d)) ])
+				end
+				if obj.shouldExportPlots
+					myExport(obj.savePath, 'expt_psychometric',...
+						'prefix', names{ind},...
+						'suffix', obj.modelFilename);
+				end
+				close(fh)
+			end
+		end
+		
         
         
 		function personStruct = getExperimentData(obj, p)
@@ -161,9 +193,9 @@ classdef (Abstract) NonParametric < Model
 
 
 		function dfSamples = extractDiscountFunctionSamples(obj, personNumber)
-			samples = obj.coda.getSamples({'discountFraction'});
-			[chains, nSamples, participants, nDelays] = size(samples.discountFraction);
-			personSamples = squeeze(samples.discountFraction(:,:,personNumber,:));
+			samples = obj.coda.getSamples({'Rstar'});
+			[chains, nSamples, participants, nDelays] = size(samples.Rstar);
+			personSamples = squeeze(samples.Rstar(:,:,personNumber,:));
 			% collapse over chains
 			for d=1:nDelays
 				dfSamples(:,d) = vec(personSamples(:,:,d));

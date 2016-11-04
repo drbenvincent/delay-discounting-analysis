@@ -14,34 +14,28 @@
 # Parameters
 # - alpha
 # - epsilon
-# - discountFraction: a vector of params, one for each unique delay
+# - Rstar: 
 
 model{
 
 # priors
 for (p in participantIndexList){
     epsilon[p]  ~ dbeta(1.1 , 10.9) T(,0.5)
-    alpha[p]    ~ dexp(0.01)
+    alpha[p]    ~ dnorm(0, 1/0.1^2)  # <--------------- FIGURE OUT BEST PRIOR. Currently allowing alpha to go <0 because as a bodge fix for working with losses
 
     # PRIOR OVER DISCOUNT FRACTION
 	for (d in 1:length(uniqueDelays)) {
-		
-        # 'safe' prior, centred on 1, with a large variance, but truncated
-        discountFraction[p,d] ~ dnorm( 1, 1/ 1^2) T(0,5)
-        
-        # normal prior (centred on 1) but whose variance increases with delay
-        #discountFraction[p,d] ~ dnorm( 1, 1/(0.000001 + (0.01 * uniqueDelays[d]) )) T(0,5)
+        Rstar[p,d] ~ dnorm( 1, 1/ 1^2) T(0,5)
 	}
 }
 
 #  phi() cannot be vectorised
 
 for (t in 1:length(ID)) {
-	VA[t] <- A[t] # NO DELAY FOR A
-	VB[t] <- (B[t]) * discountFraction[ID[t], delayLookUp[t] ]
 
-    # Psychometric function
-	P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * phi( (VB[t]-VA[t]) / alpha[ID[t]] )
+	rewardratio[t] <- A[t]/B[t]
+	df[t] <- Rstar[ID[t], delayLookUp[t]]
+	P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * (1 - phi( (rewardratio[t]-df[t]) / alpha[ID[t]] ) )
 
 	R[t]         ~ dbern(P[t]) # likelihood of actual response
 	Rpostpred[t] ~ dbern(P[t]) # posterior predicted response
