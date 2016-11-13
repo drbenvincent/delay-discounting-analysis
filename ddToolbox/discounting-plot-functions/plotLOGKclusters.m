@@ -8,12 +8,14 @@ function plotLOGKclusters(mcmcContainer, data, col, modelType, plotOptions)
 
 % plot posteriors over log(k) for all participants
 
+varName = {'k'};
+
 figure(12), clf
 
 %% REAL EXPERIMENT DATA
 % build samples
 for p = 1:data.getNExperimentFiles()
-	logkSamples(:,p) = mcmcContainer.getSamplesFromExperimentAsMatrix(p, {'logk'});
+	logkSamples(:,p) = mcmcContainer.getSamplesFromExperimentAsMatrix(p, varName);
 end
 
 uniG1 = mcmc.UnivariateDistribution(logkSamples(:,[1:data.getNRealExperimentFiles()]),...

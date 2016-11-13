@@ -1,4 +1,4 @@
-function plotExpclusters(mcmcContainer, data, col, pointEstimateType, savePath, modelType, shouldExportPlots)
+function plotExpclusters(mcmcContainer, data, col, modelType, plotOptions)
 
 % TODO:
 % remove input:
@@ -8,18 +8,20 @@ function plotExpclusters(mcmcContainer, data, col, pointEstimateType, savePath, 
 
 % plot posteriors over log(k) for all participants
 
+varName = {'k'};
+
 figure(12), clf
 
 %% REAL EXPERIMENT DATA
 % build samples
 for p = 1:data.getNExperimentFiles()
-	kSamples(:,p) = mcmcContainer.getSamplesFromExperimentAsMatrix(p, {'k'});
+	kSamples(:,p) = mcmcContainer.getSamplesFromExperimentAsMatrix(p, varName);
 end
 
 uniG1 = mcmc.UnivariateDistribution(kSamples(:,[1:data.getNRealExperimentFiles()]),...
     'xLabel', '$k$',...
     'plotHDI', false,...
-	'pointEstimateType', pointEstimateType,...
+	'pointEstimateType', plotOptions.pointEstimateType,...
 	'patchProperties',definePlotOptions4Participant(col));
 
 % keep axes zoomed in on all participants
@@ -33,7 +35,7 @@ if data.isUnobservedPartipantPresent() && ~any(isnan(groupLogkSamples))
 	mcmc.UnivariateDistribution(groupLogkSamples,...
 		'xLabel', '$k$',...
 		'plotHDI', false,...
-		'pointEstimateType', pointEstimateType,...
+		'pointEstimateType', plotOptions.pointEstimateType,...
 		'patchProperties', definePlotOptions4Group(col));
 end
 
@@ -44,9 +46,9 @@ axis(participantAxisBounds)
 % 	'YAxisLocation','origin')
 drawnow
 
-if shouldExportPlots
-	myExport(savePath, 'summary_plot',...
-		'suffix', modelType,...
+if plotOptions.shouldExportPlots
+	myExport(plotOptions.savePath, 'summary_plot',...
+		'suffix', plotOptions.modelType,...
         'formats', {'png'})
 end
 

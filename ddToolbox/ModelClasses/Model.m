@@ -48,7 +48,7 @@ classdef (Abstract) Model
 			% Optional preferences
 			p.addParameter('pointEstimateType','mode',@(x) any(strcmp(x,{'mean','median','mode'})));
 			% Optional plotting-based parameters
-			p.addParameter('exportFormats', {'pdf'}, @iscellstr);
+			p.addParameter('exportFormats', {'png'}, @iscellstr);
 			p.addParameter('savePath',tempname, @isstr);
 			p.addParameter('shouldPlot', 'no', @(x) any(strcmp(x,{'yes','no'})));
 			p.addParameter('shouldExportPlots', true, @islogical);
