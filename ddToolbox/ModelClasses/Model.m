@@ -12,7 +12,7 @@ classdef (Abstract) Model
 	properties (SetAccess = protected, GetAccess = protected)
         dfClass % function handle to DiscountFunction class
 		samplerType
-		savePath
+		
 		discountFuncType
 		pointEstimateType
 		
@@ -22,13 +22,16 @@ classdef (Abstract) Model
 		%alldata		% cross-experiment level data for plotting
 		experimentFigPlotFuncs
 		mcmcParams % structure of user-supplied params
+		observedData
 		
 		% User supplied preferences
 		modelFilename % string (ie modelFilename.jags, or modelFilename.stan)
 		varList
 		plotFuncs % structure of function handles
-		shouldPlot, shouldExportPlots, exportFormats
-		observedData
+		
+		plotOptions
+		shouldPlot, shouldExportPlots, exportFormats, savePath
+		
 	end
 	
 	
@@ -43,9 +46,10 @@ classdef (Abstract) Model
 			% Required
 			p.addRequired('data', @(x) isa(x,'Data'));
 			% Optional preferences
+			p.addParameter('pointEstimateType','mode',@(x) any(strcmp(x,{'mean','median','mode'})));
+			% Optional plotting-based parameters
 			p.addParameter('exportFormats', {'pdf'}, @iscellstr);
 			p.addParameter('savePath',tempname, @isstr);
-			p.addParameter('pointEstimateType','mode',@(x) any(strcmp(x,{'mean','median','mode'})));
 			p.addParameter('shouldPlot', 'no', @(x) any(strcmp(x,{'yes','no'})));
 			p.addParameter('shouldExportPlots', true, @islogical);
 			% Optional inference related parameters
@@ -60,6 +64,12 @@ classdef (Abstract) Model
 			end
 			
 			obj.mcmcParams = obj.parse_mcmcparams(obj.mcmcParams);
+			
+			obj.plotOptions.shouldPlot = p.Results.shouldPlot;
+			obj.plotOptions.shouldExportPlots = p.Results.shouldExportPlots;
+			obj.plotOptions.savePath = p.Results.savePath;
+			obj.plotOptions.exportFormats = p.Results.exportFormats;
+			obj.plotOptions.pointEstimateType = p.Results.pointEstimateType;
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		end
 		
@@ -100,8 +110,10 @@ classdef (Abstract) Model
 			obj.parameterEstimateTable = obj.exportParameterEstimates();
 			
 			if ~strcmp(obj.shouldPlot,'no')
-				obj.plot('shouldExportPlots', obj.shouldExportPlots,...
-					'exportFormats', obj.exportFormats)
+				% TODO: Allow public calls of obj.plot to specify options.
+				% At the moment the options need to be provided on Model
+				% object construction
+				obj.plot()
 			end
 			
 			obj.tellUserAboutPublicMethods()
@@ -318,9 +330,9 @@ classdef (Abstract) Model
                 pdata(p).data.totalTrials	= obj.data.getTotalTrials;
                 pdata(p).pointEstimateType	= obj.pointEstimateType;
                 pdata(p).discountFuncType	= obj.discountFuncType;
-                pdata(p).savePath			= obj.savePath;
+                pdata(p).plotOptions		= obj.plotOptions;
                 pdata(p).modelFilename		= obj.modelFilename;
-                pdata(p).shouldExportPlots  = obj.shouldExportPlots;
+                %pdata(p).shouldExportPlots  = obj.shouldExportPlots;
                 
                 % custom for each participant
                 pdata(p).IDname							= obj.data.getIDnames(p);

@@ -17,7 +17,7 @@ classdef (Abstract) Parametric < Model
 			p = inputParser;
 			p.FunctionName = mfilename;
 			p.addParameter('shouldExportPlots', true, @islogical);
-			p.addParameter('exportFormats', {'pdf'}, @iscellstr);
+			%p.addParameter('exportFormats', {'pdf'}, @iscellstr);
 			p.parse(varargin{:});
 			
 			obj.pdata = obj.packageUpDataForPlotting();
@@ -32,11 +32,11 @@ classdef (Abstract) Parametric < Model
 			% gather cross-experiment data for univariate sta
 			alldata.shouldExportPlots = p.Results.shouldExportPlots;
 			alldata.shouldExportPlots	= obj.shouldExportPlots;
-			alldata.exportFormats		= p.Results.exportFormats;
 			alldata.variables			= obj.varList.participantLevel;
 			alldata.filenames			= obj.data.getIDnames('all');
 			alldata.savePath			= obj.savePath;
 			alldata.modelFilename		= obj.modelFilename;
+			alldata.plotOptions 		= obj.plotOptions;
 			for v = alldata.variables
 				alldata.(v{:}).hdi =...
 					[obj.coda.getStats('hdi_low',v{:}),... % TODO: ERROR - expecting a vector to be returned
@@ -56,10 +56,8 @@ classdef (Abstract) Parametric < Model
 				obj.coda,...
 				obj.data,...
 				[1 0 0],...
-				obj.pointEstimateType,...
-				obj.savePath,...
 				obj.modelFilename,...
-				p.Results.shouldExportPlots)
+				obj.plotOptions)
 			
 			
 			%% Plots, one per participant ======================================

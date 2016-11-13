@@ -31,15 +31,17 @@ fprintf('Figure saved: %s\n\n', saveAs);
 	function doExport(saveAs, format)
 		set(gcf,'Color','w');
 		
+		% NOTE: Matlab seems to be incapable of exporting any figures with
+		% transparency as vector graphics and will default to .png
 		switch format
 			case{'png'}
 				export_fig(saveAs,'-png','-m2');
 			case{'pdf'}
 				export_fig(saveAs,'-pdf','-painters');
 				%print('-opengl','-dpdf','-r2400', '-bestfit', [saveAs '.pdf'])
-% 			case{'eps'}
-% 				%export_fig(saveAs,'-eps');
-% 				print('-depsc2', [saveAs '.eps'])
+			case{'eps'}
+				export_fig(saveAs,'-eps');
+				%print('-depsc2', [saveAs '.eps'])
 			case{'svg'}
 				print('-dsvg', [saveAs '.svg'])
 			case{'fig'}

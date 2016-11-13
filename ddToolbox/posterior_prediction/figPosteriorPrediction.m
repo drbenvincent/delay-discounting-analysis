@@ -24,15 +24,15 @@ subplot(2,2,3)
 pp_plotPredictionAndResponse()
 
 subplot(2,2,4)
-pp_ploptPercentPredictedDistribution()
+pp_plotPercentPredictedDistribution()
 
 % Export figure
 drawnow
 if data.shouldExportPlots
-	myExport(data.savePath, 'PosteriorPredictive',...
+	myExport(data.plotOptions.savePath, 'PosteriorPredictive',...
 		'prefix', data.IDname{:},...
 		'suffix', data.modelFilename,...
-        'formats', {'png','eps'})
+        'formats', data.plotOptions.exportFormats)
 end
 
 	function pp_plotGOFdistribution()
@@ -42,7 +42,7 @@ end
 			'pointEstimateType',data.pointEstimateType);
 	end
 
-	function pp_ploptPercentPredictedDistribution()
+	function pp_plotPercentPredictedDistribution()
 		uni = mcmc.UnivariateDistribution(data.postPred.percentPredictedDistribution(:),...
 			'xLabel', '$\%$ proportion responses accounted for',...
 			'plotStyle','hist',...
