@@ -46,7 +46,8 @@ drawnow
 
 if shouldExportPlots
 	myExport(savePath, 'summary_plot',...
-		'suffix', modelType)
+		'suffix', modelType,...
+        'formats', {'png'})
 end
 
 

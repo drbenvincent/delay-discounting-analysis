@@ -114,7 +114,8 @@ classdef (Abstract) NonParametric < Model
                 if obj.shouldExportPlots
                     myExport(obj.savePath, 'expt',...
                         'prefix', names{ind},...
-                        'suffix', obj.modelFilename);
+                        'suffix', obj.modelFilename,...
+                        'formats', {'png'});
                 end
                 
                 close(fh)
@@ -146,7 +147,8 @@ classdef (Abstract) NonParametric < Model
 				if obj.shouldExportPlots
 					myExport(obj.savePath, 'expt_psychometric',...
 						'prefix', names{ind},...
-						'suffix', obj.modelFilename);
+						'suffix', obj.modelFilename,...
+                        'formats', {'png'});
 				end
 				close(fh)
 			end

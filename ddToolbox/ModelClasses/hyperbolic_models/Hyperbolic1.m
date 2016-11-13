@@ -76,7 +76,8 @@ classdef (Abstract) Hyperbolic1 < Parametric
 				if obj.shouldExportPlots
 					myExport(obj.savePath, 'expt',...
 						'prefix', names{ind},...
-						'suffix', obj.modelFilename);
+						'suffix', obj.modelFilename,...
+                        'formats', {'png'});
 				end
 				
 				close(fh)

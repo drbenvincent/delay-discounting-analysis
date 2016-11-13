@@ -27,7 +27,7 @@ classdef (Abstract) Model
 		modelFilename % string (ie modelFilename.jags, or modelFilename.stan)
 		varList
 		plotFuncs % structure of function handles
-		shouldPlot, shouldExportPlots
+		shouldPlot, shouldExportPlots, exportFormats
 		observedData
 	end
 	
@@ -43,6 +43,7 @@ classdef (Abstract) Model
 			% Required
 			p.addRequired('data', @(x) isa(x,'Data'));
 			% Optional preferences
+			p.addParameter('exportFormats', {'pdf'}, @iscellstr);
 			p.addParameter('savePath',tempname, @isstr);
 			p.addParameter('pointEstimateType','mode',@(x) any(strcmp(x,{'mean','median','mode'})));
 			p.addParameter('shouldPlot', 'no', @(x) any(strcmp(x,{'yes','no'})));
@@ -99,7 +100,8 @@ classdef (Abstract) Model
 			obj.parameterEstimateTable = obj.exportParameterEstimates();
 			
 			if ~strcmp(obj.shouldPlot,'no')
-				obj.plot( 'shouldExportPlots', obj.shouldExportPlots )
+				obj.plot('shouldExportPlots', obj.shouldExportPlots,...
+					'exportFormats', obj.exportFormats)
 			end
 			
 			obj.tellUserAboutPublicMethods()

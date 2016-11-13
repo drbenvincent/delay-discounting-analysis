@@ -31,7 +31,8 @@ drawnow
 if data.shouldExportPlots
 	myExport(data.savePath, 'PosteriorPredictive',...
 		'prefix', data.IDname{:},...
-		'suffix', data.modelFilename)
+		'suffix', data.modelFilename,...
+        'formats', {'png','eps'})
 end
 
 	function pp_plotGOFdistribution()

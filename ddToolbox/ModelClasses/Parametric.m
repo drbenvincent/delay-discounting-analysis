@@ -17,6 +17,7 @@ classdef (Abstract) Parametric < Model
 			p = inputParser;
 			p.FunctionName = mfilename;
 			p.addParameter('shouldExportPlots', true, @islogical);
+			p.addParameter('exportFormats', {'pdf'}, @iscellstr);
 			p.parse(varargin{:});
 			
 			obj.pdata = obj.packageUpDataForPlotting();
@@ -31,6 +32,7 @@ classdef (Abstract) Parametric < Model
 			% gather cross-experiment data for univariate sta
 			alldata.shouldExportPlots = p.Results.shouldExportPlots;
 			alldata.shouldExportPlots	= obj.shouldExportPlots;
+			alldata.exportFormats		= p.Results.exportFormats;
 			alldata.variables			= obj.varList.participantLevel;
 			alldata.filenames			= obj.data.getIDnames('all');
 			alldata.savePath			= obj.savePath;

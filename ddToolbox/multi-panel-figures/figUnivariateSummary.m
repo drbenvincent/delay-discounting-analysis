@@ -33,7 +33,8 @@ set(gcf,'Position',[100 200 fig_width 1000])
 if alldata.shouldExportPlots
 	myExport(alldata.savePath,...
 		'UnivariateSummary',...
-		'suffix', alldata.modelFilename)
+		'suffix', alldata.modelFilename,...
+        'formats', alldata.exportFormats)
 end
 
 	function participantNames = makeParticipantNames()
