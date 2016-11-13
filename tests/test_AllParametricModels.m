@@ -98,6 +98,32 @@ classdef test_AllParametricModels < matlab.unittest.TestCase
 
 			% TODO: DO AN ACTUAL TEST HERE !!!!!!!!!!!!!!!!!!!!!!
 		end
+		
+		
+		function getting_predicted_values(testCase, model, sampler)
+			% make model
+			makeModelFunction = str2func(model);
+			model = makeModelFunction(testCase.data,...
+				'savePath', testCase.savePath,...
+				'sampler', sampler,...
+				'mcmcParams', struct('nsamples', 100,...
+								'nchains', 2,...
+								'nburnin', 10),...
+								'shouldPlot','no');
+			
+			% Get inferred present subjective values of
+			[predicted_subjective_values] =...
+				model.get_inferred_present_subjective_values();
+
+			testCase.assertTrue(isstruct(predicted_subjective_values))
+			% tests for point estimates
+			testCase.assertTrue(istable(predicted_subjective_values.point_estimates))
+% 			% tests for full distributions
+%  			testCase.assertTrue(ismatrix(predicted_subjective_values.A_full_posterior))
+%  			testCase.assertTrue(ismatrix(predicted_subjective_values.B_full_posterior))
+			
+		end
+		
 
 	end
 

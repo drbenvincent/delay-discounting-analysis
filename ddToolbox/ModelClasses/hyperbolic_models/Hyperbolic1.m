@@ -14,7 +14,7 @@ classdef (Abstract) Hyperbolic1 < Parametric
 			
 			% Create variables
 			obj.varList.participantLevel = {'logk','alpha','epsilon'};
-			obj.varList.monitored = {'logk','alpha','epsilon', 'Rpostpred', 'P'};
+			obj.varList.monitored = {'logk','alpha','epsilon', 'Rpostpred', 'P', 'VA', 'VB'};
 			
 			%% Plotting
 			obj.plotFuncs.clusterPlotFunc	= @plotLOGKclusters;

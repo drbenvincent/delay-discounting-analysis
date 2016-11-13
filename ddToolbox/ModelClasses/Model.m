@@ -202,6 +202,33 @@ classdef (Abstract) Model
 			end
 		end
 		
+		function [predicted_subjective_values] = get_inferred_present_subjective_values(obj)
+			
+			%% calculate point estimates
+			% get point estimates of present subjective values. These will
+			% be vectors. Each value corresponds to one trial in the
+			% overall dataset
+			VA_point_estimate = obj.coda.getStats(obj.pointEstimateType, 'VA');
+			VB_point_estimate = obj.coda.getStats(obj.pointEstimateType, 'VB');
+			assert(isvector(VA_point_estimate))
+			assert(isvector(VB_point_estimate))
+			
+			all_data_table = obj.data.get_all_data_table();
+			all_data_table.VA = VA_point_estimate;
+			all_data_table.VB = VB_point_estimate;
+			
+			%% Return full posterior distributions of present subjective values
+			% TODO
+			
+			
+			%% return...
+			predicted_subjective_values.point_estimates = all_data_table;
+			
+			% TODO
+			% predicted_subjective_values.A_full_posterior = 
+			% predicted_subjective_values.B_full_posterior = 
+		end
+		
 	end
 	
     

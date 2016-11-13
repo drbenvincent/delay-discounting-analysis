@@ -14,7 +14,7 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			
 			% Create variables
 			obj.varList.participantLevel = {'m', 'c','alpha','epsilon'};
-			obj.varList.monitored = {'m', 'c','alpha','epsilon', 'Rpostpred', 'P'};
+			obj.varList.monitored = {'m', 'c','alpha','epsilon', 'Rpostpred', 'P', 'VA', 'VB'};
 			
 			%% Plotting stuff
 			obj.plotFuncs.clusterPlotFunc	= @plotMCclusters;
@@ -141,8 +141,6 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			
 			% Plot logic
 			if p.Results.plot
-				
-				
 				% create a vector of subplot handles
 				switch p.Results.plot_mode
 					case{'row'}
@@ -153,6 +151,13 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 						plot_mag_effect(subplot_handles(1))
 						plot_condition_logk(subplot_handles([2:end]))
 						
+						% TODO: exporting
+% 						if p.Results.shouldExport
+% 							myExport(obj.savePath, 'expt',...
+% 								'prefix', names{ind},...
+% 								'suffix', obj.modelFilename);
+% 						end
+			
 					case{'compact'}
 						figure
 						latex_fig(16, 8,4)
@@ -162,6 +167,12 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 						
 						plot_mag_effect(subplot_handles(1))
 						plot_condition_logk(subplot_handles([2:end]))
+						% TODO: exporting
+% 						if p.Results.shouldExport
+% 							myExport(obj.savePath, 'expt',...
+% 								'prefix', names{ind},...
+% 								'suffix', obj.modelFilename);
+% 						end
 						
 					case{'conditional_only'}
 						% plot in current axis handle
@@ -171,15 +182,11 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 						end
 						plot_condition_logk(subplot_handles)
 				end
-				
-				
-				
-				
-				
-				
-				
-				
+
 			end
+			
+
+				
 			
 			function plot_mag_effect(subplot_handle)
 				% PLOT MAGNITUDE EFFECT -----------------------------------

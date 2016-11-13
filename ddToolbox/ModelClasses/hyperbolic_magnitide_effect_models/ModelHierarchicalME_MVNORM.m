@@ -10,7 +10,8 @@ classdef ModelHierarchicalME_MVNORM < Hyperbolic1MagEffect
 			% Create variables ~~~~~~~~~
             % TODO: just append new ones to those already made by superclass
 			obj.varList.participantLevel = {'m','c', 'r', 'alpha','epsilon'};
-			obj.varList.monitored = {'r', 'm', 'c', 'mc_mu', 'mc_sigma','alpha','epsilon',  'Rpostpred', 'P'};
+			obj.varList.monitored = {'r', 'm', 'c', 'mc_mu', 'mc_sigma',...
+				'alpha','epsilon',  'Rpostpred', 'P', 'VA', 'VB'};
             % ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 			warning('ModelHierarchicalME_MVNORM not working with unobserved participant')

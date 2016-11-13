@@ -13,7 +13,7 @@ classdef (Abstract) Exponential1 < Parametric
 
 			% Create variables
 			obj.varList.participantLevel = {'k','alpha','epsilon'};
-			obj.varList.monitored = {'k','alpha','epsilon', 'Rpostpred', 'P'};
+			obj.varList.monitored = {'k','alpha','epsilon', 'Rpostpred', 'P', 'VA', 'VB'};
 
 			%% Plotting
 			obj.plotFuncs.clusterPlotFunc	= @plotExpclusters;
