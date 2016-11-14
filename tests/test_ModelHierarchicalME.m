@@ -55,7 +55,7 @@ classdef test_ModelHierarchicalME < matlab.unittest.TestCase
 
 		function hypothesisTestDemo(testCase)
 			% have to ensure demo folder is on path
-			addpath(fullfile(pwd,'demo')) % assuming we are in the project root
+			addpath(fullfile(pwd,'..','demo')) % assuming we are in the project root
 			hypothesisTestScript( testCase.model )
 		end
 
