@@ -53,26 +53,23 @@ output-2.csv
 
 temp.data.R
 
-
-
-
-
 demo/datasets/non-parametric/groupLevelData/COMBINED_DATA.txt
 
 demo/datasets/kirby/groupLevelData/COMBINED_DATA.txt
 
 tests/tests/grw_test/ConvergenceReport.txt
 
+
+output/*
+
 demo/datasets/test_data/groupLevelData/COMBINED_DATA.txt
 
-tests/output/logk_analysis/ConvergenceReport.txt
+tests/output/*
 
-tests/output/logk_analysis/parameterEstimates_Posterior_median.csv
+tests/matlab.mat
 
-tests/output/me_analysis/parameterEstimates_Posterior_median.csv
+temp/ConvergenceReport.txt
 
-tests/output/me_analysis/ConvergenceReport.txt
+temp/parameterEstimates_Posterior_mode.csv
 
-tests/output/my_analysis/ConvergenceReport.txt
-
-tests/output/my_analysis/parameterEstimates_Posterior_median.csv
+demo/datasets/group_comparison/group1/groupLevelData/COMBINED_DATA.txt
