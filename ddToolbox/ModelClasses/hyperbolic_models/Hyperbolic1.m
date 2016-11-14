@@ -64,6 +64,12 @@ classdef (Abstract) Hyperbolic1 < Parametric
 				%% Set up log k discount function
 				samples = obj.coda.getSamplesAtIndex(ind,{'logk'});
 				discountFunction = DF_Hyperbolic1('samples', samples);
+				% add data:  TODO: streamline this on object creation ~~~~~
+				% NOTE: we don't have data for group-level
+				data_struct = obj.data.getExperimentData(ind);
+				data_object = DataFile(data_struct);
+				discountFunction.data = data_object;
+				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 				
 				%% plot log(k) distribution
 				subplot(1,4,3)

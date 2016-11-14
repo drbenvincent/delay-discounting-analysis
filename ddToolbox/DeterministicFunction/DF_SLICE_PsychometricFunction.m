@@ -51,7 +51,7 @@ classdef DF_SLICE_PsychometricFunction < DeterministicFunction
 	end
 	
 	
-	methods (Static)
+	methods (Static, Access = protected)
 		
 		function y = function_evaluation(x, theta, ExamplesToPlot)
 			

@@ -108,12 +108,26 @@ classdef Data
 			% a structure with fields
 			%  - A, B, DA, DB, R, ID (all column vectors)
 			%  - trialsForThisParticant (a single value)
-
-			dataStruct = table2struct(obj.experiment(experiment).table,...
-				'ToScalar',true);
-
-			dataStruct.trialsForThisParticant =...
-				obj.experiment(experiment).trialsForThisParticant;
+			
+			if experiment > numel(obj.experiment)
+				% this case may happen if we are asking for data for a
+				% group-level participant. In this case, return an empty
+				% var.
+				dataStruct = [];
+				return
+			end
+			
+			% TODO: this mess is a manifestation of no decent way to deal
+			% with the group-level (who has no data).
+			try
+				dataStruct = table2struct(obj.experiment(experiment).table,...
+					'ToScalar',true);
+				
+				dataStruct.trialsForThisParticant =...
+					obj.experiment(experiment).trialsForThisParticant;
+			catch
+				dataStruct = [];
+			end
 		end
 
 		function R = getParticipantResponses(obj, p)

@@ -63,6 +63,12 @@ classdef (Abstract) Exponential1 < Parametric
 				% without group level inferences (ie the mixed or separate
 				% models)
 				discountFunction = DF_Exponential1('samples', ksamples );
+				% add data:  TODO: streamline this on object creation ~~~~~
+				% NOTE: we don't have data for group-level
+				data_struct = obj.data.getExperimentData(ind);
+				data_object = DataFile(data_struct);
+				discountFunction.data = data_object;
+				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 				
 				% TODO: this checking needs to be implemented in a
 				% smoother, more robust way

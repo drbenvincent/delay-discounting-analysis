@@ -3,6 +3,9 @@ classdef (Abstract) DeterministicFunction
 	properties
 		theta % Stochastic objects (or object array)
 		
+		% This is Object to store data associated with the function. It
+		% must have a plot method
+		data 
 	end
 	
 	properties (Dependent)
@@ -29,6 +32,19 @@ classdef (Abstract) DeterministicFunction
 			
 % 			% define the number of samples
 % 			obj.nSamples = numel(samples);
+		end
+		
+		function obj = set.data(obj, dataObject)
+			% adding a data object
+			assert(isobject(dataObject), 'must provide an object as input')
+			
+			% confirm the provided object has a plot method
+			methodsOfObject = methods(dataObject);
+			hasPlotMethod = @() any(ismember(methodsOfObject, 'plot'));
+			assert(hasPlotMethod() ,'Provided object must have a plot method')
+			
+			% set the property
+			obj.data = dataObject;
 		end
 		
 		function plotParameters(obj)

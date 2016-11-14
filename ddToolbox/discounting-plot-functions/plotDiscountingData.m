@@ -1,6 +1,8 @@
 function plotDiscountingData(data)
 
-%error('IS THIS FUNCTION EVER BEING CALLED?')
+error('IS THIS FUNCTION EVER BEING CALLED?')
+% TODO: DELETE THIS FUNCTION
+
 
 opts.maxlogB	= max( abs(data.B) );
 opts.maxD		= max( data.DB );

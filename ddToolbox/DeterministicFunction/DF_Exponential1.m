@@ -52,6 +52,10 @@ classdef DF_Exponential1 < DiscountFunction
 			set(gca,'Xlim', [0 max(x)])
 			box off
 			axis square
+			
+			% ~~~~~~~~~~~~~
+			obj.data.plot()
+			% ~~~~~~~~~~~~~
 		end
         
         
