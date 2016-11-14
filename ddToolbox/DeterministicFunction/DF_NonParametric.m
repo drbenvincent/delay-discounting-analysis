@@ -58,6 +58,10 @@ classdef DF_NonParametric < DiscountFunction
             %auc_str = sprintf('mean AUC: %1.2f', mean(personInfo.AUCsamples));
             %addTextToFigure('TR',auc_str, 15, 'latex')
 			
+			% ~~~~~~~~~~~~~
+			obj.data.plot()
+			% ~~~~~~~~~~~~~
+			
 		end
         
 		

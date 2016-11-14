@@ -52,7 +52,7 @@ classdef (Abstract) NonParametric < Model
 			close all
 
 			% EXPERIMENT PLOT ==================================================
-            obj.psychometric_plots();
+            %obj.psychometric_plots();
 			obj.experimentPlot();
 			
             % POSTERIOR PREDICTION PLOTS =======================================
@@ -100,6 +100,12 @@ classdef (Abstract) NonParametric < Model
 				personInfo = obj.getExperimentData(ind);
                 discountFunction = DF_NonParametric('delays',personInfo.delays,...
                     'theta', personInfo.dfSamples);
+				% add data:  TODO: streamline this on object creation ~~~~~
+				% NOTE: we don't have data for group-level
+				data_struct = obj.data.getExperimentData(ind);
+				data_object = DataFile(data_struct);
+				discountFunction.data = data_object;
+				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 				
                 %% plot distribution of AUC
                 subplot(1,4,3)
