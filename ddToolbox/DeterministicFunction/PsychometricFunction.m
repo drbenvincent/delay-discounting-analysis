@@ -75,7 +75,7 @@ classdef PsychometricFunction < DeterministicFunction
 	end
 	
 	
-	methods (Static)
+	methods (Static, Access = protected)
 		
 		function y = function_evaluation(x, theta, ExamplesToPlot)
 			if verLessThan('matlab','9.1')

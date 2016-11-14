@@ -89,7 +89,7 @@ classdef (Abstract) DeterministicFunction
 		%function_evaluation(obj);
 	end
 	
-	 methods (Abstract, Static)
+	methods (Abstract, Static, Access = protected)
 		function_evaluation();
 	end
 	

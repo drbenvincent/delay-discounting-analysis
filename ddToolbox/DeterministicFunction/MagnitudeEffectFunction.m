@@ -93,7 +93,7 @@ classdef MagnitudeEffectFunction < DeterministicFunction
         
 	end
 	
-		methods (Static)
+		methods (Static, Access = protected)
 		
 		function k = function_evaluation(x, theta, ExamplesToPlot)
 			% x = reward

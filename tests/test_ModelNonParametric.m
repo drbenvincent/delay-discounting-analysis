@@ -51,7 +51,7 @@ classdef test_ModelNonParametric < matlab.unittest.TestCase
 				'nchains', 4,...
 				'nburnin', 1000));
 			
-			testCase.model.plot('shouldExportPlots', true)
+			testCase.model.plot()
 		end
 		
 	end

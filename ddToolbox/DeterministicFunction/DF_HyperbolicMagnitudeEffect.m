@@ -134,7 +134,7 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
 	end
 	
 	
-	methods (Static)
+	methods (Static, Access = protected)
 		
 		function logk = function_evaluation(x, theta, ExamplesToPlot)
 			if verLessThan('matlab','9.1')

@@ -88,7 +88,7 @@ classdef DF_Hyperbolic1 < DiscountFunction
 	end
 	
 	
-	methods (Static)
+	methods (Static, Access = protected)
 		
 		function y = function_evaluation(x, theta, ExamplesToPlot)
 			if verLessThan('matlab','9.1')

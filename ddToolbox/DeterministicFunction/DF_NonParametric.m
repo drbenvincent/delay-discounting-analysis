@@ -90,7 +90,7 @@ classdef DF_NonParametric < DiscountFunction
 		
 	end
 	
-	methods (Static)
+	methods (Static, Access = protected)
 		
 		function function_evaluation()
 		end
