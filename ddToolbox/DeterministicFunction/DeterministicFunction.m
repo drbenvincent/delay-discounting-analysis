@@ -39,7 +39,7 @@ classdef (Abstract) DeterministicFunction
 				%subplot(1,N,n) % TODO: work out best way to plot multiple
 				%params
 				% call the plot function of the stochastic variable
-				obj.theta.(fields{n}).plot()
+				obj.theta.(fields{n}).plot();
 			end
 			
 		end
@@ -84,7 +84,7 @@ classdef (Abstract) DeterministicFunction
     end
     
     methods (Abstract)
-		plot(obj)
+		plot(obj);
 		%discountFraction = eval(obj, x)
 		%function_evaluation(obj);
 	end

@@ -23,7 +23,7 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
 			fieldnames = fields(p.Results.samples);
 			% Add any provided samples
 			for n = 1:numel(fieldnames)
-				obj.theta.(fieldnames{n}).addSamples( p.Results.samples.(fieldnames{n}) )
+				obj.theta.(fieldnames{n}).addSamples( p.Results.samples.(fieldnames{n}) );
 			end
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         end
@@ -37,7 +37,7 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
 				return
 			end
 			
-			pointEstimateType = 'median'
+			pointEstimateType = 'median';
 			
 			%% Calculate point estimates
 			mcBivariate = mcmc.BivariateDistribution(...

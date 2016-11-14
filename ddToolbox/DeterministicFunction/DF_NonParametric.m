@@ -19,8 +19,8 @@ classdef DF_NonParametric < DiscountFunction
             % Input parsing ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			p = inputParser;
 			p.StructExpand = false;
-			p.addParameter('delays',[], @isnumeric)
-            p.addParameter('theta',[], @ismatrix)
+			p.addParameter('delays',[], @isnumeric);
+            p.addParameter('theta',[], @ismatrix);
 			p.parse(varargin{:});
             
             obj.delays  = p.Results.delays;
@@ -31,7 +31,7 @@ classdef DF_NonParametric < DiscountFunction
 			AUC_samples = obj.calcAUC();
 			% create AUC as a Stochastic object
 			obj.AUC = Stochastic('AUC');
-			obj.AUC.addSamples(AUC_samples)
+			obj.AUC.addSamples(AUC_samples);
         end
 
 		
@@ -39,7 +39,7 @@ classdef DF_NonParametric < DiscountFunction
 			
             %% visualise the posterior predictive indifference points
 			intervals = [50 95];
-            ribbon_plot(obj.delays, obj.theta, intervals)
+            ribbon_plot(obj.delays, obj.theta, intervals); % TODO: replace, or inject the plot style we want
             hold on
 
             %% overlay behavioural data
@@ -50,7 +50,7 @@ classdef DF_NonParametric < DiscountFunction
             xlabel('delay')
             axis square
             axis tight
-            hline(1)
+            hline(1);
             set(gca,'YLim',[0 2.5])
 			box off
 

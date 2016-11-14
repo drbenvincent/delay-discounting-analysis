@@ -56,7 +56,7 @@ classdef (Abstract) NonParametric < Model
 			obj.experimentPlot();
 			
             % POSTERIOR PREDICTION PLOTS =======================================
-			arrayfun(@figPosteriorPrediction, obj.pdata) % posterior prediction plot
+			arrayfun(@figPosteriorPrediction, obj.pdata); % posterior prediction plot
 			
 			%% TODO...
             % FOREST PLOT OF AUC VALUES ========================================
@@ -103,12 +103,12 @@ classdef (Abstract) NonParametric < Model
 				
                 %% plot distribution of AUC
                 subplot(1,4,3)
-                discountFunction.AUC.plot()
+                discountFunction.AUC.plot();
 				xlim([0 2])
                 
                 %% plot discount function
                 subplot(1,4,4)
-                discountFunction.plot() 
+                discountFunction.plot();
                 
                 drawnow
                 if obj.shouldExportPlots
@@ -141,7 +141,7 @@ classdef (Abstract) NonParametric < Model
 					samples = obj.coda.getSamplesAtIndex(ind,{'alpha','epsilon'});
 					samples.indifference  = personStruct.dfSamples(:,d);
 					psycho = DF_SLICE_PsychometricFunction('samples', samples);
-					psycho.plot()
+					psycho.plot();
 					title(['delay = ' num2str(personStruct.delays(d)) ])
 				end
 				if obj.shouldExportPlots

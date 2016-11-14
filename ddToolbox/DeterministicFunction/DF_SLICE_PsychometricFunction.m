@@ -22,7 +22,7 @@ classdef DF_SLICE_PsychometricFunction < DeterministicFunction
 			fieldnames = fields(p.Results.samples);
 			% Add any provided samples
 			for n = 1:numel(fieldnames)
-				obj.theta.(fieldnames{n}).addSamples( p.Results.samples.(fieldnames{n}) )
+				obj.theta.(fieldnames{n}).addSamples( p.Results.samples.(fieldnames{n}) );
 			end
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		end
@@ -40,7 +40,7 @@ classdef DF_SLICE_PsychometricFunction < DeterministicFunction
 			
 			axis tight
 			ylim([0 1])
-			vline(1)
+			vline(1);
 			xlabel('reward ratio $(A/B)$', 'interpreter','latex')
 			ylabel('P(choose delayed)', 'interpreter','latex')
 			box off

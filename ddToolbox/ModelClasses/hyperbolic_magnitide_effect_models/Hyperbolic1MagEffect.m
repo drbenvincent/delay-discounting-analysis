@@ -78,7 +78,7 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 				% Add horizontal lines to the
 				hold on
 				for n=1:numel(rewards)
-					vline(rewards(n))
+					vline(rewards(n));
 				end
 				
 				%% TODO: Add P(log(k) | reward) here
@@ -208,7 +208,7 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 					hold on
 					% 					% plot vertical line on magnitude effect graph --------
 					% 					subplot(subplot_handles(1))
-					% 					vline(reward(n))
+					% 					vline(reward(n));
 					
 					% plot log(k) distribution ----------------------------
 					subplot(subplot_handles(n))

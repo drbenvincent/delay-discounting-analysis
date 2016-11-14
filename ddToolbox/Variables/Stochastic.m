@@ -189,8 +189,9 @@ classdef Stochastic < handle
 			if ~obj.shouldPlotPointEstimate, return, end
 			a = axis;
 			for n=1:obj.N
-				h = line( [obj.(obj.pointEstimateType)(n) obj.(obj.pointEstimateType)(n)],...
-					[a(3) a(4)]);
+				x = [obj.(obj.pointEstimateType)(n) obj.(obj.pointEstimateType)(n)];
+				y = [a(3) a(4)];
+				h = line(x,y);
 				h.Color = 'k';
 			end
 		end

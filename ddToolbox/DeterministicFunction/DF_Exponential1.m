@@ -21,7 +21,7 @@ classdef DF_Exponential1 < DiscountFunction
 			fieldnames = fields(p.Results.samples);
 			% Add any provided samples
 			for n = 1:numel(fieldnames)
-				obj.theta.(fieldnames{n}).addSamples( p.Results.samples.(fieldnames{n}) )
+				obj.theta.(fieldnames{n}).addSamples( p.Results.samples.(fieldnames{n}) );
 			end
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			

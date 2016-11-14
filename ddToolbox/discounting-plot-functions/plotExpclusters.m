@@ -1,5 +1,10 @@
 function plotExpclusters(mcmcContainer, data, col, modelType, plotOptions)
 
+% TODO: plotExpclusters.m and plotLOGKclusters are pretty much identical
+
+% TODO: plotExpclusters.m and plotLOGKclusters also do the same thing
+% (conceptually) as plotMCclusters.m
+
 % TODO:
 % remove input:
 % - mcmcContainer, just pass in the data

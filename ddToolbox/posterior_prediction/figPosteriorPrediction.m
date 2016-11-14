@@ -49,7 +49,7 @@ end
 			'pointEstimateType',data.pointEstimateType);
 		
 		axis tight
-		vline(0.5)
+		vline(0.5);
 		set(gca,'XLim',[0 1])
 	end
 
