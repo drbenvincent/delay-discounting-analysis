@@ -5,36 +5,26 @@ groupALPHAmu        ~ dunif(0,100)
 groupALPHAsigma     ~ dunif(0,100)
 
 # error rates (epsilon)
-groupW          ~ dbeta(1.1, 10.9)  # mode for lapse rate
-groupKminus2    ~ dgamma(0.01,0.01) # concentration parameter
+groupW          ~  dbeta(1.1, 10.9)  # mode for lapse rate
+groupKminus2    ~  dgamma(0.01,0.01) # concentration parameter
 groupK          <- groupKminus2+2
 
-
-# Multivariate normal distribution over (m,c) =========================
-
-
-
-# =====================================================================
 
 
 
 for (p in 1:(nRealExperimentFiles)){      # FIX FOR UNOBSERVED PARTICIPANT
 
-    precision[p,1] ~ dgamma(0.001,0.001)
-    precision[p,2] ~ dgamma(0.001,0.001)
+    precision[p,1] ~ dgamma(0.1,0.1)
+    precision[p,2] ~ dgamma(0.1,0.1)
     mc_sigma[p,1] <- 1/sqrt(precision[p,1]) # sigma over m
     mc_sigma[p,2] <- 1/sqrt(precision[p,2]) # sigma over c
 
 
-    mc_mu[p,1] ~ dnorm(-0.243, 1/( (0.027*5)^2))    # prior over m_mu
-    mc_mu[p,2] ~ dnorm(-3    , 1/( 5^2) )           # prior over c_mu
-	#mc_mu[p,1] ~ dt(-0.243, 1/( (0.027)^2), 1)    # prior over m_mu
-    #mc_mu[p,2] ~ dt(-3    , 1/( 1^2) , 1)           # prior over c_mu
-
-    r[p] ~  dunif(-1,1)
+    mc_mu[p,1] ~ dnorm(-0.243, 1/( (0.027)^2))    # prior over m_mu
+    mc_mu[p,2] ~ dnorm(-3    , 1/( 2^2) )           # prior over c_mu
+    r[p]       ~ dnorm(-0.9  , 1/0.1^2) T(-1,1)  #dunif(-1,1)
 
     # Reparamaterize
-
     T[p,1,1] <- 1/precision[p,1]                        # ie variance
     T[p,1,2] <- r[p] * mc_sigma[p,1] * mc_sigma[p,2]
     T[p,2,1] <- r[p] * mc_sigma[p,1] * mc_sigma[p,2]

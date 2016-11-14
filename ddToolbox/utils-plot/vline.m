@@ -20,7 +20,9 @@ set(h.line, 'LineStyle','-');
 set(h.line, 'LineWidth',0.5);
 
 % Apply formatting provided
-set(h.line, varargin{:});
+% NOTE: must store returned output, otherwise it's outputted to the command
+% window.
+temp = set(h.line, varargin{:});
 
 % send the line to the back
 uistack(h.line, 'bottom');

@@ -12,10 +12,10 @@ assert(isa(modelObject,'ModelHierarchicalME'),...
 priorSamples = modelObject.coda.getSamplesAsMatrix({'m_prior'});
 
 % extract group-level posterior samples
-assert(modelObject.data.unobservedPartipantPresent)
-index_of_unobserved_participant = modelObject.data.nExperimentFiles;
+assert(modelObject.data.isUnobservedPartipantPresent(),'We seem to not have group level estimates')
 posteriorSamples = modelObject.coda.getSamplesFromExperimentAsMatrix(...
-	index_of_unobserved_participant,{'m'});
+	modelObject.data.getIndexOfUnobservedParticipant(),...
+	{'m'});
 
 
 figure

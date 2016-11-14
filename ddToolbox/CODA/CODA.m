@@ -1,6 +1,9 @@
 classdef CODA
-	%CODA Summary of this class goes here
+	%CODA This class is useful for storing, ploting, and getting
+	%information about MCMC samples.
 	%   Detailed explanation goes here
+
+    % TODO: make this general, and create a seperate, project-specific subclass with additional methods if I need to do that
 
 	properties (GetAccess = private, SetAccess = private)
 		samples % structure. Fields correspond to variables.
@@ -11,6 +14,7 @@ classdef CODA
 		variableNames % cell array of variables
 	end
 
+	%% Public methods
 	% NOTE TO SELF: These public methods need to be seen as interfaces to
 	% the outside world that are implementation-independent. So thought
 	% needs to be given to public methods.
@@ -19,15 +23,18 @@ classdef CODA
 
 	methods (Access = public)
 
+        % TODO: be able to create just from samples.
+        % TODO: add a makeFromJAGS alternative constructor, just like we have one for Stan
+
 		function obj = CODA(samples, stats) % constructor
-			% This is the main constructor function.
-
-			% Validate samples
 			assert(isstruct(samples))
-
+			assert(isstruct(stats))
+			
 			obj.samples = samples;
 			obj.stats = stats;
 			obj.variableNames = fieldnames(samples);
+			
+			% TODO: Check presence of my mcmc-utils code as the plotting relies upon it.
 		end
 
 		function paramEstimateTable = exportParameterEstimates(obj,...
@@ -89,9 +96,8 @@ classdef CODA
 			end
 		end
 
-		% -----------------------------------------------------------------
-		% PUBLIC PLOTTING METHODS
-		% -----------------------------------------------------------------
+		
+		%% Plotting methods
 
 		function trellisplots(obj, variablesToPlot)
 			assert(iscellstr(variablesToPlot))
@@ -166,6 +172,10 @@ classdef CODA
 
 
 		function densityplot(obj, targetAxisHandle, samples)
+			
+			% TODO: check for presence of mcmc. package. If it's not
+			% present, then use normal plotting routines
+			
 			% TODO: make targetAxisHandle an optional input
 			if ~isempty(targetAxisHandle)
 				subplot(targetAxisHandle)
@@ -177,9 +187,7 @@ classdef CODA
 		end
 
 
-		% -----------------------------------------------------------------
-		% PUBLIC GET METHODS
-		% -----------------------------------------------------------------
+		%% Get methods
 
 		function data = grabParamEstimates(obj, varNames, getCI, pointEstimateType)
 			assert(islogical(getCI))
@@ -194,7 +202,8 @@ classdef CODA
 		end
 
 		function [samples] = getSamplesAtIndex(obj, index, fieldsToGet)
-			assert(iscellstr(fieldsToGet))
+			assert(iscellstr(fieldsToGet),'arguments needs to be a cell array of strings')
+			assert(isnumeric(index), 'argument needs to be numeric')
 			% get all the samples for a given value of the 3rd dimension of
 			% samples. Dimensions are:
 			% 1. mcmc chain number
@@ -211,7 +220,7 @@ classdef CODA
 				end
 			end
 		end
-
+		
 		function [samplesMatrix] = getSamplesFromExperimentAsMatrix(obj, experiment, fieldsToGet)
 			assert(iscellstr(fieldsToGet))
 			% TODO: This function is doing the same thing as getSamplesAtIndex() ???
@@ -279,20 +288,18 @@ classdef CODA
 
 	end
 
-
-	% -----------------------------------------------------------------
-	% PUBLIC, ALTERNATE CONSTRUCTORS
-	% -----------------------------------------------------------------
+	%% Alternate constructors
 	methods (Static)
 		function obj = buildFromStanFit(stanFitObject)
+            % TODO: add an assert about the type of object being passed in
 			samples = stanFitObject.extract('collapseChains', false, 'permuted', false);
 			stats	= computeStats(samples);
 			obj		= CODA(samples, stats);
 		end
+		
 	end
 
-
-	% PRIVATE =============================================================
+	%% PRIVATE METHODS ====================================================
 	% Not to be covered by tests, unless it is useful during development.
 	% But we do not need tests to constrain the way how these
 	% implementation details work.

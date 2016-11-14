@@ -13,7 +13,9 @@ p.parse(savePath, saveName, varargin{:});
 % Algorithm
 ensureFolderExists(p.Results.savePath);
 saveAs = generateSaveAs(p);
-doExport(saveAs);
+for format = p.Results.formats
+	doExport(saveAs, format{:});
+end
 fprintf('Figure saved: %s\n\n', saveAs);
 
 
@@ -26,17 +28,25 @@ fprintf('Figure saved: %s\n\n', saveAs);
 	end
 
 
-	function doExport(saveAs)
+	function doExport(saveAs, format)
 		set(gcf,'Color','w');
 		
-		% TODO: export in all formats defined in 'formats'
-		
-		% % .pdf
-		% print('-opengl','-dpdf','-r2400', [saveAs '.pdf'])
-		% .png
-		export_fig(saveAs,'-png','-m4');
-		% .fig
-		%hgsave(saveAs)
+		% NOTE: Matlab seems to be incapable of exporting any figures with
+		% transparency as vector graphics and will default to .png
+		switch format
+			case{'png'}
+				export_fig(saveAs,'-png','-m2');
+			case{'pdf'}
+				export_fig(saveAs,'-pdf','-painters');
+				%print('-opengl','-dpdf','-r2400', '-bestfit', [saveAs '.pdf'])
+			case{'eps'}
+				export_fig(saveAs,'-eps');
+				%print('-depsc2', [saveAs '.eps'])
+			case{'svg'}
+				print('-dsvg', [saveAs '.svg'])
+			case{'fig'}
+				hgsave(saveAs)
+		end
 	end
 
 end

@@ -10,6 +10,12 @@ function checkGitHubDependencies(dependencies)
 
 assert(iscellstr(dependencies),'Input to function should be a cell array of url''s to github repositories')
 
+% ensure dependencies is a row
+if iscolumn(dependencies)
+	dependencies = dependencies';
+end
+assert(isrow(dependencies))
+
 for url=dependencies
 	cloneOrUpdateDependency(url{:});
 end

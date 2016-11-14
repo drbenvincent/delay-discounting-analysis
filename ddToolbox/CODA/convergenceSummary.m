@@ -11,71 +11,91 @@ assert(iscellstr(IDnames))
 
 
 [fid, fname] = setupTextFile(savePath, 'ConvergenceReport.txt');
-%MCMCParameterReport();
-printRhatInformation(IDnames);
+printRhatInformation(IDnames, Rhat, fid);
 fclose(fid);
 fprintf('Convergence report saved in:\n\t%s\n\n',fname)
 
+end
 
-% 			function MCMCParameterReport()
-% 				logInfo(fid,'MCMC inference was conducted with %d chains. ', obj.mcmcparams.nchains)
-% 				logInfo(fid,'The first %d samples were discarded from each chain, ', obj.mcmcparams.nburnin )
-% 				logInfo(fid,'resulting in a total of %d samples to approximate the posterior distribution. ', obj.mcmcparams.nsamples )
-% 				logInfo(fid,'\n\n\n');
-% 			end
 
-	function printRhatInformation(IDnames)
-		% TODO: export this in a longform table ?
-		nExperimentFiles = numel(IDnames);
+function printRhatInformation(IDnames, Rhat, fid)
+% TODO: export this in a longform table ?
+nExperimentFiles = numel(IDnames);
+varNames = fieldnames(Rhat);
 
-		isRhatThresholdExceeded = false;
-		varNames = fieldnames(Rhat);
+% TODO: This is a filter then a map ---------------------------------------
+isVectorOfParticipants = @(x,p) isvector(x) && numel(x)==p;
+isVectorForEachParticipant = @(x,p) ismatrix(x) && size(x,1)==p;
+for n = 1:numel(varNames)
+	% skip posterior predictive variables
+	if strcmp(varNames{n},'Rpostpred'), continue, end
+	RhatValues = Rhat.(varNames{n});
+	
+	print_variable_of_interest()
+	
+	if isscalar(RhatValues)
+		print_scalar()
+	elseif isVectorOfParticipants(RhatValues,nExperimentFiles)
+		print_vector()
+	elseif isVectorForEachParticipant(RhatValues,nExperimentFiles)
+		print_matrix_2D()
+	end
+end
 
-		for n = 1:numel(varNames)
-			% skip posterior predictive variables
-			if strcmp(varNames{n},'Rpostpred'), continue, end
-			RhatValues = Rhat.(varNames{n});
+for n = 1:numel(varNames)
+	if any(RhatValues > RHAT_THRESHOLD())
+		logInfo(fid,'\n\n\n**** WARNING: convergence issues :( ****\n\n\n')
+		% Uncomment if you want auditory feedback
+		% try
+		%	speak('there were some convergence issues')
+		% catch
+		%	beep
+		% end
+	end
+	logInfo(fid,'\n\n\n**** No convergence issues :) ****\n\n\n')
+end
 
-			% conditions
-			isVectorOfParticipants = @(x,p) isvector(x) && numel(x)==p;
-			isVectorForEachParticipant = @(x,p) ismatrix(x) && size(x,1)==p;
 
-			if isscalar(RhatValues)
-				logInfo(fid,'\nRhat for: %s\t',varNames{n});
-				logInfo(fid,'%2.5f', RhatValues);
-			elseif isVectorOfParticipants(RhatValues,nExperimentFiles)
-				logInfo(fid,'\nRhat for: %s\n',varNames{n});
-				for i=1:numel(IDnames)
-					logInfo(fid,'%s:\t', IDnames{i}); % participant name
-					logInfo(fid,'%2.5f\t', RhatValues(i));
-					checkRhatExceedThreshold(RhatValues(i));
-					logInfo(fid,'\n');
-				end
-			elseif isVectorForEachParticipant(RhatValues,nExperimentFiles)
-				logInfo(fid,'\nRhat for: %s\n',varNames{n});
-				for i=1:numel(IDnames)
-					logInfo(fid,'%s\t', IDnames{i}); % participant name
-					logInfo(fid,'%2.5f\t', RhatValues(i,:));
-					checkRhatExceedThreshold(RhatValues);
-					logInfo(fid,'\n');
-				end
-			end
+
+
+
+	function print_variable_of_interest()
+		logInfo(fid,'\nRhat for: %s\t',varNames{n});
+	end
+
+	function print_participant_name(i)
+		logInfo(fid,'%s:\t', IDnames{i}); % participant name
+	end
+
+	% ------------------------------------------------------
+	% TODO: refactor these into a single function?
+	function print_scalar
+		logInfo(fid,'%2.5f', RhatValues);
+		printConvergenceAchivedOrNot(RhatValues);
+	end
+
+	function print_vector()
+		for i=1:numel(IDnames)
+			print_participant_name(i)
+			logInfo(fid,'%2.5f\t', RhatValues(i));
+			printConvergenceAchivedOrNot(RhatValues(i));
+			logInfo(fid,'\n');
 		end
+	end
 
-		if isRhatThresholdExceeded
-			logInfo(fid,'\n\n\n**** WARNING: convergence issues :( ****\n\n\n')
-			% Uncomment this line if you want auditory feedback
-			% speak('there were some convergence issues')
-			% beep
-		else
-			logInfo(fid,'\n\n\n**** No convergence issues :) ****\n\n\n')
+	function print_matrix_2D()
+		for i=1:numel(IDnames)
+			print_participant_name(i)
+			logInfo(fid,'%2.5f\t', RhatValues(i,:));
+			printConvergenceAchivedOrNot(RhatValues);
+			logInfo(fid,'\n');
 		end
+	end
+	% ------------------------------------------------------
 
-		function checkRhatExceedThreshold(RhatValues)
-			if any(RhatValues > RHAT_THRESHOLD() )
-				isRhatThresholdExceeded = true;
-				logInfo(fid,'(WARNING: poor convergence)');
-			end
+	function printConvergenceAchivedOrNot(RhatValues)
+		if any(RhatValues > RHAT_THRESHOLD() )
+			logInfo(fid,'(WARNING: poor convergence)');
 		end
 	end
 end

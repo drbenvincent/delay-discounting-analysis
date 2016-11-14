@@ -42,6 +42,32 @@ classdef test_DataInputs < matlab.unittest.TestCase
 		function frontend(testCase)
 			testCase.data = Data(testCase.datapath, 'files', {'frontend.txt'});
 		end
+		
+		function incorrect_responses(testCase)
+			noError = false;
+			expected_error_message = 'Data:AssertionFailed';
+			try
+				Data(testCase.datapath, 'files', {'incorrect_responses.txt'})
+				noError=true;
+			catch actualME
+				testCase.assertEqual(actualME.identifier, expected_error_message)
+				
+			end
+			testCase.verifyFalse(noError, 'This test should fail, but it didn''t)')
+		end
+		
+		function column_order(testCase)
+			testCase.data = Data(testCase.datapath, 'files', {'different_column_order.txt'});
+			
+			model = ModelSeparateLogK(testCase.data,...
+				'savePath', tempname(),...
+				'mcmcParams', struct('nsamples', 10^2,...
+				'nchains', 2,...
+				'nburnin', 100),...
+				'shouldPlot','no');
+		end
+		
+		
 	end
 	
 end

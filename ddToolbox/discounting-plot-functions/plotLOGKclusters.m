@@ -1,4 +1,9 @@
-function plotLOGKclusters(mcmcContainer, data, col, pointEstimateType, savePath, modelType, shouldExportPlots)
+function plotLOGKclusters(mcmcContainer, data, col, modelType, plotOptions)
+
+% TODO: plotExpclusters.m and plotLOGKclusters are pretty much identical
+
+% TODO: plotExpclusters.m and plotLOGKclusters also do the same thing
+% (conceptually) as plotMCclusters.m
 
 % TODO:
 % remove input:
@@ -8,18 +13,20 @@ function plotLOGKclusters(mcmcContainer, data, col, pointEstimateType, savePath,
 
 % plot posteriors over log(k) for all participants
 
+varName = {'logk'};
+
 figure(12), clf
 
 %% REAL EXPERIMENT DATA
 % build samples
-for p = 1:data.nExperimentFiles
-	logkSamples(:,p) = mcmcContainer.getSamplesFromExperimentAsMatrix(p, {'logk'});
+for p = 1:data.getNExperimentFiles()
+	logkSamples(:,p) = mcmcContainer.getSamplesFromExperimentAsMatrix(p, varName);
 end
 
-uniG1 = mcmc.UnivariateDistribution(logkSamples(:,[1:data.nRealExperimentFiles]),...
+uniG1 = mcmc.UnivariateDistribution(logkSamples(:,[1:data.getNRealExperimentFiles()]),...
     'xLabel', '$\log(k)$',...
     'plotHDI', false,...
-	'pointEstimateType', pointEstimateType,...
+	'pointEstimateType', plotOptions.pointEstimateType,...
 	'patchProperties',definePlotOptions4Participant(col));
 
 % keep axes zoomed in on all participants
@@ -27,14 +34,13 @@ axis tight
 participantAxisBounds = axis;
 
 %% GROUP LEVEL (UNOBSERVED PARTICIPANT)
-%if size(logkSamples,2) == data.nExperimentFiles+1
-groupLogkSamples = logkSamples(:,data.nExperimentFiles);
+groupLogkSamples = logkSamples(:,data.getNExperimentFiles());
 
-if data.unobservedPartipantPresent && ~any(isnan(groupLogkSamples))
+if data.isUnobservedPartipantPresent() && ~any(isnan(groupLogkSamples))
 	mcmc.UnivariateDistribution(groupLogkSamples,...
 		'xLabel', '$\log(k)$',...
 		'plotHDI', false,...
-		'pointEstimateType', pointEstimateType,...
+		'pointEstimateType', plotOptions.pointEstimateType,...
 		'patchProperties', definePlotOptions4Group(col));
 end
 
@@ -45,9 +51,10 @@ axis(participantAxisBounds)
 % 	'YAxisLocation','origin')
 drawnow
 
-if shouldExportPlots
-	myExport(savePath, 'summary_plot',...
-		'suffix', modelType)
+if plotOptions.shouldExportPlots
+	myExport(plotOptions.savePath, 'summary_plot',...
+		'suffix', modelType,...
+        'formats', {'png'})
 end
 
 

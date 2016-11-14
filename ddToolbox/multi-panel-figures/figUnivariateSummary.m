@@ -30,15 +30,16 @@ screen_size = get(0,'ScreenSize');
 fig_width = min(screen_size(3), 100+numel(participantNames)*20);
 set(gcf,'Position',[100 200 fig_width 1000])
 
-if alldata.shouldExportPlots
-	myExport(alldata.savePath,...
+if alldata.plotOptions.shouldExportPlots
+	myExport(alldata.plotOptions.savePath,...
 		'UnivariateSummary',...
-		'suffix', alldata.modelType)
+		'suffix', alldata.modelFilename,...
+        'formats', alldata.plotOptions.exportFormats)
 end
 
 	function participantNames = makeParticipantNames()
 		variables = alldata.variables;
-		participantNames = alldata.IDnames;
+		participantNames = alldata.filenames;
 		
 		% just get the participant ID. We assume the filenames are coded as:
 		% <ID>-<other information>.txt

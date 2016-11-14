@@ -1,0 +1,5 @@
+https://github.com/drbenvincent/mcmc-utils-matlab
+https://github.com/altmany/export_fig
+https://github.com/drbenvincent/matjags
+https://github.com/brian-lau/MatlabProcessManager
+https://github.com/drbenvincent/MatlabStan

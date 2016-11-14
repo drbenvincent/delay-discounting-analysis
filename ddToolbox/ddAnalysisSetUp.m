@@ -12,12 +12,10 @@ cd(toolboxPath)
 addSubFoldersToPath()
 
 % Ensure dependencies are installed and up-to-date.
-dependencies={...
-	'https://github.com/drbenvincent/mcmc-utils-matlab',...
-	'https://github.com/altmany/export_fig',...
-	'https://github.com/drbenvincent/matjags',...
-	'https://github.com/brian-lau/MatlabProcessManager',...
-	'https://github.com/drbenvincent/MatlabStan'}; %'https://github.com/brian-lau/MatlabStan'};
+fid = fopen('dependencies.txt');
+dependencies = textscan(fid,'%s','Delimiter','\n');
+fclose(fid);
+dependencies = dependencies{:};
 checkGitHubDependencies(dependencies);
 
 % Import mcmc-utils-matlab package

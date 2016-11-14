@@ -1,0 +1,38 @@
+model{
+
+	# comparison acuity (alpha)
+	groupALPHAmu        ~ dnorm(0,1/(0.1^2)) T(0,)
+	groupALPHAsigma     ~ dexp(0.1)
+
+	# error rates (epsilon)
+	groupW          ~ dbeta(1.1, 10.9)  # mode for lapse rate
+	groupKminus2    ~ dgamma(0.5,0.5) # concentration parameter
+	groupK          <- groupKminus2+2
+
+	# priors
+	for (p in participantIndexList){
+		epsilon[p]  ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
+		alpha[p]    ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) 
+
+		# PRIOR OVER DISCOUNT FRACTION
+		for (d in 1:length(uniqueDelays)) {
+			Rstar[p,d] ~ dnorm( 1, 1/ 1^2) T(0,5)
+		}
+	}
+
+	#  phi() cannot be vectorised
+
+	for (t in 1:length(ID)) {
+		#VA[t] <- A[t] # NO DELAY FOR A
+		#VB[t] <- (B[t]) * discountFraction[ID[t], delayLookUp[t] ]
+		#P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * phi( (VB[t]-VA[t]) / alpha[ID[t]] )
+
+		rewardratio[t] <- A[t]/B[t]
+		df[t] <- Rstar[ID[t], delayLookUp[t]]
+		P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * (1 - phi( (rewardratio[t]-df[t]) / alpha[ID[t]] ) )
+
+		R[t]         ~ dbern(P[t]) # likelihood of actual response
+		Rpostpred[t] ~ dbern(P[t]) # posterior predicted response
+	}
+
+}

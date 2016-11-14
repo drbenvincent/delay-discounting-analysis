@@ -77,8 +77,16 @@ classdef test_myExport < matlab.unittest.TestCase
 				'formats', {format})
 			testCase.assertTrue( exist(fullfile(testCase.folder,'myprefix-tempFileName-mysuffix.png'),'file')==2 )
 		end
+        
+        function test_2_formats(testCase, format)
+            myExport(testCase.folder, 'tempFileName',...
+                'prefix', 'myprefix',...
+                'suffix', 'mysuffix',...
+                'formats', {'png','fig'})
+            testCase.assertTrue( exist(fullfile(testCase.folder,'myprefix-tempFileName-mysuffix.png'),'file')==2 )
+            testCase.assertTrue( exist(fullfile(testCase.folder,'myprefix-tempFileName-mysuffix.fig'),'file')==2 )
+        end
 
 	end
 	
 end
-

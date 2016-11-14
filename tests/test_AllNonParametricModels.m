@@ -12,7 +12,7 @@ classdef test_AllNonParametricModels < matlab.unittest.TestCase
 	end
 	
 	properties (TestParameter)
-		model = {'ModelGRW'}
+		model = {'ModelSeparateNonParametric','ModelMixedNonParametric'}
 		pointEstimateType = {'mean','median','mode'}
 		sampler = {'jags', 'stan'} % TODO: ADD STAN
 		chains = {2,3,4}
@@ -57,11 +57,13 @@ classdef test_AllNonParametricModels < matlab.unittest.TestCase
 			
 			model = makeModelFunction(testCase.data,...
 				'savePath', testCase.savePath,...
-				'mcmcParams', struct('nsamples', 10^2,...
+				'mcmcParams', struct('nsamples', 100,...
 				'nchains', 2,...
-				'nburnin', 100),...
+				'nburnin', 10),...
 				'shouldPlot','no');
 			% TODO: DO AN ACTUAL TEST HERE !!!!!!!!!!!!!!!!!!!!!!
+			
+			model.plot('shouldExportPlots', false)
 		end
 		
 		function nChains(testCase, model, chains)

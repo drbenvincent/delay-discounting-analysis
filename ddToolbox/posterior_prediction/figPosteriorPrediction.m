@@ -16,7 +16,6 @@ latex_fig(16, 9, 6)
 
 subplot(2,2,1)
 pp_plotTrials()
-%if p<obj.data.nExperimentFiles, set(gca,'XTick',[]), end
 
 subplot(2,2,2)
 pp_plotGOFdistribution()
@@ -25,14 +24,15 @@ subplot(2,2,3)
 pp_plotPredictionAndResponse()
 
 subplot(2,2,4)
-pp_ploptPercentPredictedDistribution()
+pp_plotPercentPredictedDistribution()
 
 % Export figure
 drawnow
 if data.shouldExportPlots
-	myExport(data.savePath, 'PosteriorPredictive',...
+	myExport(data.plotOptions.savePath, 'PosteriorPredictive',...
 		'prefix', data.IDname{:},...
-		'suffix', data.modelType)
+		'suffix', data.modelFilename,...
+        'formats', data.plotOptions.exportFormats)
 end
 
 	function pp_plotGOFdistribution()
@@ -42,14 +42,14 @@ end
 			'pointEstimateType',data.pointEstimateType);
 	end
 
-	function pp_ploptPercentPredictedDistribution()
+	function pp_plotPercentPredictedDistribution()
 		uni = mcmc.UnivariateDistribution(data.postPred.percentPredictedDistribution(:),...
 			'xLabel', '$\%$ proportion responses accounted for',...
 			'plotStyle','hist',...
 			'pointEstimateType',data.pointEstimateType);
 		
 		axis tight
-		vline(0.5)
+		vline(0.5);
 		set(gca,'XLim',[0 1])
 	end
 

@@ -1,0 +1,44 @@
+# Discount Fraction estimated separately for each delay
+
+# **** WARNING ****
+# We also assume reward A is immediate, ie DA=0
+
+
+# Observed data being provided:
+# - participantIndexList
+# - T (vector of trials per participant)
+# - A, B
+# - uniqueDelays
+# - delayLookUp[t] is an index into the delay
+
+# Parameters
+# - alpha
+# - epsilon
+# - Rstar: 
+
+model{
+
+# priors
+for (p in participantIndexList){
+    epsilon[p]  ~ dbeta(1.1 , 10.9) T(,0.5)
+    alpha[p]    ~ dnorm(0, 1/0.1^2)  # <--------------- FIGURE OUT BEST PRIOR. Currently allowing alpha to go <0 because as a bodge fix for working with losses
+
+    # PRIOR OVER DISCOUNT FRACTION
+	for (d in 1:length(uniqueDelays)) {
+        Rstar[p,d] ~ dnorm( 1, 1/ 1^2) T(0,5)
+	}
+}
+
+#  phi() cannot be vectorised
+
+for (t in 1:length(ID)) {
+
+	rewardratio[t] <- A[t]/B[t]
+	df[t] <- Rstar[ID[t], delayLookUp[t]]
+	P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * (1 - phi( (rewardratio[t]-df[t]) / alpha[ID[t]] ) )
+
+	R[t]         ~ dbern(P[t]) # likelihood of actual response
+	Rpostpred[t] ~ dbern(P[t]) # posterior predicted response
+}
+
+}
