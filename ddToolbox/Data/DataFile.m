@@ -29,7 +29,8 @@ classdef DataFile
 				return
 			end
 			
-			[x,y,~,markerCol,markerSize] = obj.convertDataIntoMarkers();
+			
+			[x,y,z,markerCol,markerSize] = obj.convertDataIntoMarkers();
 			
 			hold on
 			for i=1:numel(x)
@@ -40,6 +41,17 @@ classdef DataFile
 				hold on
 			end
 			
+			
+			% OLD CODE FOR PLOTTING DATA ON DISCOUNT SURFACE
+% 			% plot
+% 			for i=1:numel(x)
+% 				h = stem3(x(i), y(i), z(i));
+% 				h.Color='k';
+% 				h.MarkerFaceColor=[1 1 1] .* (1-markerCol(i));
+% 				h.MarkerSize = markerSize(i)+4;
+% 				hold on
+% 			end
+	
 		end
 		
 		
@@ -74,6 +86,28 @@ classdef DataFile
 			end
 			z=[];
 		end
+		
+		
+		% OLD CODE FOR DISCOUNT SURFACE
+% 		function [x,y,z,markerCol,markerSize] = convertDataIntoMarkers(data)
+% 			% find unique experimental designs
+% 			D=[abs(data.A), abs(data.B), data.DA, data.DB];
+% 			[C, ia, ic] = unique(D,'rows');
+% 			% loop over unique designs (ic)
+% 			for n=1:max(ic)
+% 				% binary set of which trials this design was used on
+% 				myset=ic==n;
+% 				% markerSize = number of times this design has been run
+% 				markerSize(n) = sum(myset);
+% 				% Colour = proportion of times participant chose immediate for that design
+% 				markerCol(n) = sum(data.R(myset)==0) ./ markerSize(n);
+% 				
+% 				x(n) = abs(data.B( ia(n) )); % £B
+% 				y(n) = data.DB( ia(n) ); % delay to get £B
+% 				z(n) = abs(data.A( ia(n) )) ./ abs(data.B( ia(n) ));
+% 			end
+% 		end
+
 		
 	end
 end
