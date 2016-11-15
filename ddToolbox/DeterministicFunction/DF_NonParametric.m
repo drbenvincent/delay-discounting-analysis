@@ -39,12 +39,20 @@ classdef DF_NonParametric < DiscountFunction
 			
             %% visualise the posterior predictive indifference points
 			intervals = [50 95];
-            ribbon_plot(obj.delays, obj.theta, intervals); % TODO: replace, or inject the plot style we want
+            
+            % RIBBON PLOT
+            %ribbon_plot(obj.delays, obj.theta, intervals); % TODO: replace, or inject the plot style we want
+           
+            % PLOT N EXAMPLES
+            N = 200;
+            plot(obj.delays, obj.theta([1:N],:), 'Color',[0 0 0 0.05])
+            
             hold on
 
-            %% overlay behavioural data
-            %plotDiscountingData(personInfo.data)
-
+			% ~~~~~~~~~~~~~
+			obj.data.plot()
+			% ~~~~~~~~~~~~~
+            
             %% formatting
             %title(personInfo.participantName)
             xlabel('delay')
@@ -58,9 +66,7 @@ classdef DF_NonParametric < DiscountFunction
             %auc_str = sprintf('mean AUC: %1.2f', mean(personInfo.AUCsamples));
             %addTextToFigure('TR',auc_str, 15, 'latex')
 			
-			% ~~~~~~~~~~~~~
-			obj.data.plot()
-			% ~~~~~~~~~~~~~
+
 			
 		end
         

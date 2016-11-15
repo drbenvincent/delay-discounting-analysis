@@ -52,7 +52,7 @@ classdef (Abstract) NonParametric < Model
 			close all
 
 			% EXPERIMENT PLOT ==================================================
-            %obj.psychometric_plots();
+            obj.psychometric_plots();
 			obj.experimentPlot();
 			
             % POSTERIOR PREDICTION PLOTS =======================================
@@ -129,6 +129,8 @@ classdef (Abstract) NonParametric < Model
 		end
 		
 		function psychometric_plots(obj)
+            % TODO: plot data on these figures
+            
 			names = obj.data.getIDnames('all');
 			for ind = 1:numel(names) % loop over files
 				fh = figure('Name', ['participant: ' names{ind}]);
