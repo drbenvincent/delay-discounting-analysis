@@ -42,6 +42,8 @@ fprintf('Figure saved: %s\n\n', saveAs);
 			case{'eps'}
 				export_fig(saveAs,'-eps');
 				%print('-depsc2', [saveAs '.eps'])
+			case{'ps'}
+				print('-depsc','-painters',[saveAs '.ps'])
 			case{'svg'}
 				print('-dsvg', [saveAs '.svg'])
 			case{'fig'}
