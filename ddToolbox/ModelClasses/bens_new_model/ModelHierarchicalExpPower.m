@@ -4,7 +4,7 @@ classdef ModelHierarchicalExpPower < ExponentialPower
 
 	methods (Access = public)
 
-		function obj = ModelHierarchicalExp1(data, varargin)
+		function obj = ModelHierarchicalExpPower(data, varargin)
 			obj = obj@ExponentialPower(data, varargin{:});
             obj.modelFilename = 'hierarchicalExpPower';
             obj = obj.addUnobservedParticipant('GROUP');
@@ -23,6 +23,8 @@ classdef ModelHierarchicalExpPower < ExponentialPower
 			for chain = 1:nchains
 				initialParams(chain).groupKmu		    = normrnd(0.001,0.1);
 				initialParams(chain).groupKsigma		= rand*5;
+				initialParams(chain).groupTAUmu		    = normrnd(00,0.1); % <---- check
+				initialParams(chain).groupTAUsigma		= rand*5;% <---- check
 				initialParams(chain).groupW				= rand;
 				initialParams(chain).groupALPHAmu		= rand*10;
 				initialParams(chain).groupALPHAsigma	= rand*5;

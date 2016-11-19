@@ -1,3 +1,4 @@
+
 model{
 
 # TODO: CURRENTLY GUESSTIMATING THESE HYPERPARAMETERS!
@@ -6,11 +7,23 @@ K_PRECISION <- 1/(0.01)
 TAU_MEAN <- 1
 TAU_PRECISION <- 1/1^2
 
-for (p in 1:(nRealExperimentFiles)){
+# comparison acuity (alpha)
+groupALPHAmu        ~ dnorm(0,1/(100^2)) T(0,) ## UPDATED SINCE PAPER
+groupALPHAsigma     ~ dunif(0,500) ## UPDATED SINCE PAPER
+
+# error rates (epsilon)
+groupW          ~ dbeta(1.1, 10.9)  # mode for lapse rate
+groupKminus2    ~ dgamma(0.5,0.5) # concentration parameter ## UPDATED SINCE PAPER
+groupK          <- groupKminus2+2
+
+for (p in 1:nRealExperimentFiles){
 	k[p]        ~ dnorm(K_MEAN, K_PRECISION)
     tau[p]      ~ dnorm(TAU_MEAN, TAU_PRECISION) T(0,)
-    epsilon[p]  ~ dbeta(1.1 , 10.9) T(,0.5)
-	alpha[p]    ~ dexp(0.01)
+}
+
+for (p in 1:(nRealExperimentFiles+1)){ # +1 for unobserved participant
+	epsilon[p]  ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
+	alpha[p]    ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
 }
 
 #  neither phi() nor exp() can be vectorised
