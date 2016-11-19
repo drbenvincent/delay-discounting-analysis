@@ -29,7 +29,7 @@ classdef DF_SLICE_PsychometricFunction < DeterministicFunction
 		
 		function plot(obj)
 			% 
-			x = [0:0.01:3];
+			x = [-2:0.01:2];
 			
 			try
 				plot(x, obj.eval(x, 'nExamples', 100), '-', 'Color',[0.5 0.5 0.5 0.1])
@@ -41,7 +41,7 @@ classdef DF_SLICE_PsychometricFunction < DeterministicFunction
 			axis tight
 			ylim([0 1])
 			vline(1);
-			xlabel('reward ratio $(A/B)$', 'interpreter','latex')
+			xlabel('reward ratio $\log(A/B)$', 'interpreter','latex')
 			ylabel('P(choose delayed)', 'interpreter','latex')
 			box off
 		end

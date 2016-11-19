@@ -25,7 +25,7 @@ for (p in participantIndexList){
 
     # PRIOR OVER DISCOUNT FRACTION
 	for (d in 1:length(uniqueDelays)) {
-        Rstar[p,d] ~ dnorm( 1, 1/ 1^2) T(0,5)
+        Rstar[p,d] ~ dnorm(0, 1/ 1^2) T(0,5)
 	}
 }
 
@@ -33,7 +33,7 @@ for (p in participantIndexList){
 
 for (t in 1:length(ID)) {
 
-	rewardratio[t] <- A[t]/B[t]
+	rewardratio[t] <- log(A[t]/B[t])
 	df[t] <- Rstar[ID[t], delayLookUp[t]]
 	P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * (1 - phi( (rewardratio[t]-df[t]) / alpha[ID[t]] ) )
 
