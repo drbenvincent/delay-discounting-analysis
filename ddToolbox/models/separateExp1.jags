@@ -1,9 +1,10 @@
 model{
 
-# TODO: CURRENTLY GUESSTIMATING THESE HYPERPARAMETERS!
-K_MEAN      <- 0.01
-K_PRECISION <- 1/(0.001)
+# *** NOTE: Hyperpriors for k are guessed at for the moment. You might want to
+# choose these based on your particular circumstances. ***
 
+K_MEAN      <- 0.01
+K_PRECISION <- 1/(0.01^2)
 
 for (p in 1:(nRealExperimentFiles)){
 	k[p]        ~ dnorm(K_MEAN, K_PRECISION)

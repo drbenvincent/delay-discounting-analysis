@@ -1,8 +1,10 @@
 model{
 
-# TODO: CURRENTLY GUESSTIMATING THESE HYPERPARAMETERS!
-groupKmu      ~ dnorm( 0.01 ,1/(0.001^2))
-groupKsigma    ~ dgamma(0.1,0.1)
+# *** NOTE: Hyperpriors for k are guessed at for the moment. You might want to
+# choose these based on your particular circumstances. ***
+
+groupKmu      ~ dnorm(0.01, 1/(0.01^2))
+groupKsigma    ~ dgamma(0.1, 0.1)
 
 # comparison acuity (alpha)
 groupALPHAmu        ~ dnorm(0,1/(100^2)) T(0,)
@@ -10,7 +12,7 @@ groupALPHAsigma     ~ dunif(0,100)
 
 # error rates (epsilon)
 groupW          ~ dbeta(1.1, 10.9)  # mode for lapse rate
-groupKminus2    ~ dgamma(0.5,0.5) # concentration parameter ## UPDATED SINCE PAPER
+groupKminus2    ~ dgamma(0.5,0.5) # concentration parameter 
 groupK          <- groupKminus2+2
 
 for (p in 1:(nRealExperimentFiles+1)){ # +1 for unobserved participant
