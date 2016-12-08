@@ -30,7 +30,13 @@ classdef DF_ExponentialPower < DiscountFunction
 
 		
         function plot(obj)
-			x = [1:365];
+			maxDelayRange = max( obj.data.getDelayRange() )*1.2;
+			if isempty(maxDelayRange)
+				% default (happens when there is no data, ie group level
+				% observer).
+				maxDelayRange = 365;
+			end
+			x = linspace(0, maxDelayRange, 1000);
 			
 			% don't plot if we've been given NaN's
 			if any(isnan(obj.theta.k.samples))
@@ -38,7 +44,6 @@ classdef DF_ExponentialPower < DiscountFunction
 				return
 			end
 			
-			% TODO
 			discountFraction = obj.eval(x, 'nExamples', 100);
 			
 			try

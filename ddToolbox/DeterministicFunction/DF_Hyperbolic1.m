@@ -29,8 +29,15 @@ classdef DF_Hyperbolic1 < DiscountFunction
 		end
 		
 		
-		function plot(obj)
-			x = [1:365];
+		function plot(obj)	
+			
+			maxDelayRange = max( obj.data.getDelayRange() )*1.2;
+			if isempty(maxDelayRange)
+				% default (happens when there is no data, ie group level
+				% observer).
+				maxDelayRange = 365;
+			end
+			x = linspace(0, maxDelayRange, 1000);
 			
 			% don't plot if we've been given NaN's
 			if any(isnan(obj.theta.logk.samples))
@@ -45,15 +52,13 @@ classdef DF_Hyperbolic1 < DiscountFunction
 				plot(x, obj.eval(x, 'nExamples', 100)', '-', 'Color',[0.5 0.5 0.5])
 			end
 			
-			
 			xlabel('delay $D^B$', 'interpreter','latex')
 			ylabel('discount factor', 'interpreter','latex')
 			set(gca,'Xlim', [0 max(x)])
 			box off
 			axis square
 			
-			
-			% ~~~~~~~~~~~~~
+			%~~~~~~~~~~~~~
 			obj.data.plot()
 			% ~~~~~~~~~~~~~
 		end

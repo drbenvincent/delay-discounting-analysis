@@ -29,17 +29,24 @@ classdef DataFile
 				return
 			end
 			
-			
+			% TODO: dataMarkers could even be a separate class with
+			% methods:
+			% - convertDataIntoMarkers()
+			% - plot()
 			[x,y,z,markerCol,markerSize] = obj.convertDataIntoMarkers();
 			
 			hold on
 			for i=1:numel(x)
-				h = plot(x(i), y(i),'o');
+				h = plot(x(i), y(i), 'o');
 				h.Color='k';
 				h.MarkerFaceColor=[1 1 1] .* (1-markerCol(i));
 				h.MarkerSize = markerSize(i)+4;
 				hold on
 			end
+			
+			% zoom axis to marker range
+			set(gca,'XLim',[0 max(x)*1.2])
+			set(gca,'YLim',[0 max(y)*1.2])
 			
 			
 			% OLD CODE FOR PLOTTING DATA ON DISCOUNT SURFACE
@@ -55,11 +62,19 @@ classdef DataFile
 		end
 		
 		
-		
+		function r = getDelayRange(obj)
+			try
+				r = unique(sort([obj.data.DA(:) ;obj.data.DB(:)]));
+			catch
+				% probably because of absence of data
+				r = [];
+			end
+		end
 		
 		
 	end
 	
+
 	
 	
 	% PRIVATE METHODS =====================================================
