@@ -267,15 +267,24 @@ classdef Data
 			% return a structure of tables
 
 			for pIndex = 1:obj.nExperimentFiles
-				% read from disk
+				
 				experimentTable = readtable(...
 					fullfile(obj.dataFolder, fnames{pIndex}),...
 					'delimiter', 'tab');
+				
+				% Optional use of columnHeaderConversion user-provided
+				% function to convert from different column headings
+				if exist('columnHeaderConversion','file')	
+					experimentTable = columnHeaderConversion(experimentTable);
+				end
+				
 				% Add ID column
 				experimentTable = appendTableColOfVals(experimentTable, pIndex);
-				% Ensure PA, PB, DA, DB cols present
+				
 				experimentTable = obj.ensureAllColsPresent(experimentTable);
-
+				
+				experimentTable = obj.columnHeaderValidation(experimentTable);
+				
 				% Add to struct
 				experiment(pIndex).table = experimentTable;
 				experiment(pIndex).trialsForThisParticant = height(experimentTable);
@@ -306,6 +315,12 @@ classdef Data
 			% were immediate rewards.
 			experimentTable = ensureColumnsPresentInTable(experimentTable,...
 				{'DA',0, 'DB',0});
+		end
+				
+		function aTable = columnHeaderValidation(aTable)
+			% Ensure we have the desired information
+			
+			% TODO: Implement validation here
 		end
 
 
