@@ -29,87 +29,53 @@ classdef DF_ExponentialPower < DiscountFunction
         end
 
 		
-        function plot(obj)
-			maxDelayRange = max( obj.data.getDelayRange() )*1.2;
-			if isempty(maxDelayRange)
-				% default (happens when there is no data, ie group level
-				% observer).
-				maxDelayRange = 365;
-			end
-			x = linspace(0, maxDelayRange, 1000);
-			
-			% don't plot if we've been given NaN's
-			if any(isnan(obj.theta.k.samples))
-				warning('Not plotting due to NaN''s')
-				return
-			end
-			
-			discountFraction = obj.eval(x, 'nExamples', 100);
-			
-			try
-				plot(x, discountFraction, '-', 'Color',[0.5 0.5 0.5 0.1])
-			catch
-				% backward compatability
-				plot(x, discountFraction, '-', 'Color',[0.5 0.5 0.5])
-			end
-			
-			xlabel('delay $D^B$', 'interpreter','latex')
-			ylabel('discount factor', 'interpreter','latex')
-			set(gca,'Xlim', [0 max(x)])
-			box off
-			axis square
-			
-			% ~~~~~~~~~~~~~
-			obj.data.plot()
-			% ~~~~~~~~~~~~~
-		end
-        
-        
-
-        
-%         function discountFraction = eval(obj, x, varargin)
-%             % evaluate the discount fraction :
-%             % - at the delays (x.delays)
-%             % - given the onj.parameters
+%         function plot(obj)
 % 			
-% 			p = inputParser;
-% 			p.addRequired('x', @isnumeric);
-% 			p.addParameter('nExamples', [], @isscalar);
-% 			p.parse(x, varargin{:});
+% 			x = obj.determineDelayValues();
 % 			
-% 			n_samples_requested = p.Results.nExamples;
-% 			n_samples_got = numel(obj.theta.k.samples);
-% 			n_samples_to_get = min([n_samples_requested n_samples_got]);
-% 			if ~isempty(n_samples_requested)
-% 				% shuffle the deck and pick the top nExamples
-% 				shuffledExamples = randperm(n_samples_to_get);
-% 				ExamplesToPlot = shuffledExamples([1:n_samples_to_get]);
-% 			else
-% 				ExamplesToPlot = 1:n_samples_to_get;
+% 			%% don't plot if we've been given NaN's
+% 			if any(isnan(obj.theta.k.samples))
+% 				warning('Not plotting due to NaN''s')
+% 				return
 % 			end
 % 			
-% 			if verLessThan('matlab','9.1')
-% 				discountFraction = (bsxfun(@times,...
-% 					exp( - obj.theta.k.samples(ExamplesToPlot)),...
-% 					x) );
-% 			else
-% 				% use new array broadcasting in 2016b
-% 				discountFraction = exp( - obj.theta.k.samples(ExamplesToPlot) .* x );
+% 			%% Plot N samples from posterior
+% 			discountFraction = obj.eval(x, 'nExamples', 100);
+% 			try
+% 				plot(x, discountFraction, '-', 'Color',[0.5 0.5 0.5 0.1])
+% 			catch
+% 				% backward compatability
+% 				plot(x, discountFraction, '-', 'Color',[0.5 0.5 0.5])
 % 			end
+% 			hold on
+% 			
+% 			%% Plot point estimate
+% 			discountFraction = obj.eval(x, 'pointEstimateType', 'mean'); % <------------------
+% 			plot(x, discountFraction, '-',...
+% 				'Color', 'k',...
+% 				'LineWidth', 2)
+% 			
+% 			%% Formatting
+% 			xlabel('delay $D^B$', 'interpreter','latex')
+% 			ylabel('discount factor', 'interpreter','latex')
+% 			set(gca,'Xlim', [0 max(x)])
+% 			box off
+% 			axis square
+% 			
+% 			%% Overlay data
+% 			obj.data.plot()
 % 		end
         
 	end
 	
 	methods (Static, Access = protected)
 		
-		function y = function_evaluation(x, theta, ExamplesToPlot)
-            k = theta.k.samples(ExamplesToPlot);
-            tau = theta.tau.samples(ExamplesToPlot);
+		function y = function_evaluation(x, theta)
 			if verLessThan('matlab','9.1')
-				y = (bsxfun(@times, exp(-k), x) );
+				error('implement this using bsxfun: y = exp( - theta.k .* x.^theta.tau )')
 			else
 				% use new array broadcasting in 2016b
-				y = exp( - k .* x.^tau );
+				y = exp( - theta.k .* x.^theta.tau );
 			end
 		end
 		

@@ -43,52 +43,23 @@ classdef PsychometricFunction < DeterministicFunction
 			axis square
 		end
 		
-		%         function y = eval(obj, x, varargin)
-		%
-		% 			p = inputParser;
-		% 			p.addRequired('x', @isnumeric);
-		% 			p.addParameter('nExamples', [], @isscalar);
-		% 			p.parse(x, varargin{:});
-		%
-		% 			if ~isempty(p.Results.nExamples)
-		% 				% shuffle the deck and pick the top nExamples
-		% 				shuffledExamples = randperm(p.Results.nExamples);
-		% 				ExamplesToPlot = shuffledExamples([1:p.Results.nExamples]);
-		% 			else
-		% 				ExamplesToPlot = 1:numel(obj.theta.c.samples);
-		% 			end
-		%
-		%             if verLessThan('matlab','9.1')
-		%             	y = bsxfun(@plus,...
-		%             		obj.theta.epsilon.samples(ExamplesToPlot),...
-		%             		bsxfun(@times, ...
-		%             		(1-2*obj.theta.epsilon.samples(ExamplesToPlot)),...
-		%             		normcdf( bsxfun(@rdivide, x, obj.theta.alpha.samples(ExamplesToPlot) ) , 0, 1)) );
-		%             else
-		%             	% use new array broadcasting in 2016b
-		%             	y = obj.theta.epsilon.samples(ExamplesToPlot)...
-		% 					+ (1-2*obj.theta.epsilon.samples(ExamplesToPlot))...
-		% 					.* normcdf( (x ./ obj.theta.alpha.samples(ExamplesToPlot)) , 0, 1);
-		%             end
-		%         end
-		
 	end
 	
 	
 	methods (Static, Access = protected)
 		
-		function y = function_evaluation(x, theta, ExamplesToPlot)
+		function y = function_evaluation(x, theta)
 			if verLessThan('matlab','9.1')
 				y = bsxfun(@plus,...
-					theta.epsilon.samples(ExamplesToPlot),...
+					theta.epsilon,...
 					bsxfun(@times, ...
-					(1-2*theta.epsilon.samples(ExamplesToPlot)),...
-					normcdf( bsxfun(@rdivide, x, theta.alpha.samples(ExamplesToPlot) ) , 0, 1)) );
+					(1-2*theta.epsilon),...
+					normcdf( bsxfun(@rdivide, x, theta.alpha ) , 0, 1)) );
 			else
 				% use new array broadcasting in 2016b
-				y = theta.epsilon.samples(ExamplesToPlot)...
-					+ (1-2*theta.epsilon.samples(ExamplesToPlot))...
-					.* normcdf( (x ./ theta.alpha.samples(ExamplesToPlot)) , 0, 1);
+				y = theta.epsilon...
+					+ (1-2*theta.epsilon)...
+					.* normcdf( (x ./ theta.alpha) , 0, 1);
 			end
 		end
 		

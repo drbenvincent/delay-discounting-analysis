@@ -61,47 +61,18 @@ classdef MagnitudeEffectFunction < DeterministicFunction
 			box off
 			axis square
 		end
-		
-%         function [k, logk] = eval(obj, x, varargin)
-% 			
-% 			p = inputParser;
-% 			p.addRequired('x', @isnumeric);
-% 			p.addParameter('nExamples', [], @isscalar);
-% 			p.parse(x, varargin{:});
-% 			
-% 			n_samples_requested = p.Results.nExamples;
-% 			n_samples_got = numel(obj.theta.c.samples);
-% 			n_samples_to_get = min([n_samples_requested n_samples_got]);
-% 			if ~isempty(n_samples_requested)
-% 				% shuffle the deck and pick the top nExamples
-% 				shuffledExamples = randperm(n_samples_requested);
-% 				ExamplesToPlot = shuffledExamples([1:n_samples_to_get]);
-% 			else
-% 				ExamplesToPlot = 1:n_samples_to_get;
-% 			end
-% 
-% 			% x = reward
-%             if verLessThan('matlab','9.1')
-%                 logk = bsxfun(@plus, bsxfun(@times, obj.theta.m.samples(ExamplesToPlot), log(x)) , obj.theta.c.samples(ExamplesToPlot));
-%             else
-%                 % use new array broadcasting in 2016b
-%                 logk = (obj.theta.m.samples(ExamplesToPlot) .* log(x)) + obj.theta.c.samples(ExamplesToPlot);
-%             end
-%             logk = logk';
-%             k = exp(logk);
-%         end
         
 	end
 	
 		methods (Static, Access = protected)
 		
-		function k = function_evaluation(x, theta, ExamplesToPlot)
+		function k = function_evaluation(x, theta)
 			% x = reward
             if verLessThan('matlab','9.1')
-                logk = bsxfun(@plus, bsxfun(@times, theta.m.samples(ExamplesToPlot), log(x)) , theta.c.samples(ExamplesToPlot));
+                logk = bsxfun(@plus, bsxfun(@times, theta.m, log(x)) , theta.c);
             else
                 % use new array broadcasting in 2016b
-                logk = (theta.m.samples(ExamplesToPlot) .* log(x)) + theta.c.samples(ExamplesToPlot);
+                logk = (theta.m .* log(x)) + theta.c;
             end
             logk = logk';
             k = exp(logk);

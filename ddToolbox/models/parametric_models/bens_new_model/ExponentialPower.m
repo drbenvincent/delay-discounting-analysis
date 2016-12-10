@@ -88,7 +88,7 @@ classdef (Abstract) ExponentialPower < Parametric
                         
 					%% plot discount function
 					subplot(1,4,4)
-					discountFunction.plot()
+					discountFunction.plot(obj.pointEstimateType)
 				end
 				
 				

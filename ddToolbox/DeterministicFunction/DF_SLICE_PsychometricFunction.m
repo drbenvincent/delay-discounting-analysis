@@ -55,9 +55,9 @@ classdef DF_SLICE_PsychometricFunction < DeterministicFunction
 		
 		function y = function_evaluation(x, theta, ExamplesToPlot)
 			
-			alpha	= theta.alpha.samples(ExamplesToPlot);
-			epsilon = theta.epsilon.samples(ExamplesToPlot);
-			Rstar	= theta.indifference.samples(ExamplesToPlot);
+			alpha	= theta.alpha;
+			epsilon = theta.epsilon;
+			Rstar	= theta.indifference;
 			
 			if verLessThan('matlab','9.1')
 				error('check this is correct')

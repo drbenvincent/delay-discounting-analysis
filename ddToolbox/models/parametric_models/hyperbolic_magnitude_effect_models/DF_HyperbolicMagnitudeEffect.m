@@ -136,14 +136,13 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
 	
 	methods (Static, Access = protected)
 		
-		function logk = function_evaluation(x, theta, ExamplesToPlot)
+		function logk = function_evaluation(x, theta)
 			if verLessThan('matlab','9.1')
-				logk = bsxfun(@plus, bsxfun(@times, theta.m.samples(ExamplesToPlot), log(x)) , theta.c.samples(ExamplesToPlot));
+				logk = bsxfun(@plus, bsxfun(@times, theta.m, log(x)) , theta.c);
 			else
 				% use new array broadcasting in 2016b
-				logk = theta.m.samples(ExamplesToPlot) * log(x) + theta.c.samples(ExamplesToPlot);
+				logk = theta.m * log(x) + theta.c;
 			end
-			%k = exp(logk);
 		end
 		
 	end

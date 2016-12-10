@@ -28,84 +28,17 @@ classdef DF_Hyperbolic1 < DiscountFunction
 			
 		end
 		
-		
-		function plot(obj)	
-			
-			maxDelayRange = max( obj.data.getDelayRange() )*1.2;
-			if isempty(maxDelayRange)
-				% default (happens when there is no data, ie group level
-				% observer).
-				maxDelayRange = 365;
-			end
-			x = linspace(0, maxDelayRange, 1000);
-			
-			% don't plot if we've been given NaN's
-			if any(isnan(obj.theta.logk.samples))
-				warning('Not plotting due to NaN''s')
-				return
-			end
-			
-			try
-				plot(x, obj.eval(x, 'nExamples', 100)', '-', 'Color',[0.5 0.5 0.5 0.1])
-			catch
-				% backward compatability
-				plot(x, obj.eval(x, 'nExamples', 100)', '-', 'Color',[0.5 0.5 0.5])
-			end
-			
-			xlabel('delay $D^B$', 'interpreter','latex')
-			ylabel('discount factor', 'interpreter','latex')
-			set(gca,'Xlim', [0 max(x)])
-			box off
-			axis square
-			
-			%~~~~~~~~~~~~~
-			obj.data.plot()
-			% ~~~~~~~~~~~~~
-		end
-		
-		
-		
-		
-		%         function discountFraction = eval(obj, x, varargin)
-		%
-		% 			p = inputParser;
-		% 			p.addRequired('x', @isnumeric);
-		% 			p.addParameter('nExamples', [], @isscalar);
-		% 			p.parse(x, varargin{:});
-		%
-		% 			n_samples_requested = p.Results.nExamples;
-		% 			n_samples_got = numel(obj.theta.logk.samples);
-		% 			n_samples_to_get = min([n_samples_requested n_samples_got]);
-		% 			if ~isempty(n_samples_requested)
-		% 				% shuffle the deck and pick the top nExamples
-		% 				shuffledExamples = randperm(n_samples_requested);
-		% 				ExamplesToPlot = shuffledExamples([1:n_samples_to_get]);
-		% 			else
-		% 				ExamplesToPlot = 1:n_samples_to_get;
-		% 			end
-		%
-		% 			% evaluate the discount fraction :
-		% 			% - at the delays (x.delays)
-		% 			% - given the onj.parameters
-		% 			if verLessThan('matlab','9.1')
-		% 				discountFraction = bsxfun(@rdivide, 1, 1 + (bsxfun(@times, exp(obj.theta.logk.samples(ExamplesToPlot)), x.delay) ) );
-		% 			else
-		% 				% use new array broadcasting in 2016b
-		% 				discountFraction = 1 ./ (1 + exp(obj.theta.logk.samples(ExamplesToPlot)) .* x);
-		% 			end
-		% 		end
-		
 	end
 	
 	
 	methods (Static, Access = protected)
 		
-		function y = function_evaluation(x, theta, ExamplesToPlot)
+		function y = function_evaluation(x, theta)
 			if verLessThan('matlab','9.1')
-				y = bsxfun(@rdivide, 1, 1 + (bsxfun(@times, exp(theta.logk.samples(ExamplesToPlot)), x.delay) ) );
+				y = bsxfun(@rdivide, 1, 1 + (bsxfun(@times, exp(theta.logk), x.delay) ) );
 			else
 				% use new array broadcasting in 2016b
-				y = 1 ./ (1 + exp(theta.logk.samples(ExamplesToPlot)) .* x);
+				y = 1 ./ ((1 + exp(theta.logk)) .* x);
 			end
 		end
 		
