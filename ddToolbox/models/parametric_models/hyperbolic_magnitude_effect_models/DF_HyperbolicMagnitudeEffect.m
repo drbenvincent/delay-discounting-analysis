@@ -29,15 +29,13 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
         end
 
 		
-		function plot(obj)
+		function plot(obj, pointEstimateType, dataPlotType)
 			
 			% don't plot if we've been given NaN's
 			if any(isnan(obj.theta.m.samples))
 				warning('Not plotting due to NaN''s')
 				return
 			end
-			
-			pointEstimateType = 'median';
 			
 			%% Calculate point estimates
 			mcBivariate = mcmc.BivariateDistribution(...
@@ -87,6 +85,9 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
 			
 			
 			obj.formatAxes(pow)
+            
+            %% Overlay data
+			obj.data.plot(dataPlotType)
 		end
         
         

@@ -26,45 +26,7 @@ classdef DF_ExponentialPower < DiscountFunction
 			end
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			
-        end
-
-		
-%         function plot(obj)
-% 			
-% 			x = obj.determineDelayValues();
-% 			
-% 			%% don't plot if we've been given NaN's
-% 			if any(isnan(obj.theta.k.samples))
-% 				warning('Not plotting due to NaN''s')
-% 				return
-% 			end
-% 			
-% 			%% Plot N samples from posterior
-% 			discountFraction = obj.eval(x, 'nExamples', 100);
-% 			try
-% 				plot(x, discountFraction, '-', 'Color',[0.5 0.5 0.5 0.1])
-% 			catch
-% 				% backward compatability
-% 				plot(x, discountFraction, '-', 'Color',[0.5 0.5 0.5])
-% 			end
-% 			hold on
-% 			
-% 			%% Plot point estimate
-% 			discountFraction = obj.eval(x, 'pointEstimateType', 'mean'); % <------------------
-% 			plot(x, discountFraction, '-',...
-% 				'Color', 'k',...
-% 				'LineWidth', 2)
-% 			
-% 			%% Formatting
-% 			xlabel('delay $D^B$', 'interpreter','latex')
-% 			ylabel('discount factor', 'interpreter','latex')
-% 			set(gca,'Xlim', [0 max(x)])
-% 			box off
-% 			axis square
-% 			
-% 			%% Overlay data
-% 			obj.data.plot()
-% 		end
+		end
         
 	end
 	

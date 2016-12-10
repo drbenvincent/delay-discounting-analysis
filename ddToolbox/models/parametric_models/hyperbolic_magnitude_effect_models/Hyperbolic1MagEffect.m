@@ -55,6 +55,7 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 				samples = obj.coda.getSamplesAtIndex(ind,{'m','c'});
 				me = MagnitudeEffectFunction('samples', samples);
 				
+				
 				%% plot (m,c) distribution
 				subplot(1,cols,3)
 				% TODO: replace with new bivariate class
@@ -92,9 +93,16 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 				%% Set up and plot discount surface
 				samples = obj.coda.getSamplesAtIndex(ind,{'m','c'});
 				discountFunction = DF_HyperbolicMagnitudeEffect('samples', samples );
+				% add data:  TODO: streamline this on object creation ~~~~~
+				% NOTE: we don't have data for group-level
+				data_struct = obj.data.getExperimentData(ind);
+				data_object = DataFile(data_struct);
+				discountFunction.data = data_object;
+				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 				
 				subplot(1,cols,6)
-				discountFunction.plot()
+				dataPlotType = '3D';
+				discountFunction.plot(obj.pointEstimateType, dataPlotType)
 				
 				if obj.shouldExportPlots
 					myExport(obj.savePath, 'expt',...

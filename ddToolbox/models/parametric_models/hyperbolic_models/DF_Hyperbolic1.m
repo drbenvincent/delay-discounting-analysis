@@ -38,7 +38,7 @@ classdef DF_Hyperbolic1 < DiscountFunction
 				y = bsxfun(@rdivide, 1, 1 + (bsxfun(@times, exp(theta.logk), x.delay) ) );
 			else
 				% use new array broadcasting in 2016b
-				y = 1 ./ ((1 + exp(theta.logk)) .* x);
+				y = 1 ./ (1 + exp(theta.logk) .* x);
 			end
 		end
 		

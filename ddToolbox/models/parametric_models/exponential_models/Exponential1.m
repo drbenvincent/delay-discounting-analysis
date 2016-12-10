@@ -28,6 +28,8 @@ classdef (Abstract) Exponential1 < Parametric
 			error('Not applicable to this model')
 		end
         
+		
+		
 		function experimentPlot(obj)
 			
 			names = obj.data.getIDnames('all');
@@ -79,7 +81,8 @@ classdef (Abstract) Exponential1 < Parametric
 					
 					%% plot discount function
 					subplot(1,4,4)
-					discountFunction.plot(obj.pointEstimateType)
+					dataPlotType = '2D';
+					discountFunction.plot(obj.pointEstimateType, dataPlotType)
 				end
 				
 				

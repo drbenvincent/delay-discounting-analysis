@@ -8,7 +8,7 @@ classdef (Abstract) DiscountFunction < DeterministicFunction
 		end
 		
 		
-		function plot(obj, pointEstimateType)
+		function plot(obj, pointEstimateType, dataPlotType)
 			
 			x = obj.determineDelayValues();
 			
@@ -42,7 +42,7 @@ classdef (Abstract) DiscountFunction < DeterministicFunction
 			axis square
 			
 			%% Overlay data
-			obj.data.plot()
+			obj.data.plot(dataPlotType)
 		end
 		
 		function delayValues = determineDelayValues(obj)
