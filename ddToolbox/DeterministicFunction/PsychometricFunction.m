@@ -24,9 +24,10 @@ classdef PsychometricFunction < DeterministicFunction
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		end
 		
-		function plot(obj)
-			x = [-100:0.5:100];
+		function plot(obj, pointEstimateType)
 			
+			%% PLOT N SAMPLES
+			x = [-100:0.5:100];
 			try
 				plot(x, obj.eval(x, 'nExamples', 100), '-', 'Color',[0.5 0.5 0.5 0.1])
 			catch
@@ -34,8 +35,14 @@ classdef PsychometricFunction < DeterministicFunction
 				plot(x, obj.eval(x, 'nExamples', 100), '-', 'Color',[0.5 0.5 0.5])
 			end
 			
+			hold on
+			%% Plot point estimate
+			discountFraction = obj.eval(x, 'pointEstimateType', pointEstimateType);
+			plot(x, discountFraction, '-',...
+				'Color', 'k',...
+				'LineWidth', 2)
 			
-			
+			%% Formatting
 			xlabel('$V^B-V^A$', 'interpreter','latex')
 			ylabel('P(choose delayed)', 'interpreter','latex')
 			%title('Psychometric function')

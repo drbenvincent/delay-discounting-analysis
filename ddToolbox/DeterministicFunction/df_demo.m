@@ -5,7 +5,7 @@ psycho = PsychometricFunction();
 psycho.addSamples('alpha', normrnd(10, 0.5, [100 1]) )
 psycho.addSamples('epsilon', normrnd(0.05, 0.01, [100 1]) )
 %psycho.plotParameters()
-psycho.plot()
+psycho.plot('mean')
 
 
 
@@ -53,5 +53,3 @@ hyperME.addSamples('c', normrnd(0, 3, [100 1]) )
 
 hyperME.plotParameters()
 hyperME.plot()
-
-

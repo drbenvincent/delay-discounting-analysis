@@ -59,7 +59,7 @@ classdef (Abstract) Hyperbolic1 < Parametric
 				
 				%% Plot the psychometric function
 				subplot(1,4,2)
-				psycho.plot()
+				psycho.plot(obj.pointEstimateType)
 				
 				%% Set up log k discount function
 				samples = obj.coda.getSamplesAtIndex(ind,{'logk'});

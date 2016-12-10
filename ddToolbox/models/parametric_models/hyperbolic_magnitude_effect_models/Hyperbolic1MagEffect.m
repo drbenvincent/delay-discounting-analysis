@@ -49,7 +49,7 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 				
 				%% Plot the psychometric function
 				subplot(1,cols,2)
-				psycho.plot()
+				psycho.plot(obj.pointEstimateType)
 				
 				%% Set up magnitude effect function
 				samples = obj.coda.getSamplesAtIndex(ind,{'m','c'});

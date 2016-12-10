@@ -93,7 +93,7 @@ classdef (Abstract) NonParametric < Model
                 
 %                 %% Plot the psychometric function
 %                 subplot(1,4,2)
-%                 psycho.plot()
+%                 psycho.plot(obj.pointEstimateType)
                 
                                 
                 %% Set up discount function
