@@ -17,16 +17,18 @@ end
 assert(isrow(dependencies))
 
 for url=dependencies
-	cloneOrUpdateDependency(url{:});
+	processDependency(url{:});
 end
 
 end
 
 
-function cloneOrUpdateDependency(url)
+function processDependency(url)
 displayDependencyToCommandWindow(url);
 repoName = getRepoNameFromUrl(url);
-addpath(fullfile(defineInstallPath(),repoName));
+targetPath = fullfile(defineInstallPath(),repoName);
+ensureFolderExists(targetPath)
+addpath(targetPath);
 if ~isRepoFolderOnPath(repoName)
 	cloneGitHubRepo(url, defineInstallPath());
 else
