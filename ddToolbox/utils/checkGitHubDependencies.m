@@ -27,7 +27,7 @@ function processDependency(url)
 displayDependencyToCommandWindow(url);
 repoName = getRepoNameFromUrl(url);
 targetPath = fullfile(defineInstallPath(),repoName);
-ensureFolderExists(targetPath)
+ensureFolderExists(targetPath);
 addpath(targetPath);
 if ~isRepoFolderOnPath(repoName)
 	cloneGitHubRepo(url, defineInstallPath());

@@ -8,10 +8,16 @@ if doesExist, return, end
 
 if isempty(parentDirectory)
 	% folderPath is just a local folder name?
-	mkdir(dirName)
+	[SUCCESS,MESSAGE,MESSAGEID] = mkdir(dirName);
 	doesExist = true;
 else
-	mkdir(parentDirectory, dirName)
+	[SUCCESS,MESSAGE,MESSAGEID] = mkdir(parentDirectory, dirName);
 	doesExist = true;
 end
+
+if ~SUCCESS
+	disp(MESSAGE)
+	disp(MESSAGEID)
+end
+
 return
