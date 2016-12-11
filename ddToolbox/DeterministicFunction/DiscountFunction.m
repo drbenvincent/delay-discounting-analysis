@@ -9,8 +9,10 @@ classdef (Abstract) DiscountFunction < DeterministicFunction
 		
 		
 		function plot(obj, pointEstimateType, dataPlotType)
+			timeUnitFunction = @days; % <---------- TODO: inject this @days function
+			N_SAMPLES_FROM_POSTERIOR = 100;
 			
-			x = obj.determineDelayValues();
+			delays = obj.determineDelayValues();
 			
 			%% don't plot if we've been given NaN's
 			if obj.anyNaNsPresent()
@@ -19,25 +21,31 @@ classdef (Abstract) DiscountFunction < DeterministicFunction
 			end
 			
 			%% Plot N samples from posterior
-			discountFraction = obj.eval(x, 'nExamples', 100);
+			discountFraction = obj.eval(delays, 'nExamples', N_SAMPLES_FROM_POSTERIOR);
 			try
-				plot(x, discountFraction, '-', 'Color',[0.5 0.5 0.5 0.1])
+				plot(timeUnitFunction(delays),... 
+					discountFraction,...
+					'-', 'Color',[0.5 0.5 0.5 0.1])
 			catch
 				% backward compatability
-				plot(x, discountFraction, '-', 'Color',[0.5 0.5 0.5])
+				plot(timeUnitFunction(delays),...
+					discountFraction,...
+					'-', 'Color',[0.5 0.5 0.5])
 			end
 			hold on
 			
 			%% Plot point estimate
-			discountFraction = obj.eval(x, 'pointEstimateType', pointEstimateType);
-			plot(x, discountFraction, '-',...
+			discountFraction = obj.eval(delays, 'pointEstimateType', pointEstimateType);
+			plot(timeUnitFunction(delays),...
+				discountFraction,...
+				'-',...
 				'Color', 'k',...
 				'LineWidth', 2)
 			
 			%% Formatting
 			xlabel('delay $D^B$', 'interpreter','latex')
 			ylabel('discount factor', 'interpreter','latex')
-			set(gca,'Xlim', [0 max(x)])
+			set(gca,'Xlim', [0 max(timeUnitFunction(delays))])
 			box off
 			axis square
 			

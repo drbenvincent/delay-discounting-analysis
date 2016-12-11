@@ -31,6 +31,8 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
 		
 		function plot(obj, pointEstimateType, dataPlotType)
 			
+			timeUnitFunction = @days; % <---------- TODO: inject this @days function
+			
 			% don't plot if we've been given NaN's
 			if any(isnan(obj.theta.m.samples))
 				warning('Not plotting due to NaN''s')
@@ -74,7 +76,7 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
 			B = exp(logB);
 			
 			%% PLOT
-			hmesh = mesh(B,D,AB);
+			hmesh = mesh(B,timeUnitFunction(D),AB);
 			% shading
 			hmesh.FaceColor		='interp';
 			hmesh.FaceAlpha		=0.7;

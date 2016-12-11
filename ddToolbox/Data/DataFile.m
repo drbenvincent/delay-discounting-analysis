@@ -26,7 +26,7 @@ classdef DataFile
 			% - discount function
 			% - discount surface
 			
-			
+			timeUnitFunction = @days; % <---------- TODO: inject this @days function
 			
 			% exit if we have got no data
 			if isempty(obj.data)
@@ -55,7 +55,7 @@ classdef DataFile
 					% TODO: Extract into function ------------
 					hold on
 					for i=1:numel(x)
-						h = plot(x(i), y(i), 'o');
+						h = plot(timeUnitFunction(x(i)), y(i), 'o');
 						h.Color='k';
 						h.MarkerFaceColor=[1 1 1] .* (1-markerCol(i));
 						h.MarkerSize = markerSize(i)+4;
@@ -63,7 +63,7 @@ classdef DataFile
 					end
 					
 					% zoom axis to marker range
-					set(gca,'XLim',[0 max(x)*1.2])
+					set(gca,'XLim',[0 timeUnitFunction( max(x)*1.2) ] )
 					set(gca,'YLim',[0 max(y)*1.1])
 					
 					%else % --------------------------------------------------------
@@ -76,13 +76,30 @@ classdef DataFile
 					% TODO: Extract into function ------------
 					hold on
 					for i=1:numel(delayedRewardMagnitude)
-						h = stem3(delayedRewardMagnitude(i), delay(i), discountFraction(i));
+						% currently, stem3 cannot accept Duration inputs,
+						% so we will use plot3 instead
+						% h = stem3(delayedRewardMagnitude(i),...
+						%		timeUnitFunction(delay(i)),...
+						%		discountFraction(i));
+						
+						% Stem
+						plot3([delayedRewardMagnitude(i) delayedRewardMagnitude(i)],...
+							[timeUnitFunction(delay(i)) timeUnitFunction(delay(i))],...
+							[discountFraction(i) 0], 'k-')
+						% Marker
+						h = plot3(delayedRewardMagnitude(i),...
+							timeUnitFunction(delay(i)),...
+							discountFraction(i), 'o');
 						h.Color='k';
 						h.MarkerFaceColor=[1 1 1] .* (1-markerCol(i));
 						h.MarkerSize = markerSize(i)+4;
+						
 					end
+					
+					% Crop axes around data
+					set(gca,'XLim',[min(delayedRewardMagnitude) max(delayedRewardMagnitude)*1.1])
+					set(gca,'YLim',[0 timeUnitFunction(max(delay))*1.2])
 			end
-			
 			
 		end
 		
