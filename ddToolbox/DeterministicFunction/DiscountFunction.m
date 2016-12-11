@@ -1,6 +1,10 @@
 classdef (Abstract) DiscountFunction < DeterministicFunction
 	%DiscountFunction
 	
+	properties
+		%timeUnits % string
+	end
+	
 	methods (Access = public)
 		
 		function obj = DiscountFunction()
@@ -8,8 +12,8 @@ classdef (Abstract) DiscountFunction < DeterministicFunction
 		end
 		
 		
-		function plot(obj, pointEstimateType, dataPlotType)
-			timeUnitFunction = @days; % <---------- TODO: inject this @days function
+		function plot(obj, pointEstimateType, dataPlotType, timeUnits)
+			timeUnitFunction = str2func(timeUnits);
 			N_SAMPLES_FROM_POSTERIOR = 100;
 			
 			delays = obj.determineDelayValues();
@@ -50,7 +54,9 @@ classdef (Abstract) DiscountFunction < DeterministicFunction
 			axis square
 			
 			%% Overlay data
-			obj.data.plot(dataPlotType)
+			obj.data.plot(dataPlotType, timeUnits)
+			
+			drawnow
 		end
 		
 		function delayValues = determineDelayValues(obj)

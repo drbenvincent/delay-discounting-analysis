@@ -29,9 +29,9 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
         end
 
 		
-		function plot(obj, pointEstimateType, dataPlotType)
+		function plot(obj, pointEstimateType, dataPlotType, timeUnits)
 			
-			timeUnitFunction = @days; % <---------- TODO: inject this @days function
+			timeUnitFunction = str2func(timeUnits);
 			
 			% don't plot if we've been given NaN's
 			if any(isnan(obj.theta.m.samples))
@@ -89,14 +89,14 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
 			obj.formatAxes(pow)
             
             %% Overlay data
-			obj.data.plot(dataPlotType)
+			obj.data.plot(dataPlotType, timeUnits)
+			
+			drawnow
 		end
-        
-        
-
         
 	end
     
+	
     methods (Access = protected)
     
         % NOTE: this is the function we want to use in order to calculate discount rate, for a given reward magnitude

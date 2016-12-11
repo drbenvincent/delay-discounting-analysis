@@ -82,7 +82,9 @@ classdef (Abstract) Exponential1 < Parametric
 					%% plot discount function
 					subplot(1,4,4)
 					dataPlotType = '2D';
-					discountFunction.plot(obj.pointEstimateType, dataPlotType)
+					discountFunction.plot(obj.pointEstimateType,...
+						dataPlotType,...
+						obj.timeUnits)
 				end
 				
 				

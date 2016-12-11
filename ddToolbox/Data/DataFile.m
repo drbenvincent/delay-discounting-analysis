@@ -21,12 +21,12 @@ classdef DataFile
 		
 		
 		
-		function obj = plot(obj, dataPlotType)
+		function obj = plot(obj, dataPlotType, timeUnits)
 			% This should be able to deal with:
 			% - discount function
 			% - discount surface
 			
-			timeUnitFunction = @days; % <---------- TODO: inject this @days function
+			timeUnitFunction = str2func(timeUnits);
 			
 			% exit if we have got no data
 			if isempty(obj.data)

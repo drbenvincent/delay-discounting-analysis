@@ -32,6 +32,7 @@ classdef (Abstract) Model
 		plotOptions
 		shouldPlot, shouldExportPlots, exportFormats, savePath
 		
+		timeUnits % string whose name must be a function to create a Duration.
 	end
 	
 	
@@ -46,7 +47,8 @@ classdef (Abstract) Model
 			% Required
 			p.addRequired('data', @(x) isa(x,'Data'));
 			% Optional preferences
-			p.addParameter('pointEstimateType','mode',@(x) any(strcmp(x,{'mean','median','mode'})));
+			p.addParameter('pointEstimateType','mode',...
+				@(x) any(strcmp(x,{'mean','median','mode'})));
 			% Optional plotting-based parameters
 			p.addParameter('exportFormats', {'png'}, @iscellstr);
 			p.addParameter('savePath',tempname, @isstr);
@@ -55,6 +57,11 @@ classdef (Abstract) Model
 			% Optional inference related parameters
 			p.addParameter('samplerType', 'jags', @(x) any(strcmp(x,{'jags','stan'})));
 			p.addParameter('mcmcParams', struct, @isstruct)
+			% Define the time units. This must correspond to Duration
+			% creation function, such as hours, days, etc. See `help
+			% duration` for more
+			p.addParameter('timeUnits', 'days',...
+				@(x) any(strcmp(x,{'seconds','minutes','hours','days', 'years'})))
 			% parse inputs
 			p.parse(data, varargin{:});
 			% add p.Results fields into obj

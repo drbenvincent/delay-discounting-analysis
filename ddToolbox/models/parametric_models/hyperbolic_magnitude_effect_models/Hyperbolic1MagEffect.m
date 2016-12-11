@@ -102,7 +102,9 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 				
 				subplot(1,cols,6)
 				dataPlotType = '3D';
-				discountFunction.plot(obj.pointEstimateType, dataPlotType)
+				discountFunction.plot(obj.pointEstimateType,...
+					dataPlotType,...
+					obj.timeUnits)
 				
 				if obj.shouldExportPlots
 					myExport(obj.savePath, 'expt',...
