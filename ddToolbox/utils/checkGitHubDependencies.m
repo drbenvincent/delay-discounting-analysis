@@ -27,6 +27,7 @@ function processDependency(url)
 displayDependencyToCommandWindow(url);
 repoName = getRepoNameFromUrl(url);
 targetPath = fullfile(defineInstallPath(),repoName);
+targetPath = removeTrailingColon(targetPath);
 ensureFolderExists(targetPath);
 addpath(targetPath);
 if ~isRepoFolderOnPath(repoName)
@@ -50,12 +51,12 @@ if isempty(userpath)
 	userpath('reset')
 end
 installPath = userpath;
-% Fix the trailing ":" which only sometimes appears
+% Fix the trailing ":" which only sometimes appears (or ";" on PC)
 installPath = removeTrailingColon(installPath);
 end
 
 function str = removeTrailingColon(str)
-if str(end)==':' % TODO: does this need to be systemDelimiter() instead of ':' to work on a PC ?
+if str(end)==systemDelimiter()
 	str(end)='';
 end
 end
