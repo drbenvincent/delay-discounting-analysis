@@ -26,12 +26,10 @@ end
 function processDependency(url)
 displayDependencyToCommandWindow(url);
 repoName = getRepoNameFromUrl(url);
-targetPath = fullfile(defineInstallPath(),repoName);
-targetPath = removeTrailingColon(targetPath);
-ensureFolderExists(targetPath);
-addpath(targetPath);
 if ~isRepoFolderOnPath(repoName)
-	cloneGitHubRepo(url, defineInstallPath());
+	targetPath = fullfile(defineInstallPath(),repoName);
+	targetPath = removeTrailingColon(targetPath);
+	cloneGitHubRepo(url, repoName, targetPath);
 else
 	updateGitHubRepo(defineInstallPath(),repoName);
 end
@@ -65,16 +63,21 @@ function onPath = isRepoFolderOnPath(repoName)
 	onPath = exist(repoName,'dir')==7;
 end
 
-function cloneGitHubRepo(repoAddress, installPath)
-    originalPath = cd;
-	try
-		cd(installPath)
-		command = sprintf('git clone %s.git', repoAddress);
-		[status, cmdout] = system(command);
-	catch ME
-		rethrow(ME)
-	end
-    cd(originalPath)
+function cloneGitHubRepo(repoAddress, repoName, installPath)
+% ensure the folder exists
+%targetPath = removeTrailingColon(fullfile(defineInstallPath(),repoName));
+ensureFolderExists(installPath);
+addpath(installPath);
+% do the cloning
+originalPath = cd;
+try
+	cd(defineInstallPath())
+	command = sprintf('git clone %s.git', repoAddress)
+	[status, cmdout] = system(command)
+catch ME
+	rethrow(ME)
+end
+cd(originalPath)
 end
 
 function updateGitHubRepo(installPath,repoName)
