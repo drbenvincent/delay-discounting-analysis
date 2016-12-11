@@ -53,7 +53,7 @@ installPath = removeTrailingColon(installPath);
 end
 
 function str = removeTrailingColon(str)
-if str(end)==':'
+if str(end)==':' % TODO: does this need to be systemDelimiter() instead of ':' to work on a PC ?
 	str(end)='';
 end
 end
@@ -67,9 +67,9 @@ function cloneGitHubRepo(repoAddress, installPath)
 	try
 		cd(installPath)
 		command = sprintf('git clone %s.git', repoAddress);
-		system(command);
-	catch
-		error('git clone failed')
+		[status, cmdout] = system(command);
+	catch ME
+		rethrow(ME)
 	end
     cd(originalPath)
 end
@@ -78,18 +78,20 @@ function updateGitHubRepo(installPath,repoName)
 originalPath = cd;
 try
 	cd(fullfile(installPath,repoName))
-	system('git pull');
-catch
-	warning('Unable to update GitHub repository')
+	[status, cmdout] = system('git pull');
+catch ME
+	rethrow(ME)
+	%warning('Unable to update GitHub repository')
 end
 cd(originalPath)
 end
 
 
 
-% TODO: Work out how to make this closure work in Matlab
-% function results = pathReturner(func)
+% TODO: Work out how to make this work in Matlab
+% function results = exectuteFunctionInPathProvided(func, targetPath)
 %     originalPath = cd;
-%     % results = function
+%     cd(targetPath)
+%     results = func();
 %     cd(originalPath)
 % end

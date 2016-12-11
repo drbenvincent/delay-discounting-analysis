@@ -43,11 +43,3 @@ else
     matchFound = any(~cellfun('isempty',strfind(str,pattern)));
 end
 end
-
-function delimiter = systemDelimiter()
-if ismac
-		delimiter = ':';
-	elseif ispc
-		delimiter = ';';
-end
-end
