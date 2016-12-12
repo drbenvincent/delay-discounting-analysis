@@ -22,12 +22,13 @@ figure
 
 %% METHOD 1 - Hypothesis test
 subplot(1,2,1)
-HT_BayesFactor(priorSamples, posteriorSamples)
+HT_BayesFactor(priorSamples, posteriorSamples, '<', 0)
 
 %% METHOD 2 - examine credible interval
 subplot(1,2,2)
 mcmc.UnivariateDistribution(posteriorSamples,...
 	'priorSamples', priorSamples,...
 	'plotStyle','hist');
+title('Parameter Estimation')
 
 end

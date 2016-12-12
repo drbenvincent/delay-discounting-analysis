@@ -98,8 +98,8 @@ classdef Stochastic < handle
 			% Calculate stats upon addition of samples
 			obj.mean = mean(obj.samples);
 			obj.median = median(obj.samples);
-			obj.calculateDensityAndPointEstimates();
-			%obj.HDI = mcmc.HDIofSamples(obj.samples, 0.95);
+			obj.calculateModeAndDensity();
+			obj.HDI = mcmc.HDIofSamples(obj.samples, 0.95);
 
 		end
 		
@@ -121,6 +121,30 @@ classdef Stochastic < handle
 			obj.panOptions();
 		end
 		
+		
+		function [HDI] = calculateHDI(obj, credibilityMass)
+			% Directly translated from code in:
+			% Kruschke, J. K. (2015). Doing Bayesian Data Analysis: A Tutorial with R,
+			% JAGS, and Stan. Academic Press.
+			
+			assert(credibilityMass > 0 && credibilityMass < 1,...
+				'credibilityMass must be a between 0-1.')
+			
+			sorted_samples = sort(obj.samples(:));
+			ciIdxInc = floor( credibilityMass * numel( sorted_samples ) );
+			nCIs = numel( sorted_samples ) - ciIdxInc;
+			
+			ciWidth=zeros(nCIs,1);
+			for n =1:nCIs
+				ciWidth(n) = sorted_samples( n + ciIdxInc ) - sorted_samples(n);
+			end
+			
+			[~, minInd] = min(ciWidth);
+			HDImin	= sorted_samples( minInd );
+			HDImax	= sorted_samples( minInd + ciIdxInc);
+			HDI		= [HDImin HDImax];
+		end
+		
 	end
 	
 	methods
@@ -137,18 +161,19 @@ classdef Stochastic < handle
 			setAxesPanMotion(h,ax,'horizontal');
 		end
 		
-		function obj = calculateDensityAndPointEstimates(obj)
-			obj.xi = linspace( min(obj.samples(:)), max(obj.samples(:)), 1000);
-			obj.xi = [obj.xi(1) obj.xi obj.xi(end)]; % fix to avoid plotting artifacts
-			for n=1:obj.N
-				[obj.density(:,n), ~] = ksdensity(obj.samples(:,n), obj.xi);
-				[~,ind] = max(obj.density(:,n));
-				obj.mode(n) = obj.xi( ind );
+		function obj = calculateModeAndDensity(obj)
+			if any(isnan(obj.samples))
+				obj.mode = [];
+				obj.density = [];
+			else
+				obj.xi = linspace( min(obj.samples(:)), max(obj.samples(:)), 1000);
+				obj.xi = [obj.xi(1) obj.xi obj.xi(end)]; % fix to avoid plotting artifacts
+				obj.density = ksdensity(obj.samples(:), obj.xi);
+				obj.mode = obj.xi( argmax(obj.density) );
 				
-				obj.density([1,end],n)=0; % fix to avoid plotting artifacts
+				obj.density([1,end])=0; % fix to avoid plotting artifacts
 			end
 		end
-		
 		
 		function plotHist(obj)
 			hold on

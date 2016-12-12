@@ -8,13 +8,13 @@ end
 function allSubpaths = getAllSubpaths()
     pathOfThisFunction = mfilename('fullpath');
     [currentpath, ~, ~]= fileparts(pathOfThisFunction);
-    allSubpaths = strsplit( genpath(currentpath) ,':');
+	allSubpaths = strsplit(genpath(currentpath), systemDelimiter());
 end
 
 function add2path(pathsToAdd)
-    display('Temporarily adding toolbox subdirecties to the path: ')
+    disp('Temporarily adding toolbox subdirecties to the path: ')
     fprintf('\t%s\n',pathsToAdd{:})
-    addpath( strjoin(pathsToAdd, ':') )    
+    addpath( strjoin(pathsToAdd, systemDelimiter()) )    
 end
 
 % TODO: should be able to filter using some kind of set operation, rather than having these 3 functions below

@@ -64,25 +64,60 @@ classdef (Abstract) DeterministicFunction
 			p = inputParser;
 			p.addRequired('x', @isnumeric);
 			p.addParameter('nExamples', [], @isscalar);
+			p.addParameter('pointEstimateType',[], @(x)any(strcmp(x,{'mean','median','mode'})));
 			p.parse(x, varargin{:});
 			
 			
-			% TODO: extract this into a "getShuffledValues" utility
-			% function.
-			%% create a vector of indexes into the samples to evaluate
-			n_samples_requested = p.Results.nExamples;
-			n_samples_got = obj.nSamples;
-			n_samples_to_get = min([n_samples_requested n_samples_got]);
-			if ~isempty(n_samples_requested)
-				% shuffle the deck and pick the top nExamples
-				shuffledExamples = randperm(n_samples_to_get);
-				ExamplesToPlot = shuffledExamples([1:n_samples_to_get]);
-			else
-				ExamplesToPlot = 1:n_samples_to_get;
+			theta_vals_to_evaluate = determineThetaValsToEvaluate();
+			
+			y = obj.function_evaluation(x, theta_vals_to_evaluate);
+			
+			
+			function thetaStruct = determineThetaValsToEvaluate()
+				% decide if we are plotting N samples from postior, or a point
+				% estimate
+				%if isempty(p.Results.nExamples)
+				if ~isempty(p.Results.pointEstimateType)
+					% plot point estimate
+				
+					% create theta vec of point estimates
+					thetaStruct = struct();
+					for field = fields(obj.theta)'
+						thetaStruct.(field{:}) = obj.theta.(field{:}).(p.Results.pointEstimateType);
+					end
+					
+				else
+					% plot N samples from posterior
+					
+					% if not specified, use all samples to evaluate with
+					if isempty(p.Results.nExamples)
+						%plot all samples
+						obj.nSamples
+					end
+					
+					% TODO: extract this into a "getShuffledValues" utility
+					% function.
+					%% create a vector of indexes into the samples to evaluate
+					n_samples_requested = p.Results.nExamples;
+					n_samples_got = obj.nSamples;
+					n_samples_to_get = min([n_samples_requested n_samples_got]);
+					if ~isempty(n_samples_requested)
+						% shuffle the deck and pick the top nExamples
+						shuffledExamples = randperm(n_samples_to_get);
+						ExamplesToPlot = shuffledExamples([1:n_samples_to_get]);
+					else
+						ExamplesToPlot = 1:n_samples_to_get;
+					end
+					
+					
+					thetaStruct = struct();
+					for field = fields(obj.theta)'
+						thetaStruct.(field{:}) = obj.theta.(field{:}).samples(ExamplesToPlot);
+					end
+					
+				end
 			end
 			
-			%% Do the function evaluation
-			y = obj.function_evaluation(x, obj.theta, ExamplesToPlot);
 		end
 		
 		function nSamples = get.nSamples(obj)

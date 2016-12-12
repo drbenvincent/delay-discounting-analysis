@@ -63,7 +63,7 @@ classdef test_AllNonParametricModels < matlab.unittest.TestCase
 				'shouldPlot','no');
 			% TODO: DO AN ACTUAL TEST HERE !!!!!!!!!!!!!!!!!!!!!!
 			
-			model.plot('shouldExportPlots', false)
+			model.plot()
 		end
 		
 		function nChains(testCase, model, chains)

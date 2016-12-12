@@ -54,7 +54,7 @@ function [model] = run_me()
 % >> model.plot()
 %
 % You can inspect MCMC chains for diagnostic purposes by:
-% >> model.trellisplots({'m','c'})
+% >> model.coda.trellisplots({'m','c'})
 %
 % If you analysed your data with a model which accounts for the magnitude
 % effect, then you may want to work out what the discount rate, log(k),
@@ -72,6 +72,14 @@ function [model] = run_me()
 % this function:
 % >> hypothesisTestScript(model)
 %
+% You can also extract estimated present subjective values of the rewards
+% for each trial in your dataset. After fitting a model, you can do this
+% with the following command. This will return a table: rows are trials in
+% your overall dataset. The columns labelled VA and VB give a point
+% estimate of the predicted present subjective values of the rewards A and
+% B, respectively. This information is particularly useful if you want to
+% regress these against imaging data, for example.
+% >> subjective_values = model.get_inferred_present_subjective_values();
 %
 % MORE INFORMATION --------------------------------------------------------
 % For more information, see <a href="matlab:

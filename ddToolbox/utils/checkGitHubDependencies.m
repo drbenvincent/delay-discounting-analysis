@@ -17,18 +17,19 @@ end
 assert(isrow(dependencies))
 
 for url=dependencies
-	cloneOrUpdateDependency(url{:});
+	processDependency(url{:});
 end
 
 end
 
 
-function cloneOrUpdateDependency(url)
+function processDependency(url)
 displayDependencyToCommandWindow(url);
 repoName = getRepoNameFromUrl(url);
-addpath(fullfile(defineInstallPath(),repoName));
 if ~isRepoFolderOnPath(repoName)
-	cloneGitHubRepo(url, defineInstallPath());
+	targetPath = fullfile(defineInstallPath(),repoName);
+	targetPath = removeTrailingColon(targetPath);
+	cloneGitHubRepo(url, repoName, targetPath);
 else
 	updateGitHubRepo(defineInstallPath(),repoName);
 end
@@ -48,12 +49,12 @@ if isempty(userpath)
 	userpath('reset')
 end
 installPath = userpath;
-% Fix the trailing ":" which only sometimes appears
+% Fix the trailing ":" which only sometimes appears (or ";" on PC)
 installPath = removeTrailingColon(installPath);
 end
 
 function str = removeTrailingColon(str)
-if str(end)==':'
+if str(end)==systemDelimiter()
 	str(end)='';
 end
 end
@@ -62,34 +63,41 @@ function onPath = isRepoFolderOnPath(repoName)
 	onPath = exist(repoName,'dir')==7;
 end
 
-function cloneGitHubRepo(repoAddress, installPath)
-    originalPath = cd;
-	try
-		cd(installPath)
-		command = sprintf('git clone %s.git', repoAddress);
-		system(command);
-	catch
-		error('git clone failed')
-	end
-    cd(originalPath)
+function cloneGitHubRepo(repoAddress, repoName, installPath)
+% ensure the folder exists
+%targetPath = removeTrailingColon(fullfile(defineInstallPath(),repoName));
+ensureFolderExists(installPath);
+addpath(installPath);
+% do the cloning
+originalPath = cd;
+try
+	cd(defineInstallPath())
+	command = sprintf('git clone %s.git', repoAddress)
+	[status, cmdout] = system(command)
+catch ME
+	rethrow(ME)
+end
+cd(originalPath)
 end
 
 function updateGitHubRepo(installPath,repoName)
 originalPath = cd;
 try
 	cd(fullfile(installPath,repoName))
-	system('git pull');
-catch
-	warning('Unable to update GitHub repository')
+	[status, cmdout] = system('git pull');
+catch ME
+	rethrow(ME)
+	%warning('Unable to update GitHub repository')
 end
 cd(originalPath)
 end
 
 
 
-% TODO: Work out how to make this closure work in Matlab
-% function results = pathReturner(func)
+% TODO: Work out how to make this work in Matlab
+% function results = exectuteFunctionInPathProvided(func, targetPath)
 %     originalPath = cd;
-%     % results = function
+%     cd(targetPath)
+%     results = func();
 %     cd(originalPath)
 % end

@@ -1,4 +1,5 @@
 function modelPath = makeProbModelsPath(modelType, samplerType)
 assert(~isempty(modelType))
-modelPath = [probModelsLocation() '/' modelType '.' samplerType];
+model_filename_ext = [modelType '.' lower(samplerType)];
+modelPath = which(model_filename_ext);
 end
