@@ -37,11 +37,25 @@ switch method
 		
 	case{'bayesian hypothesis test'}
 		%% METHOD 2: Hypothesis testing approach
-		warning('Not yet implemented')
+		
+		
+		hypothesis = '~=';
+		testValue = 0;
+	
+		for var = vars
+			% prior
+			prior_difference = []; % <----------- TODO: What should the prior be?
+			% posterior
+			posterior_difference = group1_minus_group2.(var{:});
+			% hypothesis test
+			HT_BayesFactor(prior_difference, posterior_difference, hypothesis, testValue);
+		end	
+		
+		error('Not yet implemented properly')
 		
 	case{'point estimates'}
 		%% MERTHOD 3: Estimation with point estimates
-		warning('Not yet implemented')
+		error('Not yet implemented')
 		
 		% 1. Extract point estimates.
 		% 2. Run frequentist comparison in Matlab
