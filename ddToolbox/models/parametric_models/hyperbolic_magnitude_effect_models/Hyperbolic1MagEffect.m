@@ -51,7 +51,7 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 				subplot(1,cols,2)
 				psycho.plot(obj.pointEstimateType)
 				
-				%% Set up magnitude effect function
+				%% Set up magnitude effect function -----------------------
 				samples = obj.coda.getSamplesAtIndex(ind,{'m','c'});
 				me = MagnitudeEffectFunction('samples', samples);
 				
@@ -68,7 +68,7 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 					'plotStyle', 'hist',...
 					'axisSquare', true);
 				
-				%% Magnitude effect stuff
+				%% Magnitude effect stuff 
 				% a list of reward values we are interested in
 				rewards = [10, 100, 1000]; % <----  TODO: inject this
 				
@@ -85,7 +85,7 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 				%% TODO: Add P(log(k) | reward) here
 				subplot(1,cols,5)
 				%title('P(log(k) | reward)')
-				obj.getLogDiscountRate([10, 100, 1000], ind ,...
+				obj.getLogDiscountRate([10, 50, 100], ind ,...
 					'plot', true,...
 					'plot_mode', 'conditional_only');
 				
@@ -146,7 +146,7 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			% Create an array of Stochastic objects to pass back
 			for n=1:numel(reward)
 				logk(n) = Stochastic('logk');
-				logk_samples = magEffect.eval(reward(n));
+				logk_samples = magEffect.eval(reward(n)); %<------ TODO: This needs to return many values, not just one
 				logk(n).addSamples(logk_samples);
 			end
 			

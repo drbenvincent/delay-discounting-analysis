@@ -64,7 +64,7 @@ classdef (Abstract) DeterministicFunction
 			p = inputParser;
 			p.addRequired('x', @isnumeric);
 			p.addParameter('nExamples', [], @isscalar);
-			p.addParameter('pointEstimateType','mean', @(x)any(strcmp(x,{'mean','median','mode'})));
+			p.addParameter('pointEstimateType',[], @(x)any(strcmp(x,{'mean','median','mode'})));
 			p.parse(x, varargin{:});
 			
 			
@@ -76,7 +76,8 @@ classdef (Abstract) DeterministicFunction
 			function thetaStruct = determineThetaValsToEvaluate()
 				% decide if we are plotting N samples from postior, or a point
 				% estimate
-				if isempty(p.Results.nExamples)
+				%if isempty(p.Results.nExamples)
+				if ~isempty(p.Results.pointEstimateType)
 					% plot point estimate
 				
 					% create theta vec of point estimates
@@ -87,6 +88,12 @@ classdef (Abstract) DeterministicFunction
 					
 				else
 					% plot N samples from posterior
+					
+					% if not specified, use all samples to evaluate with
+					if isempty(p.Results.nExamples)
+						%plot all samples
+						obj.nSamples
+					end
 					
 					% TODO: extract this into a "getShuffledValues" utility
 					% function.
