@@ -30,7 +30,7 @@ But you could always email me or tweet me [@inferenceLab](https://twitter.com/in
 
 
 ## Installation and use
-Getting up and running is relatively easy, although Matlab can be a bit clunky in terms of package installation. See the [full installation instructions](https://github.com/drbenvincent/delay-discounting-analysis/wiki/1.-Getting-Started) on the wiki.
+Getting up and running is relatively easy, although Matlab can be a bit clunky in terms of package installation. See the [full installation instructions](https://github.com/drbenvincent/delay-discounting-analysis/wiki/Getting-Started) on the wiki.
 
 The commands use to get your analysis up and running are quite quick and easy. A [demo is provided](https://github.com/drbenvincent/delay-discounting-analysis/tree/master/demo) to show how to use the toolbox with your own data.
 
