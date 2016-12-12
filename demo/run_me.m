@@ -54,7 +54,7 @@ function [model] = run_me()
 % >> model.plot()
 %
 % You can inspect MCMC chains for diagnostic purposes by:
-% >> model.trellisplots({'m','c'})
+% >> model.coda.trellisplots({'m','c'})
 %
 % If you analysed your data with a model which accounts for the magnitude
 % effect, then you may want to work out what the discount rate, log(k),
