@@ -120,13 +120,13 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
 			
 			% TODO: GET SAMPLES, WHICH SHOULD BE A PROPERTY OF THIS OBJECT
 			
-
+			
 			
 			
 			% Create an array of Stochastic objects to pass back
 			for n=1:numel(reward)
 				logk(n) = Stochastic('logk');
-				logk_samples = magEffect.eval(reward(n)); %<------ TODO: This needs to return many values, not just one
+				logk_samples = obj.eval(reward(n)); %<------ TODO: This needs to return many values, not just one
 				logk(n).addSamples(logk_samples);
 			end
 			
@@ -140,7 +140,7 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
 						N = numel(reward) + 1;
 						subplot_handles = create_subplots(N, 'row');
 						plot_mag_effect(subplot_handles(1))
-						plot_condition_logk(subplot_handles([2:end]))
+						obj.plot_condition_logk(subplot_handles([2:end]), logk, p.Results.plot_mode)
 						
 						% TODO: exporting
 						% 						if p.Results.shouldExport
@@ -157,7 +157,7 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
 						subplot_handles([2:numel(reward)+1]) = subplot_handles(2);
 						
 						plot_mag_effect(subplot_handles(1))
-						plot_condition_logk(subplot_handles([2:end]))
+						obj.plot_condition_logk(subplot_handles([2:end]), logk, p.Results.plot_mode)
 						% TODO: exporting
 						% 						if p.Results.shouldExport
 						% 							myExport(obj.savePath, 'expt',...
@@ -171,52 +171,27 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
 						for n=1:numel(reward)
 							subplot_handles = [subplot_handles gca];
 						end
-						plot_condition_logk(subplot_handles)
-				end
-				
-			end
-			
-			
-			
-			
-			function plot_mag_effect(subplot_handle)
-				% PLOT MAGNITUDE EFFECT -----------------------------------
-				subplot(subplot_handle)
-				% TODO: once DF_HyperbolicMagnitudeEffect owns a
-				% MagnitudeEffectFunction object, then we can call it
-				% directly?
-				samples = obj.coda.getSamplesAtIndex(index,{'m','c'});
-				me = MagnitudeEffectFunction('samples',samples);
-				me.plot()
-			end
-			
-			function plot_condition_logk(subplot_handles)
-				% PROCESS REWARD VALUES REQUESTED -------------------------
-				% Loop through rewards requested, plotting to the
-				% appropriate subplot
-				for n = 1:numel(reward)
-					hold on
-					% 					% plot vertical line on magnitude effect graph --------
-					% 					subplot(subplot_handles(1))
-					% 					vline(reward(n));
-					
-					% plot log(k) distribution ----------------------------
-					subplot(subplot_handles(n))
-					logk(n).plot();
-					% TODO: fix equation... it's not showing properly
-					switch p.Results.plot_mode
-						case{'row'}
-							title( sprintf('P(log(k) | reward = %d)',reward(n)) )
-					end
+						obj.plot_condition_logk(subplot_handles, logk, p.Results.plot_mode)
 				end
 			end
 		end
 		
 		
 		
-		
+		function plot_mag_effect(subplot_handle)
+			% PLOT MAGNITUDE EFFECT -----------------------------------
+			subplot(subplot_handle)
+			% TODO: once DF_HyperbolicMagnitudeEffect owns a
+			% MagnitudeEffectFunction object, then we can call it
+			% directly?
+			samples = obj.coda.getSamplesAtIndex(index,{'m','c'});
+			me = MagnitudeEffectFunction('samples',samples);
+			me.plot()
+		end
 		
 	end
+	
+	
 	
 	
 	methods (Access = protected)
@@ -258,6 +233,31 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
 		
 	end
 	
+	
+	methods (Static)
+		
+		function plot_condition_logk(subplot_handles, logk, plot_mode)
+			% PROCESS REWARD VALUES REQUESTED -------------------------
+			% Loop through rewards requested, plotting to the
+			% appropriate subplot
+			for n = 1:numel(logk)
+				hold on
+				% 					% plot vertical line on magnitude effect graph --------
+				% 					subplot(subplot_handles(1))
+				% 					vline(reward(n));
+				
+				% plot log(k) distribution ----------------------------
+				subplot(subplot_handles(n))
+				logk(n).plot();
+				% TODO: fix equation... it's not showing properly
+				switch plot_mode
+					case{'row'}
+						title( sprintf('P(log(k) | reward = %d)',reward(n)) )
+				end
+			end
+		end
+		
+	end
 	
 	methods (Static, Access = protected)
 		

@@ -25,7 +25,10 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 
 		% OVERRIDDING THIS METHOD FROM A SUPERCLASS
 		function experimentPlot(obj)
-
+			
+			% a list of reward values we are interested in
+			rewards = [10, 100, 1000]; % <----  TODO: inject this
+			
 			% create cell array
 			discountFunctionVariables = {obj.varList.discountFunctionParams.name};
 			responseErrorVariables = {obj.varList.responseErrorParams.name};
@@ -87,9 +90,6 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 				
 				%% Set up magnitude effect function -----------------------
 				me = MagnitudeEffectFunction('samples', dfSamples);
-				
-				% a list of reward values we are interested in
-				rewards = [10, 100, 1000]; % <----  TODO: inject this
 
 				%% plot magnitude effect
 				subplot(1,6,4)
@@ -103,12 +103,12 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 				%% TODO: Add P(log(k) | reward) here
 				subplot(1,6,5)
 				%title('P(log(k) | reward)')
-				discountFunction.getLogDiscountRate([10, 50, 100], ind ,...
+				discountFunction.getLogDiscountRate(rewards, ind ,...
 					'plot', true,...
 					'plot_mode', 'conditional_only');
 				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
+				drawnow
 
 
 				if obj.shouldExportPlots
