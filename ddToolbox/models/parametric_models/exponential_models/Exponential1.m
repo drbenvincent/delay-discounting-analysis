@@ -14,9 +14,11 @@ classdef (Abstract) Exponential1 < Parametric
 			% Create variables
 			obj.varList.participantLevel = {'k','alpha','epsilon'};
 			obj.varList.monitored = {'k','alpha','epsilon', 'Rpostpred', 'P', 'VA', 'VB'};
-
-			%% Plotting
-			obj.plotFuncs.clusterPlotFunc	= @plotExpclusters;
+            obj.varList.discountFunctionParams(1).name = 'k';
+            obj.varList.discountFunctionParams(1).label = 'discount rate, $k$';
+            
+			% %% Plotting
+			% obj.plotFuncs.clusterPlotFunc	= @plotExpclusters;
 
 		end
 
@@ -32,6 +34,9 @@ classdef (Abstract) Exponential1 < Parametric
 		
 		function experimentPlot(obj)
 			
+            % create cell array
+            discountFunctionVariables = {obj.varList.discountFunctionParams.name};
+            
 			names = obj.data.getIDnames('all');
 			
 			for ind = 1:numel(names)
@@ -58,7 +63,7 @@ classdef (Abstract) Exponential1 < Parametric
 				psycho.plot(obj.pointEstimateType)
 				
 				%% Set up discount function
-				ksamples = obj.coda.getSamplesAtIndex(ind,{'k'});
+				ksamples = obj.coda.getSamplesAtIndex(ind, discountFunctionVariables);
 				% don't plot if we don't have any samples. This is expected
 				% to happen if we are currently looking at the group-level
 				% unobserved participant and we are analysing a model

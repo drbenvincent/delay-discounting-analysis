@@ -9,14 +9,26 @@ classdef (Abstract) ExponentialPower < Parametric
 		function obj = ExponentialPower(data, varargin)
 			obj = obj@Parametric(data, varargin{:});
             
-            obj.dfClass = @DF_ExponentialPower;
+            obj.dfClass = @DF_ExponentialPower; % TODO: THIS IS NOT ACTUALLY USED?
 
 			% Create variables
 			obj.varList.participantLevel = {'k','tau','alpha','epsilon'};
 			obj.varList.monitored = {'k','tau','alpha','epsilon', 'Rpostpred', 'P', 'VA', 'VB'};
-
-			%% Plotting
-			obj.plotFuncs.clusterPlotFunc	= @plotExpPowerclusters;
+            obj.varList.discountFunctionParams(1).name = 'k';
+            obj.varList.discountFunctionParams(1).label = 'discount rate, $k$';
+            obj.varList.discountFunctionParams(2).name = 'tau';
+            obj.varList.discountFunctionParams(2).label = 'tau';
+            
+			
+			% %% Plotting
+			% % TODO: Does this need to be made into a partial function?
+			% obj.plotFuncs.clusterPlotFunc	= @() plot2Dclusters(...
+			% 	obj.coda,...
+			% 	obj.data,...
+			% 	[1 0 0],...
+			% 	obj.modelFilename,...
+			% 	obj.plotOptions,...
+			% 	{'k','tau'});
 
 		end
 
@@ -30,6 +42,9 @@ classdef (Abstract) ExponentialPower < Parametric
         
 		function experimentPlot(obj)
 			
+            % create cell array
+            discountFunctionVariables = {obj.varList.discountFunctionParams.name};
+            
 			names = obj.data.getIDnames('all');
 			
 			for ind = 1:numel(names)
@@ -56,13 +71,13 @@ classdef (Abstract) ExponentialPower < Parametric
 				psycho.plot(obj.pointEstimateType)
 				
 				%% Set up discount function
-				ksamples = obj.coda.getSamplesAtIndex(ind,{'k','tau'});
+				ksamples = obj.coda.getSamplesAtIndex(ind, discountFunctionVariables);  % <-------------- inject discount function params
 				% don't plot if we don't have any samples. This is expected
 				% to happen if we are currently looking at the group-level
 				% unobserved participant and we are analysing a model
 				% without group level inferences (ie the mixed or separate
 				% models)
-				discountFunction = DF_ExponentialPower('samples', ksamples );
+				discountFunction = DF_ExponentialPower('samples', ksamples ); % <-------------- inject this function name
 				% add data:  TODO: streamline this on object creation ~~~~~
 				% NOTE: we don't have data for group-level
 				data_struct = obj.data.getExperimentData(ind);
@@ -76,12 +91,12 @@ classdef (Abstract) ExponentialPower < Parametric
 					%% plot distribution of (k, tau)
 					subplot(1,4,3)
 					%discountFunction.plotParameters()
-                    samples = obj.coda.getSamplesAtIndex(ind,{'k','tau'});
+                    samples = obj.coda.getSamplesAtIndex(ind, discountFunctionVariables);  
     				mcmc.BivariateDistribution(...
-    					samples.k(:),...
-    					samples.tau(:),...
-    					'xLabel','discount rate, $k$',...
-    					'ylabel','time exponent, $\tau$',...
+    					samples.(discountFunctionVariables{1})(:),...
+    					samples.(discountFunctionVariables{2})(:),... 
+    					'xLabel',obj.varList.discountFunctionParams(1).label,... 
+    					'ylabel',obj.varList.discountFunctionParams(2).label,...
     					'pointEstimateType',obj.pointEstimateType,...
     					'plotStyle', 'hist',...
     					'axisSquare', true);

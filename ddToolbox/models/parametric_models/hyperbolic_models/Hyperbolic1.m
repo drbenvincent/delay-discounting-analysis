@@ -10,14 +10,18 @@ classdef (Abstract) Hyperbolic1 < Parametric
 		function obj = Hyperbolic1(data, varargin)
 			obj = obj@Parametric(data, varargin{:});
 			
-			obj.dfClass = @DF_Hyperbolic1;
+			obj.dfClass = @DF_Hyperbolic1; 
+            
+            
 			
 			% Create variables
 			obj.varList.participantLevel = {'logk','alpha','epsilon'};
 			obj.varList.monitored = {'logk','alpha','epsilon', 'Rpostpred', 'P', 'VA', 'VB'};
-			
-			%% Plotting
-			obj.plotFuncs.clusterPlotFunc	= @plotLOGKclusters;
+            obj.varList.discountFunctionParams(1).name = 'logk';
+			obj.varList.discountFunctionParams(1).label = '$\log(k)$';
+            
+			% %% Plotting
+			% obj.plotFuncs.clusterPlotFunc	= @plotLOGKclusters;
 			
 		end
 		
@@ -33,6 +37,9 @@ classdef (Abstract) Hyperbolic1 < Parametric
 		
 		
 		function experimentPlot(obj)
+            
+            % create cell array
+            discountFunctionVariables = {obj.varList.discountFunctionParams.name};
 			
 			names = obj.data.getIDnames('all');
 			
@@ -62,7 +69,7 @@ classdef (Abstract) Hyperbolic1 < Parametric
 				psycho.plot(obj.pointEstimateType)
 				
 				%% Set up log k discount function
-				samples = obj.coda.getSamplesAtIndex(ind,{'logk'});
+				samples = obj.coda.getSamplesAtIndex(ind, discountFunctionVariables);
 				discountFunction = DF_Hyperbolic1('samples', samples);
 				% add data:  TODO: streamline this on object creation ~~~~~
 				% NOTE: we don't have data for group-level

@@ -15,15 +15,29 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			% Create variables
 			obj.varList.participantLevel = {'m', 'c','alpha','epsilon'};
 			obj.varList.monitored = {'m', 'c','alpha','epsilon', 'Rpostpred', 'P', 'VA', 'VB'};
-			
-			%% Plotting stuff
-			obj.plotFuncs.clusterPlotFunc	= @plotMCclusters;
+            obj.varList.discountFunctionParams(1).name = 'm';
+            obj.varList.discountFunctionParams(1).label = 'slope, $m$';
+            obj.varList.discountFunctionParams(2).name = 'c';
+            obj.varList.discountFunctionParams(2).label = 'intercept, $c$';
+            
+% 			%% Plotting
+% 			% TODO: Does this need to be made into a partial function?
+% 			obj.plotFuncs.clusterPlotFunc	= @() plot2Dclusters(...
+% 				obj.coda,...
+% 				obj.data,...
+% 				[1 0 0],...
+% 				obj.modelFilename,...
+% 				obj.plotOptions,...
+% 				{'m','c'});
 			
 		end
 		
 		
 		function experimentPlot(obj)
 			
+            % create cell array
+            discountFunctionVariables = {obj.varList.discountFunctionParams.name};
+            
 			names = obj.data.getIDnames('all');
 			
 			for ind = 1:numel(names)
@@ -52,7 +66,7 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 				psycho.plot(obj.pointEstimateType)
 				
 				%% Set up magnitude effect function -----------------------
-				samples = obj.coda.getSamplesAtIndex(ind,{'m','c'});
+				samples = obj.coda.getSamplesAtIndex(ind, discountFunctionVariables);
 				me = MagnitudeEffectFunction('samples', samples);
 				
 				
@@ -60,10 +74,10 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 				subplot(1,cols,3)
 				% TODO: replace with new bivariate class
 				mcmc.BivariateDistribution(...
-					samples.m(:),...
-					samples.c(:),...
-					'xLabel','slope, $m$',...
-					'ylabel','intercept, $c$',...
+					samples.(discountFunctionVariables{1})(:),...
+					samples.(discountFunctionVariables{2})(:),...
+					'xLabel',obj.varList.discountFunctionParams(1).label,...
+					'ylabel',obj.varList.discountFunctionParams(2).label,...
 					'pointEstimateType',obj.pointEstimateType,...
 					'plotStyle', 'hist',...
 					'axisSquare', true);
@@ -91,7 +105,7 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 				
 				
 				%% Set up and plot discount surface
-				samples = obj.coda.getSamplesAtIndex(ind,{'m','c'});
+				samples = obj.coda.getSamplesAtIndex(ind,discountFunctionVariables);
 				discountFunction = DF_HyperbolicMagnitudeEffect('samples', samples );
 				% add data:  TODO: streamline this on object creation ~~~~~
 				% NOTE: we don't have data for group-level
