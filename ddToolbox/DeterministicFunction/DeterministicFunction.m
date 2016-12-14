@@ -47,15 +47,30 @@ classdef (Abstract) DeterministicFunction
 			obj.data = dataObject;
 		end
 		
-		function plotParameters(obj)
+		function plotParameters(obj, pointEstimateType)
 			
 			fields = fieldnames(obj.theta);
-			N = numel(fields);
-			for n = 1:N
-				%subplot(1,N,n) % TODO: work out best way to plot multiple
-				%params
-				% call the plot function of the stochastic variable
-				obj.theta.(fields{n}).plot();
+			n_params = numel(fields);
+			
+			if n_params==1
+				% plot univariate distribution
+				obj.theta.(fields).plot();
+			elseif n_params==2
+				% plot bivariate distribution
+				
+				varNames = fieldnames(obj.theta);
+				
+				% TODO: replace with new class
+				mcmc.BivariateDistribution(...
+					obj.theta.(varNames{1}).samples(:),...
+					obj.theta.(varNames{2}).samples(:),...
+					'xLabel', varNames{1},... % TODO: provide a proper label
+					'ylabel', varNames{2},... % TODO: provide a proper label
+					'pointEstimateType', pointEstimateType,...
+					'plotStyle', 'hist',...
+					'axisSquare', true);
+			else
+				error('not implemented plotting of >2 parameter dimensions')
 			end
 			
 		end

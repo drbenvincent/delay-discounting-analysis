@@ -82,7 +82,7 @@ classdef (Abstract) Model
 
 			obj.varList.responseErrorParams(1).name = 'alpha';
 			obj.varList.responseErrorParams(1).label = 'comparison accuity, $\alpha$';
-			
+
 			obj.varList.responseErrorParams(2).name = 'epsilon';
 			obj.varList.responseErrorParams(2).label = 'error rate, $\epsilon$';
 
@@ -106,7 +106,7 @@ classdef (Abstract) Model
 				obj.initialiseChainValues(obj.mcmcParams.nchains),...
 				obj.varList.monitored);
 
-			% post-sampling activities
+			% This is a separate method, to allow for overriding in sub classes
 			obj = obj.postSamplingActivities();
 
 		end

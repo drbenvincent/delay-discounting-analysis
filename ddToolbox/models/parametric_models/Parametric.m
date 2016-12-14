@@ -124,11 +124,9 @@ classdef (Abstract) Parametric < Model
 				% TODO: this checking needs to be implemented in a
 				% smoother, more robust way
 				if ~isempty(dfSamples) || ~any(isnan(dfSamples))
-					%% plot distribution of k
 					subplot(1,4,3)
-					discountFunction.plotParameters()
+					discountFunction.plotParameters(obj.pointEstimateType)
 
-					%% plot discount function
 					subplot(1,4,4)
 					discountFunction.plot(obj.pointEstimateType,...
 						obj.dataPlotType,...
