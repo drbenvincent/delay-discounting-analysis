@@ -31,7 +31,8 @@ classdef (Abstract) Model
 		
 		plotOptions
 		shouldPlot, shouldExportPlots, exportFormats, savePath
-		
+		dataPlotType
+        
 		timeUnits % string whose name must be a function to create a Duration.
 	end
 	
