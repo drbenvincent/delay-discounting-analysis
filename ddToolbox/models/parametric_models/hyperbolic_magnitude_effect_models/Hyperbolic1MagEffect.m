@@ -43,7 +43,7 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 				respErrSamples = obj.coda.getSamplesAtIndex(ind, responseErrorVariables);
 				psycho = PsychometricFunction('samples', respErrSamples);
 
-				%% plot bivariate distribution of alpha, epsilon
+				%% plot bivariate distribution of alpha, epsilon ---------------
 				subplot(1,6,1)
 				% TODO: replace with new class
 				mcmc.BivariateDistribution(...
@@ -55,7 +55,7 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 					'plotStyle', 'hist',...
 					'axisSquare', true);
 
-				%% Plot the psychometric function
+				%% Plot the psychometric function ------------------------------
 				subplot(1,6,2)
 				psycho.plot(obj.pointEstimateType)
 
@@ -73,26 +73,21 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 				% TODO: this checking needs to be implemented in a
 				% smoother, more robust way
 				if ~isempty(dfSamples) || ~any(isnan(dfSamples))
-					subplot(1,6,3)
+					subplot(1,6,3) % -------------------------------------------
 					discountFunction.plotParameters(obj.pointEstimateType)
 
-					subplot(1,6,6)
+					subplot(1,6,6) % -------------------------------------------
 					discountFunction.plot(obj.pointEstimateType,...
 						obj.dataPlotType,...
 						obj.timeUnits)
 				end
 
-
-
-
-				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-				%% Magnitude effect stuff
 				
 				%% Set up magnitude effect function -----------------------
 				me = MagnitudeEffectFunction('samples', dfSamples);
 
-				%% plot magnitude effect
-				subplot(1,6,4)
+				% plot magnitude effect
+				subplot(1,6,4) % -----------------------------------------------
 				me.plot()
 				% Add horizontal lines to the
 				hold on
@@ -100,13 +95,11 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 					vline(rewards(n));
 				end
 
-				%% TODO: Add P(log(k) | reward) here
-				subplot(1,6,5)
+				subplot(1,6,5) % -----------------------------------------------
 				%title('P(log(k) | reward)')
 				discountFunction.getLogDiscountRate(rewards, ind ,...
 					'plot', true,...
 					'plot_mode', 'conditional_only');
-				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 				drawnow
 

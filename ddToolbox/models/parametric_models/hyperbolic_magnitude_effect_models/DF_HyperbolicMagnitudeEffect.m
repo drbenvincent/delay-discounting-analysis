@@ -1,5 +1,6 @@
 classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
-	%HyperbolicMagnitudeEffect The classic 1-parameter discount function, but where
+	%HyperbolicMagnitudeEffect The classic 1-parameter discount function, but 
+    % where log discount rate is a linear function of reward magnitude.
 	
 	
 	properties
@@ -19,7 +20,6 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
 			p.StructExpand = false;
 			p.addParameter('samples',struct(), @isstruct)
 			p.parse(varargin{:});
-			
 			fieldnames = fields(p.Results.samples);
 			% Add any provided samples
 			for n = 1:numel(fieldnames)
@@ -49,16 +49,8 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
 			m = mc(1);
 			c = mc(2);
 			
-			
-			% 					try
-			% 			maxlogB = max( abs( plotdata.data.rawdata.B) );
-			% 			maxD = max(plotdata.data.rawdata.DB);
-			% 		catch
 			maxlogB = 100;
 			maxD = 365;
-			% 					end
-			
-			
 			
 			%% x-axis = b
 			% *** TODO: DOCUMENT WHAT THIS DOES ***
@@ -85,7 +77,6 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
 			hmesh.EdgeColor		='k';
 			hmesh.EdgeAlpha		=1;
 			
-			
 			obj.formatAxes(pow)
 			
 			%% Overlay data
@@ -95,8 +86,7 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
 		end
 		
 		
-		
-		
+		% TODO: refactor this. Separate getting and plotting
 		function logk = getLogDiscountRate(obj, reward, index, varargin)
 			% for models with magnitude effect, we might want to ask for
 			% what the log(k) values are for given reward values
@@ -108,19 +98,6 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
 			p.addParameter('plot_mode','row',...
 				@(x)any(strcmp(x,{'row','compact','conditional_only'})))
 			p.parse(reward, index, varargin{:});
-			
-			
-			% create a magnitide effect object
-			%samples = obj.coda.getSamplesAtIndex(index,{'m','c'});
-			%magEffect = DF_HyperbolicMagnitudeEffect('samples', samples );
-			
-			
-			
-			
-			
-			% TODO: GET SAMPLES, WHICH SHOULD BE A PROPERTY OF THIS OBJECT
-			
-			
 			
 			
 			% Create an array of Stochastic objects to pass back
@@ -140,14 +117,7 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
 						N = numel(reward) + 1;
 						subplot_handles = create_subplots(N, 'row');
 						plot_mag_effect(subplot_handles(1))
-						obj.plot_condition_logk(subplot_handles([2:end]), logk, p.Results.plot_mode)
-						
-						% TODO: exporting
-						% 						if p.Results.shouldExport
-						% 							myExport(obj.savePath, 'expt',...
-						% 								'prefix', names{ind},...
-						% 								'suffix', obj.modelFilename);
-						% 						end
+						obj.plot_conditional_logk(subplot_handles([2:end]), logk, p.Results.plot_mode)
 						
 					case{'compact'}
 						figure
@@ -157,27 +127,19 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
 						subplot_handles([2:numel(reward)+1]) = subplot_handles(2);
 						
 						plot_mag_effect(subplot_handles(1))
-						obj.plot_condition_logk(subplot_handles([2:end]), logk, p.Results.plot_mode)
-						% TODO: exporting
-						% 						if p.Results.shouldExport
-						% 							myExport(obj.savePath, 'expt',...
-						% 								'prefix', names{ind},...
-						% 								'suffix', obj.modelFilename);
-						% 						end
+						obj.plot_conditional_logk(subplot_handles([2:end]), logk, p.Results.plot_mode)
 						
 					case{'conditional_only'}
-						% plot in current axis handle
+						% plot in current axis
 						subplot_handles = [];
 						for n=1:numel(reward)
 							subplot_handles = [subplot_handles gca];
 						end
-						obj.plot_condition_logk(subplot_handles, logk, p.Results.plot_mode)
+						obj.plot_conditional_logk(subplot_handles, logk, p.Results.plot_mode)
 				end
 			end
 		end
-		
-		
-		
+        
 		function plot_mag_effect(subplot_handle)
 			% PLOT MAGNITUDE EFFECT -----------------------------------
 			subplot(subplot_handle)
@@ -196,9 +158,6 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
 	
 	methods (Access = protected)
 		
-		% NOTE: this is the function we want to use in order to calculate discount rate, for a given reward magnitude
-		
-		% TODO: THIS SHOULD BE DONE WITH A MagnitudeEffectFunction OBJECT
 		function [k,logk] = magnitudeEffect(obj, reward)
 			error('who is calling me')  % TODO: ARE WE EVER CALLING THIS?
 			if verLessThan('matlab','9.1')
@@ -209,11 +168,6 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
 			end
 			k = exp(logk);
 		end
-		
-		% function logk = calcLogK_conditional_upon_reward(obj, reward)
-		%     [~,logk] = magnitudeEffect(obj, reward)
-		% end
-		
 		
 		function formatAxes(obj, pow)
 			box off
@@ -236,23 +190,14 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
 	
 	methods (Static)
 		
-		function plot_condition_logk(subplot_handles, logk, plot_mode)
-			% PROCESS REWARD VALUES REQUESTED -------------------------
-			% Loop through rewards requested, plotting to the
-			% appropriate subplot
-			for n = 1:numel(logk)
-				hold on
-				% 					% plot vertical line on magnitude effect graph --------
-				% 					subplot(subplot_handles(1))
-				% 					vline(reward(n));
-				
-				% plot log(k) distribution ----------------------------
+		function plot_conditional_logk(subplot_handles, logk, plot_mode)
+			hold on
+            for n = 1:numel(logk)
 				subplot(subplot_handles(n))
 				logk(n).plot();
-				% TODO: fix equation... it's not showing properly
 				switch plot_mode
 					case{'row'}
-						title( sprintf('P(log(k) | reward = %d)',reward(n)) )
+						title( sprintf('P(log(k) | reward = %d)',reward(n)) ) % TODO: fix equation... it's not showing properly
 				end
 			end
 		end
@@ -271,6 +216,5 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
 		end
 		
 	end
-	
 	
 end
