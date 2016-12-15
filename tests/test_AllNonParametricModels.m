@@ -63,8 +63,6 @@ classdef test_AllNonParametricModels < matlab.unittest.TestCase
 				'shouldPlot','no',...
 				'shouldExport',false);
 			% TODO: DO AN ACTUAL TEST HERE !!!!!!!!!!!!!!!!!!!!!!
-			
-			model.plot()
 		end
 		
 		function nChains(testCase, model, chains)
@@ -92,6 +90,21 @@ classdef test_AllNonParametricModels < matlab.unittest.TestCase
 				'nchains', 2,...
 				'nburnin', 100));
 			% TODO: DO AN ACTUAL TEST HERE !!!!!!!!!!!!!!!!!!!!!!
+		end
+		
+		function plotting(testCase, model)
+			% make model
+			makeModelFunction = str2func(model);
+			
+			model = makeModelFunction(testCase.data,...
+				'savePath', testCase.savePath,...
+				'mcmcParams', struct('nsamples', 100,...
+				'nchains', 2,...
+				'nburnin', 10),...
+				'shouldPlot','yes',...
+				'shouldExport',false);
+			% TODO: DO AN ACTUAL TEST HERE !!!!!!!!!!!!!!!!!!!!!!
+			
 		end
 		
 	end
