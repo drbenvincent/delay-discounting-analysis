@@ -21,16 +21,7 @@ classdef (Abstract) ExponentialPower < Parametric
             
             obj.dataPlotType = '2D';
 		end
-
-		function conditionalDiscountRates(obj, reward, plotFlag)
-			error('Not applicable to this model')
-		end
-
-		function conditionalDiscountRates_GroupLevel(obj, reward, plotFlag)
-			error('Not applicable to this model')
-		end
-
-		
+        		
 	end
 
 	
