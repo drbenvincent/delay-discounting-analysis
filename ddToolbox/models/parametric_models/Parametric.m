@@ -84,7 +84,7 @@ classdef (Abstract) Parametric < Model
 
 			for ind = 1:numel(names)
 				fh = figure('Name', names{ind});
-				latex_fig(12, 10, 3)
+				latex_fig(12, 14, 3)
 
                 obj.experimentMultiPanelFigure(ind)
                 drawnow
