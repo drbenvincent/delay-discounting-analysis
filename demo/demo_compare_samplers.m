@@ -1,5 +1,24 @@
-function [models] = demo_compare_samplers(modelType)
+function [models] = demo_compare_samplers(modelType, varargin)
 % [models] = demo_compare_samplers('ModelHierarchicalLogK')
+
+% SEE ISSUE #94
+
+
+%% Input parsing
+defaultMcmcParams = struct('nsamples', 50000,...
+	'nchains', 4,...
+	'nburnin', 5000);
+
+p = inputParser;
+p.StructExpand = false;
+p.FunctionName = mfilename;
+% Required
+p.addRequired('modelType', @isstr);
+p.addParameter('mcmcParams', defaultMcmcParams, @isstruct)
+% parse inputs
+p.parse(modelType, varargin{:});
+mcmcParams = p.Results.mcmcParams;
+
 
 %% Setup
 samplers = {'jags', 'stan'};
@@ -15,6 +34,7 @@ datapath = fullfile(path_of_this_mfile,'datasets','kirby');
 addpath(toolbox_path)
 ddAnalysisSetUp();
 
+
 %% Do parameter estimation for each of the sampler types
 for sampler = samplers
 	models.(sampler{:}) = modelFunction(...
@@ -24,12 +44,8 @@ for sampler = samplers
 		'sampler', sampler{:},...
 		'shouldPlot', 'no',...
 		'shouldExportPlots', false,...
-		'exportFormats', {'png'},...
-		'mcmcParams', struct('nsamples', 200,...
-		'nchains', 4,...
-		'nburnin', 100));
+		'mcmcParams', mcmcParams);
 end
-
 
 
 %% Compare group level parameter estimates (repeated-measures)
