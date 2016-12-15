@@ -13,22 +13,12 @@ classdef (Abstract) Parametric < Model
 
 		function plot(obj, varargin)
 
-			% parse inputs
 			p = inputParser;
 			p.FunctionName = mfilename;
 			p.addParameter('shouldExportPlots', true, @islogical);
 			p.parse(varargin{:});
 
-			obj.pdata = obj.packageUpDataForPlotting();
-
-			for n=1:numel(obj.pdata)
-				obj.pdata(n).shouldExportPlots = p.Results.shouldExportPlots;
-			end
-
 			%% Plot functions that use data from all participants =========
-
-
-
 
 			% #############################################################
 			% #############################################################
@@ -68,6 +58,16 @@ classdef (Abstract) Parametric < Model
 
 
 			%% Plots, one per data file ===================================
+            
+            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            % TODO: 
+            obj.pdata = obj.packageUpDataForPlotting();
+
+            for n=1:numel(obj.pdata)
+                obj.pdata(n).shouldExportPlots = p.Results.shouldExportPlots;
+            end
+            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            
 			obj.experimentPlot();
 
 			% Corner plot of parameters
@@ -79,60 +79,16 @@ classdef (Abstract) Parametric < Model
 
 
 		function experimentPlot(obj)
-
-			% create cell array
-			discountFunctionVariables = {obj.varList.discountFunctionParams.name};
-			responseErrorVariables = {obj.varList.responseErrorParams.name};
-
+            % this is a wrapper function to loop over all data files, producing multi-panel figures. This is implemented by the experimentMultiPanelFigure method, which may be overridden by subclasses if need be.
 			names = obj.data.getIDnames('all');
 
 			for ind = 1:numel(names)
 				fh = figure('Name', names{ind});
 				latex_fig(12, 10, 3)
 
-				%%  Set up psychometric function
-				respErrSamples = obj.coda.getSamplesAtIndex(ind, responseErrorVariables);
-				psycho = PsychometricFunction('samples', respErrSamples);
-
-				%% plot bivariate distribution of alpha, epsilon
-				subplot(1,4,1)
-				% TODO: replace with new class
-				mcmc.BivariateDistribution(...
-					respErrSamples.epsilon(:),...
-					respErrSamples.alpha(:),...
-					'xLabel', obj.varList.responseErrorParams(1).label,...
-					'ylabel', obj.varList.responseErrorParams(2).label,...
-					'pointEstimateType',obj.pointEstimateType,...
-					'plotStyle', 'hist',...
-					'axisSquare', true);
-
-				%% Plot the psychometric function
-				subplot(1,4,2)
-				psycho.plot(obj.pointEstimateType)
-
-				%% Set up discount function
-				dfSamples = obj.coda.getSamplesAtIndex(ind, discountFunctionVariables);
-
-				discountFunction = obj.dfClass('samples', dfSamples);
-				% add data:  TODO: streamline this on object creation ~~~~~
-				% NOTE: we don't have data for group-level
-				data_struct = obj.data.getExperimentData(ind);
-				data_object = DataFile(data_struct);
-				discountFunction.data = data_object;
-				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-				% TODO: this checking needs to be implemented in a
-				% smoother, more robust way
-				if ~isempty(dfSamples) || ~any(isnan(dfSamples))
-					subplot(1,4,3)
-					discountFunction.plotParameters(obj.pointEstimateType)
-
-					subplot(1,4,4)
-					discountFunction.plot(obj.pointEstimateType,...
-						obj.dataPlotType,...
-						obj.timeUnits)
-				end
-
+                obj.experimentMultiPanelFigure(ind)
+                drawnow
+                
 				if obj.shouldExportPlots
 					myExport(obj.savePath, 'expt',...
 						'prefix', names{ind},...
@@ -144,6 +100,55 @@ classdef (Abstract) Parametric < Model
 			end
 		end
 
+        function experimentMultiPanelFigure(obj, ind)
+            % create cell array
+            discountFunctionVariables = {obj.varList.discountFunctionParams.name};
+            responseErrorVariables = {obj.varList.responseErrorParams.name};
+            
+            %%  Set up psychometric function
+            respErrSamples = obj.coda.getSamplesAtIndex(ind, responseErrorVariables);
+            psycho = PsychometricFunction('samples', respErrSamples);
+
+            %% plot bivariate distribution of alpha, epsilon
+            subplot(1,4,1)
+            % TODO: replace with new class
+            mcmc.BivariateDistribution(...
+                respErrSamples.epsilon(:),...
+                respErrSamples.alpha(:),...
+                'xLabel', obj.varList.responseErrorParams(1).label,...
+                'ylabel', obj.varList.responseErrorParams(2).label,...
+                'pointEstimateType',obj.pointEstimateType,...
+                'plotStyle', 'hist',...
+                'axisSquare', true);
+
+            %% Plot the psychometric function
+            subplot(1,4,2)
+            psycho.plot(obj.pointEstimateType)
+
+            %% Set up discount function
+            dfSamples = obj.coda.getSamplesAtIndex(ind, discountFunctionVariables);
+
+            discountFunction = obj.dfClass('samples', dfSamples);
+            % add data:  TODO: streamline this on object creation ~~~~~
+            % NOTE: we don't have data for group-level
+            data_struct = obj.data.getExperimentData(ind);
+            data_object = DataFile(data_struct);
+            discountFunction.data = data_object;
+            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+            % TODO: this checking needs to be implemented in a
+            % smoother, more robust way
+            if ~isempty(dfSamples) || ~any(isnan(dfSamples))
+                subplot(1,4,3)
+                discountFunction.plotParameters(obj.pointEstimateType)
+
+                subplot(1,4,4)
+                discountFunction.plot(obj.pointEstimateType,...
+                    obj.dataPlotType,...
+                    obj.timeUnits)
+            end
+        end
+        
 	end
 
 end

@@ -54,7 +54,7 @@ classdef (Abstract) DeterministicFunction
 			
 			if n_params==1
 				% plot univariate distribution
-				obj.theta.(fields).plot();
+				obj.theta.(fields{:}).plot();
 			elseif n_params==2
 				% plot bivariate distribution
 				

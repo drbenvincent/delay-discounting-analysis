@@ -24,21 +24,22 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 		end
 
 		% OVERRIDDING THIS METHOD FROM A SUPERCLASS
-		function experimentPlot(obj)
-			
+		function experimentMultiPanelFigure(obj, ind)
+            % create cell array
+            discountFunctionVariables = {obj.varList.discountFunctionParams.name};
+            responseErrorVariables = {obj.varList.responseErrorParams.name};
+            
 			% a list of reward values we are interested in
 			rewards = [10, 100, 1000]; % <----  TODO: inject this
 			
-			% create cell array
-			discountFunctionVariables = {obj.varList.discountFunctionParams.name};
-			responseErrorVariables = {obj.varList.responseErrorParams.name};
+			
 
-			names = obj.data.getIDnames('all');
-
-			for ind = 1:numel(names)
-				fh = figure('Name', names{ind});
-				latex_fig(12, 10, 3)
-
+			% names = obj.data.getIDnames('all');
+            % 
+			% for ind = 1:numel(names)
+			% 	fh = figure('Name', names{ind});
+			% 	latex_fig(12, 10, 3)
+            % 
 				%%  Set up psychometric function
 				respErrSamples = obj.coda.getSamplesAtIndex(ind, responseErrorVariables);
 				psycho = PsychometricFunction('samples', respErrSamples);
@@ -101,18 +102,18 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 					'plot', true,...
 					'plot_mode', 'conditional_only');
 
-				drawnow
+				
 
 
-				if obj.shouldExportPlots
-					myExport(obj.savePath, 'expt',...
-						'prefix', names{ind},...
-						'suffix', obj.modelFilename,...
-						'formats', {'png'});
-				end
-
-				close(fh)
-			end
+			% 	if obj.shouldExportPlots
+			% 		myExport(obj.savePath, 'expt',...
+			% 			'prefix', names{ind},...
+			% 			'suffix', obj.modelFilename,...
+			% 			'formats', {'png'});
+			% 	end
+            % 
+			% 	close(fh)
+			% end
 		end
 
 	end
