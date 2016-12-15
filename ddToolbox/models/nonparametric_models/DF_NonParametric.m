@@ -9,6 +9,7 @@ classdef DF_NonParametric < DiscountFunction
 	properties
 		delays   % vector of delays
         AUC      % A Stochastic object
+		timeUnits = 'days' %<------------------- TODO: inject this
 	end
 	
 	methods (Access = public)
@@ -36,21 +37,24 @@ classdef DF_NonParametric < DiscountFunction
 
 		
         function plot(obj)
+			% visualise the discount function
+			SAMPLES_TO_PLOT = 100;
+            timeUnitFunction = str2func(obj.timeUnits);
 			
-            %% visualise the posterior predictive indifference points
-			intervals = [50 95];
-            
-            % RIBBON PLOT
+            %% RIBBON PLOT
+			%intervals = [50 95]; %<----------- TODO: inject this
             %ribbon_plot(obj.delays, obj.theta, intervals); % TODO: replace, or inject the plot style we want
            
-            % PLOT N EXAMPLES
-            N = 200;
-            plot(obj.delays, obj.theta([1:N],:), 'Color',[0 0 0 0.05])
-            
+            %% PLOT N EXAMPLES
+			% dont ask for more samples than we actually have
+			samples_to_plot = [1:min(SAMPLES_TO_PLOT, size(obj.theta,1))];
+            plot(timeUnitFunction(obj.delays),...
+				obj.theta(samples_to_plot,:),...
+				'Color',[0 0 0 0.05])
             hold on
-
 			% ~~~~~~~~~~~~~
-			obj.data.plot()
+			dataPlotType = '2D'  %<----------- TODO: inject this
+			obj.data.plot(dataPlotType, obj.timeUnits)
 			% ~~~~~~~~~~~~~
             
             %% formatting
@@ -65,9 +69,6 @@ classdef DF_NonParametric < DiscountFunction
             %% add AUC measure text to graph
             %auc_str = sprintf('mean AUC: %1.2f', mean(personInfo.AUCsamples));
             %addTextToFigure('TR',auc_str, 15, 'latex')
-			
-
-			
 		end
         
 		
