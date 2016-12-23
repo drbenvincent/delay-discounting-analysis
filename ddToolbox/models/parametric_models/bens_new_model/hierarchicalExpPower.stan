@@ -71,7 +71,7 @@ transformed parameters {
 
 model {
   k_mu ~ normal(0.01, 2.5); // TODO      : pick this in a more meaningul manner
-  k_sigma ~ inv_gamma(0.1,0.1); // TODO  : pick this in a more meaningul manner
+  k_sigma ~ exponential(0.1);
   k ~ normal(k_mu, k_sigma);
   
   tau_mu ~ normal(0.01, 2.5); // TODO    : pick this in a more meaningul manner
@@ -79,7 +79,7 @@ model {
   tau ~ normal(tau_mu, tau_sigma);
   
   alpha_mu ~ uniform(0,100);
-  alpha_sigma ~ inv_gamma(0.01,0.01);
+  alpha_sigma ~ exponential(0.1);
   alpha ~ normal(alpha_mu, alpha_sigma);
   
   omega ~ beta(1.1, 10.9); // mode for lapse rate

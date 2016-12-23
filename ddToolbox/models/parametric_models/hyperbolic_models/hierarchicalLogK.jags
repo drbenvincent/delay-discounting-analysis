@@ -4,11 +4,11 @@
 model{
 
 groupLogKmu       ~ dnorm(log(1/50),1/(2.5^2))
-groupLogKsigma    ~ dgamma(0.01,0.01)
+groupLogKsigma    ~ dexp(0.5)
 
 # comparison acuity (alpha)
 groupALPHAmu        ~ dnorm(0,1/(100^2)) T(0,) ## UPDATED SINCE PAPER
-groupALPHAsigma     ~ dunif(0,100) ## UPDATED SINCE PAPER
+groupALPHAsigma     ~ dexp(0.5)
 
 # error rates (epsilon)
 groupW          ~ dbeta(1.1, 10.9)  # mode for lapse rate

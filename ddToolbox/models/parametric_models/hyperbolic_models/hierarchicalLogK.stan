@@ -39,33 +39,46 @@ parameters {
   real<lower=0> logk_sigma;
   vector[nRealExperimentFiles+1] logk; // +1 for unobserved participant
 
-  real alpha_mu;
-  real <lower=0> alpha_sigma;
+  real <lower=0> alphaMode;
+  real <lower=0> alphaSD;
   vector<lower=0>[nRealExperimentFiles+1] alpha; // +1 for unobserved participant
 
-  real <lower=0,upper=1> omega;
-  real <lower=0> kappa;
+  real <lower=0,upper=1> epsilonMode;
+  real <lower=0> epsilonConcentration;
   vector<lower=0,upper=0.5>[nRealExperimentFiles+1] epsilon; // +1 for unobserved participants
 }
 
 transformed parameters {
   vector[totalTrials] P;
+  real <lower=0>alphaRate;
+  real <lower=0>alphaShape;
+  real <lower=0>epsilonAlpha;
+  real <lower=0>epsilonBeta;
+  
   P = discounting(A, B, DA, DB, logk[ID], epsilon[ID], alpha[ID]);
+  
+  // reparameterisation for alpha
+  alphaRate = (alphaMode + sqrt(alphaMode^2 + 4*alphaSD^2) ) / (2*alphaSD^2);
+  alphaShape = 1 + alphaMode * alphaRate;
+  
+  // reparameterisation for epsilon
+  epsilonAlpha = epsilonMode*(epsilonConcentration-2)+1;
+  epsilonBeta =(1-epsilonMode)*(epsilonConcentration-2)+1;
 }
 
 model {
   // Response error parameters -------------------------------------------------
   // alpha
-  alpha        ~ normal(alpha_mu, alpha_sigma);
+  alpha       ~ gamma(alphaShape, alphaRate);
   // alpha: hyperpriors
-  alpha_mu     ~ uniform(0,100);
-  alpha_sigma  ~ inv_gamma(0.01,0.01);
+  alphaMode   ~ exponential(0.1);
+  alphaSD     ~ cauchy(0,2.5);
   
   // epsilon
-  epsilon      ~ beta(omega*(kappa-2)+1 , (1-omega)*(kappa-2)+1 );
+  epsilon               ~ beta(epsilonAlpha , epsilonBeta );
   // epsilon: hyperpriors
-  omega        ~ beta(1.1, 10.9);  // mode for lapse rate
-  kappa        ~ gamma(0.1,0.1);   // concentration parameter
+  epsilonMode           ~ beta(1.1, 10.9);
+  epsilonConcentration  ~ exponential(1);
   
   
   // Discounting parameters ----------------------------------------------------
@@ -73,7 +86,7 @@ model {
   logk        ~ normal(logk_mu, logk_sigma);
   // logk (hyperpriors)
   logk_mu     ~ normal(-3.9120,2.5);
-  logk_sigma  ~ inv_gamma(0.01,0.01);
+  logk_sigma  ~ cauchy(0,2.5);
   
   // Likelihood function -------------------------------------------------------
   R ~ bernoulli(P);

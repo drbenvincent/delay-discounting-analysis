@@ -15,7 +15,7 @@ groupLogKsigma <- 2.5
 
 # comparison acuity (alpha)
 groupALPHAmu        ~ dnorm(0,1/(100^2)) T(0,) ## UPDATED SINCE PAPER
-groupALPHAsigma     ~ dunif(0,500) ## UPDATED SINCE PAPER
+groupALPHAsigma     ~ dexp(0.5) ## UPDATED SINCE PAPER
 
 # error rates (epsilon)
 groupW          ~ dbeta(1.1, 10.9)  # mode for lapse rate
