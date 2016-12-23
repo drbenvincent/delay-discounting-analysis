@@ -1,3 +1,6 @@
+# RANDOM FACTORS:   k[p], tau[p], epsilon[p], alpha[p]
+# HYPER-PRIORS ON:  epsilon[p], alpha[p]
+
 model{
 
 # TODO: CURRENTLY GUESSTIMATING THESE HYPERPARAMETERS!

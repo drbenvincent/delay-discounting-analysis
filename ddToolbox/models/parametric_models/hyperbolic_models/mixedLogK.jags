@@ -1,3 +1,6 @@
+# RANDOM FACTORS:   logk[p], epsilon[p], alpha[p]
+# HYPER-PRIORS ON:  epsilon[p], alpha[p]
+
 # This model DOES employ group-level prior knowledge in log(k), because using this prior knowledge makes sense. However, we do NOT make inferences over the group mean, and so:
 #   Participant-level epsilon, alpha will be 'shrunk' toward the prior
 #   Participant-level log(k) will NOT be 'shrunk' toward the sample mean

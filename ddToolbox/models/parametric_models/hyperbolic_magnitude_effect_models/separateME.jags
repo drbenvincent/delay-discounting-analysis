@@ -1,3 +1,6 @@
+# RANDOM FACTORS:   m[p], c[p], epsilon[p], alpha[p]
+# HYPER-PRIORS ON:  none
+
 model{
 
 for (p in 1:nRealExperimentFiles){

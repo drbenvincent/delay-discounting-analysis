@@ -1,6 +1,5 @@
-# NO:  hierarchical inference on (m,c)
-# YES: hierarchical inference on alpha, epsilon
-
+# RANDOM FACTORS:   m[p], c[p], epsilon[p], alpha[p]
+# HYPER-PRIORS ON:  epsilon[p], alpha[p]
 
 model{
 

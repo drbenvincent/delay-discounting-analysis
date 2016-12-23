@@ -1,3 +1,6 @@
+# RANDOM FACTORS:   logk[p], epsilon[p], alpha[p]
+# HYPER-PRIORS ON:  logk[p], epsilon[p], alpha[p]
+
 model{
 
 groupLogKmu       ~ dnorm(log(1/50),1/(2.5^2))

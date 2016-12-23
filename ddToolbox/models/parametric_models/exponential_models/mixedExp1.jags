@@ -1,3 +1,5 @@
+# RANDOM FACTORS:   k[p], epsilon[p], alpha[p]
+# HYPER-PRIORS ON:  epsilon[p], alpha[p]
 
 model{
 
