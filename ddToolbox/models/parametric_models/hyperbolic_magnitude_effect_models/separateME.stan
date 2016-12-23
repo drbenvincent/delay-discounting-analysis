@@ -11,6 +11,25 @@ functions {
   vector df_hyperbolic1(vector reward, vector logk, vector delay){
     return reward ./ (1+(exp(logk).*delay));
   }
+  
+  vector discounting(vector A, vector B, vector DA, vector DB, vector m, vector c, vector epsilon, vector alpha){
+    vector[rows(A)] logkA;
+    vector[rows(B)] logkB;
+    vector[rows(A)] VA;
+    vector[rows(B)] VB;
+    vector[rows(A)] P;
+    // magnitude effect: note, operates on ABSOLUTE reward values
+    logkA = magnitude_effect(m, c, fabs(A));
+    logkB = magnitude_effect(m, c, fabs(B));
+    // calculate present subjective values
+    VA = df_hyperbolic1(A, logkA, DA);
+    VB = df_hyperbolic1(B, logkB, DB);
+    // calculate probability of choosing delayed reward (B; coded as R=1)
+    for (t in 1:rows(A)){
+      P[t] = psychometric_function(alpha[t], epsilon[t], VA[t], VB[t]);
+    }
+    return P;
+  }
 }
 
 data {
@@ -24,16 +43,6 @@ data {
   int <lower=0,upper=nRealExperimentFiles> ID[totalTrials];
 }
 
-transformed data {
-  vector[totalTrials] Aabs;
-  vector[totalTrials] Babs;
-
-  for (t in 1:totalTrials){
-    Aabs[t] = fabs(A[t]);
-    Babs[t] = fabs(B[t]);
-  }
-}
-
 parameters {
   vector[nRealExperimentFiles] m;
   vector[nRealExperimentFiles] c;
@@ -42,20 +51,8 @@ parameters {
 }
 
 transformed parameters {
-  vector[totalTrials] logkA;
-  vector[totalTrials] logkB;
-  vector[totalTrials] VA;
-  vector[totalTrials] VB;
   vector[totalTrials] P;
-
-  logkA = magnitude_effect(m[ID], c[ID], Aabs);
-  logkB = magnitude_effect(m[ID], c[ID], Babs);
-  VA = df_hyperbolic1(A, logkA, DA);
-  VB = df_hyperbolic1(B, logkB, DB);
-
-  for (t in 1:totalTrials){
-    P[t]     = psychometric_function(alpha[ID[t]], epsilon[ID[t]], VA[t], VB[t]);
-  }
+  P = discounting(A, B, DA, DB, m[ID], c[ID], epsilon[ID], alpha[ID]);
 }
 
 model {
