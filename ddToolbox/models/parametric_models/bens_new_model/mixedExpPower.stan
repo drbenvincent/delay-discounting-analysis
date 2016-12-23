@@ -1,5 +1,4 @@
 functions {
-  
   vector matrix_pow_elementwise(vector delay, vector tau){
     // can't (currently) do elementwise matrix power operation, so manually loop
     vector[rows(delay)] output;
@@ -34,7 +33,6 @@ functions {
     }
     return P;
   }
-  
 }
 
 data {
@@ -54,8 +52,13 @@ parameters {
   vector<lower=0>[nRealExperimentFiles] tau;
   
   // Psychometric function parameters
-  vector<lower=0>[nRealExperimentFiles] alpha;
-  vector<lower=0,upper=0.5>[nRealExperimentFiles] epsilon;
+  real alpha_mu;
+  real <lower=0> alpha_sigma;
+  vector<lower=0>[nRealExperimentFiles+1] alpha;
+
+  real <lower=0,upper=1> omega;
+  real <lower=0> kappa;
+  vector<lower=0,upper=0.5>[nRealExperimentFiles+1] epsilon;
 }
 
 transformed parameters {
@@ -64,16 +67,24 @@ transformed parameters {
 }
 
 model {
-  // no hierarchical inference for k, alpha, epsilon
+  alpha_mu     ~ uniform(0,100);
+  alpha_sigma  ~ inv_gamma(0.01,0.01);
+  alpha        ~ normal(alpha_mu, alpha_sigma);
+
+  omega        ~ beta(1.1, 10.9);  // mode for lapse rate
+  kappa        ~ gamma(0.1,0.1);   // concentration parameter
+  epsilon      ~ beta(omega*(kappa-2)+1 , (1-omega)*(kappa-2)+1 );
+
+  // no hierarchical inference for k
   k       ~ normal(0, 2);
   tau     ~ normal(1, 1);
-  alpha   ~ exponential(0.01);
-  epsilon ~ beta(1.1, 10.9);
-  R       ~ bernoulli(P);
+
+  R ~ bernoulli(P);
 }
 
-generated quantities {  // NO VECTORIZATION IN THIS BLOCK ?
+generated quantities {  // NO VECTORIZATION IN THIS BLOCK
   int <lower=0,upper=1> Rpostpred[totalTrials];
+
   for (t in 1:totalTrials){
     Rpostpred[t] = bernoulli_rng(P[t]);
   }

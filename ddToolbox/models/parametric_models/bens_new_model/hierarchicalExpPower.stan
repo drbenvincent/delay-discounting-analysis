@@ -1,5 +1,4 @@
 functions {
-  
   vector matrix_pow_elementwise(vector delay, vector tau){
     // can't (currently) do elementwise matrix power operation, so manually loop
     vector[rows(delay)] output;
@@ -34,7 +33,6 @@ functions {
     }
     return P;
   }
-  
 }
 
 data {
@@ -49,13 +47,21 @@ data {
 }
 
 parameters {
-  // Discounting parameters
-  vector[nRealExperimentFiles] k; 
-  vector<lower=0>[nRealExperimentFiles] tau;
+  real k_mu;
+  real<lower=0> k_sigma;
+  vector[nRealExperimentFiles+1] k; // +1 for unobserved participant
   
-  // Psychometric function parameters
-  vector<lower=0>[nRealExperimentFiles] alpha;
-  vector<lower=0,upper=0.5>[nRealExperimentFiles] epsilon;
+  real tau_mu;
+  real<lower=0> tau_sigma;
+  vector<lower=0>[nRealExperimentFiles+1] tau; // +1 for unobserved participant
+  
+  real alpha_mu;
+  real <lower=0> alpha_sigma;
+  vector<lower=0>[nRealExperimentFiles+1] alpha; // +1 for unobserved participant
+
+  real <lower=0,upper=1> omega;
+  real <lower=0> kappa;
+  vector<lower=0,upper=0.5>[nRealExperimentFiles+1] epsilon; // +1 for unobserved participants
 }
 
 transformed parameters {
@@ -64,15 +70,26 @@ transformed parameters {
 }
 
 model {
-  // no hierarchical inference for k, alpha, epsilon
-  k       ~ normal(0, 2);
-  tau     ~ normal(1, 1);
-  alpha   ~ exponential(0.01);
-  epsilon ~ beta(1.1, 10.9);
-  R       ~ bernoulli(P);
+  k_mu ~ normal(0.01, 2.5); // TODO      : pick this in a more meaningul manner
+  k_sigma ~ inv_gamma(0.1,0.1); // TODO  : pick this in a more meaningul manner
+  k ~ normal(k_mu, k_sigma);
+  
+  tau_mu ~ normal(0.01, 2.5); // TODO    : pick this in a more meaningul manner
+  tau_sigma ~ inv_gamma(0.1,0.1); // TODO: pick this in a more meaningul manner
+  tau ~ normal(tau_mu, tau_sigma);
+  
+  alpha_mu ~ uniform(0,100);
+  alpha_sigma ~ inv_gamma(0.01,0.01);
+  alpha ~ normal(alpha_mu, alpha_sigma);
+  
+  omega ~ beta(1.1, 10.9); // mode for lapse rate
+  kappa ~ gamma(0.1,0.1); // concentration parameter
+  epsilon ~ beta(omega*(kappa-2)+1 , (1-omega)*(kappa-2)+1 );
+  
+  R ~ bernoulli(P);
 }
 
-generated quantities {  // NO VECTORIZATION IN THIS BLOCK ?
+generated quantities {  // NO VECTORIZATION IN THIS BLOCK
   int <lower=0,upper=1> Rpostpred[totalTrials];
   for (t in 1:totalTrials){
     Rpostpred[t] = bernoulli_rng(P[t]);
