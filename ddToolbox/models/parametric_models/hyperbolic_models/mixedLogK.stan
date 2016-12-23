@@ -54,22 +54,30 @@ transformed parameters {
 }
 
 model {
+  // Response error parameters -------------------------------------------------
+  // alpha
+  alpha        ~ normal(alpha_mu, alpha_sigma);
+  // alpha: hyperpriors
   alpha_mu     ~ uniform(0,100);
   alpha_sigma  ~ inv_gamma(0.01,0.01);
-  alpha        ~ normal(alpha_mu, alpha_sigma);
-
+  
+  // epsilon
+  epsilon      ~ beta(omega*(kappa-2)+1 , (1-omega)*(kappa-2)+1 );
+  // epsilon: hyperpriors
   omega        ~ beta(1.1, 10.9);  // mode for lapse rate
   kappa        ~ gamma(0.1,0.1);   // concentration parameter
-  epsilon      ~ beta(omega*(kappa-2)+1 , (1-omega)*(kappa-2)+1 );
+  
 
-  logk         ~ normal(log(1.0/50.0), 2.5);
+  // Discounting parameters ----------------------------------------------------
+  // logk (no hyperprior)
+  logk    ~ normal(log(1.0/50.0), 2.5);
 
+  // Likelihood function -------------------------------------------------------
   R ~ bernoulli(P);
 }
 
 generated quantities {  // NO VECTORIZATION IN THIS BLOCK
   int <lower=0,upper=1> Rpostpred[totalTrials];
-
   for (t in 1:totalTrials){
     Rpostpred[t] = bernoulli_rng(P[t]);
   }

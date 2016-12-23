@@ -7,6 +7,20 @@ functions {
   vector df_hyperbolic1(vector reward, vector logk, vector delay){
     return reward ./ (1+(exp(logk).*delay));
   }
+  
+  vector discounting(vector A, vector B, vector DA, vector DB, vector logk, vector epsilon, vector alpha){
+    vector[rows(A)] VA;
+    vector[rows(B)] VB;
+    vector[rows(A)] P;
+    // calculate present subjective values
+    VA = df_hyperbolic1(A, logk, DA);
+    VB = df_hyperbolic1(B, logk, DB);
+    // calculate probability of choosing delayed reward (B; coded as R=1)
+    for (t in 1:rows(A)){
+      P[t] = psychometric_function(alpha[t], epsilon[t], VA[t], VB[t]);
+    }
+    return P;
+  }
 }
 
 data {
@@ -35,31 +49,33 @@ parameters {
 }
 
 transformed parameters {
-  vector[totalTrials] VA;
-  vector[totalTrials] VB;
   vector[totalTrials] P;
-
-  VA = df_hyperbolic1(A, logk[ID], DA);
-  VB = df_hyperbolic1(B, logk[ID], DB);
-
-  for (t in 1:totalTrials){
-    P[t] = psychometric_function(alpha[ID[t]], epsilon[ID[t]], VA[t], VB[t]);
-  }
+  P = discounting(A, B, DA, DB, logk[ID], epsilon[ID], alpha[ID]);
 }
 
 model {
+  // Response error parameters -------------------------------------------------
+  // alpha
+  alpha        ~ normal(alpha_mu, alpha_sigma);
+  // alpha: hyperpriors
+  alpha_mu     ~ uniform(0,100);
+  alpha_sigma  ~ inv_gamma(0.01,0.01);
+  
+  // epsilon
+  epsilon      ~ beta(omega*(kappa-2)+1 , (1-omega)*(kappa-2)+1 );
+  // epsilon: hyperpriors
+  omega        ~ beta(1.1, 10.9);  // mode for lapse rate
+  kappa        ~ gamma(0.1,0.1);   // concentration parameter
+  
+  
+  // Discounting parameters ----------------------------------------------------
+  // logk
+  logk        ~ normal(logk_mu, logk_sigma);
+  // logk (hyperpriors)
   logk_mu     ~ normal(-3.9120,2.5);
   logk_sigma  ~ inv_gamma(0.01,0.01);
-  logk        ~ normal(logk_mu, logk_sigma);
-
-  alpha_mu    ~ uniform(0,100);
-  alpha_sigma ~ inv_gamma(0.01,0.01);
-  alpha       ~ normal(alpha_mu, alpha_sigma);
-
-  omega       ~ beta(1.1, 10.9);  // mode for lapse rate
-  kappa       ~ gamma(0.1,0.1); // concentration parameter
-  epsilon     ~ beta(omega*(kappa-2)+1 , (1-omega)*(kappa-2)+1 );
-
+  
+  // Likelihood function -------------------------------------------------------
   R ~ bernoulli(P);
 }
 
