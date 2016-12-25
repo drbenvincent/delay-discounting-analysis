@@ -1,3 +1,6 @@
+// RANDOM FACTORS:   k[p], tau[p], epsilon[p], alpha[p]
+// HYPER-PRIORS ON:  none
+
 functions {
   
   vector matrix_pow_elementwise(vector delay, vector tau){

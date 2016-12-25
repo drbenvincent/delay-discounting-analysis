@@ -1,3 +1,6 @@
+// RANDOM FACTORS:   k[p], epsilon[p], alpha[p]
+// HYPER-PRIORS ON:  none
+
 functions {
   real psychometric_function(real alpha, real epsilon, real VA, real VB){
     // returns probability of choosing B (delayed reward)
