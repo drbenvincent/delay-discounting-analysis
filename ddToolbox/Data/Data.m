@@ -8,11 +8,14 @@ classdef Data
         participantIDs  
 		experiment  % structure containing a table for each experiment
 		%groupTable        % table of A, DA, B, DB, R, ID, PA, PB
-        totalTrials
         unobservedPartipantPresent
         nExperimentFiles		% includes optional unobserved participant
 		nRealExperimentFiles	% only includes number of real experiment files
 	end
+    
+    properties (Dependent)
+        totalTrials
+    end
 
 	% NOTE TO SELF: These public methods need to be seen as interfaces to
 	% the outside world that are implementation-independent. So thought
@@ -59,7 +62,7 @@ classdef Data
 			obj.experiment               = obj.removeMissingResponseTrials();
 			obj.validateData();
 			obj.exportGroupDataFile();
-			obj.totalTrials			     = height( obj.buildGroupDataTable() );
+			
 
 			display('The following data files were imported:')
 			display(fnames')
@@ -204,8 +207,8 @@ classdef Data
 			end
 		end
         
-        function totalTrials = getTotalTrials(obj)
-            totalTrials = obj.totalTrials;
+        function totalTrials = get.totalTrials(obj)
+            totalTrials	= height( obj.buildGroupDataTable() );
 		end
         
         function int = getNExperimentFiles(obj)
