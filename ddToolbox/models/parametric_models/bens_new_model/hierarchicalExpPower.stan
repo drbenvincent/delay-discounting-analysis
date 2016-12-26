@@ -1,40 +1,18 @@
 // RANDOM FACTORS:   k[p], tau[p], epsilon[p], alpha[p]
 // HYPER-PRIORS ON:  k[p], tau[p], epsilon[p], alpha[p]
 
-functions {
-  vector matrix_pow_elementwise(vector delay, vector tau){
-    // can't (currently) do elementwise matrix power operation, so manually loop
-    vector[rows(delay)] output;
-    for (i in 1:num_elements(delay)){
-      output[i] = pow(delay[i], tau[i]);
-    }
-    return output;
-  }
-  
+functions {  
   real psychometric_function(real alpha, real epsilon, real VA, real VB){
     // returns probability of choosing B (delayed reward)
     return epsilon + (1-2*epsilon) * Phi( (VB-VA) / alpha);
   }
 
-  vector df_exp_power(vector reward, vector k, vector tau, vector delay){
-    //return reward .*( exp( -k .* (delay ^ tau) ) );
-    vector[rows(delay)] delay_to_power_tau;
-    delay_to_power_tau = matrix_pow_elementwise(delay,tau);
-    return reward .*( exp( -k .* delay_to_power_tau ) );
-  }
-  
-  vector discounting(vector A, vector B, vector DA, vector DB, vector k, vector tau, vector epsilon, vector alpha){
-    vector[rows(A)] VA;
-    vector[rows(B)] VB;
-    vector[rows(A)] P;
-    // calculate present subjective values
-    VA = df_exp_power(A, k, tau, DA);
-    VB = df_exp_power(B, k, tau, DB);
-    // calculate probability of choosing delayed reward (B; coded as R=1)
-    for (t in 1:rows(A)){
-      P[t] = psychometric_function(alpha[t], epsilon[t], VA[t], VB[t]);
+  vector df_exp_power(vector reward, vector delay, vector k, vector tau){
+    vector[rows(reward)] V;
+    for (t in 1:rows(reward)){
+       V[t] = reward[t] *( exp( -k[t] * (delay[t]^tau[t]) ) );
     }
-    return P;
+    return V;
   }
 }
 
@@ -50,44 +28,65 @@ data {
 }
 
 parameters {
+  // Discounting parameters
   real k_mu;
   real<lower=0> k_sigma;
   vector[nRealExperimentFiles+1] k; // +1 for unobserved participant
   
-  real tau_mu;
-  real<lower=0> tau_sigma;
-  vector<lower=0>[nRealExperimentFiles+1] tau; // +1 for unobserved participant
+  vector<lower=0>[nRealExperimentFiles+1] tau;
+  real<lower=0>tau_mode;
+  real<lower=0>tau_rate;
   
-  real alpha_mu;
-  real <lower=0> alpha_sigma;
-  vector<lower=0>[nRealExperimentFiles+1] alpha; // +1 for unobserved participant
+  // Psychometric function parameters
+  real <lower=0>alpha_mu;
+  real <lower=0>alpha_sigma;
+  vector<lower=0>[nRealExperimentFiles+1] alpha;
 
   real <lower=0,upper=1> omega;
   real <lower=0> kappa;
-  vector<lower=0,upper=0.5>[nRealExperimentFiles+1] epsilon; // +1 for unobserved participants
+  vector<lower=0,upper=0.5>[nRealExperimentFiles+1] epsilon;
 }
 
 transformed parameters {
+  vector[totalTrials] VA;
+  vector[totalTrials] VB;
   vector[totalTrials] P;
-  P = discounting(A, B, DA, DB, k[ID], tau[ID], epsilon[ID], alpha[ID]);
+  
+  real <lower=0>tau_alpha;
+  real <lower=0>tau_beta;
+  
+  VA = df_exp_power(A, DA, k[ID], tau[ID]);
+  VB = df_exp_power(B, DB, k[ID], tau[ID]);
+  for (t in 1:totalTrials){
+    P[t] = psychometric_function(alpha[ID[t]], epsilon[ID[t]], VA[t], VB[t]);
+  }
+  
+  // reparameterisation for tau
+  tau_alpha = 1+tau_mode * tau_rate;
+  tau_beta = (tau_mode + sqrt(tau_mode^2 + 4*tau_rate^2)) / (2*tau_rate^2);
+  // TODO: check this
 }
 
 model {
+  // hyper-priors for alpha
+  alpha_mu     ~ uniform(0,100);
+  alpha_sigma  ~ inv_gamma(0.01,0.01);
+  alpha        ~ normal(alpha_mu, alpha_sigma);
+
+  // hyper-priors for epsilon
+  omega        ~ beta(1.1, 10.9);  // mode for lapse rate
+  kappa        ~ gamma(0.1,0.1);   // concentration parameter
+  epsilon      ~ beta(omega*(kappa-2)+1 , (1-omega)*(kappa-2)+1 );
+
+  // hyper-priors for k
   k_mu ~ normal(0.01, 2.5); // TODO      : pick this in a more meaningul manner
   k_sigma ~ exponential(0.1);
   k ~ normal(k_mu, k_sigma);
   
-  tau_mu ~ normal(0.01, 2.5); // TODO    : pick this in a more meaningul manner
-  tau_sigma ~ inv_gamma(0.1,0.1); // TODO: pick this in a more meaningul manner
-  tau ~ normal(tau_mu, tau_sigma);
-  
-  alpha_mu ~ uniform(0,100);
-  alpha_sigma ~ exponential(0.1);
-  alpha ~ normal(alpha_mu, alpha_sigma);
-  
-  omega ~ beta(1.1, 10.9); // mode for lapse rate
-  kappa ~ gamma(0.1,0.1); // concentration parameter
-  epsilon ~ beta(omega*(kappa-2)+1 , (1-omega)*(kappa-2)+1 );
+  // hyper-priors for tau
+  tau_mode ~ normal(1,10) T[0,];     // could improve
+  tau_rate ~ exponential(0.001);      // could improve
+  tau     ~ gamma(tau_alpha, tau_beta);
   
   R ~ bernoulli(P);
 }

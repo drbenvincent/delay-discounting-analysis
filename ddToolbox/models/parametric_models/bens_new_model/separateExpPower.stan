@@ -1,43 +1,14 @@
 // RANDOM FACTORS:   k[p], tau[p], epsilon[p], alpha[p]
 // HYPER-PRIORS ON:  none
 
-functions {
-  
-  vector matrix_pow_elementwise(vector delay, vector tau){
-    // can't (currently) do elementwise matrix power operation, so manually loop
-    vector[rows(delay)] output;
-    for (i in 1:num_elements(delay)){
-      output[i] = pow(delay[i], tau[i]);
-    }
-    return output;
-  }
-  
+functions {  
   real psychometric_function(real alpha, real epsilon, real VA, real VB){
     // returns probability of choosing B (delayed reward)
     return epsilon + (1-2*epsilon) * Phi( (VB-VA) / alpha);
   }
-
-  vector df_exp_power(vector reward, vector k, vector tau, vector delay){
-    //return reward .*( exp( -k .* (delay ^ tau) ) );
-    vector[rows(delay)] delay_to_power_tau;
-    delay_to_power_tau = matrix_pow_elementwise(delay,tau);
-    return reward .*( exp( -k .* delay_to_power_tau ) );
+  real df_exp_power(real reward, real delay, real k, real tau){
+    return reward *( exp( -k * (delay^tau) ) );
   }
-  
-  vector discounting(vector A, vector B, vector DA, vector DB, vector k, vector tau, vector epsilon, vector alpha){
-    vector[rows(A)] VA;
-    vector[rows(B)] VB;
-    vector[rows(A)] P;
-    // calculate present subjective values
-    VA = df_exp_power(A, k, tau, DA);
-    VB = df_exp_power(B, k, tau, DB);
-    // calculate probability of choosing delayed reward (B; coded as R=1)
-    for (t in 1:rows(A)){
-      P[t] = psychometric_function(alpha[t], epsilon[t], VA[t], VB[t]);
-    }
-    return P;
-  }
-  
 }
 
 data {
@@ -52,31 +23,45 @@ data {
 }
 
 parameters {
-  // Discounting parameters
-  vector[nRealExperimentFiles] k; 
+  vector[nRealExperimentFiles] k;
   vector<lower=0>[nRealExperimentFiles] tau;
-  
-  // Psychometric function parameters
   vector<lower=0>[nRealExperimentFiles] alpha;
   vector<lower=0,upper=0.5>[nRealExperimentFiles] epsilon;
+  
+  real tauM;
+  real kM;
 }
 
 transformed parameters {
+  vector[totalTrials] VA;
+  vector[totalTrials] VB;
   vector[totalTrials] P;
-  P = discounting(A, B, DA, DB, k[ID], tau[ID], epsilon[ID], alpha[ID]);
+  
+  vector[nRealExperimentFiles] tauMvec;
+  vector[nRealExperimentFiles] kMvec;
+  
+
+  for (t in 1:totalTrials){
+    VA[t] = df_exp_power(A[t], DA[t], k[ID[t]], tau[ID[t]]);
+    VB[t] = df_exp_power(B[t], DB[t], k[ID[t]], tau[ID[t]]);
+    P[t] = psychometric_function(alpha[ID[t]], epsilon[ID[t]], VA[t], VB[t]);
+  }
 }
 
 model {
-  // no hierarchical inference for k, alpha, epsilon
-  k       ~ normal(0, 2);
-  tau     ~ normal(1, 1);
-  alpha   ~ exponential(0.01);
-  epsilon ~ beta(1.1, 10.9);
+  // no hierarchical inference for k, tau, alpha, epsilon
+  k       ~ normal(0, 0.01); # sigma = 0.1
+  tau     ~ exponential(0.001);
+  
+  alpha   ~ exponential(0.001);
+  epsilon ~ beta(1+1, 1+20);
+  
   R       ~ bernoulli(P);
 }
 
 generated quantities {  // NO VECTORIZATION IN THIS BLOCK ?
   int <lower=0,upper=1> Rpostpred[totalTrials];
+
   for (t in 1:totalTrials){
     Rpostpred[t] = bernoulli_rng(P[t]);
   }
