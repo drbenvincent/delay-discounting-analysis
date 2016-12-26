@@ -6,8 +6,7 @@ classdef Data
 		filenames_full	% filename, including extension
 		filenames		% filename, but no extension
         participantIDs  
-		experiment  % structure containing a table for each experiment
-		%groupTable        % table of A, DA, B, DB, R, ID, PA, PB
+		experiment  % structure containing a table for each experiment      
         unobservedPartipantPresent
         nExperimentFiles		% includes optional unobserved participant
 		nRealExperimentFiles	% only includes number of real experiment files
@@ -15,6 +14,7 @@ classdef Data
     
     properties (Dependent)
         totalTrials
+        groupTable % table of A§, DA, B, DB, R, ID, PA, PB
     end
 
 	% NOTE TO SELF: These public methods need to be seen as interfaces to
@@ -53,15 +53,18 @@ classdef Data
 		function obj = importAllFiles(obj, fnames)
 			assert( iscellstr(fnames), 'fnames should be a cell array of filenames')
 
+            % store meta information baout the dataset ~~~~~~~~~~~~~~~~~~~~~~~~~
 			obj.nExperimentFiles		 = numel(fnames);
 			obj.nRealExperimentFiles	 = numel(fnames);
 			obj.filenames_full			 = fnames;
 			obj.filenames				 = path2filename(fnames);
             obj.participantIDs		     = path2participantID(fnames);
+            % import ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			obj.experiment	             = obj.buildExperimentTables(fnames);
+            % validation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			obj.experiment               = obj.removeMissingResponseTrials();
 			obj.validateData();
-			obj.exportGroupDataFile();
+			obj.exportGroupDataFileToDisk();
 			
 
 			display('The following data files were imported:')
@@ -69,11 +72,11 @@ classdef Data
 		end
 
 
-		function exportGroupDataFile(obj)
+		function exportGroupDataFileToDisk(obj)
 			saveLocation = fullfile(obj.dataFolder,'groupLevelData');
 			ensureFolderExists(saveLocation)
 			writetable(...
-				obj.buildGroupDataTable(),...
+				obj.groupTable,...
 				fullfile(saveLocation,'COMBINED_DATA.txt'),...
 				'delimiter','tab')
 			fprintf('A copy of the group-level dataset just constructed has been saved as a text file:\n%s\n',...
@@ -208,7 +211,7 @@ classdef Data
 		end
         
         function totalTrials = get.totalTrials(obj)
-            totalTrials	= height( obj.buildGroupDataTable() );
+            totalTrials	= height( obj.groupTable );
 		end
         
         function int = getNExperimentFiles(obj)
@@ -227,6 +230,11 @@ classdef Data
 		
         function uniqueNames = getUniqueParticipantNames(obj)
             uniqueNames = unique(obj.participantIDs);
+        end
+        
+        function groupTable = get.groupTable(obj)
+            % Dynamically constructs group table from experiment-level tables
+            groupTable = vertcat(obj.experiment(:).table);
         end
         
 	end
@@ -292,10 +300,6 @@ classdef Data
 				experiment(pIndex).table = experimentTable;
 				experiment(pIndex).trialsForThisParticant = height(experimentTable);
 			end
-		end
-
-		function groupTable = buildGroupDataTable(obj)
-			groupTable = vertcat(obj.experiment(:).table);
 		end
 
 	end
