@@ -38,7 +38,7 @@ classdef Data
 				error('This version of Matlab does not support the Table data type.')
 			end
 			obj.dataFolder = dataFolder;
-			display('You have created a Data object')
+			disp('You have created a Data object');
 
 			if ~isempty(p.Results.files)
 				obj = obj.importAllFiles(p.Results.files);
@@ -62,8 +62,8 @@ classdef Data
             % import ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			obj.experiment	             = obj.buildExperimentTables(fnames);
             % validation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			obj.experiment               = obj.removeMissingResponseTrials();
-			obj.validateData();
+			%obj.experiment               = obj.removeMissingResponseTrials();
+			%obj.validateData();
 			obj.exportGroupDataFileToDisk();
 			
 
@@ -126,7 +126,7 @@ classdef Data
 			% TODO: this mess is a manifestation of no decent way to deal
 			% with the group-level (who has no data).
 			try
-				dataStruct = table2struct(obj.experiment(experiment).table,...
+				dataStruct = table2struct(obj.experiment(experiment).getDataAsTable,...
 					'ToScalar',true);
 				
 				dataStruct.trialsForThisParticant =...
@@ -137,27 +137,29 @@ classdef Data
 		end
 
 		function R = getParticipantResponses(obj, p)
-			R = obj.experiment(p).table.R;
+			temp = obj.experiment(p).getDataAsTable();
+			R = temp.R;
 		end
 
 		function nTrials = getTrialsForThisParticant(obj, p)
-			nTrials = obj.experiment(p).trialsForThisParticant;
+			nTrials = obj.experiment(p).getTrialsForThisParticant;
 		end
 
 		function pTable = getRawDataTableForParticipant(obj, p)
 			% return a Table of raw data
-			pTable = obj.experiment(p).table;
+			pTable = obj.experiment(p).getDataAsTable();
 		end
 
-		function all_data = get_all_data_table(obj)
-			% Create long data table of all participants
-			all_data = obj.experiment(:).table;
-			if obj.nExperimentFiles > 1
-				for p = 2:obj.nExperimentFiles
-					all_data = [all_data; obj.experiment(p).table];
-				end
-			end
-		end
+% 		function all_data = get_all_data_table(obj)
+% 			error('why not ask for obj.groupTable ? ')
+% 			% Create long data table of all participants
+% 			all_data = obj.experiment(:).table;
+% 			if obj.nExperimentFiles > 1
+% 				for p = 2:obj.nExperimentFiles
+% 					all_data = [all_data; obj.experiment(p).table];
+% 				end
+% 			end
+% 		end
 
 		function names = getIDnames(obj, whatIwant)
 			% returns a cell array of strings
@@ -202,7 +204,7 @@ classdef Data
 			% participants. BUT hierarchical models will have an extra
 			% (unobserved) participant, so we need to be sensitive to
 			% whether this exists of not
-			all_data = obj.get_all_data_table();
+			all_data = obj.groupTable;
 			if obj.unobservedPartipantPresent
 				participantIndexList = [unique(all_data.ID) ; max(unique(all_data.ID))+1];
 			else
@@ -233,9 +235,13 @@ classdef Data
         end
         
         function groupTable = get.groupTable(obj)
-            % Dynamically constructs group table from experiment-level tables
-            groupTable = vertcat(obj.experiment(:).table);
-        end
+			% Dynamically constructs group table from experiment-level tables
+			N = numel(obj.experiment);
+			groupTable = table();
+			for n=1:N
+				groupTable = vertcat(groupTable, obj.experiment(n).getDataAsTable);
+			end
+		end
         
 	end
 
@@ -246,33 +252,33 @@ classdef Data
 
 	methods (Access = private)
 
-		function obj = validateData(obj)
-			% return a structure of tables
-
-			for pIndex = 1:obj.nExperimentFiles
-				validate(obj.experiment(pIndex).table)
-			end
-			
-			function validate(aTable)
-				assert(any(aTable.DA >= 0), 'Entries of DA must be greater than or equal to zero')
-				assert(any(aTable.DB >= 0), 'Entries of DA must be greater than or equal to zero')
-				assert(any(aTable.DA <= aTable.DB), 'For any given trial (row) DA must be less than or equal to DB')
-				assert(any(aTable.PA > 0 | aTable.PA < 1), 'PA must be between 0 and 1')
-				assert(any(aTable.PB > 0 | aTable.PB < 1), 'PA must be between 0 and 1')
-				assert(all(aTable.R <=1 ), 'Data:AssertionFailed', 'Values of R must be either 0 or 1')
-				assert(all(aTable.R >=0 ), 'Data:AssertionFailed', 'Values of R must be either 0 or 1')
-				assert(all(rem(aTable.R,1)==0), 'Data:AssertionFailed', 'Values of R must be either 0 or 1')
-				assert(all(isnumeric(aTable.R)), 'Data:AssertionFailed', 'Values of R must be either 0 or 1')
-			end
-		end
+% 		function obj = validateData(obj)
+% 			% return a structure of tables
+% 
+% 			for pIndex = 1:obj.nExperimentFiles
+% 				validate(obj.experiment(pIndex).table)
+% 			end
+% 			
+% 			function validate(aTable)
+% 				assert(any(aTable.DA >= 0), 'Entries of DA must be greater than or equal to zero')
+% 				assert(any(aTable.DB >= 0), 'Entries of DA must be greater than or equal to zero')
+% 				assert(any(aTable.DA <= aTable.DB), 'For any given trial (row) DA must be less than or equal to DB')
+% 				assert(any(aTable.PA > 0 | aTable.PA < 1), 'PA must be between 0 and 1')
+% 				assert(any(aTable.PB > 0 | aTable.PB < 1), 'PA must be between 0 and 1')
+% 				assert(all(aTable.R <=1 ), 'Data:AssertionFailed', 'Values of R must be either 0 or 1')
+% 				assert(all(aTable.R >=0 ), 'Data:AssertionFailed', 'Values of R must be either 0 or 1')
+% 				assert(all(rem(aTable.R,1)==0), 'Data:AssertionFailed', 'Values of R must be either 0 or 1')
+% 				assert(all(isnumeric(aTable.R)), 'Data:AssertionFailed', 'Values of R must be either 0 or 1')
+% 			end
+% 		end
 		
-		function experiment = removeMissingResponseTrials(obj)
-			for pIndex = 1:obj.nExperimentFiles
-				current_table = obj.experiment(pIndex).table;
-				experiment(pIndex).table = current_table(~isnan(current_table.R),:);
-				experiment(pIndex).trialsForThisParticant = height(experiment(pIndex).table);
-			end
-		end
+% 		function experiment = removeMissingResponseTrials(obj)
+% 			for pIndex = 1:obj.nExperimentFiles
+% 				current_table = obj.experiment(pIndex).datatable;
+% 				experiment(pIndex).table = current_table(~isnan(current_table.R),:);
+% 				experiment(pIndex).trialsForThisParticant = height(experiment(pIndex).table);
+% 			end
+% 		end
 		
 		function experiment = buildExperimentTables(obj, fnames)
 			% return a structure of tables
@@ -296,9 +302,12 @@ classdef Data
 				
 				experimentTable = obj.columnHeaderValidation(experimentTable);
 				
-				% Add to struct
-				experiment(pIndex).table = experimentTable;
-				experiment(pIndex).trialsForThisParticant = height(experimentTable);
+				% CONSTRUCT AN ARRAY OF DataFile OBJECTS
+				experiment(pIndex) = DataFile(experimentTable);
+				
+% 				% Add to struc
+% 				experiment(pIndex).table = experimentTable;
+% 				experiment(pIndex).trialsForThisParticant = height(experimentTable);
 			end
 		end
 
