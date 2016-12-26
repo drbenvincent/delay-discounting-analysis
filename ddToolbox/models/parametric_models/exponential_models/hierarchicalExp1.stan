@@ -11,19 +11,19 @@ functions {
     return reward .* exp(-k .* delay);
   }
   
-  vector discounting(vector A, vector B, vector DA, vector DB, vector k, vector epsilon, vector alpha){
-    vector[rows(A)] VA;
-    vector[rows(B)] VB;
-    vector[rows(A)] P;
-    // calculate present subjective values
-    VA = df_exponential1(A, k, DA);
-    VB = df_exponential1(B, k, DB);
-    // calculate probability of choosing delayed reward (B; coded as R=1)
-    for (t in 1:rows(A)){
-      P[t] = psychometric_function(alpha[t], epsilon[t], VA[t], VB[t]);
-    }
-    return P;
-  }
+  // vector discounting(vector A, vector B, vector DA, vector DB, vector k, vector epsilon, vector alpha){
+  //   vector[rows(A)] VA;
+  //   vector[rows(B)] VB;
+  //   vector[rows(A)] P;
+  //   // calculate present subjective values
+  //   VA = df_exponential1(A, k, DA);
+  //   VB = df_exponential1(B, k, DB);
+  //   // calculate probability of choosing delayed reward (B; coded as R=1)
+  //   for (t in 1:rows(A)){
+  //     P[t] = psychometric_function(alpha[t], epsilon[t], VA[t], VB[t]);
+  //   }
+  //   return P;
+  // }
 }
 
 data {
@@ -52,8 +52,16 @@ parameters {
 }
 
 transformed parameters {
+  vector[totalTrials] VA;
+  vector[totalTrials] VB;
   vector[totalTrials] P;
-  P = discounting(A, B, DA, DB, k[ID], epsilon[ID], alpha[ID]);
+
+  VA = df_exponential1(A, k[ID], DA);
+  VB = df_exponential1(B, k[ID], DB);
+
+  for (t in 1:totalTrials){
+    P[t] = psychometric_function(alpha[ID[t]], epsilon[ID[t]], VA[t], VB[t]);
+  }
 }
 
 model {
