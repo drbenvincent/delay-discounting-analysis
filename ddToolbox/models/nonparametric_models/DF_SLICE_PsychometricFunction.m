@@ -40,9 +40,9 @@ classdef DF_SLICE_PsychometricFunction < DeterministicFunction
 			
 			axis tight
 			ylim([0 1])
-			vline(0);
 			%vline(0); xlabel('reward ratio $\log(A/B)$', 'interpreter','latex')
 			vline(1); xlabel('reward ratio $A/B$', 'interpreter','latex')
+			%vline(0); xlabel('reward ratio $A-B$', 'interpreter','latex')
 			ylabel('P(choose delayed)', 'interpreter','latex')
 			box off
 		end
