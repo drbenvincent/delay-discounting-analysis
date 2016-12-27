@@ -132,11 +132,11 @@ classdef Data
 			% TODO: this mess is a manifestation of no decent way to deal
 			% with the group-level (who has no data).
 			try
-				dataStruct = table2struct(obj.experiment(experiment).getDataAsTable,...
-					'ToScalar',true);
+				experimentTable = obj.experiment(experiment).getDataAsTable;
 				
-				dataStruct.trialsForThisParticant =...
-					obj.experiment(experiment).trialsForThisParticant;
+				dataStruct = table2struct(experimentTable, 'ToScalar',true);
+				
+				dataStruct.trialsForThisParticant = height(experimentTable);
 			catch
 				dataStruct = [];
 			end

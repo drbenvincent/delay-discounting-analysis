@@ -26,13 +26,13 @@ classdef test_DataInputs < matlab.unittest.TestCase
 		function missing_responses(testCase)
 			testCase.data = Data(testCase.datapath, 'files', {'missing_responses.txt'});
 			data = testCase.data.getExperimentData(1);
-			testCase.assertEqual(sum(isnan(data.R)~=0), 0);
+			testCase.assertEqual(sum(isnan(data.trialsForThisParticant)~=0), 0);
 		end
 		
 		function missing_correct_total_trials(testCase)
 			testCase.data = Data(testCase.datapath, 'files', {'missing_responses.txt'});
 			data = testCase.data.getExperimentData(1);
-			testCase.assertEqual(data.trialsForThisParticant, numel(data.R))
+			testCase.assertEqual(data.trialsForThisParticant, height(testCase.data.groupTable))
 		end
 		
 		function frontend_mix(testCase)
