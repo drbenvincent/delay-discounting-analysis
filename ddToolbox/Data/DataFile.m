@@ -1,8 +1,8 @@
 classdef DataFile
-	%DataFile A class to represent and plot data from one file/experiment.
+	%DataFile A class to hold and plot data from one file/experiment.
 	
 	properties (SetAccess = private, GetAccess = protected)
-		datatable % a structure OR TABLE
+		datatable
 	end
 	
 	
@@ -17,30 +17,9 @@ classdef DataFile
 			assert(istable(data), 'Input must be a Table')
 			obj.datatable = data;
 			
-			obj.removeMissingResponseTrials();
-			obj.validateData();
-			
 			% TODO: throw error if we have no data
 		end
-		
-		
-		function obj = removeMissingResponseTrials(obj)
-			RESPONSE_VARIABLENAME = 'R';
-			obj.datatable = obj.datatable(~isnan(obj.datatable.(RESPONSE_VARIABLENAME)),:);
-		end
-		
-		function obj = validateData(obj)
-			assert(any(obj.datatable.DA >= 0), 'Entries of DA must be greater than or equal to zero')
-			assert(any(obj.datatable.DB >= 0), 'Entries of DA must be greater than or equal to zero')
-			assert(any(obj.datatable.DA <= obj.datatable.DB), 'For any given trial (row) DA must be less than or equal to DB')
-			assert(any(obj.datatable.PA > 0 | obj.datatable.PA < 1), 'PA must be between 0 and 1')
-			assert(any(obj.datatable.PB > 0 | obj.datatable.PB < 1), 'PA must be between 0 and 1')
-			assert(all(obj.datatable.R <=1 ), 'Data:AssertionFailed', 'Values of R must be either 0 or 1')
-			assert(all(obj.datatable.R >=0 ), 'Data:AssertionFailed', 'Values of R must be either 0 or 1')
-			assert(all(rem(obj.datatable.R,1)==0), 'Data:AssertionFailed', 'Values of R must be either 0 or 1')
-			assert(all(isnumeric(obj.datatable.R)), 'Data:AssertionFailed', 'Values of R must be either 0 or 1')
-		end
-		
+
 		function aTable = getDataAsTable(obj)
 			aTable = obj.datatable;
 			assert(istable(aTable))
@@ -148,9 +127,10 @@ classdef DataFile
 	
 	
 	
-	
+	% ======================================================================
 	% PRIVATE METHODS =====================================================
-	
+	% ======================================================================
+    
 	methods(Access = protected)
 		
 		function [x,y,z,markerCol,markerSize] = convertDataIntoMarkers_Homogenous(obj)
@@ -169,8 +149,8 @@ classdef DataFile
 				% for that design
 				markerCol(n) = sum(obj.datatable.R(myset)==0) ./ markerSize(n);
 				
-				%x(n) = abs(p.Results.datatable.B( ia(n) )); % £B
-				x(n) = obj.datatable.DB( ia(n) ); % delay to get £B
+				%x(n) = abs(p.Results.datatable.B( ia(n) )); % ï¿½B
+				x(n) = obj.datatable.DB( ia(n) ); % delay to get ï¿½B
 				y(n) = abs(obj.datatable.A( ia(n) )) ./ abs(obj.datatable.B( ia(n) ));
 			end
 			z=[];
@@ -192,8 +172,8 @@ classdef DataFile
 				% Colour = proportion of times participant chose immediate for that design
 				markerCol(n) = sum(obj.datatable.R(myset)==0) ./ markerSize(n);
 				
-				x(n) = abs(obj.datatable.B( ia(n) )); % £B
-				y(n) = obj.datatable.DB( ia(n) ); % delay to get £B
+				x(n) = abs(obj.datatable.B( ia(n) )); % ï¿½B
+				y(n) = obj.datatable.DB( ia(n) ); % delay to get ï¿½B
 				z(n) = abs(obj.datatable.A( ia(n) )) ./ abs(obj.datatable.B( ia(n) ));
 			end
 		end

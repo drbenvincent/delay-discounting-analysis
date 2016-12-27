@@ -1,12 +1,12 @@
 classdef Data
-	%Data A class to load and handle data
-
+	%Data This class holds data and provides many get methods
+    
 	properties (GetAccess = private, SetAccess = private)
 		dataFolder	% path to folder containing data files
 		filenames_full	% filename, including extension
 		filenames		% filename, but no extension
         participantIDs  
-		experiment  % structure containing a table for each experiment      
+		experiment  % array of objects: TODO: RENAME      
         unobservedPartipantPresent
         nExperimentFiles		% includes optional unobserved participant
 		nRealExperimentFiles	% only includes number of real experiment files
@@ -38,37 +38,30 @@ classdef Data
 				error('This version of Matlab does not support the Table data type.')
 			end
 			obj.dataFolder = dataFolder;
-			disp('You have created a Data object');
-
-			if ~isempty(p.Results.files)
-				obj = obj.importAllFiles(p.Results.files);
-			end
-
 			obj.unobservedPartipantPresent = false;
+			obj = obj.importAllFiles(p.Results.files);
+            disp('You have created a Data object');
 		end
 
 
-		% PUBLIC METHODS ==============================================
-
+        % ======================================================================
+		% PUBLIC METHODS =======================================================
+        % ======================================================================
+        
+        
 		function obj = importAllFiles(obj, fnames)
 			assert( iscellstr(fnames), 'fnames should be a cell array of filenames')
-
-            % store meta information baout the dataset ~~~~~~~~~~~~~~~~~~~~~~~~~
+			% import ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			data = DataImporter(obj.dataFolder, fnames);
+			obj.experiment = data.getData();
+            % store meta information about the dataset ~~~~~~~~~~~~~~~~~~~~
 			obj.nExperimentFiles		 = numel(fnames);
 			obj.nRealExperimentFiles	 = numel(fnames);
 			obj.filenames_full			 = fnames;
 			obj.filenames				 = path2filename(fnames);
             obj.participantIDs		     = path2participantID(fnames);
-            % import ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			obj.experiment	             = obj.buildExperimentTables(fnames);
-            % validation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			%obj.experiment               = obj.removeMissingResponseTrials();
-			%obj.validateData();
+            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			obj.exportGroupDataFileToDisk();
-			
-
-			display('The following data files were imported:')
-			display(fnames')
 		end
 
 
@@ -105,9 +98,12 @@ classdef Data
 			obj.unobservedPartipantPresent = true;
 		end
 
-
-		% PUBLIC GET METHODS ==============================================
-
+        
+        
+        % ======================================================================
+		% PUBLIC GET METHODS ===================================================
+        % ======================================================================
+        
 		function out = getExperimentObject(obj, n)
 			if n > numel(obj.experiment)
 				out = [];
@@ -174,17 +170,6 @@ classdef Data
 				pTable = obj.experiment(p).getDataAsTable();
 			end
 		end
-
-% 		function all_data = get_all_data_table(obj)
-% 			error('why not ask for obj.groupTable ? ')
-% 			% Create long data table of all participants
-% 			all_data = obj.experiment(:).table;
-% 			if obj.nExperimentFiles > 1
-% 				for p = 2:obj.nExperimentFiles
-% 					all_data = [all_data; obj.experiment(p).table];
-% 				end
-% 			end
-% 		end
 
 		function names = getIDnames(obj, whatIwant)
 			% returns a cell array of strings
@@ -268,103 +253,6 @@ classdef Data
 			end
 		end
         
-	end
-
-	% PRIVATE =============================================================
-	% Not to be covered by tests, unless it is useful during development.
-	% But we do not need tests to constrain the way how these
-	% implementation details work.
-
-	methods (Access = private)
-
-% 		function obj = validateData(obj)
-% 			% return a structure of tables
-% 
-% 			for pIndex = 1:obj.nExperimentFiles
-% 				validate(obj.experiment(pIndex).table)
-% 			end
-% 			
-% 			function validate(aTable)
-% 				assert(any(aTable.DA >= 0), 'Entries of DA must be greater than or equal to zero')
-% 				assert(any(aTable.DB >= 0), 'Entries of DA must be greater than or equal to zero')
-% 				assert(any(aTable.DA <= aTable.DB), 'For any given trial (row) DA must be less than or equal to DB')
-% 				assert(any(aTable.PA > 0 | aTable.PA < 1), 'PA must be between 0 and 1')
-% 				assert(any(aTable.PB > 0 | aTable.PB < 1), 'PA must be between 0 and 1')
-% 				assert(all(aTable.R <=1 ), 'Data:AssertionFailed', 'Values of R must be either 0 or 1')
-% 				assert(all(aTable.R >=0 ), 'Data:AssertionFailed', 'Values of R must be either 0 or 1')
-% 				assert(all(rem(aTable.R,1)==0), 'Data:AssertionFailed', 'Values of R must be either 0 or 1')
-% 				assert(all(isnumeric(aTable.R)), 'Data:AssertionFailed', 'Values of R must be either 0 or 1')
-% 			end
-% 		end
-		
-% 		function experiment = removeMissingResponseTrials(obj)
-% 			for pIndex = 1:obj.nExperimentFiles
-% 				current_table = obj.experiment(pIndex).datatable;
-% 				experiment(pIndex).table = current_table(~isnan(current_table.R),:);
-% 				experiment(pIndex).trialsForThisParticant = height(experiment(pIndex).table);
-% 			end
-% 		end
-		
-		function experiment = buildExperimentTables(obj, fnames)
-			% return a structure of tables
-
-			for pIndex = 1:obj.nExperimentFiles
-				
-				experimentTable = readtable(...
-					fullfile(obj.dataFolder, fnames{pIndex}),...
-					'delimiter', 'tab');
-				
-				% Optional use of columnHeaderConversion user-provided
-				% function to convert from different column headings
-				if exist('columnHeaderConversion','file')	
-					experimentTable = columnHeaderConversion(experimentTable);
-				end
-				
-				% Add ID column
-				experimentTable = appendTableColOfVals(experimentTable, pIndex);
-				
-				experimentTable = obj.ensureAllColsPresent(experimentTable);
-				
-				experimentTable = obj.columnHeaderValidation(experimentTable);
-				
-				% CONSTRUCT AN ARRAY OF DataFile OBJECTS
-				experiment(pIndex) = DataFile(experimentTable);
-				
-% 				% Add to struc
-% 				experiment(pIndex).table = experimentTable;
-% 				experiment(pIndex).trialsForThisParticant = height(experimentTable);
-			end
-		end
-
-	end
-
-	methods(Static, Access = private)
-
-		function experimentTable = ensureAllColsPresent(experimentTable)
-
-			% Ensure columns PA and PB exist, assuming P=1 if they do not. This
-			% could be the case if we've done a pure delay discounting
-			% experiment and not bothered to store the fact that rewards have
-			% 100% of delivery. If they did not, then we would have stored the
-			% vales of PA and PB.
-			experimentTable = ensureColumnsPresentInTable(experimentTable,...
-				{'PA',1, 'PB',1});
-
-			% Ensure columns DA and DB exist, assuming D=0 if they do not. This
-			% could be the case if we ran a pure probability discounting
-			% experiment, and didn't bother storing the fact that DA and DB
-			% were immediate rewards.
-			experimentTable = ensureColumnsPresentInTable(experimentTable,...
-				{'DA',0, 'DB',0});
-		end
-				
-		function aTable = columnHeaderValidation(aTable)
-			% Ensure we have the desired information
-			
-			% TODO: Implement validation here
-		end
-
-
 	end
 
 end
