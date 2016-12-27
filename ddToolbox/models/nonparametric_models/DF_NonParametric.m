@@ -48,9 +48,12 @@ classdef DF_NonParametric < DiscountFunction
             %% PLOT N EXAMPLES
 			% dont ask for more samples than we actually have
 			samples_to_plot = [1:min(SAMPLES_TO_PLOT, size(obj.theta,1))];
-			% convert logAoverB (what we fitted) to A/B (what we plot
-			logAoverB = obj.theta(samples_to_plot,:);
-			AoverB = exp(logAoverB);
+% 			% convert logAoverB (what we fitted) to A/B (what we plot
+% 			logAoverB = obj.theta(samples_to_plot,:);
+% 			AoverB = exp(logAoverB);
+
+			AoverB = obj.theta(samples_to_plot,:);
+			
             plot(timeUnitFunction(obj.delays),...
 				AoverB,...
 				'Color',[0 0 0 0.05])
@@ -81,6 +84,9 @@ classdef DF_NonParametric < DiscountFunction
 			
 			x = obj.delays;
 			y = obj.theta;
+			
+% 			% convert from log(A/B) to A/B
+% 			y = exp(y);
 			
 			% Calculate the trapezoidal area under curve. NOTE: Normalized x-axis.
 			

@@ -16,7 +16,7 @@
 # - epsilon
 # - Rstar: 
 
-# NOTE THAT Rstar is log(A/B)
+# NOTE THAT Rstar is A/B, but the psychometric function will be fitted to log(A/B)
 
 model{
 
@@ -27,17 +27,14 @@ for (p in participantIndexList){
 
     # PRIOR OVER DISCOUNT FRACTION
 	for (d in 1:length(uniqueDelays)) {
-        Rstar[p,d] ~ dnorm(0, 1/ 1^2)
+        Rstar[p,d] ~ dnorm(1, 1/ 1^2) T(0,)   # prior over A/B should be centered on 1 if we are expecting discounting and anti-discounting, and can be truncates
 	}
 }
 
-#  phi() cannot be vectorised
-
 for (t in 1:length(ID)) {
-
-	rewardratio[t] <- log(A[t]/B[t])
+	rewardratio[t] <- A[t]/B[t]
 	df[t] <- Rstar[ID[t], delayLookUp[t]]
-	P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * (1 - phi( (rewardratio[t]-df[t]) / alpha[ID[t]] ) )
+	P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * (1 - phi( (log(rewardratio[t])- log(df[t])) / alpha[ID[t]] ) )
 
 	R[t]         ~ dbern(P[t]) # likelihood of actual response
 	Rpostpred[t] ~ dbern(P[t]) # posterior predicted response
