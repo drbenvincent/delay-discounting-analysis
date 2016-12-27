@@ -48,11 +48,15 @@ classdef DF_NonParametric < DiscountFunction
             %% PLOT N EXAMPLES
 			% dont ask for more samples than we actually have
 			samples_to_plot = [1:min(SAMPLES_TO_PLOT, size(obj.theta,1))];
+			% convert logAoverB (what we fitted) to A/B (what we plot
+			logAoverB = obj.theta(samples_to_plot,:);
+			AoverB = exp(logAoverB);
             plot(timeUnitFunction(obj.delays),...
-				obj.theta(samples_to_plot,:),...
+				AoverB,...
 				'Color',[0 0 0 0.05])
             hold on
-			% ~~~~~~~~~~~~~
+			
+			%% Plot data
 			dataPlotType = '2D'  %<----------- TODO: inject this
 			obj.data.plot(dataPlotType, obj.timeUnits)
 			% ~~~~~~~~~~~~~

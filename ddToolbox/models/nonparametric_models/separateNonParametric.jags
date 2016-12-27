@@ -16,6 +16,8 @@
 # - epsilon
 # - Rstar: 
 
+# NOTE THAT Rstar is log(A/B)
+
 model{
 
 # priors
@@ -25,7 +27,7 @@ for (p in participantIndexList){
 
     # PRIOR OVER DISCOUNT FRACTION
 	for (d in 1:length(uniqueDelays)) {
-        Rstar[p,d] ~ dnorm(0, 1/ 1^2) T(0,5)
+        Rstar[p,d] ~ dnorm(0, 1/ 1^2)
 	}
 }
 

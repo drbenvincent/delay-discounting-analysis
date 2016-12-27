@@ -56,7 +56,11 @@ classdef (Abstract) NonParametric < Model
 			obj.experimentPlot();
 			
             % POSTERIOR PREDICTION PLOTS =======================================
-			arrayfun(@figPosteriorPrediction, obj.pdata); % posterior prediction plot
+			% temporarily commented: not needed while testing
+			%arrayfun(@figPosteriorPrediction, obj.pdata); % posterior prediction plot
+			
+			
+			
 			
 			%% TODO...
             % FOREST PLOT OF AUC VALUES ========================================
@@ -130,13 +134,18 @@ classdef (Abstract) NonParametric < Model
 			names = obj.data.getIDnames('all');
 			for ind = 1:numel(names) % loop over files
 				fh = figure('Name', ['participant: ' names{ind}]);
-                latex_fig(12, 14, 3)
+                latex_fig(12, 6, 6)
 				
 				personStruct = getExperimentData(obj, ind);
 				
-				for d = 1:numel(personStruct.delays)
+				% work out a good subplot arrangement
+				nSubplots = numel(personStruct.delays);
+				subplot_handles = create_subplots(nSubplots, 'square');
+				
+				for d = 1:nSubplots
 					
-					subplot(1, numel(personStruct.delays), d)
+					subplot(subplot_handles(d))
+					%subplot(1, numel(personStruct.delays), d)
 					
 					% plot a set of psychometric functions, one for each delay
 					% tested
