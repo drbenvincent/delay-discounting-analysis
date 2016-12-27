@@ -22,7 +22,7 @@ model{
 
 # priors
 for (p in participantIndexList){
-    epsilon[p]  ~ dbeta(1+1 , 1+50) T(,0.5)
+    epsilon[p]  ~ dbeta(1+1 , 1+100) T(,0.5)
     alpha[p]    ~ dnorm(0, 1/0.1^2) T(0,) # <--------------- FIGURE OUT BEST PRIOR. 
 
     # PRIOR OVER DISCOUNT FRACTION
