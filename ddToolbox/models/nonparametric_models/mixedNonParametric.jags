@@ -16,7 +16,7 @@ model{
 
 		# PRIOR OVER DISCOUNT FRACTION
 		for (d in 1:length(uniqueDelays)) {
-			Rstar[p,d] ~ dnorm( 1, 1/ 1^2) T(0,5)
+			Rstar[p,d] ~ dnorm(1, 1/ 1^2) T(0,)
 		}
 	}
 
@@ -29,7 +29,7 @@ model{
 
 		rewardratio[t] <- A[t]/B[t]
 		df[t] <- Rstar[ID[t], delayLookUp[t]]
-		P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * (1 - phi( (rewardratio[t]-df[t]) / alpha[ID[t]] ) )
+		P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * (1 - phi( (log(rewardratio[t])- log(df[t])) / alpha[ID[t]] ) )
 
 		R[t]         ~ dbern(P[t]) # likelihood of actual response
 		Rpostpred[t] ~ dbern(P[t]) # posterior predicted response
