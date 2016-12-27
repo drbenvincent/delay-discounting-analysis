@@ -19,6 +19,8 @@ classdef DataFile
 			
 			obj.removeMissingResponseTrials();
 			obj.validateData();
+			
+			% TODO: throw error if we have no data
 		end
 		
 		
@@ -45,6 +47,7 @@ classdef DataFile
 		end
 		
 		function nTrials = getTrialsForThisParticant(obj)
+			% TODO: rename this function
 			nTrials = height(obj.datatable);
 		end
 		

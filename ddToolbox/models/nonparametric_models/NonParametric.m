@@ -100,12 +100,8 @@ classdef (Abstract) NonParametric < Model
 				personInfo = obj.getExperimentData(ind);
                 discountFunction = DF_NonParametric('delays',personInfo.delays,...
                     'theta', personInfo.dfSamples);
-				% add data:  TODO: streamline this on object creation ~~~~~
-				% NOTE: we don't have data for group-level
-				data_struct = obj.data.getExperimentData(ind);
-				data_object = DataFile(data_struct);
-				discountFunction.data = data_object;
-				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                % inject a DataFile object into the discount function
+                discountFunction.data = obj.data.getExperimentObject(ind);
 				
                 %% plot distribution of AUC
                 subplot(1,4,3)

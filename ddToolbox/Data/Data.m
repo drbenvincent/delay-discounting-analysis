@@ -108,6 +108,14 @@ classdef Data
 
 		% PUBLIC GET METHODS ==============================================
 
+		function out = getExperimentObject(obj, n)
+			if n > numel(obj.experiment)
+				out = [];
+			else
+				out = obj.experiment(n);
+			end
+		end
+		
 		function dataStruct = getExperimentData(obj,experiment)
 			% grabs data just from one experiment.
 			% OUTPUTS:
@@ -142,12 +150,29 @@ classdef Data
 		end
 
 		function nTrials = getTrialsForThisParticant(obj, p)
-			nTrials = obj.experiment(p).getTrialsForThisParticant;
+			% TODO: really need to get a better solution that this special
+			% case nonsense for the unobserved group participant with no
+			% data
+			if p > numel(obj.experiment)
+				% asking for an experiment which doesnt exist. Probably
+				% happening because of the group-level estimate
+				nTrials = [];
+			else
+				nTrials = obj.experiment(p).getTrialsForThisParticant;
+			end
 		end
 
 		function pTable = getRawDataTableForParticipant(obj, p)
 			% return a Table of raw data
-			pTable = obj.experiment(p).getDataAsTable();
+			
+			% TODO: really need to get a better solution that this special
+			% case nonsense for the unobserved group participant with no
+			% data
+			if p > numel(obj.experiment)
+				pTable = [];
+			else
+				pTable = obj.experiment(p).getDataAsTable();
+			end
 		end
 
 % 		function all_data = get_all_data_table(obj)

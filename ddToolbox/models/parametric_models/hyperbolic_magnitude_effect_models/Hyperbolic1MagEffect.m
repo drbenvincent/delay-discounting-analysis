@@ -56,12 +56,8 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			dfSamples = obj.coda.getSamplesAtIndex(ind, discountFunctionVariables);
 
 			discountFunction = obj.dfClass('samples', dfSamples);
-			% add data:  TODO: streamline this on object creation ~~~~~
-			% NOTE: we don't have data for group-level
-			data_struct = obj.data.getExperimentData(ind);
-			data_object = DataFile(data_struct);
-			discountFunction.data = data_object;
-			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            % inject a DataFile object into the discount function
+            discountFunction.data = obj.data.getExperimentObject(ind);
 
 			% TODO: this checking needs to be implemented in a
 			% smoother, more robust way

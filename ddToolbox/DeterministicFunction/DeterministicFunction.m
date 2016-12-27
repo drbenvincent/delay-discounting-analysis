@@ -35,6 +35,12 @@ classdef (Abstract) DeterministicFunction
 		end
 		
 		function obj = set.data(obj, dataObject)
+			
+			% deal with speecial case of group-level
+			if isempty(dataObject)
+				return
+			end
+			
 			% adding a data object
 			assert(isobject(dataObject), 'must provide an object as input')
 			
