@@ -39,8 +39,10 @@ classdef Data
 			end
 			obj.dataFolder = dataFolder;
 			obj.unobservedPartipantPresent = false;
-			obj = obj.importAllFiles(p.Results.files);
-            disp('You have created a Data object');
+			disp('Data object created');
+			if ~isempty(p.Results.files)
+				obj = obj.importAllFiles(p.Results.files);
+			end
 		end
 
 
