@@ -34,6 +34,7 @@ fprintf('\nRunning JAGS (%d chains, %d samples each)\n',...
 % Uncomment this line if you want auditory feedback
 %speak('sampling complete')
 
+% return the results as a CODA object
 codaObject = CODA(samples, stats);
 
 end

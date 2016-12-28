@@ -27,19 +27,12 @@ parameters {
   vector<lower=0>[nRealExperimentFiles] tau;
   vector<lower=0>[nRealExperimentFiles] alpha;
   vector<lower=0,upper=0.5>[nRealExperimentFiles] epsilon;
-  
-  real tauM;
-  real kM;
 }
 
 transformed parameters {
   vector[totalTrials] VA;
   vector[totalTrials] VB;
   vector[totalTrials] P;
-  
-  vector[nRealExperimentFiles] tauMvec;
-  vector[nRealExperimentFiles] kMvec;
-  
 
   for (t in 1:totalTrials){
     VA[t] = df_exp_power(A[t], DA[t], k[ID[t]], tau[ID[t]]);
@@ -51,17 +44,16 @@ transformed parameters {
 model {
   // no hierarchical inference for k, tau, alpha, epsilon
   k       ~ normal(0, 0.01); # sigma = 0.1
-  tau     ~ exponential(0.001);
+  tau     ~ exponential(0.01);
   
-  alpha   ~ exponential(0.001);
-  epsilon ~ beta(1+1, 1+20);
+  alpha   ~ exponential(1);
+  epsilon ~ beta(1+1, 1+1000);
   
   R       ~ bernoulli(P);
 }
 
 generated quantities {  // NO VECTORIZATION IN THIS BLOCK ?
   int <lower=0,upper=1> Rpostpred[totalTrials];
-
   for (t in 1:totalTrials){
     Rpostpred[t] = bernoulli_rng(P[t]);
   }
