@@ -72,7 +72,7 @@ model {
   epsilon      ~ beta(omega*(kappa-2)+1 , (1-omega)*(kappa-2)+1 );
 
   // no hierarchical inference for k
-  k            ~ normal(0.01, 0.1^2);  // TODO: pick this in a more meaningul manner
+  k            ~ normal(0.01, 0.5^2);
 
   R ~ bernoulli(P);
 }

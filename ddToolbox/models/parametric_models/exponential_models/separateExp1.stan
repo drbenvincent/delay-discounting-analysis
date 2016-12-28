@@ -44,7 +44,7 @@ transformed parameters {
 
 model {
   // no hierarchical inference for k, alpha, epsilon
-  k       ~ normal(0.01, 0.1^2);  // TODO: pick this in a more meaningul manner
+  k       ~ normal(0.01, 0.5^2);
   alpha   ~ exponential(0.01);
   epsilon ~ beta(1.1, 10.9);
   R       ~ bernoulli(P);

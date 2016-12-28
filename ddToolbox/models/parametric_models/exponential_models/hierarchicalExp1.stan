@@ -10,20 +10,6 @@ functions {
   vector df_exponential1(vector reward, vector k, vector delay){
     return reward .* exp(-k .* delay);
   }
-  
-  // vector discounting(vector A, vector B, vector DA, vector DB, vector k, vector epsilon, vector alpha){
-  //   vector[rows(A)] VA;
-  //   vector[rows(B)] VB;
-  //   vector[rows(A)] P;
-  //   // calculate present subjective values
-  //   VA = df_exponential1(A, k, DA);
-  //   VB = df_exponential1(B, k, DB);
-  //   // calculate probability of choosing delayed reward (B; coded as R=1)
-  //   for (t in 1:rows(A)){
-  //     P[t] = psychometric_function(alpha[t], epsilon[t], VA[t], VB[t]);
-  //   }
-  //   return P;
-  // }
 }
 
 data {
@@ -65,7 +51,7 @@ transformed parameters {
 }
 
 model {
-  k_mu     ~ normal(0.01, 2.5);      // TODO: pick this in a more meaningul manner
+  k_mu     ~ normal(0.01, 0.5);      // TODO: pick this in a more meaningul manner
   k_sigma  ~ inv_gamma(0.1,0.1);     // TODO: pick this in a more meaningul manner
   k        ~ normal(k_mu, k_sigma);
 

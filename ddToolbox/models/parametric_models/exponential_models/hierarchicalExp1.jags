@@ -10,7 +10,7 @@ model{
 # DISCOUNT FUNCTION PARAMETERS =================================================
 # RANDOM (BY PARTICIPANT) FACTORS; HYPER-PRIORS = YES 
 
-groupKmu      ~ dnorm(0.01, 1/(0.01^2))
+groupKmu      ~ dnorm(0.01, 1/(0.5^2))
 groupKsigma   ~ dgamma(0.1, 0.1)
 
 for (p in 1:(nRealExperimentFiles+1)){      # +1 for unobserved participant
