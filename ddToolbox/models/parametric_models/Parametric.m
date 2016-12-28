@@ -22,7 +22,7 @@ classdef (Abstract) Parametric < Model
 			
 			% #############################################################
 			% #############################################################
-			% THIS IS A LOT OF FAFF, JUST FOR UNIVARIATE SUMMARY PLOTS
+			% TODO #166 THIS IS A LOT OF FAFF, JUST FOR UNIVARIATE SUMMARY PLOTS
 			
 			% gather cross-experiment data for univariate sta
 			alldata.shouldExportPlots = p.Results.shouldExportPlots;
@@ -60,7 +60,9 @@ classdef (Abstract) Parametric < Model
 			%% Plots, one per data file ===================================
 			
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			% TODO:
+			% TODO: #166 no need to package all this data up into pdata.
+            % #166 TriPlot should be a plot function of CODA
+            % #166 
 			obj.pdata = obj.packageUpDataForPlotting();
 			
 			for n=1:numel(obj.pdata)
@@ -103,57 +105,60 @@ classdef (Abstract) Parametric < Model
 		function experimentMultiPanelFigure(obj, ind)
 			
 			h = layout([1 2 3 4]);
+			opts.pointEstimateType = obj.pointEstimateType;
 			
 			% create cell arrays of relevant variables
 			discountFunctionVariables = {obj.varList.discountFunctionParams.name};
 			responseErrorVariables    = {obj.varList.responseErrorParams.name};
 			
+			%% Plot 1: density plot of (alpha, epsilon)
+			obj.coda.plot_bivariate_distribution(h(1),...
+				responseErrorVariables(1),...
+				responseErrorVariables(2),...
+				ind,...
+				opts)
+			
+			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			% TODO #166 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			%% Set up psychometric function
 			respErrSamples            = obj.coda.getSamplesAtIndex(ind, responseErrorVariables);
 			psycho                    = PsychometricFunction('samples', respErrSamples);
-			
-			%% plot bivariate distribution of alpha, epsilon -------------------
-			subplot(h(1))
-			% TODO: replace with new class
-			mcmc.BivariateDistribution(...
-				respErrSamples.epsilon(:),...
-				respErrSamples.alpha(:),...
-				'xLabel', obj.varList.responseErrorParams(1).label,...
-				'ylabel', obj.varList.responseErrorParams(2).label,...
-				'pointEstimateType',obj.pointEstimateType,...
-				'plotStyle', 'hist',...
-				'axisSquare', true);
-			
 			%% Plot the psychometric function ----------------------------------
 			subplot(h(2))
 			psycho.plot(obj.pointEstimateType)
-			
 			%% Set up discount function
 			dfSamples             = obj.coda.getSamplesAtIndex(ind, discountFunctionVariables);
 			discountFunction      = obj.dfClass('samples', dfSamples);
 			discountFunction.data = obj.data.getExperimentObject(ind);
+			% TODO #166 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			
 			% DON'T PLOT THE SUBFIGURES BELOW IF...
 			if isempty(dfSamples) %|| any(isnan(dfSamples))
 				return
 			end
 			
+			
 			%% Plot the discount function parameters ---------------------------
-			subplot(h(3))
-			discountFunction.plotParameters(obj.pointEstimateType)
+			% TODO #166: can possibly avoid overridding this function in the Magnitude
+			% Effect class if we auto-respond to 1 vs 2 parameters in the discount
+			% function.
+			obj.coda.plot_univariate_distribution(h(3),...
+				discountFunctionVariables(1),...
+				ind,...
+				opts)
 			
-			% TODO #166
-% 			% THE WAY OF THE FUTURE IS TO CALL LIKE THIS...
-% 			% Except don't give it samples... give it variable and index
-% 			samplesStruct = obj.coda.getSamplesAtIndex(ind, discountFunctionVariables);
-% 			samples = samplesStruct.(discountFunctionVariables{:});
-% 			obj.coda.densityplot(h(3), samples)
 			
+			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			% TODO #166 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			%% Plot the discount function parameters ---------------------------
 			subplot(h(4))
 			discountFunction.plot(obj.pointEstimateType,...
 				obj.dataPlotType,...
 				obj.timeUnits)
+			% TODO #166 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 		end
 		
 	end

@@ -26,7 +26,7 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 		% OVERRIDDING THIS METHOD FROM A SUPERCLASS
 		function experimentMultiPanelFigure(obj, ind)
             h = layout([1 2 3 4 5 6]);
-            
+            opts.pointEstimateType = obj.pointEstimateType;
             % create cell array
             discountFunctionVariables = {obj.varList.discountFunctionParams.name};
             responseErrorVariables = {obj.varList.responseErrorParams.name};
@@ -34,49 +34,48 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			% a list of reward values we are interested in
 			rewards = [10, 100, 500]; % <----  TODO: inject this
 
+
+			%% Plot 1: density plot of (alpha, epsilon)
+			obj.coda.plot_bivariate_distribution(h(1),...
+				responseErrorVariables(1),...
+				responseErrorVariables(2),...
+				ind,...
+				opts)
+			
+				
+			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			% TODO #166 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			%%  Set up psychometric function
 			respErrSamples = obj.coda.getSamplesAtIndex(ind, responseErrorVariables);
 			psycho = PsychometricFunction('samples', respErrSamples);
-
-			%% plot bivariate distribution of alpha, epsilon ---------------
-			subplot(h(1))
-			% TODO: replace with new class
-			mcmc.BivariateDistribution(...
-				respErrSamples.epsilon(:),...
-				respErrSamples.alpha(:),...
-				'xLabel', obj.varList.responseErrorParams(1).label,...
-				'ylabel', obj.varList.responseErrorParams(2).label,...
-				'pointEstimateType',obj.pointEstimateType,...
-				'plotStyle', 'hist',...
-				'axisSquare', true);
-
 			%% Plot the psychometric function ------------------------------
 			subplot(h(2))
 			psycho.plot(obj.pointEstimateType)
-
 			%% Set up discount function
 			dfSamples = obj.coda.getSamplesAtIndex(ind, discountFunctionVariables);
-
 			discountFunction = obj.dfClass('samples', dfSamples);
             % inject a DataFile object into the discount function
             discountFunction.data = obj.data.getExperimentObject(ind);
-
-			% TODO: this checking needs to be implemented in a
-			% smoother, more robust way
-			if ~isempty(dfSamples) || ~any(isnan(dfSamples))
-				subplot(h(3)) % -------------------------------------------
-				discountFunction.plotParameters(obj.pointEstimateType)
-
-				subplot(h(6)) % -------------------------------------------
-				discountFunction.plot(obj.pointEstimateType,...
-					obj.dataPlotType,...
-					obj.timeUnits)
-			end
-
+			% TODO #166 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			
+			
+			
+			% TODO: this checking needs to be implemented in a smoother, more robust way
+			if ~isempty(dfSamples) || ~any(isnan(dfSamples))
+				%% Bivariate density plot of discounting parameters
+				obj.coda.plot_bivariate_distribution(h(3),...
+					discountFunctionVariables(1),...
+					discountFunctionVariables(2),...
+					ind,...
+					opts)
+			end
+			
+			
+			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			% TODO #166 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			%% Set up magnitude effect function -----------------------
 			me = MagnitudeEffectFunction('samples', dfSamples);
-
 			% plot magnitude effect
 			subplot(h(4)) % -----------------------------------------------
 			me.plot()
@@ -85,15 +84,25 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			for n=1:numel(rewards)
 				vline(rewards(n));
 			end
-
 			subplot(h(5)) % -----------------------------------------------
 			%title('P(log(k) | reward)')
 			discountFunction.getLogDiscountRate(rewards, ind ,...
 				'plot', true,...
 				'plot_mode', 'conditional_only');
-
+			% TODO: this checking needs to be implemented in a
+			% smoother, more robust way
+			if ~isempty(dfSamples) || ~any(isnan(dfSamples))
+				subplot(h(6)) % -------------------------------------------
+				discountFunction.plot(obj.pointEstimateType,...
+					obj.dataPlotType,...
+					obj.timeUnits)
+			end
+			% TODO #166 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			
+			
 		end
-
+		
 	end
 
 

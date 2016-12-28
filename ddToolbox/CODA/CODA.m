@@ -194,6 +194,37 @@ univariateObject = Stochastic('name_here');
 univariateObject.addSamples(samples);
 univariateObject.plot;
 		end
+		
+		
+		function plot_univariate_distribution(obj, targetAxisHandle, x_var_name, ind, opts )
+			subplot(targetAxisHandle)
+			
+			x_samples = obj.getSamplesAtIndex(ind, x_var_name);
+			
+			mcmc.UnivariateDistribution(...
+				x_samples.(x_var_name{:}),... % TODO: avoid this faff, but getting as a matrix in the first place
+				'xLabel', x_var_name{:},...
+				'pointEstimateType',opts.pointEstimateType,...
+				'plotStyle', 'hist',...
+				'axisSquare', true);
+		end
+		
+		function plot_bivariate_distribution(obj, targetAxisHandle, x_var_name, y_var_name, ind, opts )
+			subplot(targetAxisHandle)
+			
+			x_samples = obj.getSamplesAtIndex(ind, x_var_name);
+			y_samples = obj.getSamplesAtIndex(ind, y_var_name);
+			
+			
+			mcmc.BivariateDistribution(...
+				x_samples.(x_var_name{:}),... % TODO: avoid this faff, but getting as a matrix in the first place
+				y_samples.(y_var_name{:}),... % TODO: avoid this faff, but getting as a matrix in the first place
+				'xLabel', x_var_name{:},...
+				'ylabel', y_var_name{:},...
+				'pointEstimateType',opts.pointEstimateType,...
+				'plotStyle', 'hist',...
+				'axisSquare', true);
+		end
 
 
 		%% Get methods
