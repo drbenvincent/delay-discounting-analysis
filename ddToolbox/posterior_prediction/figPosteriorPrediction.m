@@ -1,7 +1,7 @@
 function figPosteriorPrediction(data)
 % figPosteriorPrediction  Takes output from posterior predictive analysis
 % and plots to a multi-panelled figure.
-%   figPosteriorPrediction(data) 
+%   figPosteriorPrediction(data)
 
 % skip if there are no trials (eg if we are dealing with group-level
 % inferences)
@@ -12,18 +12,21 @@ end
 % MAIN FUNCTION TO PRODUCE MUTLI-PANEL FIGURE
 
 figure(1), colormap(gray), clf
+
+h = layout([1 1; 2 3]);
+
 latex_fig(16, 9, 6)
 
-subplot(2,2,1)
+subplot(h(1))
 pp_plotTrials()
 
-subplot(2,2,2)
+subplot(h(2))
 pp_plotGOFdistribution()
 
-subplot(2,2,3)
-pp_plotPredictionAndResponse()
+% subplot(2,2,3)
+% pp_plotPredictionAndResponse()
 
-subplot(2,2,4)
+subplot(h(3))
 pp_plotPercentPredictedDistribution()
 
 % Export figure
@@ -32,7 +35,7 @@ if data.shouldExportPlots
 	myExport(data.plotOptions.savePath, 'PosteriorPredictive',...
 		'prefix', data.IDname{:},...
 		'suffix', data.modelFilename,...
-        'formats', data.plotOptions.exportFormats)
+		'formats', data.plotOptions.exportFormats)
 end
 
 	function pp_plotGOFdistribution()
@@ -70,10 +73,10 @@ end
 	end
 
 	function pp_plotPredictionAndResponse()
-		h(1) = plot(data.postPred.responses_predicted, data.postPred.responses_actual, '+');
+		hz(1) = plot(data.postPred.responses_predicted, data.postPred.responses_actual, '+');
 		xlabel('Predicted P(choose delayed)')
 		ylabel('Actual response')
-		legend(h, 'data')
+		legend(hz, 'data')
 		box off
 	end
 

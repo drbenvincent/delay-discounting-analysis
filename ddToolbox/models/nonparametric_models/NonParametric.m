@@ -75,6 +75,7 @@ classdef (Abstract) NonParametric < Model
         function experimentPlot(obj)
             
             names = obj.data.getIDnames('all');
+            h = layout([1 2 3 3]);
             
             for ind = 1:numel(names)
                 fh = figure('Name', ['participant: ' names{ind}]);
@@ -84,7 +85,7 @@ classdef (Abstract) NonParametric < Model
                 psycho = PsychometricFunction('samples', obj.coda.getSamplesAtIndex(ind,{'alpha','epsilon'}));
                 
                 %% plot bivariate distribution of alpha, epsilon
-                subplot(1,4,1)
+                subplot(h(1))
                 samples = obj.coda.getSamplesAtIndex(ind,{'alpha','epsilon'});
                 mcmc.BivariateDistribution(...
                     samples.epsilon(:),...
@@ -108,12 +109,12 @@ classdef (Abstract) NonParametric < Model
                 discountFunction.data = obj.data.getExperimentObject(ind);
 				
                 %% plot distribution of AUC
-                subplot(1,4,3)
+                subplot(h(2))
                 discountFunction.AUC.plot();
 				xlim([0 2])
                 
                 %% plot discount function
-                subplot(1,4,4)
+                subplot(h(3))
                 discountFunction.plot();
                 
                 drawnow

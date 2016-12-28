@@ -33,10 +33,11 @@ myData.loadDataFiles(fnames);
 
 %% test plotting
 figure(1), clf
-z = ceil(sqrt(myData.getNExperimentFiles()));
+%z = ceil(sqrt(myData.getNExperimentFiles()));
+h = create_subplots(myData.getNExperimentFiles(), 'square');
 
 for n=1:myData.getNExperimentFiles()
-	subplot(z,z,n)
+	subplot(h(n))
 
 	% get participant data
 	data = myData.getExperimentData(n);

@@ -115,6 +115,8 @@ classdef CODA
 				[chains,Nsamples,rows] = size(mcmcsamples);
 				rhat_all = obj.getStats('Rhat', variablesToPlot{n});
 
+                % TODO #166 Unclear what this code is doing 
+                % TODO #166 Exact this into a method. Can we use layout() or create_subplots() ?
 				% create geometry
 				for row = 1:rows
 					% traceplot
@@ -172,6 +174,7 @@ classdef CODA
 
 
 		function densityplot(obj, targetAxisHandle, samples)
+			% TODO: MAKE targetAxisHandle OPTIONAL
 			
 			% TODO: check for presence of mcmc. package. If it's not
 			% present, then use normal plotting routines
@@ -180,10 +183,16 @@ classdef CODA
 			if ~isempty(targetAxisHandle)
 				subplot(targetAxisHandle)
 			end
-			% using my plot tools package
-			mcmc.UnivariateDistribution(samples',...
-				'plotStyle','hist',...
-				'plotHDI',false);
+			
+			
+% 			% using my plot tools package
+% 			mcmc.UnivariateDistribution(samples',...
+% 				'plotStyle','hist',...
+% 				'plotHDI',false);
+
+univariateObject = Stochastic('name_here');
+univariateObject.addSamples(samples);
+univariateObject.plot;
 		end
 
 

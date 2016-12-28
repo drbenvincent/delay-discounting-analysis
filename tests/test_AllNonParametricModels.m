@@ -12,7 +12,7 @@ classdef test_AllNonParametricModels < matlab.unittest.TestCase
 	end
 	
 	properties (TestParameter)
-		model = {'ModelSeparateNonParametric','ModelMixedNonParametric'}
+		model = {'ModelSeparateNonParametric'}
 		pointEstimateType = {'mean','median','mode'}
 		sampler = {'jags', 'stan'} % TODO: ADD STAN
 		chains = {2,3,4}
@@ -110,4 +110,3 @@ classdef test_AllNonParametricModels < matlab.unittest.TestCase
 	end
 	
 end
-

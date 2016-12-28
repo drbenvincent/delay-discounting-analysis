@@ -80,7 +80,11 @@ classdef DF_HyperbolicMagnitudeEffect < DF_Hyperbolic1
 			obj.formatAxes(pow)
 			
 			%% Overlay data
-			obj.data.plot(dataPlotType, timeUnits)
+			% TODO: Fix this special case of their being no data (ie for
+			% group level)
+			if ~isempty(obj.data)
+				obj.data.plot(dataPlotType, timeUnits)
+			end
 			
 			drawnow
 		end

@@ -25,6 +25,8 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 
 		% OVERRIDDING THIS METHOD FROM A SUPERCLASS
 		function experimentMultiPanelFigure(obj, ind)
+            h = layout([1 2 3 4 5 6]);
+            
             % create cell array
             discountFunctionVariables = {obj.varList.discountFunctionParams.name};
             responseErrorVariables = {obj.varList.responseErrorParams.name};
@@ -37,7 +39,7 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			psycho = PsychometricFunction('samples', respErrSamples);
 
 			%% plot bivariate distribution of alpha, epsilon ---------------
-			subplot(1,6,1)
+			subplot(h(1))
 			% TODO: replace with new class
 			mcmc.BivariateDistribution(...
 				respErrSamples.epsilon(:),...
@@ -49,7 +51,7 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 				'axisSquare', true);
 
 			%% Plot the psychometric function ------------------------------
-			subplot(1,6,2)
+			subplot(h(2))
 			psycho.plot(obj.pointEstimateType)
 
 			%% Set up discount function
@@ -62,10 +64,10 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			% TODO: this checking needs to be implemented in a
 			% smoother, more robust way
 			if ~isempty(dfSamples) || ~any(isnan(dfSamples))
-				subplot(1,6,3) % -------------------------------------------
+				subplot(h(3)) % -------------------------------------------
 				discountFunction.plotParameters(obj.pointEstimateType)
 
-				subplot(1,6,6) % -------------------------------------------
+				subplot(h(6)) % -------------------------------------------
 				discountFunction.plot(obj.pointEstimateType,...
 					obj.dataPlotType,...
 					obj.timeUnits)
@@ -76,7 +78,7 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			me = MagnitudeEffectFunction('samples', dfSamples);
 
 			% plot magnitude effect
-			subplot(1,6,4) % -----------------------------------------------
+			subplot(h(4)) % -----------------------------------------------
 			me.plot()
 			% Add horizontal lines to the
 			hold on
@@ -84,7 +86,7 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 				vline(rewards(n));
 			end
 
-			subplot(1,6,5) % -----------------------------------------------
+			subplot(h(5)) % -----------------------------------------------
 			%title('P(log(k) | reward)')
 			discountFunction.getLogDiscountRate(rewards, ind ,...
 				'plot', true,...
