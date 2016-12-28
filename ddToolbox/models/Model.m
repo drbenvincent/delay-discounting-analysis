@@ -92,13 +92,14 @@ classdef (Abstract) Model
 		function obj = conductInference(obj)
 
 			% pre-sampling preparation
-			samplerFunction = obj.selectSampler(obj.samplerType);
+			
 
 			obj.observedData = obj.constructObservedDataForMCMC();
 
 			path_of_model_file = makeProbModelsPath(obj.modelFilename, obj.samplerType);
 
 			% sampling
+            samplerFunction = obj.selectSampler(obj.samplerType);
 			obj.coda = samplerFunction(...
 				path_of_model_file,...
 				obj.observedData,...
@@ -156,6 +157,14 @@ classdef (Abstract) Model
 				obj.savePath,...
 				obj.pointEstimateType,...
 				varargin{:});
+			
+			% TEMP: bail out of doing this if we get an error... most
+			% likely caused because of 4D param matrix
+			if isempty(paramEstimateTable)
+				warning('BAILED OUT OF EXPORTING PARAM ESTIMATES')
+				finalTable = table();
+				return
+			end
 
 			%% Make table 2 (posterior prediction)
 			postPredTable = makePostPredTable();
@@ -245,7 +254,7 @@ classdef (Abstract) Model
 			assert(isvector(VA_point_estimate))
 			assert(isvector(VB_point_estimate))
 
-			all_data_table = obj.data.get_all_data_table();
+			all_data_table = obj.data.groupTable;
 			all_data_table.VA = VA_point_estimate;
 			all_data_table.VB = VB_point_estimate;
 
@@ -281,7 +290,7 @@ classdef (Abstract) Model
 			% This function can be overridden by model subclasses, however
 			% we still expect them to call this model baseclass method to
 			% set up the core data (unlikely to change across models).
-			all_data = obj.data.get_all_data_table();
+			all_data = obj.data.groupTable;
 			observedData = table2struct(all_data, 'ToScalar',true);
 			observedData.participantIndexList = obj.data.getParticipantIndexList();
 			observedData.nRealExperimentFiles = obj.data.getNRealExperimentFiles();
@@ -345,7 +354,7 @@ classdef (Abstract) Model
             pdata(1:nExperimentsIncludingUnobserved) = struct; % preallocation
             for p = 1:nExperimentsIncludingUnobserved
                 % constant for all participants
-                pdata(p).data.totalTrials	= obj.data.getTotalTrials;
+                pdata(p).data.totalTrials	= obj.data.totalTrials;
                 pdata(p).pointEstimateType	= obj.pointEstimateType;
                 pdata(p).discountFuncType	= obj.discountFuncType;
                 pdata(p).plotOptions		= obj.plotOptions;
