@@ -107,3 +107,7 @@ ddToolbox/models/parametric_models/hyperbolic_magnitude_effect_models/hierarchic
 ddToolbox/models/parametric_models/bens_new_model/separateExpPower
 
 ddToolbox/models/parametric_models/bens_new_model/mixedExpPower
+
+ddToolbox/models/parametric_models/hyperbolic_magnitude_effect_models/hierarchicalME
+
+ddToolbox/models/parametric_models/hyperbolic_models/separateLogK

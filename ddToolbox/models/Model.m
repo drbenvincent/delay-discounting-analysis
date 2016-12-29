@@ -90,14 +90,9 @@ classdef (Abstract) Model
 		
 		
 		function obj = conductInference(obj)
-			
 			% pre-sampling preparation
-			
-			
 			obj.observedData = obj.constructObservedDataForMCMC();
-			
 			path_of_model_file = makeProbModelsPath(obj.modelFilename, obj.samplerType);
-			
 			% sampling
 			samplerFunction = obj.selectSampler(obj.samplerType);
 			obj.coda = samplerFunction(...
@@ -106,10 +101,8 @@ classdef (Abstract) Model
 				obj.mcmcParams,...
 				obj.initialiseChainValues(obj.mcmcParams.nchains),...
 				obj.varList.monitored);
-			
 			% This is a separate method, to allow for overriding in sub classes
 			obj = obj.postSamplingActivities();
-			
 		end
 		
 		function obj = postSamplingActivities(obj)
@@ -125,7 +118,10 @@ classdef (Abstract) Model
 			
 			convergenceSummary(obj.coda.getStats('Rhat',[]), obj.savePath, obj.data.getIDnames('all'))
 			
-			obj.parameterEstimateTable = obj.exportParameterEstimates();
+			exporter = ResultsExporter(obj.coda, obj.data, obj.postPred, obj.varList, obj.plotOptions);
+			exporter.printToScreen();
+			exporter.export(obj.savePath, obj.pointEstimateType);
+			% TODO ^^^^ avoid this duplicate use of pointEstimateType
 			
 			if ~strcmp(obj.shouldPlot,'no')
 				% TODO: Allow public calls of obj.plot to specify options.
@@ -136,83 +132,6 @@ classdef (Abstract) Model
 			
 			obj.tellUserAboutPublicMethods()
 		end
-		
-		
-		% TODO: extract posterior prediction into it's own class. This model class is getting way too involved in the implementation details of
-		function finalTable = exportParameterEstimates(obj, varargin)
-			% Ideally, we are going to make a table. Each row is a
-			% participant/experiment. We have one set of columns related to
-			% the model variables, and another related to posterior
-			% prediction. These are made separately and then joined.
-			% Currently, this only works when the model variables are
-			% scalar, we don't yet have support for vector or matrix
-			% model variables.
-			
-			CREDIBLE_INTERVAL = 0.95;
-			
-			% logic
-			finalTable = join(...
-				makeParamEstimateTable,...
-				makePostPredTable(),... % Make table 2 (posterior prediction)
-				'Keys','RowNames');
-			display(finalTable)
-			exportTable(finalTable,...
-				fullfile(obj.savePath,...
-				['parameterEstimates_Posterior_' obj.pointEstimateType '.csv']));
-			
-			% supporting functions
-			function paramEstimateTable = makeParamEstimateTable()
-				paramEstimateTable = obj.coda.exportParameterEstimates(...
-					obj.varList.participantLevel,... %obj.varList.groupLevel,...
-					obj.data.getIDnames('all'),...
-					obj.savePath,...
-					obj.pointEstimateType,...
-					varargin{:});
-				% TEMP: bail out of doing this if we get an error... most
-				% likely caused because of 4D param matrix
-				if isempty(paramEstimateTable)
-					warning('BAILED OUT OF EXPORTING PARAM ESTIMATES')
-					finalTable = table();
-					return
-				end
-			end
-			
-			function postPredTable = makePostPredTable()
-				postPredTable = table([obj.postPred(:).score]',...
-					calc_percent_predicted_point_estimate(),...
-					any_percent_predicted_warnings(),...
-					'RowNames', obj.data.getIDnames('experiments'),...
-					'VariableNames',{'ppScore' 'percentPredicted' 'warning_percent_predicted'});
-				
-				if obj.data.isUnobservedPartipantPresent()
-					% add extra row of NaN's on the bottom for the unobserved participant
-					unobserved = table(NaN, NaN, NaN,...
-						'RowNames', obj.data.getIDnames('group'),...
-						'VariableNames', postPredTable.Properties.VariableNames);
-					
-					postPredTable = [postPredTable; unobserved];
-				end
-				
-				function percentPredicted = calc_percent_predicted_point_estimate()
-					% Calculate point estimates of perceptPredicted. use the point
-					% estimate type that the user specified
-					pointEstFunc = str2func(obj.pointEstimateType);
-					percentPredicted = cellfun(pointEstFunc,...
-						{obj.postPred.percentPredictedDistribution})';
-				end
-				
-				function pp_warning = any_percent_predicted_warnings()
-					ppLowerThreshold = 0.5;
-					hdiFunc = @(x) HDIofSamples(x, CREDIBLE_INTERVAL);
-					warningFunc = @(x) x(1) < ppLowerThreshold;
-					warnOnHDI = @(x) warningFunc( hdiFunc(x) );
-					pp_warning = cellfun( warnOnHDI,...
-						{obj.postPred.percentPredictedDistribution})';
-				end
-				
-			end
-		end
-		
 		
 		%% Public MIDDLE-MAN METHODS
 		
@@ -241,7 +160,6 @@ classdef (Abstract) Model
 		end
 		
 		function [predicted_subjective_values] = get_inferred_present_subjective_values(obj)
-			
 			%% calculate point estimates
 			% get point estimates of present subjective values. These will
 			% be vectors. Each value corresponds to one trial in the
@@ -257,14 +175,11 @@ classdef (Abstract) Model
 			
 			%% Return full posterior distributions of present subjective values
 			% TODO
-			
-			
-			%% return...
-			predicted_subjective_values.point_estimates = all_data_table;
-			
-			% TODO
 			% predicted_subjective_values.A_full_posterior =
 			% predicted_subjective_values.B_full_posterior =
+			
+			%% return point estimates of present subjectiv values...
+			predicted_subjective_values.point_estimates = all_data_table;
 		end
 		
 	end
@@ -337,6 +252,7 @@ classdef (Abstract) Model
 		
 		function [pdata] = packageUpDataForPlotting(obj)
 			
+            % #166
 			% TODO: This is currently an intermediate step on the journey of code simplification. Really, what we should do is just directly go to participant / group / condition objects, which have their own data and plot methods.
 			
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
