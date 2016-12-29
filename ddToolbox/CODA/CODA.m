@@ -248,15 +248,7 @@ classdef CODA
 		end
 		
 		function [samplesMatrix] = getSamplesAtIndex_asMatrix(obj, index, fieldsToGet)
-			assert(iscellstr(fieldsToGet))
-			% TODO: This function is doing the same thing as getSamplesAtIndex_asStruct() ???
-			for n = 1:numel(fieldsToGet)
-				try
-					samples.(fieldsToGet{n}) = vec(obj.samples.(fieldsToGet{n})(:,:,index));
-				catch
-					samples.(fieldsToGet{n}) = NaN;
-				end
-			end
+			samples = getSamplesAtIndex_asStruct(obj, index, fieldsToGet);
 			[samplesMatrix] = struct2Matrix(samples);
 		end
 
