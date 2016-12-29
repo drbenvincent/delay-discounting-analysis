@@ -55,7 +55,7 @@ assert(numel(samplers)==2,'this is only implemented for comparing TWO samplers a
 varName = 'logk';	% TODO: Automatically do this for all variables
 p=1;				% TODO: Automatically do it for all data files
 for sampler = samplers
-	posterior.(sampler{:}) = models.(sampler{:}).coda.getSamplesAtIndex(p, {varName});
+	posterior.(sampler{:}) = models.(sampler{:}).coda.getSamplesAtIndex_asStruct(p, {varName});
 end
 
 % calculate differences

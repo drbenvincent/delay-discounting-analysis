@@ -14,13 +14,6 @@ classdef CODA
 		variableNames % cell array of variables
 	end
 
-	%% Public methods
-	% NOTE TO SELF: These public methods need to be seen as interfaces to
-	% the outside world that are implementation-independent. So thought
-	% needs to be given to public methods.
-	%
-	% These public methods need to be covered by tests.
-
 	methods (Access = public)
 
         % TODO: be able to create just from samples.
@@ -29,11 +22,9 @@ classdef CODA
 		function obj = CODA(samples, stats) % constructor
 			assert(isstruct(samples))
 			assert(isstruct(stats))
-			
 			obj.samples = samples;
 			obj.stats = stats;
 			obj.variableNames = fieldnames(samples);
-			
 			% TODO: Check presence of my mcmc-utils code as the plotting relies upon it.
 		end
 
@@ -57,8 +48,7 @@ classdef CODA
 				p.Results.includeCI,...
 				p.Results.pointEstimateType);
 
-			% TODO: FIX THIS FAFF TO DEAL WITH POSSIBLE VECTOR/MATRIX
-			% VARIABLES
+			% TODO: FIX THIS FAFF TO DEAL WITH POSSIBLE VECTOR/MATRIX VARIABLES
 			errorFlag = false;
 			tableEntries = NaN(numel(rowNames), numel(colHeaderNames));
 			for n = 1:numel(colHeaderNames)
@@ -96,12 +86,15 @@ classdef CODA
 			end
 		end
 
-		
+
+		% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		%% Plotting methods
-
+        % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        
+        
 		function trellisplots(obj, variablesToPlot)
+            % plot mcmc chains (left column) and density plots (right column)
 			assert(iscellstr(variablesToPlot))
-
 
 			for n = 1:numel(variablesToPlot) % TODO: REMOVE THIS LOOP BY A MAP ?
 
@@ -151,24 +144,20 @@ classdef CODA
 
 
 		function traceplot(obj, targetAxisHandle, samples, paramString, rhat)
+            % Plot mcmc chains
+            
 			% TODO: make targetAxisHandle an optional input
 
 			assert(ischar(paramString))
 			assert(isscalar(rhat))
 			assert(ishandle(targetAxisHandle))
 			assert(size(samples,3)==1)
-
-			subplot(targetAxisHandle)
-
-			%% plot
-			h = plot(samples',...
-				'LineWidth',0.5);
-			box off
-
-			%% format
+			% plot
+            subplot(targetAxisHandle)
+			h = plot(samples', 'LineWidth',0.5);
+			% format
+            box off
 			ylabel(sprintf('$$ %s $$', paramString), 'Interpreter','latex')
-
-			%% Add Rhat string
 			if ~isempty(rhat), addRhatStringToFigure(targetAxisHandle, rhat), end
 		end
 
@@ -190,19 +179,16 @@ classdef CODA
 % 				'plotStyle','hist',...
 % 				'plotHDI',false);
 
-univariateObject = Stochastic('name_here');
-univariateObject.addSamples(samples);
-univariateObject.plot;
+            univariateObject = Stochastic('name_here');
+            univariateObject.addSamples(samples);
+            univariateObject.plot;
 		end
 		
 		
 		function plot_univariate_distribution(obj, targetAxisHandle, x_var_name, ind, opts )
 			subplot(targetAxisHandle)
-			
-			x_samples = obj.getSamplesAtIndex(ind, x_var_name);
-			
 			mcmc.UnivariateDistribution(...
-				x_samples.(x_var_name{:}),... % TODO: avoid this faff, but getting as a matrix in the first place
+				obj.getSamplesAtIndex_asMatrix(ind, x_var_name),...
 				'xLabel', x_var_name{:},...
 				'pointEstimateType',opts.pointEstimateType,...
 				'plotStyle', 'hist',...
@@ -211,14 +197,9 @@ univariateObject.plot;
 		
 		function plot_bivariate_distribution(obj, targetAxisHandle, x_var_name, y_var_name, ind, opts )
 			subplot(targetAxisHandle)
-			
-			x_samples = obj.getSamplesAtIndex(ind, x_var_name);
-			y_samples = obj.getSamplesAtIndex(ind, y_var_name);
-			
-			
 			mcmc.BivariateDistribution(...
-				x_samples.(x_var_name{:}),... % TODO: avoid this faff, but getting as a matrix in the first place
-				y_samples.(y_var_name{:}),... % TODO: avoid this faff, but getting as a matrix in the first place
+				obj.getSamplesAtIndex_asMatrix(ind, x_var_name),...
+				obj.getSamplesAtIndex_asMatrix(ind, y_var_name),...
 				'xLabel', x_var_name{:},...
 				'ylabel', y_var_name{:},...
 				'pointEstimateType',opts.pointEstimateType,...
@@ -227,8 +208,14 @@ univariateObject.plot;
 		end
 
 
-		%% Get methods
 
+
+        % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		%% Get methods
+        % TODO #103 rethink all these get methods.
+        % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        
 		function data = grabParamEstimates(obj, varNames, getCI, pointEstimateType)
 			assert(islogical(getCI))
 			data=[];
@@ -241,15 +228,14 @@ univariateObject.plot;
 			end
 		end
 
-		function [samples] = getSamplesAtIndex(obj, index, fieldsToGet)
+		function [samples] = getSamplesAtIndex_asStruct(obj, index, fieldsToGet)
 			assert(iscellstr(fieldsToGet),'arguments needs to be a cell array of strings')
 			assert(isnumeric(index), 'argument needs to be numeric')
 			% get all the samples for a given value of the 3rd dimension of
 			% samples. Dimensions are:
 			% 1. mcmc chain number
 			% 2. mcmc sample number
-			% 3. index of variable, meaning depends upon context of the
-			% model
+			% 3. index of variable, meaning depends upon context of the model
 
 			[flatSamples] = obj.flattenChains(obj.samples, fieldsToGet);
 			for n = 1:numel(fieldsToGet)
@@ -261,12 +247,12 @@ univariateObject.plot;
 			end
 		end
 		
-		function [samplesMatrix] = getSamplesFromExperimentAsMatrix(obj, experiment, fieldsToGet)
+		function [samplesMatrix] = getSamplesAtIndex_asMatrix(obj, index, fieldsToGet)
 			assert(iscellstr(fieldsToGet))
-			% TODO: This function is doing the same thing as getSamplesAtIndex() ???
+			% TODO: This function is doing the same thing as getSamplesAtIndex_asStruct() ???
 			for n = 1:numel(fieldsToGet)
 				try
-					samples.(fieldsToGet{n}) = vec(obj.samples.(fieldsToGet{n})(:,:,experiment));
+					samples.(fieldsToGet{n}) = vec(obj.samples.(fieldsToGet{n})(:,:,index));
 				catch
 					samples.(fieldsToGet{n}) = NaN;
 				end
@@ -311,12 +297,8 @@ univariateObject.plot;
 			% ind is a binary valued vector indicating the trials
 			% corresponding to a particular participant
 			assert(isvector(ind))
-
 			RpostPred = obj.samples.Rpostpred(:,:,ind);
 			participantRpostpredSamples = collapseFirstTwoColumnsOfMatrix(RpostPred);
-			%s = size(RpostPred);
-			%participantRpostpredSamples = reshape(RpostPred, s(1)*s(2), s(3));
-
 			% Calculate predicted response probability
 			predicted = sum(participantRpostpredSamples,1) ./ size(participantRpostpredSamples,1);
 		end
@@ -338,6 +320,7 @@ univariateObject.plot;
 		end
 		
 	end
+
 
 	%% PRIVATE METHODS ====================================================
 	% Not to be covered by tests, unless it is useful during development.

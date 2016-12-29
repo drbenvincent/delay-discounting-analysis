@@ -140,7 +140,7 @@ classdef DF_HyperbolicMagnitudeEffect < DiscountFunction
 			% TODO: once DF_HyperbolicMagnitudeEffect owns a
 			% MagnitudeEffectFunction object, then we can call it
 			% directly?
-			samples = obj.coda.getSamplesAtIndex(index,{'m','c'});
+			samples = obj.coda.getSamplesAtIndex_asStruct(index,{'m','c'});
 			me = MagnitudeEffectFunction('samples',samples);
 			me.plot()
 		end

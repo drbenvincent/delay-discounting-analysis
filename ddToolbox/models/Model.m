@@ -236,7 +236,7 @@ classdef (Abstract) Model
 				error('Looks like we don''t have group level estimates.')
 			else
 				index = obj.data.getIndexOfUnobservedParticipant();
-				samples = obj.coda.getSamplesAtIndex(index, fieldsToGet);
+				samples = obj.coda.getSamplesAtIndex_asStruct(index, fieldsToGet);
 			end
 		end
 		
@@ -368,7 +368,7 @@ classdef (Abstract) Model
 				catch
 					pdata(p).postPred					= [];
 				end
-				pdata(p).samples.posterior	= obj.coda.getSamplesAtIndex(p, obj.varList.participantLevel);
+				pdata(p).samples.posterior	= obj.coda.getSamplesAtIndex_asStruct(p, obj.varList.participantLevel);
 			end
 			
 		end

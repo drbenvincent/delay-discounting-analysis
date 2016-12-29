@@ -19,7 +19,7 @@ figure(12), clf
 %% REAL EXPERIMENT DATA
 % build samples
 for p = 1:data.getNExperimentFiles()
-	samples(:,p) = mcmcContainer.getSamplesFromExperimentAsMatrix(p, {varInfo.name});
+	samples(:,p) = mcmcContainer.getSamplesAtIndex_asMatrix(p, {varInfo.name});
 end
 
 uniG1 = mcmc.UnivariateDistribution(samples(:,[1:data.getNRealExperimentFiles()]),...

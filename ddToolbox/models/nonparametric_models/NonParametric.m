@@ -82,11 +82,11 @@ classdef (Abstract) NonParametric < Model
                 latex_fig(12, 10, 3)
 
                 %%  Set up psychometric function
-                psycho = PsychometricFunction('samples', obj.coda.getSamplesAtIndex(ind,{'alpha','epsilon'}));
+                psycho = PsychometricFunction('samples', obj.coda.getSamplesAtIndex_asStruct(ind,{'alpha','epsilon'}));
                 
                 %% plot bivariate distribution of alpha, epsilon
                 subplot(h(1))
-                samples = obj.coda.getSamplesAtIndex(ind,{'alpha','epsilon'});
+                samples = obj.coda.getSamplesAtIndex_asStruct(ind,{'alpha','epsilon'});
                 mcmc.BivariateDistribution(...
                     samples.epsilon(:),...
                     samples.alpha(:),...
@@ -152,7 +152,7 @@ classdef (Abstract) NonParametric < Model
 					% tested
 					
 					%
-					samples = obj.coda.getSamplesAtIndex(ind,{'alpha','epsilon'});
+					samples = obj.coda.getSamplesAtIndex_asStruct(ind,{'alpha','epsilon'});
 					samples.indifference  = personStruct.dfSamples(:,d);
 					psycho = DF_SLICE_PsychometricFunction('samples', samples);
 					psycho.plot();

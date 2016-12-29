@@ -46,13 +46,13 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			% TODO #166 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			%%  Set up psychometric function
-			respErrSamples = obj.coda.getSamplesAtIndex(ind, responseErrorVariables);
+			respErrSamples = obj.coda.getSamplesAtIndex_asStruct(ind, responseErrorVariables);
 			psycho = PsychometricFunction('samples', respErrSamples);
 			%% Plot the psychometric function ------------------------------
 			subplot(h(2))
 			psycho.plot(obj.pointEstimateType)
 			%% Set up discount function
-			dfSamples = obj.coda.getSamplesAtIndex(ind, discountFunctionVariables);
+			dfSamples = obj.coda.getSamplesAtIndex_asStruct(ind, discountFunctionVariables);
 			discountFunction = obj.dfClass('samples', dfSamples);
             % inject a DataFile object into the discount function
             discountFunction.data = obj.data.getExperimentObject(ind);
