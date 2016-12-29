@@ -114,11 +114,13 @@ classdef (Abstract) Model
 			obj = obj.calcDerivedMeasures();
 			
 			%% Post-sampling activities (common to all models) ------------
-			obj.postPred = obj.calcPosteriorPredictive();
+			obj.postPred = PosteriorPrediction(obj.coda, obj.data, obj.observedData);
 			
-			convergenceSummary(obj.coda.getStats('Rhat',[]), obj.savePath, obj.data.getIDnames('all'))
 			
-			exporter = ResultsExporter(obj.coda, obj.data, obj.postPred, obj.varList, obj.plotOptions);
+			% TODO: This should be a method of CODA
+ 			convergenceSummary(obj.coda.getStats('Rhat',[]), obj.savePath, obj.data.getIDnames('all'))
+			
+			exporter = ResultsExporter(obj.coda, obj.data, obj.postPred.postPred, obj.varList, obj.plotOptions);
 			exporter.printToScreen();
 			exporter.export(obj.savePath, obj.pointEstimateType);
 			% TODO ^^^^ avoid this duplicate use of pointEstimateType
@@ -214,28 +216,28 @@ classdef (Abstract) Model
 		function obj = calcDerivedMeasures(obj)
 		end
 		
-		function postPred = calcPosteriorPredictive(obj)
-			%calcPosteriorPredictive Calculate various posterior predictive measures.
-			% Data saved to a struture: postPred(p).xxx
-			
-			display('Calculating posterior predictive measures...')
-			
-			for p = 1:obj.data.getNRealExperimentFiles()
-				% get data
-				trialIndOfThisParicipant	= obj.observedData.ID==p;
-				responses_inferredPB		= obj.coda.getPChooseDelayed(trialIndOfThisParicipant);
-				responses_actual			= obj.data.getParticipantResponses(p);
-				responses_predicted			= obj.coda.getParticipantPredictedResponses(trialIndOfThisParicipant);
-				
-				% Calculate metrics
-				postPred(p).score = calcPostPredOverallScore(responses_predicted, responses_actual);
-				postPred(p).GOF_distribtion	= calcGoodnessOfFitDistribution(responses_inferredPB, responses_actual);
-				postPred(p).percentPredictedDistribution = calcPercentResponsesCorrectlyPredicted(responses_inferredPB, responses_actual);
-				% Store
-				postPred(p).responses_actual	= responses_actual;
-				postPred(p).responses_predicted = responses_predicted;
-			end
-		end
+% 		function postPred = calcPosteriorPredictive(obj)
+% 			%calcPosteriorPredictive Calculate various posterior predictive measures.
+% 			% Data saved to a struture: postPred(p).xxx
+% 			
+% 			display('Calculating posterior predictive measures...')
+% 			
+% 			for p = 1:obj.data.getNRealExperimentFiles()
+% 				% get data
+% 				trialIndOfThisParicipant	= obj.observedData.ID==p;
+% 				responses_inferredPB		= obj.coda.getPChooseDelayed(trialIndOfThisParicipant);
+% 				responses_actual			= obj.data.getParticipantResponses(p);
+% 				responses_predicted			= obj.coda.getParticipantPredictedResponses(trialIndOfThisParicipant);
+% 				
+% 				% Calculate metrics
+% 				postPred(p).score = calcPostPredOverallScore(responses_predicted, responses_actual);
+% 				postPred(p).GOF_distribtion	= calcGoodnessOfFitDistribution(responses_inferredPB, responses_actual);
+% 				postPred(p).percentPredictedDistribution = calcPercentResponsesCorrectlyPredicted(responses_inferredPB, responses_actual);
+% 				% Store
+% 				postPred(p).responses_actual	= responses_actual;
+% 				postPred(p).responses_predicted = responses_predicted;
+% 			end
+% 		end
 		
 		
 		function tellUserAboutPublicMethods(obj)
@@ -280,7 +282,7 @@ classdef (Abstract) Model
 				pdata(p).data.rawdata					= obj.data.getRawDataTableForParticipant(p);
 				% gather posterior prediction info
 				try
-					pdata(p).postPred					= obj.postPred(p);
+					pdata(p).postPred					= obj.postPred.postPred(p); % TODO: 
 				catch
 					pdata(p).postPred					= [];
 				end
