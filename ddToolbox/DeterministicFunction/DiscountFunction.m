@@ -7,8 +7,8 @@ classdef (Abstract) DiscountFunction < DeterministicFunction
 	
 	methods (Access = public)
 		
-		function obj = DiscountFunction()
-			obj = obj@DeterministicFunction();
+		function obj = DiscountFunction(varargin)
+			obj = obj@DeterministicFunction(varargin{:});
 		end
 		
 		

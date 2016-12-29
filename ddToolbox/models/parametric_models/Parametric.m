@@ -105,59 +105,48 @@ classdef (Abstract) Parametric < Model
 		function experimentMultiPanelFigure(obj, ind)
 			
 			h = layout([1 2 3 4]);
-			opts.pointEstimateType = obj.pointEstimateType;
+			opts.pointEstimateType	= obj.pointEstimateType;
+			opts.timeUnits			= obj.timeUnits;
+			opts.dataPlotType		= obj.dataPlotType;
 			
 			% create cell arrays of relevant variables
 			discountFunctionVariables = {obj.varList.discountFunctionParams.name};
 			responseErrorVariables    = {obj.varList.responseErrorParams.name};
 			
-			%% Plot 1: density plot of (alpha, epsilon)
+			%% PLOT: density plot of (alpha, epsilon)
 			obj.coda.plot_bivariate_distribution(h(1),...
 				responseErrorVariables(1),...
 				responseErrorVariables(2),...
 				ind,...
 				opts)
 			
-			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			% TODO #166 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			%% Set up psychometric function
-			respErrSamples            = obj.coda.getSamplesAtIndex(ind, responseErrorVariables);
-			psycho                    = PsychometricFunction('samples', respErrSamples);
 			%% Plot the psychometric function ----------------------------------
 			subplot(h(2))
+			psycho = PsychometricFunction('samples', obj.coda.getSamplesAtIndex(ind, responseErrorVariables));
 			psycho.plot(obj.pointEstimateType)
-			%% Set up discount function
-			dfSamples             = obj.coda.getSamplesAtIndex(ind, discountFunctionVariables);
-			discountFunction      = obj.dfClass('samples', dfSamples);
-			discountFunction.data = obj.data.getExperimentObject(ind);
-			% TODO #166 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			
-			% DON'T PLOT THE SUBFIGURES BELOW IF...
-			if isempty(dfSamples) %|| any(isnan(dfSamples))
-				return
-			end
-			
+% 			% DON'T PLOT THE SUBFIGURES BELOW IF...
+% 			if isempty(dfSamples) %|| any(isnan(dfSamples))
+% 				return
+% 			end
 			
 			%% Plot the discount function parameters ---------------------------
-			% TODO #166: can possibly avoid overridding this function in the Magnitude
-			% Effect class if we auto-respond to 1 vs 2 parameters in the discount
-			% function.
+			% TODO #166: auto deal with either 1 or 2 discount function parameters
+			assert(numel(discountFunctionVariables)==1, 'Currently only able to plot univariate. Easy to make this more adaptive to 1-2 params')
 			obj.coda.plot_univariate_distribution(h(3),...
 				discountFunctionVariables(1),...
 				ind,...
 				opts)
 			
-			
-			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			% TODO #166 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			%% Plot the discount function parameters ---------------------------
+			%% Plot the discount function parameters ----------------------
 			subplot(h(4))
+			discountFunction = obj.dfClass(...
+				'samples', obj.coda.getSamplesAtIndex(ind, discountFunctionVariables),...
+				'data', obj.data.getExperimentObject(ind));
 			discountFunction.plot(obj.pointEstimateType,...
 				obj.dataPlotType,...
 				obj.timeUnits)
-			% TODO #166 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			% TODO #166 avoid having to parse these args in here
 
 		end
 		

@@ -2,6 +2,7 @@ classdef (Abstract) DeterministicFunction
 	%DeterministicFunction A class to deal with deterministic functions with parameters that we have a distribution of samples over.
 	properties
 		theta % Stochastic objects (or object array)
+		% TODO: theta samples should be a Table !
 		
 		% This is Object to store data associated with the function. It
 		% must have a plot method
@@ -23,6 +24,26 @@ classdef (Abstract) DeterministicFunction
 			theta = struct([]);
 			obj.plot_options = obj.set_plot_options(varargin{:});
 		end
+        
+        function obj = parse_for_samples_and_data(obj, varargin)
+            % MUST HAPPEN *AFTER* WE HAVE CREATED obj.theta
+			% TODO: THIS CAN BE PUT INTO A METHOD IN THE SUPERCLASS (DeterministicFunction)
+			p = inputParser;
+			p.KeepUnmatched = true;
+			p.StructExpand = false;
+			p.addParameter('samples',struct(), @isstruct)
+			p.addParameter('data',[], @(x) isobject(x) | isempty(x) )
+			p.parse(varargin{:});
+			
+			% Add any provided samples
+			fieldnames = fields(p.Results.samples);
+			for n = 1:numel(fieldnames)
+				obj.theta.(fieldnames{n}).addSamples( p.Results.samples.(fieldnames{n}) );
+			end
+			
+            % Add data
+			obj.data = p.Results.data;
+        end
 		
 		function obj = addSamples(obj, paramName, samples)
 			obj.theta.(paramName).addSamples(samples);
@@ -167,8 +188,9 @@ classdef (Abstract) DeterministicFunction
 	
 	methods (Access = protected)
 		
-		function plot_options = set_plot_options(obj, varargin )
+		function plot_options = set_plot_options(obj, varargin)
 			p = inputParser;
+			p.KeepUnmatched = true;
 			p.addParameter('plotStyle','hist',@(x)any(strcmp(x,{'hist','kde'})))
 			p.addParameter('shouldPlot',true,@islogical);
 			%p.addParameter('killYAxis',true,@islogical);

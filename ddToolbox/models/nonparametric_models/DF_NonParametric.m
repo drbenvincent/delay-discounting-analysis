@@ -15,10 +15,13 @@ classdef DF_NonParametric < DiscountFunction
 	methods (Access = public)
 
 		function obj = DF_NonParametric(varargin)
-			obj = obj@DiscountFunction();
+			obj = obj@DiscountFunction(varargin{:});
             
             % Input parsing ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            % TODO: Currently construction of this class (DF_NonParametric) is dealt with differently from all the parametric modes (eg DF_ExponentialPower)
+            % TODO: Do we need an additional DF_NonParametric in the inheritance hierarchy??
 			p = inputParser;
+            p.KeepUnmatched = true;
 			p.StructExpand = false;
 			p.addParameter('delays',[], @isnumeric);
             p.addParameter('theta',[], @ismatrix);
