@@ -17,17 +17,10 @@ h = layout([1 1; 2 3]);
 
 latex_fig(16, 9, 6)
 
-subplot(h(1))
-pp_plotTrials()
-
-subplot(h(2))
-pp_plotGOFdistribution()
-
-% subplot(2,2,3)
-% pp_plotPredictionAndResponse()
-
-subplot(h(3))
-pp_plotPercentPredictedDistribution()
+subplot(h(1)), pp_plotTrials()
+subplot(h(2)), pp_plotGOFdistribution()
+% subplot(2,2,3), pp_plotPredictionAndResponse()
+subplot(h(3)), pp_plotPercentPredictedDistribution()
 
 % Export figure
 drawnow
@@ -37,6 +30,10 @@ if data.shouldExportPlots
 		'suffix', data.modelFilename,...
 		'formats', data.plotOptions.exportFormats)
 end
+
+
+
+
 
 	function pp_plotGOFdistribution()
 		uni = mcmc.UnivariateDistribution(data.postPred.GOF_distribtion(:),...

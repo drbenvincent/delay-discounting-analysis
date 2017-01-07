@@ -1,20 +1,15 @@
 classdef PosteriorPrediction
-	%UNTITLED2 Summary of this class goes here
+	%PosteriorPrediction Summary of this class goes here
 	%   Detailed explanation goes here
 	
 	properties
 		postPred
-		
-		% 		coda
-		% 		data
-		% 		observedData
 	end
 	
 	methods
 		
 		function obj = PosteriorPrediction(coda, data, observedData)
-			
-			%calcPosteriorPredictive Calculate various posterior predictive measures.
+			% Calculate various posterior predictive measures.
 			% Data saved to a struture: postPred(p).xxx
 			
 			disp('Calculating posterior predictive measures...')
@@ -39,9 +34,7 @@ classdef PosteriorPrediction
 	end
 	
 	methods (Access = private, Static)
-		
-
-		
+    
 		function [score] = calcGoodnessOfFitDistribution(responses_predictedMCMC, responses_actual)
 			% Expand the participant responses so we can do vectorised calculations below
 			totalSamples			= size(responses_predictedMCMC,2);
@@ -52,9 +45,7 @@ classdef PosteriorPrediction
 				calcDataLikelihood(responses_actual, responses_predictedMCMC),...
 				calcDataLikelihood(responses_actual, responses_control_model));
 		end
-		
 
-		
 		function percentResponsesPredicted = calcPercentResponsesCorrectlyPredicted(responses_predictedMCMC, responses_actual)
 			%% Calculate % responses predicted by the model
 			totalSamples				= size(responses_predictedMCMC,2);
@@ -75,9 +66,7 @@ classdef PosteriorPrediction
 				calcDataLikelihood(responses_actual, responses_predicted'),...
 				calcDataLikelihood(responses_actual, responses_control_model'));
 		end
-		
-		
-		
+
 	end
 	
 end
@@ -92,4 +81,3 @@ dataLikelihood = prod(binopdf(responses, ...
 	ones(size(responses)),...
 	predicted));
 end
-

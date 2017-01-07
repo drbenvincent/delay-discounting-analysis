@@ -85,7 +85,6 @@ classdef (Abstract) Model
 			
 			obj.varList.responseErrorParams(2).name = 'epsilon';
 			obj.varList.responseErrorParams(2).label = 'error rate, $\epsilon$';
-			
 		end
 		
 		
@@ -214,43 +213,17 @@ classdef (Abstract) Model
 		end
 		
 		function obj = calcDerivedMeasures(obj)
-		end
-		
-% 		function postPred = calcPosteriorPredictive(obj)
-% 			%calcPosteriorPredictive Calculate various posterior predictive measures.
-% 			% Data saved to a struture: postPred(p).xxx
-% 			
-% 			display('Calculating posterior predictive measures...')
-% 			
-% 			for p = 1:obj.data.getNRealExperimentFiles()
-% 				% get data
-% 				trialIndOfThisParicipant	= obj.observedData.ID==p;
-% 				responses_inferredPB		= obj.coda.getPChooseDelayed(trialIndOfThisParicipant);
-% 				responses_actual			= obj.data.getParticipantResponses(p);
-% 				responses_predicted			= obj.coda.getParticipantPredictedResponses(trialIndOfThisParicipant);
-% 				
-% 				% Calculate metrics
-% 				postPred(p).score = calcPostPredOverallScore(responses_predicted, responses_actual);
-% 				postPred(p).GOF_distribtion	= calcGoodnessOfFitDistribution(responses_inferredPB, responses_actual);
-% 				postPred(p).percentPredictedDistribution = calcPercentResponsesCorrectlyPredicted(responses_inferredPB, responses_actual);
-% 				% Store
-% 				postPred(p).responses_actual	= responses_actual;
-% 				postPred(p).responses_predicted = responses_predicted;
-% 			end
-% 		end
-		
+		end		
 		
 		function tellUserAboutPublicMethods(obj)
 			% TODO - the point is to guide them into what to do next
 			methods(obj)
 		end
 		
-		
 		function obj = addUnobservedParticipant(obj, str)
 			% TODO: Check we need this
 			obj.data = obj.data.add_unobserved_participant(str);	% add name (eg 'GROUP')
 		end
-		
 		
 		function [pdata] = packageUpDataForPlotting(obj)
 			
@@ -291,8 +264,8 @@ classdef (Abstract) Model
 			
 		end
 		
-		
 	end
+    
 	
 	methods (Static, Access = protected)
 		

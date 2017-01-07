@@ -36,10 +36,21 @@ classdef ResultsExporter
 			
 			obj.plotOptions = plotOptions;
 			
-			obj.finalTable = join(...
-				obj.makeParamEstimateTable(),...
-				obj.makePostPredTable(),...
-				'Keys','RowNames');
+			% TODO: fix this workaround to deal with the fact that obj.makeParamEstimateTable()
+			% currently fails for non-parametric models
+			temp = obj.makeParamEstimateTable();
+			if ~isempty(temp)
+				
+				% TODO This is what we want to execute in all cases
+				obj.finalTable = join(...
+					obj.makeParamEstimateTable(),...
+					obj.makePostPredTable(),...
+					'Keys','RowNames');
+				
+			else
+				% TODO this is a workaround
+				obj.finalTable = obj.makePostPredTable();
+			end
 		end
 		
 		function printToScreen(obj)
