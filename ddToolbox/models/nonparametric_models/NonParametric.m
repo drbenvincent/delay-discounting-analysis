@@ -56,8 +56,7 @@ classdef (Abstract) NonParametric < Model
 			obj.plotAllExperimentFigures();
 			
             % POSTERIOR PREDICTION PLOTS =======================================
-			% temporarily commented: not needed while testing
-			%arrayfun(@figPosteriorPrediction, obj.pdata); % posterior prediction plot
+			arrayfun(@figPosteriorPrediction, obj.pdata); % posterior prediction plot
 			
 			
 			
