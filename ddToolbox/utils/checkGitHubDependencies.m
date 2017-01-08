@@ -72,8 +72,8 @@ addpath(installPath);
 originalPath = cd;
 try
 	cd(defineInstallPath())
-	command = sprintf('git clone %s.git', repoAddress)
-	[status, cmdout] = system(command)
+	command = sprintf('git clone %s.git', repoAddress);
+	[status, cmdout] = system(command);
 catch ME
 	rethrow(ME)
 end

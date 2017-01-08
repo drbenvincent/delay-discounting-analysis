@@ -30,7 +30,6 @@ classdef ModelHierarchicalExpPower < ExponentialPower
 				initialParams(chain).groupALPHAsigma	= 0.01+rand*5;
                 
                 % TODO: prior over group-level tau parameters
-				initialParams(chain)
 			end
 		end
         
