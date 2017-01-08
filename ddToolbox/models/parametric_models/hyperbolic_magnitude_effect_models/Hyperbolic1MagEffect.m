@@ -20,13 +20,13 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
             obj.varList.discountFunctionParams(2).name = 'c';
             obj.varList.discountFunctionParams(2).label = 'intercept, $c$';
 
-			obj.dataPlotType = '3D';
+			obj.plotOptions.dataPlotType = '3D';
 		end
 
 		% OVERRIDDING THIS METHOD FROM A SUPERCLASS
 		function experimentMultiPanelFigure(obj, ind)
             h = layout([1 2 3 4 5 6]);
-            opts.pointEstimateType = obj.pointEstimateType;
+            opts.pointEstimateType = obj.plotOptions.pointEstimateType;
             % create cell array
             discountFunctionVariables = {obj.varList.discountFunctionParams.name};
             responseErrorVariables = {obj.varList.responseErrorParams.name};
@@ -50,7 +50,7 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			psycho = PsychometricFunction('samples', respErrSamples);
 			%% Plot the psychometric function ------------------------------
 			subplot(h(2))
-			psycho.plot(obj.pointEstimateType)
+			psycho.plot(obj.plotOptions.pointEstimateType)
 			%% Set up discount function
 			dfSamples = obj.coda.getSamplesAtIndex_asStruct(ind, discountFunctionVariables);
 			discountFunction = obj.dfClass('samples', dfSamples);
@@ -93,8 +93,8 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			% smoother, more robust way
 			if ~isempty(dfSamples) || ~any(isnan(dfSamples))
 				subplot(h(6)) % -------------------------------------------
-				discountFunction.plot(obj.pointEstimateType,...
-					obj.dataPlotType,...
+				discountFunction.plot(obj.plotOptions.pointEstimateType,...
+					obj.plotOptions.dataPlotType,...
 					obj.timeUnits)
 			end
 			% TODO #166 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

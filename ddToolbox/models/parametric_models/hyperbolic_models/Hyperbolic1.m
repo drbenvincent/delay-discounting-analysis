@@ -18,7 +18,7 @@ classdef (Abstract) Hyperbolic1 < Parametric
     	obj.varList.discountFunctionParams(1).name = 'logk';
 			obj.varList.discountFunctionParams(1).label = '$\log(k)$';
 
-			obj.dataPlotType = '2D';
+			obj.plotOptions.dataPlotType = '2D';
 		end
 
 	end

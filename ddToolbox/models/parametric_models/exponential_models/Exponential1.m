@@ -17,7 +17,7 @@ classdef (Abstract) Exponential1 < Parametric
             obj.varList.discountFunctionParams(1).name = 'k';
             obj.varList.discountFunctionParams(1).label = 'discount rate, $k$';
             
-            obj.dataPlotType = '2D';
+            obj.plotOptions.dataPlotType = '2D';
 		end
 		
 	end

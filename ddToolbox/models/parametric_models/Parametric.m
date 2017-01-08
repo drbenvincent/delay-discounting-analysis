@@ -25,11 +25,11 @@ classdef (Abstract) Parametric < Model
 			% TODO #166 THIS IS A LOT OF FAFF, JUST FOR UNIVARIATE SUMMARY PLOTS
 			
 			% gather cross-experiment data for univariate sta
-			alldata.shouldExportPlots = p.Results.shouldExportPlots;
-			alldata.shouldExportPlots	= obj.shouldExportPlots;
+			%alldata.shouldExportPlots = p.Results.shouldExportPlots;
+			%alldata.shouldExportPlots	= obj.plotOptions.shouldExportPlots;
 			alldata.variables			= obj.varList.participantLevel;
 			alldata.filenames			= obj.data.getIDnames('all');
-			alldata.savePath			= obj.savePath;
+			%alldata.savePath			= obj.plotOptions.savePath;
 			alldata.modelFilename		= obj.modelFilename;
 			alldata.plotOptions 		= obj.plotOptions;
 			for v = alldata.variables
@@ -37,7 +37,7 @@ classdef (Abstract) Parametric < Model
 					[obj.coda.getStats('hdi_low',v{:}),... % TODO: ERROR - expecting a vector to be returned
 					obj.coda.getStats('hdi_high',v{:})]; % TODO: ERROR - expecting a vector to be returned
 				alldata.(v{:}).pointEstVal =...
-					obj.coda.getStats(obj.pointEstimateType, v{:});
+					obj.coda.getStats(obj.plotOptions.pointEstimateType, v{:});
 			end
 			% -------------------------------------------------------------
 			% TODO: Think about plotting this with GRAMM
@@ -84,9 +84,9 @@ classdef (Abstract) Parametric < Model
 			
             latex_fig(12, 14, 3)
 			h = layout([1 2 3 4]);
-			opts.pointEstimateType	= obj.pointEstimateType;
+			opts.pointEstimateType	= obj.plotOptions.pointEstimateType;
 			opts.timeUnits			= obj.timeUnits;
-			opts.dataPlotType		= obj.dataPlotType;
+			opts.dataPlotType		= obj.plotOptions.dataPlotType;
 			
 			% create cell arrays of relevant variables
 			discountFunctionVariables = {obj.varList.discountFunctionParams.name};
@@ -102,7 +102,7 @@ classdef (Abstract) Parametric < Model
 			%% Plot the psychometric function ----------------------------------
 			subplot(h(2))
 			psycho = PsychometricFunction('samples', obj.coda.getSamplesAtIndex_asStruct(ind, responseErrorVariables));
-			psycho.plot(obj.pointEstimateType)
+			psycho.plot(obj.plotOptions.pointEstimateType)
 			
 % 			% DON'T PLOT THE SUBFIGURES BELOW IF...
 % 			if isempty(dfSamples) %|| any(isnan(dfSamples))
@@ -131,8 +131,8 @@ classdef (Abstract) Parametric < Model
 			discountFunction = obj.dfClass(...
 				'samples', obj.coda.getSamplesAtIndex_asStruct(ind, discountFunctionVariables),...
 				'data', obj.data.getExperimentObject(ind));
-			discountFunction.plot(obj.pointEstimateType,...
-				obj.dataPlotType,...
+			discountFunction.plot(obj.plotOptions.pointEstimateType,...
+				obj.plotOptions.dataPlotType,...
 				obj.timeUnits)
 			% TODO #166 avoid having to parse these args in here
 

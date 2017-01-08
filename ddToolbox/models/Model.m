@@ -12,27 +12,18 @@ classdef (Abstract) Model
 	properties (SetAccess = protected, GetAccess = protected)
 		dfClass % function handle to DiscountFunction class
 		samplerType
-		
 		discountFuncType
-		pointEstimateType
-		
 		postPred
 		parameterEstimateTable
 		pdata		% experiment level data for plotting
-		%alldata		% cross-experiment level data for plotting
 		experimentFigPlotFuncs
 		mcmcParams % structure of user-supplied params
 		observedData
-		
 		% User supplied preferences
 		modelFilename % string (ie modelFilename.jags, or modelFilename.stan)
 		varList
 		plotFuncs % structure of function handles
-		
 		plotOptions
-		shouldPlot, shouldExportPlots, exportFormats, savePath
-		dataPlotType
-		
 		timeUnits % string whose name must be a function to create a Duration.
 	end
 	
@@ -44,17 +35,10 @@ classdef (Abstract) Model
 			% Input parsing ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			p = inputParser;
 			p.StructExpand = false;
+			p.KeepUnmatched = true;
 			p.FunctionName = mfilename;
 			% Required
 			p.addRequired('data', @(x) isa(x,'Data'));
-			% Optional preferences
-			p.addParameter('pointEstimateType','mode',...
-				@(x) any(strcmp(x,{'mean','median','mode'})));
-			% Optional plotting-based parameters
-			p.addParameter('exportFormats', {'png'}, @iscellstr);
-			p.addParameter('savePath',tempname, @isstr);
-			p.addParameter('shouldPlot', 'no', @(x) any(strcmp(x,{'yes','no'})));
-			p.addParameter('shouldExportPlots', true, @islogical);
 			% Optional inference related parameters
 			p.addParameter('samplerType', 'jags', @(x) any(strcmp(x,{'jags','stan'})));
 			p.addParameter('mcmcParams', struct, @isstruct)
@@ -63,21 +47,16 @@ classdef (Abstract) Model
 			% duration` for more
 			p.addParameter('timeUnits', 'days',...
 				@(x) any(strcmp(x,{'seconds','minutes','hours','days', 'years'})))
-			% parse inputs
+			% Parse inputs
 			p.parse(data, varargin{:});
 			% add p.Results fields into obj
 			fields = fieldnames(p.Results);
 			for n=1:numel(fields)
 				obj.(fields{n}) = p.Results.(fields{n});
 			end
-			
-			obj.mcmcParams = obj.parse_mcmcparams(obj.mcmcParams);
-			
-			obj.plotOptions.shouldPlot = p.Results.shouldPlot;
-			obj.plotOptions.shouldExportPlots = p.Results.shouldExportPlots;
-			obj.plotOptions.savePath = p.Results.savePath;
-			obj.plotOptions.exportFormats = p.Results.exportFormats;
-			obj.plotOptions.pointEstimateType = p.Results.pointEstimateType;
+			% parse input arguments into structures
+			obj.mcmcParams	= obj.parse_mcmcparams(obj.mcmcParams);
+			obj.plotOptions = obj.parse_plot_options(varargin{:});
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			
 			obj.varList.responseErrorParams(1).name = 'alpha';
@@ -117,14 +96,14 @@ classdef (Abstract) Model
 			
 			
 			% TODO: This should be a method of CODA
- 			convergenceSummary(obj.coda.getStats('Rhat',[]), obj.savePath, obj.data.getIDnames('all'))
+ 			convergenceSummary(obj.coda.getStats('Rhat',[]), obj.plotOptions.savePath, obj.data.getIDnames('all'))
 			
 			exporter = ResultsExporter(obj.coda, obj.data, obj.postPred.postPred, obj.varList, obj.plotOptions);
 			exporter.printToScreen();
-			exporter.export(obj.savePath, obj.pointEstimateType);
+			exporter.export(obj.plotOptions.savePath, obj.plotOptions.pointEstimateType);
 			% TODO ^^^^ avoid this duplicate use of pointEstimateType
 			
-			if ~strcmp(obj.shouldPlot,'no')
+			if ~strcmp(obj.plotOptions.shouldPlot,'no')
 				% TODO: Allow public calls of obj.plot to specify options.
 				% At the moment the options need to be provided on Model
 				% object construction
@@ -165,8 +144,8 @@ classdef (Abstract) Model
 			% get point estimates of present subjective values. These will
 			% be vectors. Each value corresponds to one trial in the
 			% overall dataset
-			VA_point_estimate = obj.coda.getStats(obj.pointEstimateType, 'VA');
-			VB_point_estimate = obj.coda.getStats(obj.pointEstimateType, 'VB');
+			VA_point_estimate = obj.coda.getStats(obj.plotOptions.pointEstimateType, 'VA');
+			VB_point_estimate = obj.coda.getStats(obj.plotOptions.pointEstimateType, 'VB');
 			assert(isvector(VA_point_estimate))
 			assert(isvector(VB_point_estimate))
 			
@@ -243,11 +222,10 @@ classdef (Abstract) Model
 			for p = 1:nExperimentsIncludingUnobserved
 				% constant for all participants
 				pdata(p).data.totalTrials	= obj.data.totalTrials;
-				pdata(p).pointEstimateType	= obj.pointEstimateType;
+				%pdata(p).pointEstimateType	= obj.plotOptions.pointEstimateType;
 				pdata(p).discountFuncType	= obj.discountFuncType;
 				pdata(p).plotOptions		= obj.plotOptions;
 				pdata(p).modelFilename		= obj.modelFilename;
-				pdata(p).shouldExportPlots  = obj.shouldExportPlots;
 				
 				% custom for each participant
 				pdata(p).IDname							= obj.data.getIDnames(p);
@@ -274,8 +252,8 @@ classdef (Abstract) Model
                 obj.experimentMultiPanelFigure(experimentIndex)
                 drawnow
                 
-                if obj.shouldExportPlots
-                    myExport(obj.savePath, 'expt',...
+                if obj.plotOptions.shouldExportPlots
+                    myExport(obj.plotOptions.savePath, 'expt',...
                         'prefix', names{experimentIndex},...
                         'suffix', obj.modelFilename,...
                         'formats', obj.plotOptions.exportFormats);
@@ -315,6 +293,24 @@ classdef (Abstract) Model
 				error('Please pass in ''nchains'', not ''chains''.')
 			end
 			mcmcparams = kwargify(defaultMCMCParams, mcmcParams);
+		end
+		
+		function plotOptions = parse_plot_options(varargin)
+			p = inputParser;
+			p.StructExpand = false;
+			p.KeepUnmatched = true;
+			p.FunctionName = mfilename;
+			
+			p.addParameter('exportFormats', {'png'}, @iscellstr);
+			p.addParameter('savePath',tempname, @isstr);
+			p.addParameter('shouldPlot', 'no', @(x) any(strcmp(x,{'yes','no'})));
+			p.addParameter('shouldExportPlots', true, @islogical);
+			p.addParameter('pointEstimateType','mode',...
+				@(x) any(strcmp(x,{'mean','median','mode'})));
+			
+			p.parse(varargin{:});
+			
+			plotOptions = p.Results;
 		end
 		
 	end

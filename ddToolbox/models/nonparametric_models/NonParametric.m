@@ -36,6 +36,8 @@ classdef (Abstract) NonParametric < Model
     methods (Access = public)
 
 		function plot(obj, varargin) % overriding from Model base class
+			close all
+			
 			% parse inputs
 			p = inputParser;
 			p.FunctionName = mfilename;
@@ -44,22 +46,12 @@ classdef (Abstract) NonParametric < Model
 
             obj.pdata = obj.packageUpDataForPlotting();
 
-			obj.shouldExportPlots = p.Results.shouldExportPlots;
-			for n=1:numel(obj.pdata)
-				obj.pdata(n).shouldExportPlots = p.Results.shouldExportPlots;
-			end
-
-			close all
-
 			% EXPERIMENT PLOT ==================================================
             obj.psychometric_plots();
 			obj.plotAllExperimentFigures();
 			
             % POSTERIOR PREDICTION PLOTS =======================================
 			arrayfun(@figPosteriorPrediction, obj.pdata); % posterior prediction plot
-			
-			
-			
 			
 			%% TODO...
             % FOREST PLOT OF AUC VALUES ========================================
@@ -87,7 +79,7 @@ classdef (Abstract) NonParametric < Model
                 samples.alpha(:),...
                 'xLabel','error rate, $\epsilon$',...
                 'ylabel','comparison accuity, $\alpha$',...
-                'pointEstimateType',obj.pointEstimateType,...
+                'pointEstimateType',obj.plotOptions.pointEstimateType,...
                 'plotStyle', 'hist',...
                 'axisSquare', true);
     
@@ -115,7 +107,7 @@ classdef (Abstract) NonParametric < Model
 			names = obj.data.getIDnames('all');
 			for ind = 1:numel(names) % loop over files
 				fh = figure('Name', ['participant: ' names{ind}]);
-                latex_fig(12, 6, 6)
+                latex_fig(12,10, 8)
 				
 				personStruct = getExperimentData(obj, ind);
 				
@@ -123,22 +115,18 @@ classdef (Abstract) NonParametric < Model
 				nSubplots = numel(personStruct.delays);
 				subplot_handles = create_subplots(nSubplots, 'square');
 				
+				% plot a set of psychometric functions, one for each delay tested
 				for d = 1:nSubplots
-					
 					subplot(subplot_handles(d))
-					%subplot(1, numel(personStruct.delays), d)
 					
-					% plot a set of psychometric functions, one for each delay
-					% tested
-					
-					%
 					samples = obj.coda.getSamplesAtIndex_asStruct(ind,{'alpha','epsilon'});
 					samples.indifference  = personStruct.dfSamples(:,d);
 					psycho = DF_SLICE_PsychometricFunction('samples', samples);
 					psycho.plot();
 					title(['delay = ' num2str(personStruct.delays(d)) ])
 				end
-				if obj.shouldExportPlots
+				drawnow
+				if obj.plotOptions.shouldExportPlots
 					myExport(obj.plotOptions.savePath, 'expt_psychometric',...
 						'prefix', names{ind},...
 						'suffix', obj.modelFilename,...

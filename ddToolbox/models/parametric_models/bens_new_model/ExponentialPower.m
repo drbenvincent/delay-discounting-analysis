@@ -19,7 +19,7 @@ classdef (Abstract) ExponentialPower < Parametric
             obj.varList.discountFunctionParams(2).name = 'tau';
             obj.varList.discountFunctionParams(2).label = 'tau';
             
-            obj.dataPlotType = '2D';
+            obj.plotOptions.dataPlotType = '2D';
 		end
         		
 	end
