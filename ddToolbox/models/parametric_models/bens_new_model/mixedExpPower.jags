@@ -30,8 +30,8 @@ for (t in 1:length(ID)) {
 # RESPONSE ERROR PARAMETERS ====================================================
 
 # comparison acuity (alpha) hyperprior
-groupALPHAmu        ~ dnorm(0,1/(100^2)) T(0,)
-groupALPHAsigma     ~ dunif(0,100) 
+alpha_mu        ~ dnorm(0,1/(100^2)) T(0,)
+alpha_precision ~ dgamma(0.001,0.001)
 
 # error rates (epsilon) hyperprior
 groupW          ~ dbeta(1.1, 10.9)  # mode for lapse rate
@@ -42,7 +42,7 @@ epsilon_alpha <- groupW*(groupK-2)+1
 epsilon_beta <- (1-groupW)*(groupK-2)+1
 
 for (p in 1:(nRealExperimentFiles+1)){ # +1 for unobserved participant
-	alpha[p]    ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
+	alpha[p]    ~ dnorm(alpha_mu, alpha_precision) T(0,)
     epsilon[p]  ~ dbeta(epsilon_alpha , epsilon_beta ) T(,0.5)
 }
 
