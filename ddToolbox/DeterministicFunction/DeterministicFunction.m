@@ -143,15 +143,11 @@ classdef (Abstract) DeterministicFunction
 					n_samples_requested = p.Results.nExamples;
 					n_samples_got = obj.nSamples;
 					n_samples_to_get = min([n_samples_requested n_samples_got]);
-					if ~isempty(n_samples_requested)
-						% shuffle the deck and pick the top nExamples
-						shuffledExamples = randperm(n_samples_to_get);
-						ExamplesToPlot = shuffledExamples([1:n_samples_to_get]);
-					else
-						ExamplesToPlot = 1:n_samples_to_get;
-					end
-					
-					
+
+					% shuffle the deck and pick the top nExamples
+					shuffledExamples = randperm(n_samples_got);
+					ExamplesToPlot = shuffledExamples([1:n_samples_to_get]);
+
 					thetaStruct = struct();
 					for field = fields(obj.theta)'
 						thetaStruct.(field{:}) = obj.theta.(field{:}).samples(ExamplesToPlot);
