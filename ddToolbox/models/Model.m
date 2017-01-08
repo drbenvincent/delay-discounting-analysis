@@ -263,6 +263,27 @@ classdef (Abstract) Model
 			end
 			
 		end
+        
+        function plotAllExperimentFigures(obj)
+            % this is a wrapper function to loop over all data files, producing multi-panel figures. This is implemented by the experimentMultiPanelFigure method, which may be overridden by subclasses if need be.
+            names = obj.data.getIDnames('all');
+            
+            for experimentIndex = 1:numel(names)
+                fh = figure('Name', names{experimentIndex});
+                
+                obj.experimentMultiPanelFigure(experimentIndex)
+                drawnow
+                
+                if obj.shouldExportPlots
+                    myExport(obj.savePath, 'expt',...
+                        'prefix', names{experimentIndex},...
+                        'suffix', obj.modelFilename,...
+                        'formats', obj.plotOptions.exportFormats);
+                end
+                
+                close(fh)
+            end
+        end
 		
 	end
     

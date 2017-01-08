@@ -70,7 +70,7 @@ classdef (Abstract) Parametric < Model
 			end
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			
-			obj.experimentPlot();
+			obj.plotAllExperimentFigures();
 			
 			% Corner plot of parameters
 			arrayfun(@plotTriPlotWrapper, obj.pdata)
@@ -80,30 +80,9 @@ classdef (Abstract) Parametric < Model
 		end
 		
 		
-		function experimentPlot(obj)
-			% this is a wrapper function to loop over all data files, producing multi-panel figures. This is implemented by the experimentMultiPanelFigure method, which may be overridden by subclasses if need be.
-			names = obj.data.getIDnames('all');
-			
-			for ind = 1:numel(names)
-				fh = figure('Name', names{ind});
-				latex_fig(12, 14, 3)
-				
-				obj.experimentMultiPanelFigure(ind)
-				drawnow
-				
-				if obj.shouldExportPlots
-					myExport(obj.savePath, 'expt',...
-						'prefix', names{ind},...
-						'suffix', obj.modelFilename,...
-						'formats', {'png'});
-				end
-				
-				close(fh)
-			end
-		end
-		
 		function experimentMultiPanelFigure(obj, ind)
 			
+            latex_fig(12, 14, 3)
 			h = layout([1 2 3 4]);
 			opts.pointEstimateType	= obj.pointEstimateType;
 			opts.timeUnits			= obj.timeUnits;

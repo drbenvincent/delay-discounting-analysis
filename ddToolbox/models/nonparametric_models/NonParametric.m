@@ -53,7 +53,7 @@ classdef (Abstract) NonParametric < Model
 
 			% EXPERIMENT PLOT ==================================================
             obj.psychometric_plots();
-			obj.experimentPlot();
+			obj.plotAllExperimentFigures();
 			
             % POSTERIOR PREDICTION PLOTS =======================================
 			% temporarily commented: not needed while testing
@@ -72,62 +72,43 @@ classdef (Abstract) NonParametric < Model
 		end
         
         
-        function experimentPlot(obj)
+        function experimentMultiPanelFigure(obj, ind)
             
-            names = obj.data.getIDnames('all');
+            latex_fig(12, 14, 3)
             h = layout([1 2 3 3]);
             
-            for ind = 1:numel(names)
-                fh = figure('Name', ['participant: ' names{ind}]);
-                latex_fig(12, 10, 3)
-
-                %%  Set up psychometric function
-                psycho = PsychometricFunction('samples', obj.coda.getSamplesAtIndex_asStruct(ind,{'alpha','epsilon'}));
-                
-                %% plot bivariate distribution of alpha, epsilon
-                subplot(h(1))
-                samples = obj.coda.getSamplesAtIndex_asStruct(ind,{'alpha','epsilon'});
-                mcmc.BivariateDistribution(...
-                    samples.epsilon(:),...
-                    samples.alpha(:),...
-                    'xLabel','error rate, $\epsilon$',...
-                    'ylabel','comparison accuity, $\alpha$',...
-                    'pointEstimateType',obj.pointEstimateType,...
-                    'plotStyle', 'hist',...
-                    'axisSquare', true);
-                
-%                 %% Plot the psychometric function
-%                 subplot(1,4,2)
-%                 psycho.plot(obj.pointEstimateType)
-                
-                                
-                %% Set up discount function
-				personInfo = obj.getExperimentData(ind);
-                discountFunction = DF_NonParametric('delays',personInfo.delays,...
-                    'theta', personInfo.dfSamples);
-                % inject a DataFile object into the discount function
-                discountFunction.data = obj.data.getExperimentObject(ind);
-				
-                %% plot distribution of AUC
-                subplot(h(2))
-                discountFunction.AUC.plot();
-				xlim([0 2])
-                
-                %% plot discount function
-                subplot(h(3))
-                discountFunction.plot();
-                
-                drawnow
-                if obj.shouldExportPlots
-                    myExport(obj.plotOptions.savePath, 'expt',...
-                        'prefix', names{ind},...
-                        'suffix', obj.modelFilename,...
-                        'formats', obj.plotOptions.exportFormats);
-                end
-                
-                close(fh)
-            end
-		end
+            %%  Set up psychometric function
+            psycho = PsychometricFunction('samples', obj.coda.getSamplesAtIndex_asStruct(ind,{'alpha','epsilon'}));
+            
+            %% plot bivariate distribution of alpha, epsilon
+            subplot(h(1))
+            samples = obj.coda.getSamplesAtIndex_asStruct(ind,{'alpha','epsilon'});
+            mcmc.BivariateDistribution(...
+                samples.epsilon(:),...
+                samples.alpha(:),...
+                'xLabel','error rate, $\epsilon$',...
+                'ylabel','comparison accuity, $\alpha$',...
+                'pointEstimateType',obj.pointEstimateType,...
+                'plotStyle', 'hist',...
+                'axisSquare', true);
+    
+            %% Set up discount function
+            personInfo = obj.getExperimentData(ind);
+            discountFunction = DF_NonParametric('delays',personInfo.delays,...
+                'theta', personInfo.dfSamples);
+            % inject a DataFile object into the discount function
+            discountFunction.data = obj.data.getExperimentObject(ind);
+            
+            %% plot distribution of AUC
+            subplot(h(2))
+            discountFunction.AUC.plot();
+            xlim([0 2])
+            
+            %% plot discount function
+            subplot(h(3))
+            discountFunction.plot();
+            
+        end
 		
 		function psychometric_plots(obj)
             % TODO: plot data on these figures
