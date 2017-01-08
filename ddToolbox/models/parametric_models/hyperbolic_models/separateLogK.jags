@@ -22,8 +22,11 @@ for (t in 1:length(ID)) {
 
 # RESPONSE ERROR PARAMETERS ====================================================
 
+epsilon_alpha <- 1.1
+epsilon_beta <- 10.9
+
 for (p in 1:nRealExperimentFiles){
-	epsilon[p]  ~ dbeta(1.1 , 10.9) T(,0.5)
+    epsilon[p]  ~ dbeta(epsilon_alpha , epsilon_beta ) T(,0.5)
 	alpha[p]    ~ dexp(0.01)
 }
 

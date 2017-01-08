@@ -12,8 +12,7 @@ classdef test_EXP_POWER_models < matlab.unittest.TestCase
 
 	properties (TestParameter)
 		model_list = {'ModelSeparateExpPower',...
-			'ModelMixedExpPower',...
-			'ModelHierarchicalExpPower'};
+			'ModelMixedExpPower'};
 		sampler = {'jags'};
 		pointEstimateType = {'mean'}; %{'mean','median','mode'}
 		chains = {2}

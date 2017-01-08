@@ -20,10 +20,16 @@
 
 model{
 
+groupALPHAmu <- 0           # TODO: NEEDS ATTENTION
+groupALPHAsigma <-0.01      # TODO: NEEDS ATTENTION
+
+epsilon_alpha <- 1+1
+epsilon_beta <- 1+100
+
 # priors
 for (p in participantIndexList){
-    epsilon[p]  ~ dbeta(1+1 , 1+100) T(,0.5)
-    alpha[p]    ~ dnorm(0, 1/0.1^2) T(0,) # <--------------- FIGURE OUT BEST PRIOR. 
+    epsilon[p]  ~ dbeta(epsilon_alpha , epsilon_beta ) T(,0.5)
+    alpha[p]    ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
 
     # PRIOR OVER DISCOUNT FRACTION
     # prior over A/B should be centered on 1 if we are expecting discounting and anti-discounting, and can be truncates

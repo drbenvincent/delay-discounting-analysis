@@ -25,8 +25,11 @@ groupW          ~ dbeta(1.1, 10.9)  # mode for lapse rate
 groupKminus2    ~ dgamma(0.5,0.5) # concentration parameter ## UPDATED SINCE PAPER
 groupK          <- groupKminus2+2
 
+epsilon_alpha <- groupW*(groupK-2)+1
+epsilon_beta <- (1-groupW)*(groupK-2)+1
+
 for (p in 1:(nRealExperimentFiles+1)){ # +1 for unobserved participant
-	epsilon[p]  ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
+	epsilon[p]  ~ dbeta(epsilon_alpha , epsilon_beta ) T(,0.5)
 	alpha[p]    ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
 }
 

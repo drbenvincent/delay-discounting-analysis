@@ -25,16 +25,22 @@ for (t in 1:length(ID)) {
 
 
 # RESPONSE ERROR PARAMETERS ====================================================
+
 # comparison acuity (alpha) hyperprior
 groupALPHAmu        ~ dnorm(0,1/(100^2)) T(0,)
 groupALPHAsigma     ~ dunif(0,100) 
+
 # error rates (epsilon) hyperprior
 groupW          ~ dbeta(1.1, 10.9)  # mode for lapse rate
 groupKminus2    ~ dgamma(0.5,0.5) # concentration parameter ## UPDATED SINCE PAPER
 groupK          <- groupKminus2+2
+
+epsilon_alpha <- groupW*(groupK-2)+1
+epsilon_beta <- (1-groupW)*(groupK-2)+1
+
 for (p in 1:(nRealExperimentFiles+1)){ # +1 for unobserved participant
 	alpha[p]    ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
-    epsilon[p]  ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
+    epsilon[p]  ~ dbeta(epsilon_alpha , epsilon_beta ) T(,0.5)
 }
 
 
@@ -47,7 +53,7 @@ for (t in 1:length(ID)) {
 
 # response likelihood
 for (t in 1:length(ID)) {
-	R[t]  ~ dbern(P[t]) # likelihood of actual response
+	R[t]  ~ dbern(P[t])
 }
 
 # POSTERIOR PREDICTION
