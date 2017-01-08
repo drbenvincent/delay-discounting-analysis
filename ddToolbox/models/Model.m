@@ -247,7 +247,7 @@ classdef (Abstract) Model
 				pdata(p).discountFuncType	= obj.discountFuncType;
 				pdata(p).plotOptions		= obj.plotOptions;
 				pdata(p).modelFilename		= obj.modelFilename;
-				%pdata(p).shouldExportPlots  = obj.shouldExportPlots;
+				pdata(p).shouldExportPlots  = obj.shouldExportPlots;
 				
 				% custom for each participant
 				pdata(p).IDname							= obj.data.getIDnames(p);

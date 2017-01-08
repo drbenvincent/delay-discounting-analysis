@@ -1,11 +1,11 @@
-function figPosteriorPrediction(data)
+function figPosteriorPrediction(plotdata)
 % figPosteriorPrediction  Takes output from posterior predictive analysis
 % and plots to a multi-panelled figure.
 %   figPosteriorPrediction(data)
 
 % skip if there are no trials (eg if we are dealing with group-level
 % inferences)
-if isempty(data.data.trialsForThisParticant)
+if isempty(plotdata.data.trialsForThisParticant)
 	return
 end
 
@@ -24,11 +24,11 @@ subplot(h(3)), pp_plotPercentPredictedDistribution()
 
 % Export figure
 drawnow
-if data.shouldExportPlots
-	myExport(data.plotOptions.savePath, 'PosteriorPredictive',...
-		'prefix', data.IDname{:},...
-		'suffix', data.modelFilename,...
-		'formats', data.plotOptions.exportFormats)
+if plotdata.plotOptions.shouldExportPlots
+	myExport(plotdata.plotOptions.savePath, 'PosteriorPredictive',...
+		'prefix', plotdata.IDname{:},...
+		'suffix', plotdata.modelFilename,...
+		'formats', plotdata.plotOptions.exportFormats)
 end
 
 
@@ -36,17 +36,17 @@ end
 
 
 	function pp_plotGOFdistribution()
-		uni = mcmc.UnivariateDistribution(data.postPred.GOF_distribtion(:),...
+		uni = mcmc.UnivariateDistribution(plotdata.postPred.GOF_distribtion(:),...
 			'xLabel', 'goodness of fit score',...
 			'plotStyle','hist',...
-			'pointEstimateType',data.pointEstimateType);
+			'pointEstimateType',plotdata.pointEstimateType);
 	end
 
 	function pp_plotPercentPredictedDistribution()
-		uni = mcmc.UnivariateDistribution(data.postPred.percentPredictedDistribution(:),...
+		uni = mcmc.UnivariateDistribution(plotdata.postPred.percentPredictedDistribution(:),...
 			'xLabel', '$\%$ proportion responses accounted for',...
 			'plotStyle','hist',...
-			'pointEstimateType',data.pointEstimateType);
+			'pointEstimateType',plotdata.pointEstimateType);
 		
 		axis tight
 		vline(0.5);
@@ -55,13 +55,13 @@ end
 
 	function pp_plotTrials()
 		% plot predicted probability of choosing delayed
-		bar(data.postPred.responses_predicted,'BarWidth',1)
+		bar(plotdata.postPred.responses_predicted,'BarWidth',1)
 		
 		box off
 		axis tight
 		% plot response data
 		hold on
-		plot([1:data.data.trialsForThisParticant], data.postPred.responses_actual, '+')
+		plot([1:plotdata.data.trialsForThisParticant], plotdata.postPred.responses_actual, '+')
 		%title(data.titleString)
 		
 		xlabel('trial')
@@ -70,7 +70,7 @@ end
 	end
 
 	function pp_plotPredictionAndResponse()
-		hz(1) = plot(data.postPred.responses_predicted, data.postPred.responses_actual, '+');
+		hz(1) = plot(plotdata.postPred.responses_predicted, plotdata.postPred.responses_actual, '+');
 		xlabel('Predicted P(choose delayed)')
 		ylabel('Actual response')
 		legend(hz, 'data')
