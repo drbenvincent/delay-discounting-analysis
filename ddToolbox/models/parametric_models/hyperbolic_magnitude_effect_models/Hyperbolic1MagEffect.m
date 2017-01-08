@@ -25,6 +25,7 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 
 		% OVERRIDDING THIS METHOD FROM A SUPERCLASS
 		function experimentMultiPanelFigure(obj, ind)
+			latex_fig(12, 14, 3)
             h = layout([1 2 3 4 5 6]);
             opts.pointEstimateType = obj.plotOptions.pointEstimateType;
             % create cell array
