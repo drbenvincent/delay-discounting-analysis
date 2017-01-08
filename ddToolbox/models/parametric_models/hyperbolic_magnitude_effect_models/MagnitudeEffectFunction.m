@@ -24,6 +24,8 @@ classdef MagnitudeEffectFunction < DeterministicFunction
 		end
         
         function plot(obj)
+            N_EXAMPLES_TO_PLOT = 100;
+            
 			x = logspace(0,3,100);
 			
 			% don't plot if we've been given NaN's
@@ -32,11 +34,9 @@ classdef MagnitudeEffectFunction < DeterministicFunction
 				return
 			end
 			
-			
 			% when plotting, we don't want to evaluate and plot ALL samples
 			% of the parameters. Instead we will randomly select some
-			
-            [k] = obj.eval(x, 'nExamples', 100);
+            [k] = obj.eval(x, 'nExamples', N_EXAMPLES_TO_PLOT);
             
 			try
 				plot(x, k, '-', 'Color',[0.5 0.5 0.5 0.1])
@@ -45,9 +45,6 @@ classdef MagnitudeEffectFunction < DeterministicFunction
 				plot(x, k, '-', 'Color',[0.5 0.5 0.5])
 			end
 			
-						
-			
-            
             set(gca,'XScale','log')
             set(gca,'YScale','log')
 			set(gca,'XTick',logspace(1,6,6))

@@ -34,6 +34,8 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
             
 			% a list of reward values we are interested in
 			rewards = [10, 100, 500]; % <----  TODO: inject this
+            % create colours for colour coding of conditional k plotStyle
+            col = linspace(0.1, 0.9, numel(rewards));
 
 
 			%% Plot 1: density plot of (alpha, epsilon)
@@ -83,13 +85,14 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			% Add horizontal lines to the
 			hold on
 			for n=1:numel(rewards)
-				vline(rewards(n));
+				vline(rewards(n), 'Color', [col(n) col(n) col(n)], 'LineWidth', 2);
 			end
 			subplot(h(5)) % -----------------------------------------------
 			%title('P(log(k) | reward)')
 			discountFunction.getLogDiscountRate(rewards, ind ,...
 				'plot', true,...
 				'plot_mode', 'conditional_only');
+                
 			% TODO: this checking needs to be implemented in a
 			% smoother, more robust way
 			if ~isempty(dfSamples) || ~any(isnan(dfSamples))

@@ -1,6 +1,6 @@
 classdef DF_HyperbolicMagnitudeEffect < DiscountFunction
-	%HyperbolicMagnitudeEffect The classic 1-parameter discount function, but 
-    % where log discount rate is a linear function of reward magnitude.
+	%HyperbolicMagnitudeEffect The classic 1-parameter discount function, but
+	% where log discount rate is a linear function of reward magnitude.
 	
 	
 	properties
@@ -15,7 +15,7 @@ classdef DF_HyperbolicMagnitudeEffect < DiscountFunction
 			obj.theta.m = Stochastic('m');
 			obj.theta.c = Stochastic('c');
 			
-            obj = obj.parse_for_samples_and_data(varargin{:});
+			obj = obj.parse_for_samples_and_data(varargin{:});
 		end
 		
 		
@@ -133,7 +133,7 @@ classdef DF_HyperbolicMagnitudeEffect < DiscountFunction
 				end
 			end
 		end
-        
+		
 		function plot_mag_effect(subplot_handle)
 			% PLOT MAGNITUDE EFFECT -----------------------------------
 			subplot(subplot_handle)
@@ -151,17 +151,6 @@ classdef DF_HyperbolicMagnitudeEffect < DiscountFunction
 	
 	
 	methods (Access = protected)
-		
-		function [k,logk] = magnitudeEffect(obj, reward)
-			error('who is calling me')  % TODO: ARE WE EVER CALLING THIS?
-			if verLessThan('matlab','9.1')
-				logk = bsxfun(@plus, bsxfun(@times, paramValues.m,log(reward)) , paramValues.c);
-			else
-				% use new array broadcasting in 2016b
-				logk = paramValues.m * log(reward) + paramValues.c;
-			end
-			k = exp(logk);
-		end
 		
 		function formatAxes(obj, pow)
 			box off
@@ -186,7 +175,7 @@ classdef DF_HyperbolicMagnitudeEffect < DiscountFunction
 		
 		function plot_conditional_logk(subplot_handles, logk, plot_mode)
 			hold on
-            for n = 1:numel(logk)
+			for n = 1:numel(logk)
 				subplot(subplot_handles(n))
 				logk(n).plot();
 				switch plot_mode
