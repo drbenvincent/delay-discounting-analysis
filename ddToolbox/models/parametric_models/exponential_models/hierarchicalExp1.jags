@@ -10,12 +10,11 @@ model{
 # DISCOUNT FUNCTION PARAMETERS =================================================
 # RANDOM (BY PARTICIPANT) FACTORS; HYPER-PRIORS = YES 
 
-K_MEAN      ~ dnorm(0.01, 1/(0.5^2))
-Ksigma      ~ dgamma(0.1, 0.1)
-K_PRECISION <- 1/((Ksigma+0.0001)^2)
+K_MEAN       ~ dnorm(0.01, 1/(0.5^2))
+K_PRECISION  ~ dgamma(0.001,0.001)
 
 for (p in 1:(nRealExperimentFiles+1)){      # +1 for unobserved participant
-	k[p] ~ dnorm(K_MEAN, K_PRECISION)
+	k[p]     ~ dnorm(K_MEAN, K_PRECISION)
 }
 
 # MODEL-SPECIFIC: CALCULATION OF PRESENT SUBJECTIVE VALUES
