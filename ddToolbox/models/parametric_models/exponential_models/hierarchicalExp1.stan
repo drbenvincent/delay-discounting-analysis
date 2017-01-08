@@ -52,7 +52,7 @@ transformed parameters {
 
 model {
   k_mu     ~ normal(0.01, 0.5);      // TODO: pick this in a more meaningul manner
-  k_sigma  ~ inv_gamma(0.1,0.1);     // TODO: pick this in a more meaningul manner
+  k_sigma  ~ inv_gamma(0.01,0.01);     // TODO: pick this in a more meaningul manner
   k        ~ normal(k_mu, k_sigma);
 
   alpha_mu    ~ uniform(0,100);
