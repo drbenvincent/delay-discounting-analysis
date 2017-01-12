@@ -19,7 +19,10 @@ classdef DF_HyperbolicMagnitudeEffect < DiscountFunction
 		end
 
 
-		function plot(obj, pointEstimateType, dataPlotType, timeUnits)
+		function plot(obj, pointEstimateType, dataPlotType, timeUnits, maxRewardValue, maxDelayValue)
+
+% 			maxRewardValue = 100;
+% 			maxDelayValue = 365;
 
 			timeUnitFunction = str2func(timeUnits);
 
@@ -39,17 +42,15 @@ classdef DF_HyperbolicMagnitudeEffect < DiscountFunction
 			m = mc(1);
 			c = mc(2);
 
-			maxlogB = 100;
-			maxD = 365;
 
 			%% x-axis = b
 			% *** TODO: DOCUMENT WHAT THIS DOES ***
 			nIndifferenceLines = 10;
-			pow=1; while maxlogB > 10^pow; pow=pow+1; end
+			pow=1; while maxRewardValue > 10^pow; pow=pow+1; end
 			logbvec=log(logspace(1, pow, nIndifferenceLines));
 
 			%% y-axis = d
-			dvec=linspace(0, maxD, 100);
+			dvec=linspace(0, maxDelayValue, 100);
 
 			%% z-axis (AB)
 			[logB,D] = meshgrid(logbvec,dvec); % create x,y (b,d) grid values

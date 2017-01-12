@@ -106,6 +106,32 @@ classdef Data
 		% PUBLIC GET METHODS ===================================================
         % ======================================================================
         
+		function maxRewardValue = getMaxRewardValue(obj, p)
+			if p <= numel(obj.experiment)
+				% asking about a particular experiment/participant
+				pTable = obj.experiment(p).getDataAsTable();
+				maxRewardValue = max(abs([pTable.A ;pTable.B]));
+			else
+				% probably asking or group level, where there is no data,
+				% so provide max over whole dataset
+				gTable = obj.groupTable;
+				maxRewardValue = max(abs([gTable.A ;gTable.B]));
+			end
+		end
+		
+		function maxDelayValue = getMaxDelayValue(obj, p)
+			if p <= numel(obj.experiment)
+				% asking about a particular experiment/participant
+				pTable = obj.experiment(p).getDataAsTable();
+				maxDelayValue = max(pTable.DB);
+			else
+				% probably asking or group level, where there is no data,
+				% so provide max over whole dataset
+				gTable = obj.groupTable;
+				maxDelayValue = max(gTable.DB);
+			end
+		end
+		
 		function out = getExperimentObject(obj, n)
 			if n > numel(obj.experiment)
 				out = [];

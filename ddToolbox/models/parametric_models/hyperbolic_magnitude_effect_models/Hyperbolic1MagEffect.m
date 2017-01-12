@@ -78,7 +78,8 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			% TODO #166 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			%% Set up magnitude effect function -----------------------
-			me = MagnitudeEffectFunction('samples', dfSamples);
+			me = MagnitudeEffectFunction('samples', dfSamples,...
+				'maxRewardValue', obj.data.getMaxRewardValue(ind));
 			% plot magnitude effect
 			subplot(h(4)) % -----------------------------------------------
 			me.plot();
@@ -99,7 +100,9 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 				subplot(h(6)) % -------------------------------------------
 				discountFunction.plot(obj.plotOptions.pointEstimateType,...
 					obj.plotOptions.dataPlotType,...
-					obj.timeUnits);
+					obj.timeUnits,...
+					obj.data.getMaxRewardValue(ind),...
+					obj.data.getMaxDelayValue(ind));
 			end
 			% TODO #166 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
