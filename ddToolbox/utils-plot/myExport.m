@@ -32,10 +32,10 @@ end
 
 	function doExport(save_path_no_extension, format)
 		set(gcf,'Color','w');
-		
+
 		% NOTE: Matlab seems to be incapable of exporting any figures with
 		% transparency as vector graphics and will default to .png
-		
+
 		% This error handling is a bit long-winded, but:
 		% - we don't want the program to halt just because of some error
 		% with the external function export_fig
@@ -56,7 +56,7 @@ end
 				rethrow(ME)
 			end
 		end
-		
+
 		function primary_figure_export_method(save_path_no_extension, format)
 			switch format
 				case{'png'}
@@ -76,14 +76,14 @@ end
 				otherwise
 					warning('requested export format not recognised.')
 			end
-			fprintf('Figure saved: %s (%s)\n\n', save_path_no_extension, format);
+			fprintf('Figure saved: %s (%s)\n', save_path_no_extension, format);
 		end
-		
+
 		function export_with_matlab_print_function(save_path_no_extension, format)
 			format_matlab_sting = ['-d' format];
 			print(save_path_no_extension, format_matlab_sting)
 		end
-				
+
 	end
 
 end

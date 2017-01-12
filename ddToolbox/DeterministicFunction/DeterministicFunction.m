@@ -131,11 +131,11 @@ classdef (Abstract) DeterministicFunction
 				else
 					% plot N samples from posterior
 					
-					% if not specified, use all samples to evaluate with
-					if isempty(p.Results.nExamples)
-						%plot all samples
-						obj.nSamples
-					end
+% 					% if not specified, use all samples to evaluate with
+% 					if isempty(p.Results.nExamples)
+% 						%plot all samples
+% 						obj.nSamples;
+% 					end
 					
 					% TODO: extract this into a "getShuffledValues" utility
 					% function.

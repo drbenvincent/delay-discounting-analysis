@@ -25,13 +25,13 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 
 		% OVERRIDDING THIS METHOD FROM A SUPERCLASS
 		function experimentMultiPanelFigure(obj, ind)
-			latex_fig(12, 14, 3)
+			latex_fig(12, 14, 3);
             h = layout([1 2 3 4 5 6]);
             opts.pointEstimateType = obj.plotOptions.pointEstimateType;
             % create cell array
             discountFunctionVariables = {obj.varList.discountFunctionParams.name};
             responseErrorVariables = {obj.varList.responseErrorParams.name};
-            
+
 			% a list of reward values we are interested in
 			rewards = [10, 100, 500]; % <----  TODO: inject this
             % create colours for colour coding of conditional k plotStyle
@@ -43,9 +43,9 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 				responseErrorVariables(1),...
 				responseErrorVariables(2),...
 				ind,...
-				opts)
-			
-				
+				opts);
+
+
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			% TODO #166 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			%%  Set up psychometric function
@@ -53,7 +53,7 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			psycho = PsychometricFunction('samples', respErrSamples);
 			%% Plot the psychometric function ------------------------------
 			subplot(h(2))
-			psycho.plot(obj.plotOptions.pointEstimateType)
+			psycho.plot(obj.plotOptions.pointEstimateType);
 			%% Set up discount function
 			dfSamples = obj.coda.getSamplesAtIndex_asStruct(ind, discountFunctionVariables);
 			discountFunction = obj.dfClass('samples', dfSamples);
@@ -61,9 +61,9 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
             discountFunction.data = obj.data.getExperimentObject(ind);
 			% TODO #166 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			
-			
-			
+
+
+
 			% TODO: this checking needs to be implemented in a smoother, more robust way
 			if ~isempty(dfSamples) || ~any(isnan(dfSamples))
 				%% Bivariate density plot of discounting parameters
@@ -71,17 +71,17 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 					discountFunctionVariables(1),...
 					discountFunctionVariables(2),...
 					ind,...
-					opts)
+					opts);
 			end
-			
-			
+
+
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			% TODO #166 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			%% Set up magnitude effect function -----------------------
 			me = MagnitudeEffectFunction('samples', dfSamples);
 			% plot magnitude effect
 			subplot(h(4)) % -----------------------------------------------
-			me.plot()
+			me.plot();
 			% Add horizontal lines to the
 			hold on
 			for n=1:numel(rewards)
@@ -92,21 +92,21 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			discountFunction.getLogDiscountRate(rewards, ind ,...
 				'plot', true,...
 				'plot_mode', 'conditional_only');
-                
+
 			% TODO: this checking needs to be implemented in a
 			% smoother, more robust way
 			if ~isempty(dfSamples) || ~any(isnan(dfSamples))
 				subplot(h(6)) % -------------------------------------------
 				discountFunction.plot(obj.plotOptions.pointEstimateType,...
 					obj.plotOptions.dataPlotType,...
-					obj.timeUnits)
+					obj.timeUnits);
 			end
 			% TODO #166 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			
-			
+
+
 		end
-		
+
 	end
 
 
