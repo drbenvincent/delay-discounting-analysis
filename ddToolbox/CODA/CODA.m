@@ -36,10 +36,11 @@ classdef CODA
 			p.addRequired('variablesRequested',@iscellstr);
 			p.addRequired('IDname',@iscellstr);
 			p.addRequired('savePath',@ischar);
+			p.addRequired('pointEstimateType', @(x)any(strcmp(x,{'mean','median','mode'})));
 			p.addParameter('includeGroupEstimates',false, @islogical);
-			p.addParameter('pointEstimateType','mean', @(x)any(strcmp(x,{'mean','median','mode'})));
+			
 			p.addParameter('includeCI',false, @islogical);
-			p.parse(variablesRequested, rowNames, savePath,  varargin{:});
+			p.parse(variablesRequested, rowNames, savePath, pointEstimateType, varargin{:});
 
 			% TODO: act on includeCI preference. Ie get, or do not get CI's.
 
