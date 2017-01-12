@@ -133,7 +133,7 @@ classdef (Abstract) Parametric < Model
 				'data', obj.data.getExperimentObject(ind));
 			discountFunction.plot(obj.plotOptions.pointEstimateType,...
 				obj.plotOptions.dataPlotType,...
-				obj.timeUnits)
+				obj.timeUnits);
 			% TODO #166 avoid having to parse these args in here
 
 		end

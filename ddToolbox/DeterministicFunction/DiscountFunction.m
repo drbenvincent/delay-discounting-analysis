@@ -56,7 +56,7 @@ classdef (Abstract) DiscountFunction < DeterministicFunction
 			%% Overlay data
 			%TODO: fix this special-case check for group-level
 			if ~isempty(obj.data)
-				obj.data.plot(dataPlotType, timeUnits)
+				obj.data.plot(dataPlotType, timeUnits);
 			end
 			
 			drawnow
