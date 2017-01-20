@@ -10,16 +10,16 @@ This toolbox aims to be a complete solution for the analysis of experimental dat
 
 Key features:
 
-* Publication quality figures.
 * Bayesian estimates of discounting parameters, complete with credible intervals.
 * Parameters exported to a `.csv` file for analysis in [JASP](https://jasp-stats.org).
-* Interpretable results via the 1-parameter hyperbolic discount function.
 * Optionally use hierarchical inference to improve participant-level estimates.
-* Estimate either:
-  * Discount rates, log(k), from the 1-parameter hyperbolic model.
-  * the magnitude effect, how discount rates vary as a function of reward magnitude.
+* A variety of models are available:
+  * Exponential discounting.
+  * Hyperbolic discounting.
+  * Hyperbolic discounting + magnitude effect, where discount rates vary as a function of reward magnitude.
 * Explicit modelling of participant errors provides more robust parameter estimates of discounting parameters.
-* Posterior predictive checks help evaluate model goodness and data exclusion decisions.
+* Posterior predictive checks help evaluate model goodness and aid data exclusion decisions.
+* Publication quality figures.
 
 ## Documentation and help.
 Go to the [wiki Documentation](https://github.com/drbenvincent/delay-discounting-analysis/wiki) for full instructions.
@@ -30,7 +30,7 @@ But you could always email me or tweet me [@inferenceLab](https://twitter.com/in
 
 
 ## Installation and use
-Getting up and running is relatively easy, although Matlab can be a bit clunky in terms of package installation. See the [full installation instructions](https://github.com/drbenvincent/delay-discounting-analysis/wiki/Getting-Started) on the wiki.
+Getting up and running is relatively easy. See the [full installation instructions](https://github.com/drbenvincent/delay-discounting-analysis/wiki/Getting-Started) on the wiki.
 
 The commands use to get your analysis up and running are quite quick and easy. A [demo is provided](https://github.com/drbenvincent/delay-discounting-analysis/tree/master/demo) to show how to use the toolbox with your own data.
 
