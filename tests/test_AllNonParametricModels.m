@@ -25,10 +25,11 @@ classdef test_AllNonParametricModels < matlab.unittest.TestCase
 		function setupData(testCase)
 			% assuming this is running on my maching
 			addpath('~/git-local/delay-discounting-analysis/ddToolbox')
-			datapath = '~/git-local/delay-discounting-analysis/demo/datasets/non-parametric';
+			datapath = '~/git-local/delay-discounting-analysis/demo/datasets/non_parametric';
 			
 			% only analyse 2 people, for speed of running tests
-			filesToAnalyse={'CA-gain.txt', 'RG-loss.txt'};
+			filesToAnalyse = allFilesInFolder(datapath, 'txt');
+			filesToAnalyse = filesToAnalyse(1:3);
 			testCase.data = Data(datapath, 'files', filesToAnalyse);
 		end
 	end
