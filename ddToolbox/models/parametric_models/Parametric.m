@@ -61,7 +61,7 @@ classdef (Abstract) Parametric < Model
 			obj.plotAllExperimentFigures();
 			
 			% Corner plot of parameters
-			%arrayfun(@plotTriPlotWrapper, obj.pdata) % TODO: finish this #168
+            obj.plotAllTriPlots(obj.plotOptions, obj.modelFilename)
 			
 			% Posterior prediction plot
             obj.postPred.plot(obj.plotOptions, obj.modelFilename)
@@ -127,5 +127,43 @@ classdef (Abstract) Parametric < Model
 		end
 		
 	end
+    
+    methods (Access = private)
+    
+        function plotAllTriPlots(obj, plotOptions, modelFilename)
+            for p = 1:obj.data.getNExperimentFiles
+                figure(87), clf
+                
+%                 % Checks
+%                 % The variables we are being asked to plot are the fields of plotdata.samples.posterior
+%                 % We need to check and remove fields for which there are no samples (either
+%                 % empty, or NaN)
+%                 fields = fieldnames(plotdata.samples.posterior);
+%                 for n = 1:numel(fields)
+%                 	if any(isnan(plotdata.samples.posterior.(fields{n}))) || isempty(plotdata.samples.posterior.(fields{n}))
+%                 		plotdata.samples.posterior = rmfield( plotdata.samples.posterior,...
+%                 			fields{n});
+%                 	end
+% 				end
+
+				pVariableNames =  obj.varList.participantLevel;
+				posteriorSamples = obj.coda.getSamplesAtIndex_asMatrix(p, pVariableNames);
+				
+                mcmc.TriPlotSamples(posteriorSamples,...
+                	pVariableNames,...
+                	'pointEstimateType', plotOptions.pointEstimateType);
+
+                if plotOptions.shouldExportPlots
+					id = obj.data.getIDnames(p);
+                	myExport(plotOptions.savePath, 'triplot',...
+                		'prefix', id{:},...
+                		'suffix', modelFilename,...
+                        'formats', plotOptions.exportFormats);
+                end
+                
+            end
+        end
+        
+    end
 	
 end
