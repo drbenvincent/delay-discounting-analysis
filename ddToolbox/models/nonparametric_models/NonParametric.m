@@ -36,6 +36,8 @@ classdef (Abstract) NonParametric < Model
     methods (Access = public)
 
 		function plot(obj, varargin) % overriding from Model base class
+			close all
+			
 			% parse inputs
 			p = inputParser;
 			p.FunctionName = mfilename;
@@ -44,16 +46,9 @@ classdef (Abstract) NonParametric < Model
 
             obj.pdata = obj.packageUpDataForPlotting();
 
-			obj.shouldExportPlots = p.Results.shouldExportPlots;
-			for n=1:numel(obj.pdata)
-				obj.pdata(n).shouldExportPlots = p.Results.shouldExportPlots;
-			end
-
-			close all
-
 			% EXPERIMENT PLOT ==================================================
             obj.psychometric_plots();
-			obj.experimentPlot();
+			obj.plotAllExperimentFigures();
 			
             % POSTERIOR PREDICTION PLOTS =======================================
 			arrayfun(@figPosteriorPrediction, obj.pdata); % posterior prediction plot
@@ -68,65 +63,43 @@ classdef (Abstract) NonParametric < Model
 		end
         
         
-        function experimentPlot(obj)
+        function experimentMultiPanelFigure(obj, ind)
             
-            names = obj.data.getIDnames('all');
+            latex_fig(12, 14, 3)
+            h = layout([1 2 3 3]);
             
-            for ind = 1:numel(names)
-                fh = figure('Name', ['participant: ' names{ind}]);
-                latex_fig(12, 10, 3)
-
-                %%  Set up psychometric function
-                psycho = PsychometricFunction('samples', obj.coda.getSamplesAtIndex(ind,{'alpha','epsilon'}));
-                
-                %% plot bivariate distribution of alpha, epsilon
-                subplot(1,4,1)
-                samples = obj.coda.getSamplesAtIndex(ind,{'alpha','epsilon'});
-                mcmc.BivariateDistribution(...
-                    samples.epsilon(:),...
-                    samples.alpha(:),...
-                    'xLabel','error rate, $\epsilon$',...
-                    'ylabel','comparison accuity, $\alpha$',...
-                    'pointEstimateType',obj.pointEstimateType,...
-                    'plotStyle', 'hist',...
-                    'axisSquare', true);
-                
-%                 %% Plot the psychometric function
-%                 subplot(1,4,2)
-%                 psycho.plot(obj.pointEstimateType)
-                
-                                
-                %% Set up discount function
-				personInfo = obj.getExperimentData(ind);
-                discountFunction = DF_NonParametric('delays',personInfo.delays,...
-                    'theta', personInfo.dfSamples);
-				% add data:  TODO: streamline this on object creation ~~~~~
-				% NOTE: we don't have data for group-level
-				data_struct = obj.data.getExperimentData(ind);
-				data_object = DataFile(data_struct);
-				discountFunction.data = data_object;
-				% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-				
-                %% plot distribution of AUC
-                subplot(1,4,3)
-                discountFunction.AUC.plot();
-				xlim([0 2])
-                
-                %% plot discount function
-                subplot(1,4,4)
-                discountFunction.plot();
-                
-                drawnow
-                if obj.shouldExportPlots
-                    myExport(obj.plotOptions.savePath, 'expt',...
-                        'prefix', names{ind},...
-                        'suffix', obj.modelFilename,...
-                        'formats', obj.plotOptions.exportFormats);
-                end
-                
-                close(fh)
-            end
-		end
+            %%  Set up psychometric function
+            psycho = PsychometricFunction('samples', obj.coda.getSamplesAtIndex_asStruct(ind,{'alpha','epsilon'}));
+            
+            %% plot bivariate distribution of alpha, epsilon
+            subplot(h(1))
+            samples = obj.coda.getSamplesAtIndex_asStruct(ind,{'alpha','epsilon'});
+            mcmc.BivariateDistribution(...
+                samples.epsilon(:),...
+                samples.alpha(:),...
+                'xLabel','error rate, $\epsilon$',...
+                'ylabel','comparison accuity, $\alpha$',...
+                'pointEstimateType',obj.plotOptions.pointEstimateType,...
+                'plotStyle', 'hist',...
+                'axisSquare', true);
+    
+            %% Set up discount function
+            personInfo = obj.getExperimentData(ind);
+            discountFunction = DF_NonParametric('delays',personInfo.delays,...
+                'theta', personInfo.dfSamples);
+            % inject a DataFile object into the discount function
+            discountFunction.data = obj.data.getExperimentObject(ind);
+            
+            %% plot distribution of AUC
+            subplot(h(2))
+            discountFunction.AUC.plot();
+            xlim([0 2])
+            
+            %% plot discount function
+            subplot(h(3))
+            discountFunction.plot();
+            
+        end
 		
 		function psychometric_plots(obj)
             % TODO: plot data on these figures
@@ -134,25 +107,26 @@ classdef (Abstract) NonParametric < Model
 			names = obj.data.getIDnames('all');
 			for ind = 1:numel(names) % loop over files
 				fh = figure('Name', ['participant: ' names{ind}]);
-                latex_fig(12, 14, 3)
+                latex_fig(12,10, 8)
 				
 				personStruct = getExperimentData(obj, ind);
 				
-				for d = 1:numel(personStruct.delays)
+				% work out a good subplot arrangement
+				nSubplots = numel(personStruct.delays);
+				subplot_handles = create_subplots(nSubplots, 'square');
+				
+				% plot a set of psychometric functions, one for each delay tested
+				for d = 1:nSubplots
+					subplot(subplot_handles(d))
 					
-					subplot(1, numel(personStruct.delays), d)
-					
-					% plot a set of psychometric functions, one for each delay
-					% tested
-					
-					%
-					samples = obj.coda.getSamplesAtIndex(ind,{'alpha','epsilon'});
+					samples = obj.coda.getSamplesAtIndex_asStruct(ind,{'alpha','epsilon'});
 					samples.indifference  = personStruct.dfSamples(:,d);
 					psycho = DF_SLICE_PsychometricFunction('samples', samples);
 					psycho.plot();
 					title(['delay = ' num2str(personStruct.delays(d)) ])
 				end
-				if obj.shouldExportPlots
+				drawnow
+				if obj.plotOptions.shouldExportPlots
 					myExport(obj.plotOptions.savePath, 'expt_psychometric',...
 						'prefix', names{ind},...
 						'suffix', obj.modelFilename,...

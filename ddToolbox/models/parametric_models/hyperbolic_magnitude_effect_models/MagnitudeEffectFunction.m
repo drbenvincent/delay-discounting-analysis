@@ -1,6 +1,10 @@
 classdef MagnitudeEffectFunction < DeterministicFunction
 	%MagnitudeEffectFunction 
 	
+	properties (Access = private)
+		maxRewardValue
+	end
+	
 	methods (Access = public)
 		
 		function obj = MagnitudeEffectFunction(varargin)
@@ -13,18 +17,28 @@ classdef MagnitudeEffectFunction < DeterministicFunction
 			p = inputParser;
 			p.StructExpand = false;
 			p.addParameter('samples',struct(), @isstruct)
+			p.addParameter('maxRewardValue', 100, @isscalar)
 			p.parse(varargin{:});
 			
-			fieldnames = fields(p.Results.samples);
 			% Add any provided samples
+			fieldnames = fields(p.Results.samples);
 			for n = 1:numel(fieldnames)
 				obj.theta.(fieldnames{n}).addSamples( p.Results.samples.(fieldnames{n}) );
 			end
+			
+			% Add other inputs to object
+			obj.maxRewardValue = p.Results.maxRewardValue;
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		end
         
         function plot(obj)
-			x = logspace(0,3,100);
+            N_EXAMPLES_TO_PLOT = 100;
+            
+			% convert maxRewardValue to rounded up order of magnitude
+			upperOrderOfMagnitude = ceil(log10(obj.maxRewardValue));
+			
+			% +1 to add some padding/extrapolation around actual data
+			x = logspace(0, upperOrderOfMagnitude+1, 100);
 			
 			% don't plot if we've been given NaN's
 			if any(isnan(obj.theta.m.samples))
@@ -32,11 +46,9 @@ classdef MagnitudeEffectFunction < DeterministicFunction
 				return
 			end
 			
-			
 			% when plotting, we don't want to evaluate and plot ALL samples
 			% of the parameters. Instead we will randomly select some
-			
-            [k] = obj.eval(x, 'nExamples', 100);
+            [k] = obj.eval(x, 'nExamples', N_EXAMPLES_TO_PLOT);
             
 			try
 				plot(x, k, '-', 'Color',[0.5 0.5 0.5 0.1])
@@ -45,9 +57,6 @@ classdef MagnitudeEffectFunction < DeterministicFunction
 				plot(x, k, '-', 'Color',[0.5 0.5 0.5])
 			end
 			
-						
-			
-            
             set(gca,'XScale','log')
             set(gca,'YScale','log')
 			set(gca,'XTick',logspace(1,6,6))

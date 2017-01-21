@@ -1,3 +1,6 @@
+// RANDOM FACTORS:   k[p], epsilon[p], alpha[p]
+// HYPER-PRIORS ON:  epsilon[p], alpha[p]
+
 functions {
   real psychometric_function(real alpha, real epsilon, real VA, real VB){
     // returns probability of choosing B (delayed reward)
@@ -7,6 +10,7 @@ functions {
   vector df_exponential1(vector reward, vector k, vector delay){
     return reward .* exp(-k .* delay);
   }
+  
 }
 
 data {
@@ -55,7 +59,7 @@ model {
   epsilon      ~ beta(omega*(kappa-2)+1 , (1-omega)*(kappa-2)+1 );
 
   // no hierarchical inference for k
-  k            ~ normal(0.01, 0.1^2);  // TODO: pick this in a more meaningul manner
+  k            ~ normal(0.01, 0.5^2);
 
   R ~ bernoulli(P);
 }

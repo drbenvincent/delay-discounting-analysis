@@ -16,26 +16,37 @@
 # - epsilon
 # - Rstar: 
 
+
+
 model{
+
+groupALPHAmu <- 0           # TODO: NEEDS ATTENTION
+groupALPHAsigma <-0.01      # TODO: NEEDS ATTENTION
+
+epsilon_alpha <- 1+1
+epsilon_beta <- 1+100
 
 # priors
 for (p in participantIndexList){
-    epsilon[p]  ~ dbeta(1.1 , 10.9) T(,0.5)
-    alpha[p]    ~ dnorm(0, 1/0.1^2)  # <--------------- FIGURE OUT BEST PRIOR. Currently allowing alpha to go <0 because as a bodge fix for working with losses
+    epsilon[p]  ~ dbeta(epsilon_alpha , epsilon_beta ) T(,0.5)
+    alpha[p]    ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
 
     # PRIOR OVER DISCOUNT FRACTION
+    # prior over A/B should be centered on 1 if we are expecting discounting and anti-discounting, and can be truncates
+    # prior over A-B should be centered on 0 if we are expecting discounting and anti-discounting, and can be truncates
 	for (d in 1:length(uniqueDelays)) {
-        Rstar[p,d] ~ dnorm(0, 1/ 1^2) T(0,5)
+        Rstar[p,d] ~ dnorm(1, 1/ 1^2) T(0,)   
 	}
 }
 
-#  phi() cannot be vectorised
-
 for (t in 1:length(ID)) {
-
-	rewardratio[t] <- log(A[t]/B[t])
+	rewardratio[t] <- A[t]/B[t]
+    
+    # if we are dealing with negative rewards, we want alpha to flip to negative, in order to 'horizontally flip' the psychometric function
+    signflip[t] <- ifelse( B[t]>0, 1, -1 )
+    
 	df[t] <- Rstar[ID[t], delayLookUp[t]]
-	P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * (1 - phi( (rewardratio[t]-df[t]) / alpha[ID[t]] ) )
+	P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * (1 - phi( (rewardratio[t]-df[t]) / alpha[ID[t]]*signflip[t]  ))
 
 	R[t]         ~ dbern(P[t]) # likelihood of actual response
 	Rpostpred[t] ~ dbern(P[t]) # posterior predicted response

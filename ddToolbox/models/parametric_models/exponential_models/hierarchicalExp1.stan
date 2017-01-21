@@ -1,3 +1,6 @@
+// RANDOM FACTORS:   k[p], epsilon[p], alpha[p]
+// HYPER-PRIORS ON:  k[p], epsilon[p], alpha[p]
+
 functions {
   real psychometric_function(real alpha, real epsilon, real VA, real VB){
     // returns probability of choosing B (delayed reward)
@@ -48,8 +51,8 @@ transformed parameters {
 }
 
 model {
-  k_mu     ~ normal(0.01, 2.5);      // TODO: pick this in a more meaningul manner
-  k_sigma  ~ inv_gamma(0.1,0.1);     // TODO: pick this in a more meaningul manner
+  k_mu     ~ normal(0.01, 0.5);      // TODO: pick this in a more meaningul manner
+  k_sigma  ~ inv_gamma(0.01,0.01);     // TODO: pick this in a more meaningul manner
   k        ~ normal(k_mu, k_sigma);
 
   alpha_mu    ~ uniform(0,100);

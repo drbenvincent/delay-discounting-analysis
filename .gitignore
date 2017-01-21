@@ -89,3 +89,27 @@ ddToolbox/models/parametric_models/hyperbolic_magnitude_effect_models/separateME
 ddToolbox/models/parametric_models/hyperbolic_models/mixedLogK
 
 ddToolbox/models/parametric_models/hyperbolic_models/separateLogK
+
+ddToolbox/models/parametric_models/bens_new_model/hierarchicalExpPower
+
+ddToolbox/models/parametric_models/hyperbolic_models/separateLogK
+
+ddToolbox/models/parametric_models/hyperbolic_models/mixedLogK
+
+ddToolbox/models/parametric_models/hyperbolic_models/hierarchicalLogK
+
+ddToolbox/models/parametric_models/hyperbolic_magnitude_effect_models/separateME
+
+ddToolbox/models/parametric_models/hyperbolic_magnitude_effect_models/mixedME
+
+ddToolbox/models/parametric_models/hyperbolic_magnitude_effect_models/hierarchicalME
+
+ddToolbox/models/parametric_models/bens_new_model/separateExpPower
+
+ddToolbox/models/parametric_models/bens_new_model/mixedExpPower
+
+ddToolbox/models/parametric_models/hyperbolic_magnitude_effect_models/hierarchicalME
+
+ddToolbox/models/parametric_models/hyperbolic_models/separateLogK
+
+demo/datasets/non_parametric/groupLevelData/COMBINED_DATA.txt

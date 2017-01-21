@@ -1,46 +1,60 @@
-# This model DOES employ group-level prior knowledge in log(k), because using this prior knowledge makes sense. However, we do NOT make inferences over the group mean, and so:
-#   Participant-level epsilon, alpha will be 'shrunk' toward the prior
-#   Participant-level log(k) will NOT be 'shrunk' toward the sample mean
-#
-# This is useful because we DO want to use our prior knowledge to inform the log(k) estimates of each person individually, but we do NOT want our estimates to be shrunk toward the sample mean in some situations. For example, when we know we have a heterogeneous population.
+# RANDOM FACTORS:   logk[p], epsilon[p], alpha[p]
+# HYPER-PRIORS ON:  epsilon[p], alpha[p]
 
 model{
+
+# DISCOUNT FUNCTION PARAMETERS =================================================
+# RANDOM (BY PARTICIPANT) FACTORS; HYPER-PRIORS = NO 
 
 # mean half-life of 50 days from a sample from my lab, with a std of ~2.5. Note k = 1/halflife.
 groupLogKmu <- log(1/50)
 groupLogKsigma <- 2.5
 
+for (p in 1:nRealExperimentFiles){
+	logk[p]     ~ dnorm(groupLogKmu, 1/(groupLogKsigma^2))
+}
+
+
+# RESPONSE ERROR PARAMETERS ====================================================
 # comparison acuity (alpha)
 groupALPHAmu        ~ dnorm(0,1/(100^2)) T(0,) ## UPDATED SINCE PAPER
-groupALPHAsigma     ~ dunif(0,500) ## UPDATED SINCE PAPER
+groupALPHAsigma     ~ dexp(0.5) ## UPDATED SINCE PAPER
 
 # error rates (epsilon)
 groupW          ~ dbeta(1.1, 10.9)  # mode for lapse rate
 groupKminus2    ~ dgamma(0.5,0.5) # concentration parameter ## UPDATED SINCE PAPER
 groupK          <- groupKminus2+2
 
-for (p in 1:nRealExperimentFiles){
-	logk[p]     ~ dnorm(groupLogKmu, 1/(groupLogKsigma^2))
-}
+epsilon_alpha <- groupW*(groupK-2)+1
+epsilon_beta <- (1-groupW)*(groupK-2)+1
 
 for (p in 1:(nRealExperimentFiles+1)){ # +1 for unobserved participant
-	epsilon[p]  ~ dbeta(groupW*(groupK-2)+1 , (1-groupW)*(groupK-2)+1 ) T(,0.5)
+	epsilon[p]  ~ dbeta(epsilon_alpha , epsilon_beta ) T(,0.5)
 	alpha[p]    ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
 }
 
-#  neither phi() nor exp() can be vectorised
 
+# MODEL-SPECIFIC: CALCULATION OF PRESENT SUBJECTIVE VALUES
 for (t in 1:length(ID)) {
-	# calculate present subjective value for each reward
 	VA[t] <- A[t] / (1+(exp(logk[ID[t]])*DA[t]))
 	VB[t] <- B[t] / (1+(exp(logk[ID[t]])*DB[t]))
+}
 
-	# Psychometric function
+# MODEL IN-SPECIFIC CODE BELOW... SHOULD NOT CHANGE ACROSS MODELS ==============
+
+# Psychometric function
+for (t in 1:length(ID)) {
 	P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * phi( (VB[t]-VA[t]) / alpha[ID[t]] )
+}
 
-	# response likelihood
-	R[t]         ~ dbern(P[t]) # likelihood of actual response
-	Rpostpred[t] ~ dbern(P[t]) # posterior predicted response
+# response likelihood
+for (t in 1:length(ID)) {
+	R[t]  ~ dbern(P[t]) # likelihood of actual response
+}
+
+# POSTERIOR PREDICTION
+for (t in 1:length(ID)) {
+	Rpostpred[t] ~ dbern(P[t])
 }
 
 }

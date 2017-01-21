@@ -1,3 +1,6 @@
+// RANDOM FACTORS:   k[p], epsilon[p], alpha[p]
+// HYPER-PRIORS ON:  none
+
 functions {
   real psychometric_function(real alpha, real epsilon, real VA, real VB){
     // returns probability of choosing B (delayed reward)
@@ -41,7 +44,7 @@ transformed parameters {
 
 model {
   // no hierarchical inference for k, alpha, epsilon
-  k       ~ normal(0.01, 0.1^2);  // TODO: pick this in a more meaningul manner
+  k       ~ normal(0.01, 0.5^2);
   alpha   ~ exponential(0.01);
   epsilon ~ beta(1.1, 10.9);
   R       ~ bernoulli(P);

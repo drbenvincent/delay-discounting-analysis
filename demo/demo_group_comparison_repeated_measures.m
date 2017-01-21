@@ -51,8 +51,8 @@ warning('Code below this point is under active development')
 % Firstly, we will visualise participant-level changes
 n_participants = 10;
 for p=1:n_participants
-	person_group1_estimate = group1.coda.getSamplesAtIndex(p, {'logk'});
-	person_group2_estimate = group2.coda.getSamplesAtIndex(p, {'logk'});
+	person_group1_estimate = group1.coda.getSamplesAtIndex_asStruct(p, {'logk'});
+	person_group2_estimate = group2.coda.getSamplesAtIndex_asStruct(p, {'logk'});
 	differences(:,p) = person_group1_estimate.logk - person_group2_estimate.logk;
 end
 

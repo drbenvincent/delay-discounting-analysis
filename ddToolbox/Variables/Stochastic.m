@@ -112,9 +112,9 @@ classdef Stochastic < handle
 		function plot(obj)
 			switch obj.plot_options.plotStyle
 				case{'hist'}
-					obj.plotHist();
+					h = obj.plotHist();
 				case{'kde'}
-					obj.plotDensity();
+					h = obj.plotDensity();
 			end
 			obj.formatAxes();
 			obj.plotPointEstimate();
@@ -175,11 +175,11 @@ classdef Stochastic < handle
 			end
 		end
 		
-		function plotHist(obj)
+		function h = plotHist(obj)
 			hold on
 			%for n=1:obj.N
 			try
-				histogram(obj.samples(:),...
+				h = histogram(obj.samples(:),...
 					'Normalization','pdf',...
 					'EdgeColor','none',...
 					'FaceColor',obj.plot_options.col,...

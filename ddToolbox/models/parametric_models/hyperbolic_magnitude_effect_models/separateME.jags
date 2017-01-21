@@ -1,10 +1,14 @@
+# RANDOM FACTORS:   m[p], c[p], epsilon[p], alpha[p]
+# HYPER-PRIORS ON:  none
+
 model{
+
+# DISCOUNT FUNCTION PARAMETERS =================================================
+# RANDOM (BY PARTICIPANT) FACTORS; HYPER-PRIORS = NO 
 
 for (p in 1:nRealExperimentFiles){
 	m[p]       ~ dnorm(-0.243, 1/(100^2))  # dnorm(-0.243, 1/(0.072^2))
 	c[p]       ~ dnorm(0, 1/(1000^2))      # dnorm(0, 1/(1000^2))
-	alpha[p]   ~ dexp(0.01)
-	epsilon[p] ~ dbeta(1.1, 10.9) T(,0.5)
 }
 
 for (t in 1:length(ID)) {
@@ -15,12 +19,33 @@ for (t in 1:length(ID)) {
 	# calculate present subjective value for each reward
 	VA[t] <- A[t] / (1+(exp(lkA[t])*DA[t]))
 	VB[t] <- B[t] / (1+(exp(lkB[t])*DB[t]))
-
-	# Psychometric function
-	P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * phi( (VB[t]-VA[t]) / alpha[ID[t]] )
-
-	R[t]         ~ dbern(P[t]) # likelihood of actual response
-	Rpostpred[t] ~ dbern(P[t]) # posterior predicted response
 }
+
+# RESPONSE ERROR PARAMETERS ====================================================
+epsilon_alpha <- 1.1
+epsilon_beta <- 10.9
+for (p in 1:nRealExperimentFiles){
+	alpha[p]   ~ dexp(0.01)
+	epsilon[p] ~ dbeta(epsilon_alpha , epsilon_beta ) T(,0.5)
+}
+
+
+# MODEL IN-SPECIFIC CODE BELOW... SHOULD NOT CHANGE ACROSS MODELS ==============
+
+# Psychometric function
+for (t in 1:length(ID)) {
+	P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * phi( (VB[t]-VA[t]) / alpha[ID[t]] )
+}
+
+# response likelihood
+for (t in 1:length(ID)) {
+	R[t]  ~ dbern(P[t]) # likelihood of actual response
+}
+
+# POSTERIOR PREDICTION
+for (t in 1:length(ID)) {
+	Rpostpred[t] ~ dbern(P[t])
+}
+
 
 }

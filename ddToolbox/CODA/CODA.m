@@ -14,13 +14,6 @@ classdef CODA
 		variableNames % cell array of variables
 	end
 
-	%% Public methods
-	% NOTE TO SELF: These public methods need to be seen as interfaces to
-	% the outside world that are implementation-independent. So thought
-	% needs to be given to public methods.
-	%
-	% These public methods need to be covered by tests.
-
 	methods (Access = public)
 
         % TODO: be able to create just from samples.
@@ -29,11 +22,9 @@ classdef CODA
 		function obj = CODA(samples, stats) % constructor
 			assert(isstruct(samples))
 			assert(isstruct(stats))
-			
 			obj.samples = samples;
 			obj.stats = stats;
 			obj.variableNames = fieldnames(samples);
-			
 			% TODO: Check presence of my mcmc-utils code as the plotting relies upon it.
 		end
 
@@ -45,10 +36,11 @@ classdef CODA
 			p.addRequired('variablesRequested',@iscellstr);
 			p.addRequired('IDname',@iscellstr);
 			p.addRequired('savePath',@ischar);
+			p.addRequired('pointEstimateType', @(x)any(strcmp(x,{'mean','median','mode'})));
 			p.addParameter('includeGroupEstimates',false, @islogical);
-			p.addParameter('pointEstimateType','mean', @(x)any(strcmp(x,{'mean','median','mode'})));
+			
 			p.addParameter('includeCI',false, @islogical);
-			p.parse(variablesRequested, rowNames, savePath,  varargin{:});
+			p.parse(variablesRequested, rowNames, savePath, pointEstimateType, varargin{:});
 
 			% TODO: act on includeCI preference. Ie get, or do not get CI's.
 
@@ -57,8 +49,7 @@ classdef CODA
 				p.Results.includeCI,...
 				p.Results.pointEstimateType);
 
-			% TODO: FIX THIS FAFF TO DEAL WITH POSSIBLE VECTOR/MATRIX
-			% VARIABLES
+			% TODO: FIX THIS FAFF TO DEAL WITH POSSIBLE VECTOR/MATRIX VARIABLES
 			errorFlag = false;
 			tableEntries = NaN(numel(rowNames), numel(colHeaderNames));
 			for n = 1:numel(colHeaderNames)
@@ -96,12 +87,15 @@ classdef CODA
 			end
 		end
 
-		
+
+		% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		%% Plotting methods
-
+        % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        
+        
 		function trellisplots(obj, variablesToPlot)
+            % plot mcmc chains (left column) and density plots (right column)
 			assert(iscellstr(variablesToPlot))
-
 
 			for n = 1:numel(variablesToPlot) % TODO: REMOVE THIS LOOP BY A MAP ?
 
@@ -115,6 +109,8 @@ classdef CODA
 				[chains,Nsamples,rows] = size(mcmcsamples);
 				rhat_all = obj.getStats('Rhat', variablesToPlot{n});
 
+                % TODO #166 Unclear what this code is doing 
+                % TODO #166 Exact this into a method. Can we use layout() or create_subplots() ?
 				% create geometry
 				for row = 1:rows
 					% traceplot
@@ -149,29 +145,26 @@ classdef CODA
 
 
 		function traceplot(obj, targetAxisHandle, samples, paramString, rhat)
+            % Plot mcmc chains
+            
 			% TODO: make targetAxisHandle an optional input
 
 			assert(ischar(paramString))
 			assert(isscalar(rhat))
 			assert(ishandle(targetAxisHandle))
 			assert(size(samples,3)==1)
-
-			subplot(targetAxisHandle)
-
-			%% plot
-			h = plot(samples',...
-				'LineWidth',0.5);
-			box off
-
-			%% format
+			% plot
+            subplot(targetAxisHandle)
+			h = plot(samples', 'LineWidth',0.5);
+			% format
+            box off
 			ylabel(sprintf('$$ %s $$', paramString), 'Interpreter','latex')
-
-			%% Add Rhat string
 			if ~isempty(rhat), addRhatStringToFigure(targetAxisHandle, rhat), end
 		end
 
 
 		function densityplot(obj, targetAxisHandle, samples)
+			% TODO: MAKE targetAxisHandle OPTIONAL
 			
 			% TODO: check for presence of mcmc. package. If it's not
 			% present, then use normal plotting routines
@@ -180,15 +173,50 @@ classdef CODA
 			if ~isempty(targetAxisHandle)
 				subplot(targetAxisHandle)
 			end
-			% using my plot tools package
-			mcmc.UnivariateDistribution(samples',...
-				'plotStyle','hist',...
-				'plotHDI',false);
+			
+			
+% 			% using my plot tools package
+% 			mcmc.UnivariateDistribution(samples',...
+% 				'plotStyle','hist',...
+% 				'plotHDI',false);
+
+            univariateObject = Stochastic('name_here');
+            univariateObject.addSamples(samples);
+            univariateObject.plot;
+		end
+		
+		
+		function plot_univariate_distribution(obj, targetAxisHandle, x_var_name, ind, opts )
+			subplot(targetAxisHandle)
+			mcmc.UnivariateDistribution(...
+				obj.getSamplesAtIndex_asMatrix(ind, x_var_name),...
+				'xLabel', x_var_name{:},...
+				'pointEstimateType',opts.pointEstimateType,...
+				'plotStyle', 'hist',...
+				'axisSquare', true);
+		end
+		
+		function plot_bivariate_distribution(obj, targetAxisHandle, x_var_name, y_var_name, ind, opts )
+			subplot(targetAxisHandle)
+			mcmc.BivariateDistribution(...
+				obj.getSamplesAtIndex_asMatrix(ind, x_var_name),...
+				obj.getSamplesAtIndex_asMatrix(ind, y_var_name),...
+				'xLabel', x_var_name{:},...
+				'ylabel', y_var_name{:},...
+				'pointEstimateType',opts.pointEstimateType,...
+				'plotStyle', 'hist',...
+				'axisSquare', true);
 		end
 
 
-		%% Get methods
 
+
+        % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		%% Get methods
+        % TODO #103 rethink all these get methods.
+        % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        
 		function data = grabParamEstimates(obj, varNames, getCI, pointEstimateType)
 			assert(islogical(getCI))
 			data=[];
@@ -201,15 +229,14 @@ classdef CODA
 			end
 		end
 
-		function [samples] = getSamplesAtIndex(obj, index, fieldsToGet)
+		function [samples] = getSamplesAtIndex_asStruct(obj, index, fieldsToGet)
 			assert(iscellstr(fieldsToGet),'arguments needs to be a cell array of strings')
 			assert(isnumeric(index), 'argument needs to be numeric')
 			% get all the samples for a given value of the 3rd dimension of
 			% samples. Dimensions are:
 			% 1. mcmc chain number
 			% 2. mcmc sample number
-			% 3. index of variable, meaning depends upon context of the
-			% model
+			% 3. index of variable, meaning depends upon context of the model
 
 			[flatSamples] = obj.flattenChains(obj.samples, fieldsToGet);
 			for n = 1:numel(fieldsToGet)
@@ -221,16 +248,8 @@ classdef CODA
 			end
 		end
 		
-		function [samplesMatrix] = getSamplesFromExperimentAsMatrix(obj, experiment, fieldsToGet)
-			assert(iscellstr(fieldsToGet))
-			% TODO: This function is doing the same thing as getSamplesAtIndex() ???
-			for n = 1:numel(fieldsToGet)
-				try
-					samples.(fieldsToGet{n}) = vec(obj.samples.(fieldsToGet{n})(:,:,experiment));
-				catch
-					samples.(fieldsToGet{n}) = NaN;
-				end
-			end
+		function [samplesMatrix] = getSamplesAtIndex_asMatrix(obj, index, fieldsToGet)
+			samples = getSamplesAtIndex_asStruct(obj, index, fieldsToGet);
 			[samplesMatrix] = struct2Matrix(samples);
 		end
 
@@ -271,12 +290,8 @@ classdef CODA
 			% ind is a binary valued vector indicating the trials
 			% corresponding to a particular participant
 			assert(isvector(ind))
-
 			RpostPred = obj.samples.Rpostpred(:,:,ind);
 			participantRpostpredSamples = collapseFirstTwoColumnsOfMatrix(RpostPred);
-			%s = size(RpostPred);
-			%participantRpostpredSamples = reshape(RpostPred, s(1)*s(2), s(3));
-
 			% Calculate predicted response probability
 			predicted = sum(participantRpostpredSamples,1) ./ size(participantRpostpredSamples,1);
 		end
@@ -298,6 +313,7 @@ classdef CODA
 		end
 		
 	end
+
 
 	%% PRIVATE METHODS ====================================================
 	% Not to be covered by tests, unless it is useful during development.

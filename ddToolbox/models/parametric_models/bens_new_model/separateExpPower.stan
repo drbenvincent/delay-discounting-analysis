@@ -1,12 +1,13 @@
-functions {
+// RANDOM FACTORS:   k[p], tau[p], epsilon[p], alpha[p]
+// HYPER-PRIORS ON:  none
+
+functions {  
   real psychometric_function(real alpha, real epsilon, real VA, real VB){
     // returns probability of choosing B (delayed reward)
     return epsilon + (1-2*epsilon) * Phi( (VB-VA) / alpha);
   }
-
-  vector df_exp_power(vector reward, vector k, vector tau, vector delay){
-    //return reward .*( exp( -k .* (delay ^ tau) ) );
-    return reward .*( exp( -k .* matrix_pow(delay,tau) ) );
+  real df_exp_power(real reward, real delay, real k, real tau){
+    return reward *( exp( -k * (delay^tau) ) );
   }
 }
 
@@ -33,26 +34,26 @@ transformed parameters {
   vector[totalTrials] VB;
   vector[totalTrials] P;
 
-  VA = df_exp_power(A, k[ID], tau[ID], DA);
-  VB = df_exp_power(B, k[ID], tau[ID], DB);
-
   for (t in 1:totalTrials){
+    VA[t] = df_exp_power(A[t], DA[t], k[ID[t]], tau[ID[t]]);
+    VB[t] = df_exp_power(B[t], DB[t], k[ID[t]], tau[ID[t]]);
     P[t] = psychometric_function(alpha[ID[t]], epsilon[ID[t]], VA[t], VB[t]);
   }
 }
 
 model {
-  // no hierarchical inference for k, alpha, epsilon
-  k       ~ normal(0, 2);
-  tau     ~ normal(1, 1);
-  alpha   ~ exponential(0.01);
-  epsilon ~ beta(1.1, 10.9);
+  // no hierarchical inference for k, tau, alpha, epsilon
+  k       ~ normal(0, 0.01); # sigma = 0.1
+  tau     ~ exponential(0.01);
+  
+  alpha   ~ exponential(1);
+  epsilon ~ beta(1+1, 1+1000);
+  
   R       ~ bernoulli(P);
 }
 
 generated quantities {  // NO VECTORIZATION IN THIS BLOCK ?
   int <lower=0,upper=1> Rpostpred[totalTrials];
-
   for (t in 1:totalTrials){
     Rpostpred[t] = bernoulli_rng(P[t]);
   }

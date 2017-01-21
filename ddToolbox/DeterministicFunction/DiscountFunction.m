@@ -7,8 +7,8 @@ classdef (Abstract) DiscountFunction < DeterministicFunction
 	
 	methods (Access = public)
 		
-		function obj = DiscountFunction()
-			obj = obj@DeterministicFunction();
+		function obj = DiscountFunction(varargin)
+			obj = obj@DeterministicFunction(varargin{:});
 		end
 		
 		
@@ -54,14 +54,20 @@ classdef (Abstract) DiscountFunction < DeterministicFunction
 			axis square
 			
 			%% Overlay data
-			obj.data.plot(dataPlotType, timeUnits)
+			%TODO: fix this special-case check for group-level
+			if ~isempty(obj.data)
+				obj.data.plot(dataPlotType, timeUnits);
+			end
 			
 			drawnow
 		end
 		
 		function delayValues = determineDelayValues(obj)
-			maxDelayRange = max( obj.data.getDelayRange() )*1.2;
-			if isempty(maxDelayRange)
+			% TODO: remove this stupid special-case handling of group-level
+			% participant with no data
+			try
+				maxDelayRange = max( obj.data.getDelayRange() )*1.2;
+			catch
 				% default (happens when there is no data, ie group level
 				% observer).
 				maxDelayRange = 365;

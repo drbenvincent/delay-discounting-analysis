@@ -1,30 +1,62 @@
+# RANDOM FACTORS:   k[p], epsilon[p], alpha[p]
+# HYPER-PRIORS ON:  epsilon[p], alpha[p]
+
+# RANDOM (by participant) FACTORS APPEAR IN A LOOP OVER PARTICIPANTS
+# VARIABLES *WITH* GROUP SHRINKAGE HYPERPRIORS HAVE AN EXTRA (UNOBSERVED) PARTICIPANT
+
 model{
 
-# *** NOTE: Hyperpriors for k are guessed at for the moment. You might want to
-# choose these based on your particular circumstances. ***
 
-K_MEAN      <- 0.01
-K_PRECISION <- 1/(0.01^2)
+# DISCOUNT FUNCTION PARAMETERS =================================================
+# RANDOM (BY PARTICIPANT) FACTORS; HYPER-PRIORS = NO 
 
-for (p in 1:(nRealExperimentFiles)){
+K_MEAN          <- 0.01             # <---- currently guesstimating
+K_PRECISION     <- 1/(0.5^2)        # <---- currently guesstimating
+
+for (p in 1:nRealExperimentFiles){  # no +1 because no shrinkage hyperprior
 	k[p]        ~ dnorm(K_MEAN, K_PRECISION)
-    epsilon[p]  ~ dbeta(1.1 , 10.9) T(,0.5)
+}
+
+# MODEL-SPECIFIC: CALCULATION OF PRESENT SUBJECTIVE VALUES
+for (t in 1:length(ID)) {
+    VA[t] <- A[t] * (exp(-k[ID[t]]*DA[t]))
+    VB[t] <- B[t] * (exp(-k[ID[t]]*DB[t]))
+}
+
+
+# RESPONSE ERROR PARAMETERS ====================================================
+epsilon_alpha <- 1.1
+epsilon_beta <- 10.9
+
+for (p in 1:(nRealExperimentFiles)){     # no +1 because no shrinkage hyperprior
+    epsilon[p]  ~ dbeta(epsilon_alpha , epsilon_beta ) T(,0.5)
 	alpha[p]    ~ dexp(0.01)
 }
 
-#  neither phi() nor exp() can be vectorised
 
+
+
+
+
+
+
+
+
+# MODEL IN-SPECIFIC CODE BELOW... SHOULD NOT CHANGE ACROSS MODELS ==============
+
+# Psychometric function
 for (t in 1:length(ID)) {
-	# calculate present subjective value for each reward
-    VA[t] <- A[t] * (exp(-k[ID[t]]*DA[t]))
-	VB[t] <- B[t] * (exp(-k[ID[t]]*DB[t]))
-
-	# Psychometric function
 	P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * phi( (VB[t]-VA[t]) / alpha[ID[t]] )
+}
 
-	# response likelihood
-	R[t]         ~ dbern(P[t]) # likelihood of actual response
-	Rpostpred[t] ~ dbern(P[t]) # posterior predicted response
+# response likelihood
+for (t in 1:length(ID)) {
+	R[t]  ~ dbern(P[t])
+}
+
+# POSTERIOR PREDICTION
+for (t in 1:length(ID)) {
+	Rpostpred[t] ~ dbern(P[t])
 }
 
 }

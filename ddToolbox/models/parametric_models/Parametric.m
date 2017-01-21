@@ -13,28 +13,20 @@ classdef (Abstract) Parametric < Model
 		
 		function plot(obj, varargin)
 			
-			% parse inputs
 			p = inputParser;
 			p.FunctionName = mfilename;
 			p.addParameter('shouldExportPlots', true, @islogical);
-			%p.addParameter('exportFormats', {'pdf'}, @iscellstr);
 			p.parse(varargin{:});
 			
-			obj.pdata = obj.packageUpDataForPlotting();
+			%% Plot functions that use data from all participants =========
 			
-			for n=1:numel(obj.pdata)
-				obj.pdata(n).shouldExportPlots = p.Results.shouldExportPlots;
-			end
+			% #############################################################
+			% #############################################################
+			% TODO #166 THIS IS A LOT OF FAFF, JUST FOR UNIVARIATE SUMMARY PLOTS
 			
-			%% Plot functions that use data from all participants ==============
-			
-			% TODO --------------------------------------------------------
 			% gather cross-experiment data for univariate sta
-			alldata.shouldExportPlots = p.Results.shouldExportPlots;
-			alldata.shouldExportPlots	= obj.shouldExportPlots;
 			alldata.variables			= obj.varList.participantLevel;
 			alldata.filenames			= obj.data.getIDnames('all');
-			alldata.savePath			= obj.savePath;
 			alldata.modelFilename		= obj.modelFilename;
 			alldata.plotOptions 		= obj.plotOptions;
 			for v = alldata.variables
@@ -42,39 +34,102 @@ classdef (Abstract) Parametric < Model
 					[obj.coda.getStats('hdi_low',v{:}),... % TODO: ERROR - expecting a vector to be returned
 					obj.coda.getStats('hdi_high',v{:})]; % TODO: ERROR - expecting a vector to be returned
 				alldata.(v{:}).pointEstVal =...
-					obj.coda.getStats(obj.pointEstimateType, v{:});
+					obj.coda.getStats(obj.plotOptions.pointEstimateType, v{:});
 			end
 			% -------------------------------------------------------------
 			% TODO: Think about plotting this with GRAMM
-            % https://github.com/piermorel/gramm
-            figUnivariateSummary(alldata)
-            
+			% https://github.com/piermorel/gramm
+			figUnivariateSummary(alldata)
+			% #############################################################
+			% #############################################################
 			
-			% plot -------------------------------------------------------------
-			% TODO: pass in obj.alldata or obj.pdata rather than all these args
-			obj.plotFuncs.clusterPlotFunc(...
+			
+			% summary figure of core discounting parameters
+			clusterPlot(...
 				obj.coda,...
 				obj.data,...
 				[1 0 0],...
 				obj.modelFilename,...
-				obj.plotOptions)
+				obj.plotOptions,...
+				obj.varList.discountFunctionParams)
 			
 			
-			%% Plots, one per participant ======================================
-			obj.experimentPlot();
+			%% Plots, one per data file ===================================
 			
+			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			% TODO: #166 no need to package all this data up into pdata.
+            % #166 TriPlot should be a plot function of CODA
+            % #166 
+			obj.pdata = obj.packageUpDataForPlotting();
 			
-			% plot --------------------------------------------------------
+			for n=1:numel(obj.pdata)
+				obj.pdata(n).shouldExportPlots = p.Results.shouldExportPlots;
+			end
+			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			
+			obj.plotAllExperimentFigures();
+			
+			% Corner plot of parameters
 			arrayfun(@plotTriPlotWrapper, obj.pdata)
 			
-			% plot --------------------------------------------------------
+			% Posterior prediction plot
 			arrayfun(@figPosteriorPrediction, obj.pdata)
 		end
 		
-	end
-	
-	methods (Abstract)
-		experimentPlot(obj)
+		
+		function experimentMultiPanelFigure(obj, ind)
+			
+            latex_fig(12, 14, 3)
+			h = layout([1 2 3 4]);
+			opts.pointEstimateType	= obj.plotOptions.pointEstimateType;
+			opts.timeUnits			= obj.timeUnits;
+			opts.dataPlotType		= obj.plotOptions.dataPlotType;
+			
+			% create cell arrays of relevant variables
+			discountFunctionVariables = {obj.varList.discountFunctionParams.name};
+			responseErrorVariables    = {obj.varList.responseErrorParams.name};
+			
+			%% PLOT: density plot of (alpha, epsilon)
+			obj.coda.plot_bivariate_distribution(h(1),...
+				responseErrorVariables(1),...
+				responseErrorVariables(2),...
+				ind,...
+				opts)
+			
+			%% Plot the psychometric function ----------------------------------
+			subplot(h(2))
+			psycho = PsychometricFunction('samples', obj.coda.getSamplesAtIndex_asStruct(ind, responseErrorVariables));
+			psycho.plot(obj.plotOptions.pointEstimateType)
+			
+			%% Plot the discount function parameters ---------------------------
+			switch numel(discountFunctionVariables)
+				case{1}
+					obj.coda.plot_univariate_distribution(h(3),...
+						discountFunctionVariables(1),...
+						ind,...
+						opts)
+				case{2}
+					obj.coda.plot_bivariate_distribution(h(3),...
+						discountFunctionVariables(1),...
+						discountFunctionVariables(2),...
+						ind,...
+						opts)
+				otherwise
+					error('Currently only set up to plot univariate or bivariate distributions, ie discount functions 1 or 2 params.')
+			end
+			
+			%% Plot the discount function parameters ----------------------
+			subplot(h(4))
+			discountFunction = obj.dfClass(...
+				'samples', obj.coda.getSamplesAtIndex_asStruct(ind, discountFunctionVariables),...
+				'data', obj.data.getExperimentObject(ind));
+			discountFunction.plot(obj.plotOptions.pointEstimateType,...
+				obj.plotOptions.dataPlotType,...
+				obj.timeUnits);
+			% TODO #166 avoid having to parse these args in here
+
+		end
+		
 	end
 	
 end

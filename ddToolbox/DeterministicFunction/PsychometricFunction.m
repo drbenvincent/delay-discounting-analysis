@@ -4,14 +4,16 @@ classdef PsychometricFunction < DeterministicFunction
 	methods (Access = public)
 		
 		function obj = PsychometricFunction(varargin)
-			obj = obj@DeterministicFunction();
+			obj = obj@DeterministicFunction(varargin{:});
 			
-			% create Stochastic objects
 			obj.theta.alpha = Stochastic('alpha');
 			obj.theta.epsilon = Stochastic('epsilon');
 			
 			% Input parsing ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			% MUST HAPPEN *AFTER* WE HAVE CREATED obj.theta
+			% TODO: THIS CAN BE PUT INTO A METHOD IN THE SUPERCLASS (DeterministicFunction)
 			p = inputParser;
+			p.KeepUnmatched = true;
 			p.StructExpand = false;
 			p.addParameter('samples',struct(), @isstruct)
 			p.parse(varargin{:});

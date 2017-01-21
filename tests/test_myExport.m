@@ -6,7 +6,7 @@ classdef test_myExport < matlab.unittest.TestCase
 	end
 	
 	properties (TestParameter)
-		format = {'png'}
+		format = {'png', 'pdf', 'png', 'eps', 'ps', 'svg', 'fig'}
 	end
 	
 	
@@ -70,22 +70,33 @@ classdef test_myExport < matlab.unittest.TestCase
 			testCase.assertTrue( exist(fullfile(testCase.folder,'myprefix-tempFileName-mysuffix.png'),'file')==2 )
 		end
 		
-		function test_one_format(testCase, format)
+		function test_one_format(testCase)
+			format = 'png';
 			myExport(testCase.folder, 'tempFileName',...
 				'prefix', 'myprefix',...
 				'suffix', 'mysuffix',...
 				'formats', {format})
-			testCase.assertTrue( exist(fullfile(testCase.folder,'myprefix-tempFileName-mysuffix.png'),'file')==2 )
+			testCase.assertTrue( exist(fullfile(testCase.folder,['myprefix-tempFileName-mysuffix.' format]),'file')==2 )
 		end
         
-        function test_2_formats(testCase, format)
+        function test_2_formats(testCase)
+			format_list = {'png', 'pdf'};
             myExport(testCase.folder, 'tempFileName',...
                 'prefix', 'myprefix',...
                 'suffix', 'mysuffix',...
-                'formats', {'png','fig'})
-            testCase.assertTrue( exist(fullfile(testCase.folder,'myprefix-tempFileName-mysuffix.png'),'file')==2 )
-            testCase.assertTrue( exist(fullfile(testCase.folder,'myprefix-tempFileName-mysuffix.fig'),'file')==2 )
-        end
+                'formats', format_list)
+            testCase.assertTrue( exist(fullfile(testCase.folder, ['myprefix-tempFileName-mysuffix.' format_list{1}]),'file')==2 )
+			testCase.assertTrue( exist(fullfile(testCase.folder, ['myprefix-tempFileName-mysuffix.' format_list{2}]),'file')==2 )
+		end
+		
+		function test_error(testCase)
+			format = 'throw_error_please';
+			myExport(testCase.folder, 'tempFileName',...
+				'prefix', 'myprefix',...
+				'suffix', 'mysuffix',...
+				'formats', {format})
+			% no explicit test here yet, just catches error if it exists
+		end
 
 	end
 	

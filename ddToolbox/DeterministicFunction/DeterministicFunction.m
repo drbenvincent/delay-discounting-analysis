@@ -2,6 +2,7 @@ classdef (Abstract) DeterministicFunction
 	%DeterministicFunction A class to deal with deterministic functions with parameters that we have a distribution of samples over.
 	properties
 		theta % Stochastic objects (or object array)
+		% TODO: theta samples should be a Table !
 		
 		% This is Object to store data associated with the function. It
 		% must have a plot method
@@ -23,6 +24,26 @@ classdef (Abstract) DeterministicFunction
 			theta = struct([]);
 			obj.plot_options = obj.set_plot_options(varargin{:});
 		end
+        
+        function obj = parse_for_samples_and_data(obj, varargin)
+            % MUST HAPPEN *AFTER* WE HAVE CREATED obj.theta
+			% TODO: THIS CAN BE PUT INTO A METHOD IN THE SUPERCLASS (DeterministicFunction)
+			p = inputParser;
+			p.KeepUnmatched = true;
+			p.StructExpand = false;
+			p.addParameter('samples',struct(), @isstruct)
+			p.addParameter('data',[], @(x) isobject(x) | isempty(x) )
+			p.parse(varargin{:});
+			
+			% Add any provided samples
+			fieldnames = fields(p.Results.samples);
+			for n = 1:numel(fieldnames)
+				obj.theta.(fieldnames{n}).addSamples( p.Results.samples.(fieldnames{n}) );
+			end
+			
+            % Add data
+			obj.data = p.Results.data;
+        end
 		
 		function obj = addSamples(obj, paramName, samples)
 			obj.theta.(paramName).addSamples(samples);
@@ -35,6 +56,12 @@ classdef (Abstract) DeterministicFunction
 		end
 		
 		function obj = set.data(obj, dataObject)
+			
+			% deal with speecial case of group-level
+			if isempty(dataObject)
+				return
+			end
+			
 			% adding a data object
 			assert(isobject(dataObject), 'must provide an object as input')
 			
@@ -47,15 +74,30 @@ classdef (Abstract) DeterministicFunction
 			obj.data = dataObject;
 		end
 		
-		function plotParameters(obj)
+		function plotParameters(obj, pointEstimateType)
 			
 			fields = fieldnames(obj.theta);
-			N = numel(fields);
-			for n = 1:N
-				%subplot(1,N,n) % TODO: work out best way to plot multiple
-				%params
-				% call the plot function of the stochastic variable
-				obj.theta.(fields{n}).plot();
+			n_params = numel(fields);
+			
+			if n_params==1
+				% plot univariate distribution
+				obj.theta.(fields{:}).plot();
+			elseif n_params==2
+				% plot bivariate distribution
+				
+				varNames = fieldnames(obj.theta);
+				
+				% TODO: replace with new class
+				mcmc.BivariateDistribution(...
+					obj.theta.(varNames{1}).samples(:),...
+					obj.theta.(varNames{2}).samples(:),...
+					'xLabel', varNames{1},... % TODO: provide a proper label
+					'ylabel', varNames{2},... % TODO: provide a proper label
+					'pointEstimateType', pointEstimateType,...
+					'plotStyle', 'hist',...
+					'axisSquare', true);
+			else
+				error('not implemented plotting of >2 parameter dimensions')
 			end
 			
 		end
@@ -89,11 +131,11 @@ classdef (Abstract) DeterministicFunction
 				else
 					% plot N samples from posterior
 					
-					% if not specified, use all samples to evaluate with
-					if isempty(p.Results.nExamples)
-						%plot all samples
-						obj.nSamples
-					end
+% 					% if not specified, use all samples to evaluate with
+% 					if isempty(p.Results.nExamples)
+% 						%plot all samples
+% 						obj.nSamples;
+% 					end
 					
 					% TODO: extract this into a "getShuffledValues" utility
 					% function.
@@ -101,15 +143,11 @@ classdef (Abstract) DeterministicFunction
 					n_samples_requested = p.Results.nExamples;
 					n_samples_got = obj.nSamples;
 					n_samples_to_get = min([n_samples_requested n_samples_got]);
-					if ~isempty(n_samples_requested)
-						% shuffle the deck and pick the top nExamples
-						shuffledExamples = randperm(n_samples_to_get);
-						ExamplesToPlot = shuffledExamples([1:n_samples_to_get]);
-					else
-						ExamplesToPlot = 1:n_samples_to_get;
-					end
-					
-					
+
+					% shuffle the deck and pick the top nExamples
+					shuffledExamples = randperm(n_samples_got);
+					ExamplesToPlot = shuffledExamples([1:n_samples_to_get]);
+
 					thetaStruct = struct();
 					for field = fields(obj.theta)'
 						thetaStruct.(field{:}) = obj.theta.(field{:}).samples(ExamplesToPlot);
@@ -146,8 +184,9 @@ classdef (Abstract) DeterministicFunction
 	
 	methods (Access = protected)
 		
-		function plot_options = set_plot_options(obj, varargin )
+		function plot_options = set_plot_options(obj, varargin)
 			p = inputParser;
+			p.KeepUnmatched = true;
 			p.addParameter('plotStyle','hist',@(x)any(strcmp(x,{'hist','kde'})))
 			p.addParameter('shouldPlot',true,@islogical);
 			%p.addParameter('killYAxis',true,@islogical);
