@@ -204,44 +204,6 @@ classdef (Abstract) Model
 			obj.data = obj.data.add_unobserved_participant(str);	% add name (eg 'GROUP')
 		end
 
-		function [pdata] = packageUpDataForPlotting(obj)
-
-            % #166
-			% TODO: This is currently an intermediate step on the journey of code simplification. Really, what we should do is just directly go to participant / group / condition objects, which have their own data and plot methods.
-
-			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			% Package up all information into data structures to be sent
-			% off to plotting functions.
-			% The idea being we can just pass pdata(n) to a plot function
-			% and it has all the information it needs
-			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			nRealExperiments = obj.data.getNExperimentFiles();
-			nExperimentsIncludingUnobserved = numel(obj.data.getIDnames('all')); % TODO: replace with different get method
-
-			pdata(1:nExperimentsIncludingUnobserved) = struct; % preallocation
-			for p = 1:nExperimentsIncludingUnobserved
-				% constant for all participants
-				pdata(p).data.totalTrials	= obj.data.totalTrials;
-				%pdata(p).pointEstimateType	= obj.plotOptions.pointEstimateType;
-				pdata(p).discountFuncType	= obj.discountFuncType;
-				pdata(p).plotOptions		= obj.plotOptions;
-				pdata(p).modelFilename		= obj.modelFilename;
-
-				% custom for each participant
-				pdata(p).IDname							= obj.data.getIDnames(p);
-				pdata(p).data.trialsForThisParticant	= obj.data.getTrialsForThisParticant(p);
-				pdata(p).data.rawdata					= obj.data.getRawDataTableForParticipant(p);
-				% gather posterior prediction info
-				try
-					pdata(p).postPred					= obj.postPred.postPred(p); % TODO:
-				catch
-					pdata(p).postPred					= [];
-				end
-				pdata(p).samples.posterior	= obj.coda.getSamplesAtIndex_asStruct(p, obj.varList.participantLevel);
-			end
-
-		end
-
         function plotAllExperimentFigures(obj)
             % this is a wrapper function to loop over all data files, producing multi-panel figures. This is implemented by the experimentMultiPanelFigure method, which may be overridden by subclasses if need be.
             names = obj.data.getIDnames('all');

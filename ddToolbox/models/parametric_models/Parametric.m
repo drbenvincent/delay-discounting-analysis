@@ -57,26 +57,14 @@ classdef (Abstract) Parametric < Model
 				obj.varList.discountFunctionParams)
 			
 			
-			%% Plots, one per data file ===================================
-			
-			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			% TODO: #166 no need to package all this data up into pdata.
-            % #166 TriPlot should be a plot function of CODA
-            % #166 
-			obj.pdata = obj.packageUpDataForPlotting();
-			
-			for n=1:numel(obj.pdata)
-				obj.pdata(n).shouldExportPlots = p.Results.shouldExportPlots;
-			end
-			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			
+			%% Plots, one per data file ===================================		
 			obj.plotAllExperimentFigures();
 			
 			% Corner plot of parameters
-			arrayfun(@plotTriPlotWrapper, obj.pdata)
+			%arrayfun(@plotTriPlotWrapper, obj.pdata) % TODO: finish this #168
 			
 			% Posterior prediction plot
-			arrayfun(@figPosteriorPrediction, obj.pdata)
+            obj.postPred.plot(obj.plotOptions, obj.modelFilename)
 		end
 		
 		
