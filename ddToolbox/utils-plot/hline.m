@@ -1,34 +1,35 @@
-function h = hline(y_val, varargin)
+function handle = hline(y_val, varargin)
 % Benjamin T. Vincent
 
-h.fig		= gcf;
-h.axis		= get(gcf,'CurrentAxes');
+handle.fig		= gcf;
+handle.axis		= get(gcf,'CurrentAxes');
 
 %% Draw the line
-h.line = line(get(h.axis,'Xlim'), [y_val y_val]);
+handle.line = line(get(handle.axis,'Xlim'), [y_val y_val]);
 
 %% Create callbacks
-h.pan = pan(h.fig);
-h.pan.ActionPostCallback = @callback_adjust_hline;
+handle.pan = pan(handle.fig);
+handle.pan.ActionPostCallback = @callback_adjust_hline;
 
-h.zoom = zoom(h.fig);
-h.zoom.ActionPostCallback = @callback_adjust_hline;
+handle.zoom = zoom(handle.fig);
+handle.zoom.ActionPostCallback = @callback_adjust_hline;
 
 %% Formatting
-set(h.line, 'Color','r');
-set(h.line, 'LineStyle','-');
-set(h.line, 'LineWidth',0.5);
+set(handle.line, 'Color','r');
+set(handle.line, 'LineStyle','-');
+set(handle.line, 'LineWidth',0.5);
 
 % Apply formatting provided
-set(h.line, varargin{:});
+% NOTE: must store returned value to avoid its display to command window.
+[~] = set(handle.line, varargin{:});
 
 % send the line to the back
-uistack(h.line, 'bottom');
+uistack(handle.line, 'bottom');
 
 %% Callback
 
 	function callback_adjust_hline(obj, event_obj)
-		h.line.XData = event_obj.Axes.XLim;
+		handle.line.XData = event_obj.Axes.XLim;
 	end
 
 end
