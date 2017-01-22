@@ -105,19 +105,23 @@ classdef (Abstract) NonParametric < Model
 		
 		function plot_discount_functions_in_grid(obj)
 			latex_fig(12, 11,11)
-			clf
+			
 			% TODO: extract the grid formatting stuff to be able to call
 			% any plot function we want
 			% USE: apply_plot_function_to_subplot_handle.m ??
 			
 			%fh = figure('Name', names{experimentIndex});
 			names = obj.data.getIDnames('all');
+			
+			clf, drawnow
+			
 			% create grid layout
 			N = numel(names);
 			subplot_handles = create_subplots(N, 'square');
 			
 			% Iterate over files, plotting
 			disp('Plotting...')
+			
 			for n = 1:numel(names)
 				subplot(subplot_handles(n))
 				% ~~~~~~~~~~~~~~~~~~
@@ -162,11 +166,22 @@ classdef (Abstract) NonParametric < Model
 				% plot a set of psychometric functions, one for each delay tested
 				for d = 1:nSubplots
 					subplot(subplot_handles(d))
-					
+					%% plot the psychometric function ~~~~~~~~~~~~~~~~~~~~~
 					samples = obj.coda.getSamplesAtIndex_asStruct(ind,{'alpha','epsilon'});
 					samples.indifference  = personStruct.dfSamples(:,d);
 					psycho = DF_SLICE_PsychometricFunction('samples', samples);
 					psycho.plot();
+					%% plot response data TODO: move this to Data ~~~~~~~~~
+					hold on
+					%pTable = obj.data.getRawDataTableForParticipant(ind);
+					AoverB = personStruct.data.A ./ personStruct.data.B;
+					R = personStruct.data.R;
+					% grab just for this delay
+					getThese = personStruct.data.DB==personStruct.delays(d);
+					AoverB = AoverB(getThese);
+					R = R(getThese);
+					plot(AoverB, R, 'k+')
+					%% format
 					title(['delay = ' num2str(personStruct.delays(d)) ])
 				end
 				drawnow
