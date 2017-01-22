@@ -63,8 +63,8 @@ classdef DF_NonParametric < DiscountFunction
             hold on
 			
 			%% Plot data
-			dataPlotType = '2D'  %<----------- TODO: inject this
-			obj.data.plot(dataPlotType, obj.timeUnits)
+			dataPlotType = '2D';  %<----------- TODO: inject this
+			obj.data.plot(dataPlotType, obj.timeUnits);
 			% ~~~~~~~~~~~~~
             
             %% formatting

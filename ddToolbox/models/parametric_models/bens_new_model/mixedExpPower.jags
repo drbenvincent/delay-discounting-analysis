@@ -30,8 +30,9 @@ for (t in 1:length(ID)) {
 # RESPONSE ERROR PARAMETERS ====================================================
 
 # comparison acuity (alpha) hyperprior
-alpha_mu        ~ dnorm(0,1/(100^2)) T(0,)
-alpha_precision ~ dgamma(0.001,0.001)
+# NOTE: because we have 2 discounting parameters, I've found that more restrictive priors need to be placed on the error parameters
+alpha_mu        ~ dnorm(0,1/(10^2)) T(0,)
+alpha_precision ~ dgamma(0.01,0.01)
 
 # error rates (epsilon) hyperprior
 groupW          ~ dbeta(1.1, 10.9)  # mode for lapse rate

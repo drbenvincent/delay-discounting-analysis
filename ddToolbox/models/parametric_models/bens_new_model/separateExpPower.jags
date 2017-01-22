@@ -15,7 +15,7 @@ K_PRECISION     <- 1/(0.1^2)     #sigma=0.1         # <---- currently guesstimat
 
 for (p in 1:nRealExperimentFiles){       # no +1 because no shrinkage hyperprior
 	k[p]        ~ dnorm(K_MEAN, K_PRECISION)
-    tau[p]      ~ dexp(0.1)
+    tau[p]      ~ dexp(1)
 }
 
 # MODEL-SPECIFIC: CALCULATION OF PRESENT SUBJECTIVE VALUES
@@ -26,12 +26,12 @@ for (t in 1:length(ID)) {
 
 
 # RESPONSE ERROR PARAMETERS ====================================================
-epsilon_alpha <- 1.1
-epsilon_beta <- 10.9
+epsilon_alpha <- 1+1
+epsilon_beta <- 1+100
 
 for (p in 1:(nRealExperimentFiles)){     # no +1 because no shrinkage hyperprior
     epsilon[p]  ~ dbeta(epsilon_alpha , epsilon_beta ) T(,0.5)
-	alpha[p]    ~ dexp(0.01)
+	alpha[p]    ~ dexp(0.25)
 }
 
 

@@ -1,36 +1,35 @@
-function h = vline(x_val, varargin)
+function handle = vline(x_val, varargin)
 % Benjamin T. Vincent
 
-h.fig		= gcf;
-h.axis		= get(gcf,'CurrentAxes');
+handle.fig		= gcf;
+handle.axis		= get(gcf,'CurrentAxes');
 
 %% Draw the line
-h.line = line([x_val x_val], get(h.axis,'Ylim'));
+handle.line = line([x_val x_val], get(handle.axis,'Ylim'));
 
 %% Create callbacks
-h.pan = pan(h.fig);
-h.pan.ActionPostCallback = @callback_adjust_hline;
+handle.pan = pan(handle.fig);
+handle.pan.ActionPostCallback = @callback_adjust_vline;
 
-h.zoom = zoom(h.fig);
-h.zoom.ActionPostCallback = @callback_adjust_hline;
+handle.zoom = zoom(handle.fig);
+handle.zoom.ActionPostCallback = @callback_adjust_vline;
 
 %% Formatting
-set(h.line, 'Color','r');
-set(h.line, 'LineStyle','-');
-set(h.line, 'LineWidth',0.5);
+set(handle.line, 'Color','r');
+set(handle.line, 'LineStyle','-');
+set(handle.line, 'LineWidth',0.5);
 
 % Apply formatting provided
-% NOTE: must store returned output, otherwise it's outputted to the command
-% window.
-temp = set(h.line, varargin{:});
+% NOTE: must store returned value to avoid its display to command window.
+[~] = set(handle.line, varargin{:});
 
 % send the line to the back
-uistack(h.line, 'bottom');
+uistack(handle.line, 'bottom');
 
 %% Callback
 
-	function callback_adjust_hline(obj, event_obj)
-		h.line.YData = event_obj.Axes.YLim;
+	function callback_adjust_vline(obj, event_obj)
+		handle.line.YData = event_obj.Axes.YLim;
 	end
 
 end

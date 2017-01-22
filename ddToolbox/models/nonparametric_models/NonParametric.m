@@ -44,6 +44,8 @@ classdef (Abstract) NonParametric < Model
 			p.addParameter('shouldExportPlots', true, @islogical);
 			p.parse(varargin{:});
 
+			obj.plot_discount_functions_in_grid();
+			
 			% EXPERIMENT PLOT ==================================================
             obj.psychometric_plots();
 			obj.plotAllExperimentFigures();
@@ -51,6 +53,7 @@ classdef (Abstract) NonParametric < Model
             % Posterior prediction plot
             obj.postPred.plot(obj.plotOptions, obj.modelFilename)
 			
+
 			%% TODO...
             % FOREST PLOT OF AUC VALUES ========================================
             % TODO: Think about plotting this with GRAMM
@@ -97,7 +100,50 @@ classdef (Abstract) NonParametric < Model
             subplot(h(3))
             discountFunction.plot();
             
-        end
+		end
+		
+		
+		function plot_discount_functions_in_grid(obj)
+			latex_fig(12, 11,11)
+			clf
+			% TODO: extract the grid formatting stuff to be able to call
+			% any plot function we want
+			% USE: apply_plot_function_to_subplot_handle.m ??
+			
+			%fh = figure('Name', names{experimentIndex});
+			names = obj.data.getIDnames('all');
+			% create grid layout
+			N = numel(names);
+			subplot_handles = create_subplots(N, 'square');
+			
+			% Iterate over files, plotting
+			disp('Plotting...')
+			for n = 1:numel(names)
+				subplot(subplot_handles(n))
+				% ~~~~~~~~~~~~~~~~~~
+				plot_df(n)
+				% ~~~~~~~~~~~~~~~~~~
+			end
+			drawnow
+			
+			if obj.plotOptions.shouldExportPlots
+				myExport(obj.plotOptions.savePath, 'grid_discount_functions',...
+					'suffix', obj.modelFilename,...
+					'formats', obj.plotOptions.exportFormats);
+			end
+			
+			function plot_df(ind)
+				% Set up discount function
+				personInfo = obj.getExperimentData(ind);
+				discountFunction = DF_NonParametric('delays',personInfo.delays,...
+					'theta', personInfo.dfSamples);
+				discountFunction.data = obj.data.getExperimentObject(ind);
+				
+				discountFunction.plot();
+			end
+			
+		end
+		
 		
 		function psychometric_plots(obj)
             % TODO: plot data on these figures

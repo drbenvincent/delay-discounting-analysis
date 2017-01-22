@@ -64,7 +64,7 @@ function [model] = run_me()
 %
 % You can get access to samples using code such as the following. They will
 % be returned into a structure:
-% >> samples = model.mcmc.getSamples({'m','c','alpha','epsilon'});
+% >> samples = model.coda.getSamples({'m','c','alpha','epsilon'});
 %
 %
 % You can do many things with the samples. By way of example, you could
@@ -95,7 +95,8 @@ path_of_this_mfile = strrep(which(mfilename),[mfilename '.m'],'');
 toolbox_path = fullfile(path_of_this_mfile,'..','ddToolbox');
 datapath = fullfile(path_of_this_mfile,'datasets','kirby');
 % WITH THIS (update the paths as appropriate) ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-% addpath('~/git-local/delay-discounting-analysis/ddToolbox')
+% toolbox_path = '~/git-local/delay-discounting-analysis/ddToolbox'
+% addpath(toolbox_path)
 % datapath = '~/git-local/delay-discounting-analysis/demo/datasets/kirby';
 % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -111,7 +112,7 @@ model = ModelHierarchicalME(...
 	'sampler', 'jags',...
 	'shouldPlot', 'yes',...
 	'shouldExportPlots', true,...
-	'exportFormats', {'pdf'},...
+	'exportFormats', {'png'},...
 	'mcmcParams', struct('nsamples', 10000,...
 						 'nchains', 4,...
 	 					 'nburnin', 1000));

@@ -111,3 +111,5 @@ ddToolbox/models/parametric_models/bens_new_model/mixedExpPower
 ddToolbox/models/parametric_models/hyperbolic_magnitude_effect_models/hierarchicalME
 
 ddToolbox/models/parametric_models/hyperbolic_models/separateLogK
+
+demo/datasets/non_parametric/groupLevelData/COMBINED_DATA.txt

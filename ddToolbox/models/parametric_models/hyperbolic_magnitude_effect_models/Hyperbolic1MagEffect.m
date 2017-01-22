@@ -110,6 +110,18 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 
 		end
 
+        % MIDDLE-MAN METHOD
+        function logk = getLogDiscountRate(obj, reward, index, varargin)
+            %% Set up discount function
+			discountFunctionVariables = {obj.varList.discountFunctionParams.name};
+			dfSamples = obj.coda.getSamplesAtIndex_asStruct(index, discountFunctionVariables);
+			discountFunction = obj.dfClass('samples', dfSamples);
+%             % inject a DataFile object into the discount function
+%             discountFunction.data = obj.data.getExperimentObject(index);
+            
+            %% Do the actual call
+            logk = discountFunction.getLogDiscountRate(reward, index, varargin{:});
+        end
 	end
 
 

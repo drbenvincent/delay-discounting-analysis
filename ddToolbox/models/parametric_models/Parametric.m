@@ -25,11 +25,8 @@ classdef (Abstract) Parametric < Model
 			% TODO #166 THIS IS A LOT OF FAFF, JUST FOR UNIVARIATE SUMMARY PLOTS
 			
 			% gather cross-experiment data for univariate sta
-			%alldata.shouldExportPlots = p.Results.shouldExportPlots;
-			%alldata.shouldExportPlots	= obj.plotOptions.shouldExportPlots;
 			alldata.variables			= obj.varList.participantLevel;
 			alldata.filenames			= obj.data.getIDnames('all');
-			%alldata.savePath			= obj.plotOptions.savePath;
 			alldata.modelFilename		= obj.modelFilename;
 			alldata.plotOptions 		= obj.plotOptions;
 			for v = alldata.variables
@@ -91,11 +88,6 @@ classdef (Abstract) Parametric < Model
 			subplot(h(2))
 			psycho = PsychometricFunction('samples', obj.coda.getSamplesAtIndex_asStruct(ind, responseErrorVariables));
 			psycho.plot(obj.plotOptions.pointEstimateType)
-			
-% 			% DON'T PLOT THE SUBFIGURES BELOW IF...
-% 			if isempty(dfSamples) %|| any(isnan(dfSamples))
-% 				return
-% 			end
 			
 			%% Plot the discount function parameters ---------------------------
 			switch numel(discountFunctionVariables)
