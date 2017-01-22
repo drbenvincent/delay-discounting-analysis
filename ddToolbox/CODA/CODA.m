@@ -250,6 +250,16 @@ classdef CODA
 		
 		function [samplesMatrix] = getSamplesAtIndex_asMatrix(obj, index, fieldsToGet)
 			samples = getSamplesAtIndex_asStruct(obj, index, fieldsToGet);
+			
+% 			% Checks
+% 			% We need to check and remove fields for which there are no samples (either empty, or NaN)
+% 			fields = fieldnames(samples);
+% 			for n = 1:numel(fields)
+% 				if any(isnan(samples.(fields{n}))) || isempty(samples.(fields{n}))
+% 					samples = rmfield(samples, fields{n});
+% 				end
+% 			end
+
 			[samplesMatrix] = struct2Matrix(samples);
 		end
 

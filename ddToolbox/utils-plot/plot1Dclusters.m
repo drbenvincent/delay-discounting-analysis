@@ -19,7 +19,10 @@ figure(12), clf
 %% REAL EXPERIMENT DATA
 % build samples
 for p = 1:data.getNExperimentFiles()
-	samples(:,p) = mcmcContainer.getSamplesAtIndex_asMatrix(p, {varInfo.name});
+	temp = mcmcContainer.getSamplesAtIndex_asMatrix(p, {varInfo.name});
+	if ~isempty(temp)
+		samples(:,p) = temp;
+	end
 end
 
 uniG1 = mcmc.UnivariateDistribution(samples(:,[1:data.getNRealExperimentFiles()]),...
@@ -33,14 +36,16 @@ axis tight
 participantAxisBounds = axis;
 
 %% GROUP LEVEL (UNOBSERVED PARTICIPANT)
-groupSamples = samples(:,data.getNExperimentFiles());
-
-if data.isUnobservedPartipantPresent() && ~any(isnan(groupSamples))
-	mcmc.UnivariateDistribution(groupSamples,...
-		'xLabel', varInfo.label,...
-		'plotHDI', false,...
-		'pointEstimateType', plotOptions.pointEstimateType,...
-		'patchProperties', definePlotOptions4Group(col));
+if size(samples,2)==data.getNExperimentFiles()
+	groupSamples = samples(:,data.getNExperimentFiles());
+	
+	if data.isUnobservedPartipantPresent() && ~any(isnan(groupSamples))
+		mcmc.UnivariateDistribution(groupSamples,...
+			'xLabel', varInfo.label,...
+			'plotHDI', false,...
+			'pointEstimateType', plotOptions.pointEstimateType,...
+			'patchProperties', definePlotOptions4Group(col));
+	end
 end
 
 %% Formatting

@@ -134,18 +134,6 @@ classdef (Abstract) Parametric < Model
             for p = 1:obj.data.getNExperimentFiles
                 figure(87), clf
                 
-%                 % Checks
-%                 % The variables we are being asked to plot are the fields of plotdata.samples.posterior
-%                 % We need to check and remove fields for which there are no samples (either
-%                 % empty, or NaN)
-%                 fields = fieldnames(plotdata.samples.posterior);
-%                 for n = 1:numel(fields)
-%                 	if any(isnan(plotdata.samples.posterior.(fields{n}))) || isempty(plotdata.samples.posterior.(fields{n}))
-%                 		plotdata.samples.posterior = rmfield( plotdata.samples.posterior,...
-%                 			fields{n});
-%                 	end
-% 				end
-
 				pVariableNames =  obj.varList.participantLevel;
 				posteriorSamples = obj.coda.getSamplesAtIndex_asMatrix(p, pVariableNames);
 				

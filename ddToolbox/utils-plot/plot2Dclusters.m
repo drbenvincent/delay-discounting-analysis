@@ -15,8 +15,12 @@ figure(12), clf
 
 % build samples
 for p = 1:data.getNExperimentFiles()
-	x(:,p) = mcmcContainer.getSamplesAtIndex_asMatrix(p, {varInfo(1).name});
-	y(:,p) = mcmcContainer.getSamplesAtIndex_asMatrix(p, {varInfo(2).name});
+	tempx = mcmcContainer.getSamplesAtIndex_asMatrix(p, {varInfo(1).name});
+	tempy = mcmcContainer.getSamplesAtIndex_asMatrix(p, {varInfo(2).name});
+	if ~isempty(tempx) && ~isempty(tempy)
+		x(:,p) = tempx;
+		y(:,p) = tempy;
+	end
 end
 
 %% plot all actual participants
@@ -46,17 +50,21 @@ axis tight
 participantAxisBounds = axis;
 
 %% plot unobserved participant (ie group level) if they exist
-x_group = x(:,data.getNExperimentFiles());
-y_group = y(:,data.getNExperimentFiles());
-if ~any(isnan(x(:,end))) && ~any(isnan(x_group)) && ~any(isnan(y_group))% do we have (m,c) samples for the group-level?
-	if data.isUnobservedPartipantPresent()
-		mcBivariateGroup = mcmc.BivariateDistribution(...
-			x_group,...
-			y_group,... %xLabel',variableNames{1},'yLabel',variableNames{2},...
-			'plotStyle','contour',...
-			'probMass',probMass,...
-			'pointEstimateType', plotOptions.pointEstimateType,...
-			'patchProperties', definePlotOptions4Group(col));
+if size(x,2)==data.getNExperimentFiles() && size(y,2)==data.getNExperimentFiles()
+	
+	x_group = x(:,data.getNExperimentFiles());
+	y_group = y(:,data.getNExperimentFiles());
+	
+	if ~any(isnan(x(:,end))) && ~any(isnan(x_group)) && ~any(isnan(y_group))% do we have (m,c) samples for the group-level?
+		if data.isUnobservedPartipantPresent()
+			mcBivariateGroup = mcmc.BivariateDistribution(...
+				x_group,...
+				y_group,... %xLabel',variableNames{1},'yLabel',variableNames{2},...
+				'plotStyle','contour',...
+				'probMass',probMass,...
+				'pointEstimateType', plotOptions.pointEstimateType,...
+				'patchProperties', definePlotOptions4Group(col));
+		end
 	end
 end
 
