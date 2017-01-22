@@ -44,14 +44,12 @@ classdef (Abstract) NonParametric < Model
 			p.addParameter('shouldExportPlots', true, @islogical);
 			p.parse(varargin{:});
 
-            obj.pdata = obj.packageUpDataForPlotting();
-
 			% EXPERIMENT PLOT ==================================================
             obj.psychometric_plots();
 			obj.plotAllExperimentFigures();
 			
-            % POSTERIOR PREDICTION PLOTS =======================================
-			arrayfun(@figPosteriorPrediction, obj.pdata); % posterior prediction plot
+            % Posterior prediction plot
+            obj.postPred.plot(obj.plotOptions, obj.modelFilename)
 			
 			%% TODO...
             % FOREST PLOT OF AUC VALUES ========================================
