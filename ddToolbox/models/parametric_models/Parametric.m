@@ -12,37 +12,17 @@ classdef (Abstract) Parametric < Model
 		
 		
 		function plot(obj, varargin)
-			
 			p = inputParser;
 			p.FunctionName = mfilename;
 			p.addParameter('shouldExportPlots', true, @islogical);
 			p.parse(varargin{:});
 			
-			%% Plot functions that use data from all participants =========
-			
-			% #############################################################
-			% #############################################################
-			% TODO #166 THIS IS A LOT OF FAFF, JUST FOR UNIVARIATE SUMMARY PLOTS
-			
-			% gather cross-experiment data for univariate sta
-			alldata.variables			= obj.varList.participantLevel;
-			alldata.filenames			= obj.data.getIDnames('all');
-			alldata.modelFilename		= obj.modelFilename;
-			alldata.plotOptions 		= obj.plotOptions;
-			for v = alldata.variables
-				alldata.(v{:}).hdi =...
-					[obj.coda.getStats('hdi_low',v{:}),... % TODO: ERROR - expecting a vector to be returned
-					obj.coda.getStats('hdi_high',v{:})]; % TODO: ERROR - expecting a vector to be returned
-				alldata.(v{:}).pointEstVal =...
-					obj.coda.getStats(obj.plotOptions.pointEstimateType, v{:});
-			end
-			% -------------------------------------------------------------
-			% TODO: Think about plotting this with GRAMM
-			% https://github.com/piermorel/gramm
-			figUnivariateSummary(alldata)
-			% #############################################################
-			% #############################################################
-			
+			%% Plot functions that use data from all participants ========
+            variables = obj.varList.participantLevel;
+            obj.coda.plotUnivariateSummaries(variables,...
+				obj.plotOptions,...
+				obj.modelFilename,...
+				obj.data.getParticipantNames());
 			
 			% summary figure of core discounting parameters
 			clusterPlot(...
@@ -52,7 +32,6 @@ classdef (Abstract) Parametric < Model
 				obj.modelFilename,...
 				obj.plotOptions,...
 				obj.varList.discountFunctionParams)
-			
 			
 			%% Plots, one per data file ===================================		
 			obj.plotAllExperimentFigures();

@@ -208,7 +208,45 @@ classdef CODA
 				'axisSquare', true);
 		end
 
-
+        function plotUnivariateSummaries(obj, variables, plotOptions, modelFilename, idNames)
+            % create a figure with multiple subplots (boxplots) for each input variable privided
+            
+            % create subplots
+            N = numel(variables);
+            subplot_handles = create_subplots(N, 'col');
+                        
+            % call plotting function for each variable (subplot)
+            for n = 1:numel(variables)
+            	subplot( subplot_handles(n) )
+            	
+                pointEstVals = obj.getStats(plotOptions.pointEstimateType, variables{n});
+                hdi =[obj.getStats('hdi_low',variables{n}),...
+					obj.getStats('hdi_high',variables{n})];
+				
+				% clunky manual checking: sometimes we will not have a
+				% group level estimate, in which case, drop the last entry
+				% off the idNames
+				idNamesCropped = idNames(1:numel(pointEstVals));
+				
+                plotErrorBars(idNamesCropped,... 
+        			pointEstVals,...
+        			hdi,...
+        			variables{n});
+            end
+            
+            % % Scale width of figure
+            % screen_size = get(0,'ScreenSize');
+            % fig_width = min(screen_size(3), 100+numel(participantNames)*20);
+            % set(gcf,'Position',[100 200 fig_width 1000])
+            
+            % Export
+            if plotOptions.shouldExportPlots
+            	myExport(plotOptions.savePath,...
+            		'UnivariateSummary',...
+            		'suffix', modelFilename,...
+                    'formats', plotOptions.exportFormats)
+            end
+        end
 
 
         % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
