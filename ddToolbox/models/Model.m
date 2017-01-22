@@ -15,7 +15,6 @@ classdef (Abstract) Model
 		discountFuncType
 		postPred
 		parameterEstimateTable
-		pdata		% experiment level data for plotting
 		experimentFigPlotFuncs
 		mcmcParams % structure of user-supplied params
 		observedData
