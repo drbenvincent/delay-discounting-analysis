@@ -96,6 +96,10 @@ classdef (Abstract) Parametric < Model
 			% TODO #166 avoid having to parse these args in here
 
 		end
+        
+        function plot_discount_functions_in_grid(obj)
+            error('Implement this! See #170')
+        end
 		
 	end
     

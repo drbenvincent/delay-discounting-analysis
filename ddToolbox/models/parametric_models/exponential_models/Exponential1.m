@@ -22,9 +22,4 @@ classdef (Abstract) Exponential1 < Parametric
 		
 	end
 
-	
-	methods (Abstract)
-		initialiseChainValues
-    end
-
 end

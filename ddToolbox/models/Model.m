@@ -26,7 +26,17 @@ classdef (Abstract) Model
 		timeUnits % string whose name must be a function to create a Duration.
 	end
 
-
+    % methods that subclasses must implement
+    methods (Abstract, Access = public)
+        plot()
+        initialiseChainValues()
+        experimentMultiPanelFigure()
+        plot_discount_functions_in_grid()
+        
+        % TODO: sort these out, #172... probably want to rejig so it's done differently
+        %getExperimentData
+        %extractDiscountFunctionSamples
+    end
 
 	methods (Access = public)
 

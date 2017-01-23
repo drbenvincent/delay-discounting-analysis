@@ -23,9 +23,4 @@ classdef (Abstract) Hyperbolic1 < Parametric
 
 	end
 
-
-	methods (Abstract)
-		initialiseChainValues
-	end
-
 end
