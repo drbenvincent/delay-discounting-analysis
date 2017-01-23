@@ -17,6 +17,11 @@ classdef (Abstract) DiscountFunction < DeterministicFunction
 			N_SAMPLES_FROM_POSTERIOR = 100;
 			
 			delays = obj.determineDelayValues();
+			if verLessThan('matlab','9.1') % backward compatability
+				delaysDuration = delays;
+			else
+				delaysDuration = timeUnitFunction(delays);
+			end
 			
 			%% don't plot if we've been given NaN's
 			if obj.anyNaNsPresent()
@@ -26,21 +31,14 @@ classdef (Abstract) DiscountFunction < DeterministicFunction
 			
 			%% Plot N samples from posterior
 			discountFraction = obj.eval(delays, 'nExamples', N_SAMPLES_FROM_POSTERIOR);
-			try
-				plot(timeUnitFunction(delays),... 
-					discountFraction,...
-					'-', 'Color',[0.5 0.5 0.5 0.1])
-			catch
-				% backward compatability
-				plot(timeUnitFunction(delays),...
-					discountFraction,...
-					'-', 'Color',[0.5 0.5 0.5])
-			end
+			plot(delaysDuration,...
+				discountFraction,...
+				'-', 'Color',[0.5 0.5 0.5 0.1])
 			hold on
 			
 			%% Plot point estimate
 			discountFraction = obj.eval(delays, 'pointEstimateType', pointEstimateType);
-			plot(timeUnitFunction(delays),...
+			plot(delaysDuration,...
 				discountFraction,...
 				'-',...
 				'Color', 'k',...
@@ -49,7 +47,7 @@ classdef (Abstract) DiscountFunction < DeterministicFunction
 			%% Formatting
 			xlabel('delay $D^B$', 'interpreter','latex')
 			ylabel('discount factor', 'interpreter','latex')
-			set(gca,'Xlim', [0 max(timeUnitFunction(delays))])
+			set(gca,'Xlim', [0 max(delaysDuration)])
 			box off
 			axis square
 			
