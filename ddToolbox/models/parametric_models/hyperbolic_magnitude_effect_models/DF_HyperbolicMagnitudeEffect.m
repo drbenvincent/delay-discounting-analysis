@@ -24,7 +24,11 @@ classdef DF_HyperbolicMagnitudeEffect < DiscountFunction
 % 			maxRewardValue = 100;
 % 			maxDelayValue = 365;
 
-			timeUnitFunction = str2func(timeUnits);
+			if verLessThan('matlab','9.1') % backward compatability
+				timeUnitFunction = @(x) x; % do nothing
+			else
+				timeUnitFunction = str2func(timeUnits);
+			end
 
 			% don't plot if we've been given NaN's
 			if any(isnan(obj.theta.m.samples))
