@@ -79,12 +79,13 @@ classdef Data
 		end
 
 
-		function obj = add_unobserved_participant(obj, str)
+		function obj = add_unobserved_participant(obj, unobservedParticipantString)
 			if obj.unobservedPartipantPresent
 				error('Have already added unobserved participant')
 			end
 
-			obj.filenames{obj.nRealExperimentFiles+1} = str;
+			obj.filenames{obj.nRealExperimentFiles+1} = unobservedParticipantString;
+			obj.participantIDs{obj.nRealExperimentFiles+1} = unobservedParticipantString;
 
 			obj.nExperimentFiles = obj.nExperimentFiles + 1;
 			index = obj.nExperimentFiles;

@@ -22,7 +22,7 @@ classdef DF_Hyperbolic1 < DiscountFunction
 		
 		function y = function_evaluation(x, theta)
 			if verLessThan('matlab','9.1')
-				y = bsxfun(@rdivide, 1, 1 + (bsxfun(@times, exp(theta.logk), x.delay) ) );
+				y = bsxfun(@rdivide, 1, 1 + (bsxfun(@times, exp(theta.logk), x) ) );
 			else
 				% use new array broadcasting in 2016b
 				y = 1 ./ (1 + exp(theta.logk) .* x);

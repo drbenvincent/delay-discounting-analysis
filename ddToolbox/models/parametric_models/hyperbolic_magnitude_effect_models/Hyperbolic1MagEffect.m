@@ -124,9 +124,4 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
         end
 	end
 
-
-	methods (Abstract)
-		initialiseChainValues
-	end
-
 end

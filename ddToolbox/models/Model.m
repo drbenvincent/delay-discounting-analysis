@@ -15,7 +15,6 @@ classdef (Abstract) Model
 		discountFuncType
 		postPred
 		parameterEstimateTable
-		pdata		% experiment level data for plotting
 		experimentFigPlotFuncs
 		mcmcParams % structure of user-supplied params
 		observedData
@@ -27,7 +26,17 @@ classdef (Abstract) Model
 		timeUnits % string whose name must be a function to create a Duration.
 	end
 
-
+    % methods that subclasses must implement
+    methods (Abstract, Access = public)
+        plot()
+        initialiseChainValues()
+        experimentMultiPanelFigure()
+        plot_discount_functions_in_grid()
+        
+        % TODO: sort these out, #172... probably want to rejig so it's done differently
+        %getExperimentData
+        %extractDiscountFunctionSamples
+    end
 
 	methods (Access = public)
 
@@ -202,44 +211,6 @@ classdef (Abstract) Model
 		function obj = addUnobservedParticipant(obj, str)
 			% TODO: Check we need this
 			obj.data = obj.data.add_unobserved_participant(str);	% add name (eg 'GROUP')
-		end
-
-		function [pdata] = packageUpDataForPlotting(obj)
-
-            % #166
-			% TODO: This is currently an intermediate step on the journey of code simplification. Really, what we should do is just directly go to participant / group / condition objects, which have their own data and plot methods.
-
-			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			% Package up all information into data structures to be sent
-			% off to plotting functions.
-			% The idea being we can just pass pdata(n) to a plot function
-			% and it has all the information it needs
-			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			nRealExperiments = obj.data.getNExperimentFiles();
-			nExperimentsIncludingUnobserved = numel(obj.data.getIDnames('all')); % TODO: replace with different get method
-
-			pdata(1:nExperimentsIncludingUnobserved) = struct; % preallocation
-			for p = 1:nExperimentsIncludingUnobserved
-				% constant for all participants
-				pdata(p).data.totalTrials	= obj.data.totalTrials;
-				%pdata(p).pointEstimateType	= obj.plotOptions.pointEstimateType;
-				pdata(p).discountFuncType	= obj.discountFuncType;
-				pdata(p).plotOptions		= obj.plotOptions;
-				pdata(p).modelFilename		= obj.modelFilename;
-
-				% custom for each participant
-				pdata(p).IDname							= obj.data.getIDnames(p);
-				pdata(p).data.trialsForThisParticant	= obj.data.getTrialsForThisParticant(p);
-				pdata(p).data.rawdata					= obj.data.getRawDataTableForParticipant(p);
-				% gather posterior prediction info
-				try
-					pdata(p).postPred					= obj.postPred.postPred(p); % TODO:
-				catch
-					pdata(p).postPred					= [];
-				end
-				pdata(p).samples.posterior	= obj.coda.getSamplesAtIndex_asStruct(p, obj.varList.participantLevel);
-			end
-
 		end
 
         function plotAllExperimentFigures(obj)

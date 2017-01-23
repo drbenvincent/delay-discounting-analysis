@@ -18,14 +18,9 @@ classdef (Abstract) NonParametric < Model
 
 	end
 
-	
-	methods (Abstract)
-		initialiseChainValues
-    end
     
     methods (Access = protected)
 
-        
         function obj = calcDerivedMeasures(obj)
         end
 
@@ -44,15 +39,16 @@ classdef (Abstract) NonParametric < Model
 			p.addParameter('shouldExportPlots', true, @islogical);
 			p.parse(varargin{:});
 
-            obj.pdata = obj.packageUpDataForPlotting();
-
+			obj.plot_discount_functions_in_grid();
+			
 			% EXPERIMENT PLOT ==================================================
             obj.psychometric_plots();
 			obj.plotAllExperimentFigures();
 			
-            % POSTERIOR PREDICTION PLOTS =======================================
-			arrayfun(@figPosteriorPrediction, obj.pdata); % posterior prediction plot
+            % Posterior prediction plot
+            obj.postPred.plot(obj.plotOptions, obj.modelFilename)
 			
+
 			%% TODO...
             % FOREST PLOT OF AUC VALUES ========================================
             % TODO: Think about plotting this with GRAMM
@@ -99,42 +95,56 @@ classdef (Abstract) NonParametric < Model
             subplot(h(3))
             discountFunction.plot();
             
-        end
-		
-		function psychometric_plots(obj)
-            % TODO: plot data on these figures
-            
-			names = obj.data.getIDnames('all');
-			for ind = 1:numel(names) % loop over files
-				fh = figure('Name', ['participant: ' names{ind}]);
-                latex_fig(12,10, 8)
-				
-				personStruct = getExperimentData(obj, ind);
-				
-				% work out a good subplot arrangement
-				nSubplots = numel(personStruct.delays);
-				subplot_handles = create_subplots(nSubplots, 'square');
-				
-				% plot a set of psychometric functions, one for each delay tested
-				for d = 1:nSubplots
-					subplot(subplot_handles(d))
-					
-					samples = obj.coda.getSamplesAtIndex_asStruct(ind,{'alpha','epsilon'});
-					samples.indifference  = personStruct.dfSamples(:,d);
-					psycho = DF_SLICE_PsychometricFunction('samples', samples);
-					psycho.plot();
-					title(['delay = ' num2str(personStruct.delays(d)) ])
-				end
-				drawnow
-				if obj.plotOptions.shouldExportPlots
-					myExport(obj.plotOptions.savePath, 'expt_psychometric',...
-						'prefix', names{ind},...
-						'suffix', obj.modelFilename,...
-                        'formats', obj.plotOptions.exportFormats );
-				end
-				close(fh)
-			end
 		end
+		
+		
+		function plot_discount_functions_in_grid(obj)
+			latex_fig(12, 11,11)
+			
+			% TODO: extract the grid formatting stuff to be able to call
+			% any plot function we want
+			% USE: apply_plot_function_to_subplot_handle.m ??
+			
+			%fh = figure('Name', names{experimentIndex});
+			names = obj.data.getIDnames('all');
+			
+			clf, drawnow
+			
+			% create grid layout
+			N = numel(names);
+			subplot_handles = create_subplots(N, 'square');
+			
+			% Iterate over files, plotting
+			disp('Plotting...')
+			
+			for n = 1:numel(names)
+				subplot(subplot_handles(n))
+				% ~~~~~~~~~~~~~~~~~~
+				plot_df(n)
+				% ~~~~~~~~~~~~~~~~~~
+			end
+			drawnow
+			
+			if obj.plotOptions.shouldExportPlots
+				myExport(obj.plotOptions.savePath, 'grid_discount_functions',...
+					'suffix', obj.modelFilename,...
+					'formats', obj.plotOptions.exportFormats);
+			end
+			
+			function plot_df(ind)
+				% Set up discount function
+				personInfo = obj.getExperimentData(ind);
+				discountFunction = DF_NonParametric('delays',personInfo.delays,...
+					'theta', personInfo.dfSamples);
+				discountFunction.data = obj.data.getExperimentObject(ind);
+				
+				discountFunction.plot();
+			end
+			
+		end
+		
+		
+		
 		
         
         
@@ -174,8 +184,6 @@ classdef (Abstract) NonParametric < Model
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		end
 
-
-
 		function dfSamples = extractDiscountFunctionSamples(obj, personNumber)
 			samples = obj.coda.getSamples({'Rstar'});
 			[chains, nSamples, participants, nDelays] = size(samples.Rstar);
@@ -186,25 +194,9 @@ classdef (Abstract) NonParametric < Model
 			end
 		end
 
-
-		% 		function observedData = constructObservedDataForMCMC(obj, all_data)
-		% 			%% Call superclass method to prepare the core data
-		% 			observedData = constructObservedDataForMCMC@Model(obj, all_data);
-		%
-		% 			%% Now add model specific observed data
-		% 			observedData.uniqueDelays = sort(unique(observedData.DB))';
-		% 			observedData.delayLookUp = calcDelayLookup();
-		%
-		% 			function delayLookUp = calcDelayLookup()
-		% 				delayLookUp = observedData.DB;
-		% 				for n=1: numel(observedData.uniqueDelays)
-		% 					delay = observedData.uniqueDelays(n);
-		% 					delayLookUp(observedData.DB==delay) = n;
-		% 				end
-		% 			end
-		% 		end
-
 		
+        % TODO: do this by injecting new AUC values into CODA?
+        % TODO: do it for Parametric models as well
 		function [auc] = getAUC(obj)
 			% return AUC measurements. 
 			% This will return an object array of stocastic objects
@@ -222,8 +214,58 @@ classdef (Abstract) NonParametric < Model
         
     end
     
+    methods (Access = protected)
     
-    methods (Static, Access = protected)
+        function psychometric_plots(obj)
+            % TODO: plot data on these figures
+            
+            names = obj.data.getIDnames('all');
+            for ind = 1:numel(names) % loop over files
+                fh = figure('Name', ['participant: ' names{ind}]);
+                latex_fig(12,10, 8)
+                
+                personStruct = getExperimentData(obj, ind);
+                
+                % work out a good subplot arrangement
+                nSubplots = numel(personStruct.delays);
+                subplot_handles = create_subplots(nSubplots, 'square');
+                
+                % plot a set of psychometric functions, one for each delay tested
+                for d = 1:nSubplots
+                    subplot(subplot_handles(d))
+                    %% plot the psychometric function ~~~~~~~~~~~~~~~~~~~~~
+                    samples = obj.coda.getSamplesAtIndex_asStruct(ind,{'alpha','epsilon'});
+                    samples.indifference  = personStruct.dfSamples(:,d);
+                    psycho = DF_SLICE_PsychometricFunction('samples', samples);
+                    psycho.plot();
+                    %% plot response data TODO: move this to Data ~~~~~~~~~
+                    hold on
+                    %pTable = obj.data.getRawDataTableForParticipant(ind);
+                    AoverB = personStruct.data.A ./ personStruct.data.B;
+                    R = personStruct.data.R;
+                    % grab just for this delay
+                    getThese = personStruct.data.DB==personStruct.delays(d);
+                    AoverB = AoverB(getThese);
+                    R = R(getThese);
+                    plot(AoverB, R, 'k+')
+                    %% format
+                    title(['delay = ' num2str(personStruct.delays(d)) ])
+                end
+                drawnow
+                if obj.plotOptions.shouldExportPlots
+                    myExport(obj.plotOptions.savePath, 'expt_psychometric',...
+                        'prefix', names{ind},...
+                        'suffix', obj.modelFilename,...
+                        'formats', obj.plotOptions.exportFormats );
+                end
+                close(fh)
+            end
+        end
+        
+	end
+	
+	methods (Static, Access = protected)
+		
 		function observedData = addititional_model_specific_ObservedData(observedData)
 			observedData.uniqueDelays = sort(unique(observedData.DB))';
 			observedData.delayLookUp = calcDelayLookup();
@@ -236,6 +278,7 @@ classdef (Abstract) NonParametric < Model
 				end
 			end
 		end
+        
 	end
     
 

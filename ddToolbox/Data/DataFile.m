@@ -35,7 +35,13 @@ classdef DataFile
 			% - discount function
 			% - discount surface
 			
-			timeUnitFunction = str2func(timeUnits);
+			if verLessThan('matlab','9.1') % backward compatability
+				timeUnitFunction = @(x) x; % do nothing
+			else
+				timeUnitFunction = str2func(timeUnits);
+			end
+			
+			
 			
 			% exit if we have got no data
 			if isempty(obj.datatable)

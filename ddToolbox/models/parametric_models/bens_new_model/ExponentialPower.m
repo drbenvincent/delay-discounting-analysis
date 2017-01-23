@@ -24,9 +24,4 @@ classdef (Abstract) ExponentialPower < Parametric
         		
 	end
 
-	
-	methods (Abstract)
-		initialiseChainValues
-    end
-
 end

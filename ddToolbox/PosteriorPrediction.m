@@ -28,10 +28,81 @@ classdef PosteriorPrediction
 				% Store
 				obj.postPred(p).responses_actual	= responses_actual;
 				obj.postPred(p).responses_predicted = responses_predicted;
+				% Store other useful stuff
+				obj.postPred(p).IDname = data.getIDnames(p);
 			end
 			
 		end
+        
+        function plot(obj, plotOptions, modelFilename)
+            % loop over all experiments/people, prodicing plot figures
+            N = length(obj.postPred);
+            for n = 1:N
+                obj.posterior_prediction_figure(n, plotOptions, modelFilename)
+            end
+        end
+        
 	end
+    
+    methods (Access = private)
+    
+        function posterior_prediction_figure(obj, n, plotOptions, modelFilename)
+			pp = obj.postPred(n);
+			% Sort figure
+            figure(1), colormap(gray), clf
+            latex_fig(16, 9, 6)
+            % Arrange subplots
+			h = layout([1 1; 2 3]);
+            subplot(h(1)), obj.pp_plotTrials(n)
+            subplot(h(2)), obj.pp_plotGOFdistribution(n, plotOptions)
+            subplot(h(3)), obj.pp_plotPercentPredictedDistribution(n, plotOptions)
+            % Export figure
+            drawnow
+            if plotOptions.shouldExportPlots
+            	myExport(plotOptions.savePath, 'PosteriorPredictive',...
+            		'prefix', pp.IDname{:},...
+            		'suffix', modelFilename,...
+            		'formats', plotOptions.exportFormats)
+            end
+        end
+        
+        function pp_plotGOFdistribution(obj, n, plotOptions)
+			pp = obj.postPred(n);
+            uni = mcmc.UnivariateDistribution(pp.GOF_distribtion(:),...
+                'xLabel', 'goodness of fit score',...
+                'plotStyle','hist',...
+                'pointEstimateType', plotOptions.pointEstimateType);
+        end
+
+        function pp_plotPercentPredictedDistribution(obj, n, plotOptions)
+			pp = obj.postPred(n);
+            uni = mcmc.UnivariateDistribution(pp.percentPredictedDistribution(:),...
+                'xLabel', '$\%$ proportion responses accounted for',...
+                'plotStyle','hist',...
+                'pointEstimateType', plotOptions.pointEstimateType);
+            axis tight
+            vline(0.5);
+            set(gca,'XLim',[0 1])
+        end
+
+        function pp_plotTrials(obj, n)
+			pp = obj.postPred(n);
+            % plot predicted probability of choosing delayed
+            bar(pp.responses_predicted, 'BarWidth',1)
+            % formatting
+            box off
+            axis tight
+            % plot response data
+            hold on
+            plot([1:numel(pp.responses_actual)], pp.responses_actual, '+')
+            % formatting
+            xlabel('trial')
+            ylabel('response')
+            legend('prediction','response', 'Location','East')
+        end
+        
+        
+    end
 	
 	methods (Access = private, Static)
     

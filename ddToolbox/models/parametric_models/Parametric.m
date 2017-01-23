@@ -12,37 +12,17 @@ classdef (Abstract) Parametric < Model
 		
 		
 		function plot(obj, varargin)
-			
 			p = inputParser;
 			p.FunctionName = mfilename;
 			p.addParameter('shouldExportPlots', true, @islogical);
 			p.parse(varargin{:});
 			
-			%% Plot functions that use data from all participants =========
-			
-			% #############################################################
-			% #############################################################
-			% TODO #166 THIS IS A LOT OF FAFF, JUST FOR UNIVARIATE SUMMARY PLOTS
-			
-			% gather cross-experiment data for univariate sta
-			alldata.variables			= obj.varList.participantLevel;
-			alldata.filenames			= obj.data.getIDnames('all');
-			alldata.modelFilename		= obj.modelFilename;
-			alldata.plotOptions 		= obj.plotOptions;
-			for v = alldata.variables
-				alldata.(v{:}).hdi =...
-					[obj.coda.getStats('hdi_low',v{:}),... % TODO: ERROR - expecting a vector to be returned
-					obj.coda.getStats('hdi_high',v{:})]; % TODO: ERROR - expecting a vector to be returned
-				alldata.(v{:}).pointEstVal =...
-					obj.coda.getStats(obj.plotOptions.pointEstimateType, v{:});
-			end
-			% -------------------------------------------------------------
-			% TODO: Think about plotting this with GRAMM
-			% https://github.com/piermorel/gramm
-			figUnivariateSummary(alldata)
-			% #############################################################
-			% #############################################################
-			
+			%% Plot functions that use data from all participants ========
+            variables = obj.varList.participantLevel;
+            obj.coda.plotUnivariateSummaries(variables,...
+				obj.plotOptions,...
+				obj.modelFilename,...
+				obj.data.getParticipantNames());
 			
 			% summary figure of core discounting parameters
 			clusterPlot(...
@@ -53,27 +33,14 @@ classdef (Abstract) Parametric < Model
 				obj.plotOptions,...
 				obj.varList.discountFunctionParams)
 			
-			
-			%% Plots, one per data file ===================================
-			
-			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			% TODO: #166 no need to package all this data up into pdata.
-            % #166 TriPlot should be a plot function of CODA
-            % #166 
-			obj.pdata = obj.packageUpDataForPlotting();
-			
-			for n=1:numel(obj.pdata)
-				obj.pdata(n).shouldExportPlots = p.Results.shouldExportPlots;
-			end
-			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			
+			%% Plots, one per data file ===================================		
 			obj.plotAllExperimentFigures();
 			
 			% Corner plot of parameters
-			arrayfun(@plotTriPlotWrapper, obj.pdata)
+            obj.plotAllTriPlots(obj.plotOptions, obj.modelFilename)
 			
 			% Posterior prediction plot
-			arrayfun(@figPosteriorPrediction, obj.pdata)
+            obj.postPred.plot(obj.plotOptions, obj.modelFilename)
 		end
 		
 		
@@ -129,7 +96,37 @@ classdef (Abstract) Parametric < Model
 			% TODO #166 avoid having to parse these args in here
 
 		end
+        
+        function plot_discount_functions_in_grid(obj)
+            error('Implement this! See #170')
+        end
 		
 	end
+    
+    methods (Access = private)
+    
+        function plotAllTriPlots(obj, plotOptions, modelFilename)
+            for p = 1:obj.data.getNExperimentFiles
+                figure(87), clf
+                
+				pVariableNames =  obj.varList.participantLevel;
+				posteriorSamples = obj.coda.getSamplesAtIndex_asMatrix(p, pVariableNames);
+				
+                mcmc.TriPlotSamples(posteriorSamples,...
+                	pVariableNames,...
+                	'pointEstimateType', plotOptions.pointEstimateType);
+
+                if plotOptions.shouldExportPlots
+					id = obj.data.getIDnames(p);
+                	myExport(plotOptions.savePath, 'triplot',...
+                		'prefix', id{:},...
+                		'suffix', modelFilename,...
+                        'formats', plotOptions.exportFormats);
+                end
+                
+            end
+        end
+        
+    end
 	
 end
