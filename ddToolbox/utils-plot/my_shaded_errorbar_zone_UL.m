@@ -11,28 +11,19 @@ function [h]=my_shaded_errorbar_zone_UL(x,upper,lower,col)
 %
 % written by: Benjamin T Vincent
 
+h = holdDecorator( plotErrorBarZone(x, upper, lower, col) );
 
-g=ishold(gca);
-hold on
-
-%% 
-% draw the shaded error bar zone
-x =[x,fliplr(x)];
-y =[upper,fliplr(lower)];
-h =patch(x,y,[0.8 0.8 0.8]);
-
-% move it to the back
-uistack(h,'bottom') 
-
-% set the colour
-set(h,'EdgeColor','none')
-set(h,'FaceColor',col)
-
-set(h,'FaceAlpha',0.2)
-
-% leave the figure hold status as it was
-if g==0
-	hold off
 end
 
-return
+function h = plotErrorBarZone(x, upper, lower, col)
+% draw the shaded error bar zone
+x = [x, fliplr(x)];
+y = [upper, fliplr(lower)];
+h = patch(x, y, [0.8 0.8 0.8]);
+% formatting
+uistack(h,'bottom')
+set(h,'EdgeColor','none')
+set(h,'FaceColor',col)
+set(h,'FaceAlpha',0.2)
+end
+
