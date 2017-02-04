@@ -5,12 +5,6 @@ assert(size(Y,2)==numel(x),'Y must have same number of columns as x')
 
 col = [0 0 1];
 
-% function to convert a credible interval to percentiles
-% eg 
-% interval2percentiles(50) = [25 75]
-% interval2percentiles(95) = [2.5 97.5]
-interval2percentiles = @(interval) [0+((100-interval)/2) 100-((100-interval)/2)];
-
 % sort intervals from narrow to wide
 intervals = sort(intervals, 'descend');
 
