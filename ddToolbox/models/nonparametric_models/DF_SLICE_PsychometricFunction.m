@@ -29,8 +29,9 @@ classdef DF_SLICE_PsychometricFunction < DeterministicFunction
 		
 		function plot(obj)
 			% 
-			x = [-2:0.01:2];
-			
+			%x = [-2:0.01:2];
+			x = [0:0.01:2];
+            
 			try
 				plot(x, obj.eval(x, 'nExamples', 100), '-', 'Color',[0.5 0.5 0.5 0.1])
 			catch

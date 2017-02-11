@@ -21,22 +21,41 @@
 model{
 
 groupALPHAmu <- 0           # TODO: NEEDS ATTENTION
-groupALPHAsigma <-0.01      # TODO: NEEDS ATTENTION
+groupALPHAsigma <-0.1      # TODO: NEEDS ATTENTION
 
 epsilon_alpha <- 1+1
-epsilon_beta <- 1+100
+epsilon_beta <- 1+200
+
+#SIGMA ~ dgamma(1,1)
+SIGMA <- 0.05
 
 # priors
+
+# precision of the indifference point (Rstar) is SIGMA multiplied by the number of time steps since the previous delay. This is how our uncertainty increase over time.
+prec[1] <- 1/((SIGMA * uniqueDelays[1])^2)
+for (d in 2:length(uniqueDelays)) {
+    prec[d] <- 1/((SIGMA * (uniqueDelays[d]-uniqueDelays[d-1]))^2)
+}
+
 for (p in participantIndexList){
     epsilon[p]  ~ dbeta(epsilon_alpha , epsilon_beta ) T(,0.5)
+    
+    # note reparameterisation is not working in this case. As in, it causes an error.
     alpha[p]    ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
 
     # PRIOR OVER DISCOUNT FRACTION
-    # prior over A/B should be centered on 1 if we are expecting discounting and anti-discounting, and can be truncates
-    # prior over A-B should be centered on 0 if we are expecting discounting and anti-discounting, and can be truncates
-	for (d in 1:length(uniqueDelays)) {
-        Rstar[p,d] ~ dnorm(1, 1/ 1^2) T(0,)   
+    # assume indifference point (RStar) at the first delay (after delay=0) is centered on 1
+    mu[p,1] <- 1
+    # assume indifference point at all subsequent delays are centered on the previous indifference point
+	for (d in 2:length(uniqueDelays)) {
+        mu[p,d] <- mu[p,d-1]
 	}
+
+    for (d in 1:length(uniqueDelays)) {
+        Rstar[p,d] ~ dnorm(mu[p,d], prec[d]) T(0,)
+        #Rstar[p,d] ~ dt(mu[p,d], prec[d], 1) T(0,) # equals Cauchy when k=1  
+    }
+    
 }
 
 for (t in 1:length(ID)) {
