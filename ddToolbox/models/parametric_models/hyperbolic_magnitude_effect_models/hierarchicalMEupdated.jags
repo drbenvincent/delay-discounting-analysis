@@ -29,8 +29,11 @@ groupCmu        ~ dnorm(0, 1/(100^2)) ## UPDATED SINCE PAPER
 groupCsigma     ~ dunif(0, 10) ## UPDATED SINCE PAPER
 
 for (p in 1:(nRealExperimentFiles+1)){ # +1 for unobserved participant
-	m[p]        ~ dnorm(groupMmu, 1/(groupMsigma^2))
-	c[p]        ~ dnorm(groupCmu, 1/(groupCsigma^2))
+    # using reparameterisation to avoid funnel of hell
+    m_offset[p] ~ dnorm(0,1)
+    m[p] <- groupMmu + m_offset[p] * groupMsigma
+    c_offset[p] ~ dnorm(0,1)
+    c[p] <- groupCmu + c_offset[p] * groupCsigma
 }
 
 # MODEL-SPECIFIC: CALCULATION OF PRESENT SUBJECTIVE VALUES
@@ -59,7 +62,9 @@ epsilon_beta <- (1-groupW)*(groupK-2)+1
 
 for (p in 1:(nRealExperimentFiles+1)){ # +1 for unobserved participant
 	epsilon[p]  ~ dbeta(epsilon_alpha , epsilon_beta ) T(,0.5)
-	alpha[p]    ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
+    # using reparameterisation to avoid funnel of hell
+    alpha_offset[p] ~ dnorm(0,1) T(0,)
+    alpha[p] <- groupALPHAmu + alpha_offset[p] * groupALPHAsigma
 }
 
 # MODEL IN-SPECIFIC CODE BELOW... SHOULD NOT CHANGE ACROSS MODELS ==============
