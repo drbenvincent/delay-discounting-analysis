@@ -12,9 +12,12 @@ model{
 
 K_MEAN       ~ dnorm(0.01, 1/(0.5^2))
 K_PRECISION  ~ dgamma(0.001,0.001)
+K_SIGMA      <- sqrt(1/K_PRECISION)
 
 for (p in 1:(nRealExperimentFiles+1)){      # +1 for unobserved participant
-	k[p]     ~ dnorm(K_MEAN, K_PRECISION)
+    # using reparameterisation to avoid funnel of hell
+    k_offset[p] ~ dnorm(0,1)
+    k[p] <- K_MEAN + k_offset[p] * K_SIGMA
 }
 
 # MODEL-SPECIFIC: CALCULATION OF PRESENT SUBJECTIVE VALUES
@@ -39,8 +42,11 @@ epsilon_alpha <- groupW*(groupK-2)+1
 epsilon_beta <- (1-groupW)*(groupK-2)+1
 
 for (p in 1:(nRealExperimentFiles+1)){ # +1 for unobserved participant
-	alpha[p]    ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
     epsilon[p]  ~ dbeta(epsilon_alpha , epsilon_beta ) T(,0.5)
+    
+    # using reparameterisation to avoid funnel of hell
+    alpha_offset[p] ~ dnorm(0,1) T(0,)
+    alpha[p] <- groupALPHAmu + alpha_offset[p] * groupALPHAsigma
 }
 
 

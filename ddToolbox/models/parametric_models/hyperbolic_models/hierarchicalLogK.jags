@@ -10,9 +10,6 @@ groupLogKmu       ~ dnorm(log(1/50),1/(2.5^2))
 groupLogKsigma    ~ dexp(0.5)
 
 for (p in 1:(nRealExperimentFiles+1)){ # +1 for unobserved participant
-	# small constant (0.0001) added below to avoid numerical problems.
-	#logk[p]     ~ dnorm(groupLogKmu, 1/((groupLogKsigma+0.0001)^2))
-    
     # using reparameterisation to avoid funnel of hell
     logk_offset[p] ~ dnorm(0,1)
     logk[p] <- groupLogKmu + logk_offset[p] * groupLogKsigma
