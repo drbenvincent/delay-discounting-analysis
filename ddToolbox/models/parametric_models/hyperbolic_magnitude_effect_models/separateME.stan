@@ -64,7 +64,7 @@ transformed parameters {
 model {
   m        ~ normal(-0.243, 0.5);
   c        ~ normal(0, 10);
-  epsilon  ~ beta(1.1, 10.9);
+  epsilon  ~ beta(1+1, 1+10);
   alpha    ~ exponential(0.01);
 
   R ~ bernoulli(P);
