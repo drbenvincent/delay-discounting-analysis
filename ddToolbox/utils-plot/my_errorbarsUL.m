@@ -2,10 +2,10 @@ function [lineHandles]=my_errorbarsUL(X,U,L,opts)
 % U = upper
 % L = lower
 
-l=zeros(numel(X),1);
+l = zeros(numel(X),1);
 
 for n=1:numel(X)
-	lineHandles(n) = line([X(n) X(n)],[U(n) L(n)]);
+	lineHandles(n) = line([X(n) X(n)], [U(n) L(n)]);
 end
 
 %% Apply formatting

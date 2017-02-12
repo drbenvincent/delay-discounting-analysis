@@ -1,5 +1,5 @@
 function codaObject = sampleWithMatlabStan(...
-	modelFilename, observedData, mcmcparams, ~, ~)
+	modelFilename, observedData, mcmcparams, initialParameters, ~)
 
 assert(ischar(modelFilename))
 assert(isstruct(observedData))
@@ -17,11 +17,16 @@ stan_model.compile();
 toc
 % ++++++++++++++++++++++++++++++++++++++++++++++++++
 
+% % convert initialParameters. % TODO: make this general
+% init.groupW				= [initialParameters(:).groupW]';
+% init.groupALPHAmu		= [initialParameters(:).groupALPHAmu]';
+% init.groupALPHAsigma	= [initialParameters(:).groupALPHAsigma]';
+
 %% Get our sampler to sample
 display('SAMPLING STAN MODEL...')
 tic
 obj.stanFit = stan_model.sampling(...
-	'data', observedData,...
+	'data', observedData,... %'init', init,...
 	'warmup', mcmcparams.nburnin,...	% warmup = burn-in
 	'iter', ceil( mcmcparams.nsamples / mcmcparams.nchains),...		% iter = number of MCMC samples
 	'chains', mcmcparams.nchains,...
