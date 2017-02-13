@@ -7,8 +7,8 @@ model{
 # RANDOM (BY PARTICIPANT) FACTORS; HYPER-PRIORS = NO 
 
 for (p in 1:nRealExperimentFiles){
-	m[p]       ~ dnorm(-0.243, 1/(100^2))  # dnorm(-0.243, 1/(0.072^2))
-	c[p]       ~ dnorm(0, 1/(1000^2))      # dnorm(0, 1/(1000^2))
+	m[p]       ~ dnorm(-0.243, 1/(0.5^2))  # dnorm(-0.243, 1/(0.072^2))
+	c[p]       ~ dnorm(0, 1/(10^2))      # dnorm(0, 1/(1000^2))
 }
 
 for (t in 1:length(ID)) {
@@ -22,8 +22,8 @@ for (t in 1:length(ID)) {
 }
 
 # RESPONSE ERROR PARAMETERS ====================================================
-epsilon_alpha <- 1.1
-epsilon_beta <- 10.9
+epsilon_alpha <- 1+1
+epsilon_beta <- 1+10
 for (p in 1:nRealExperimentFiles){
 	alpha[p]   ~ dexp(0.01)
 	epsilon[p] ~ dbeta(epsilon_alpha , epsilon_beta ) T(,0.5)

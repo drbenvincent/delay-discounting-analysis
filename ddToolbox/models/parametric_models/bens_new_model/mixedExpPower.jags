@@ -33,6 +33,7 @@ for (t in 1:length(ID)) {
 # NOTE: because we have 2 discounting parameters, I've found that more restrictive priors need to be placed on the error parameters
 alpha_mu        ~ dnorm(0,1/(10^2)) T(0,)
 alpha_precision ~ dgamma(0.01,0.01)
+alpha_sigma     <- sqrt(1/alpha_precision)
 
 # error rates (epsilon) hyperprior
 groupW          ~ dbeta(1.1, 10.9)  # mode for lapse rate
@@ -43,8 +44,11 @@ epsilon_alpha <- groupW*(groupK-2)+1
 epsilon_beta <- (1-groupW)*(groupK-2)+1
 
 for (p in 1:(nRealExperimentFiles+1)){ # +1 for unobserved participant
-	alpha[p]    ~ dnorm(alpha_mu, alpha_precision) T(0,)
     epsilon[p]  ~ dbeta(epsilon_alpha , epsilon_beta ) T(,0.5)
+    
+    # using reparameterisation to avoid funnel of hell
+    alpha_offset[p] ~ dnorm(0,1) T(0,)
+    alpha[p] <- alpha_mu + alpha_offset[p] * alpha_sigma
 }
 
 

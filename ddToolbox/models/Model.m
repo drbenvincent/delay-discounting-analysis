@@ -92,6 +92,7 @@ classdef (Abstract) Model
 			obj = obj.postSamplingActivities();
 		end
 
+		
 		function obj = postSamplingActivities(obj)
 
 			%% Post-sampling activities (for model sub-classes) -----------
@@ -101,25 +102,38 @@ classdef (Abstract) Model
 			obj = obj.calcDerivedMeasures();
 
 			%% Post-sampling activities (common to all models) ------------
+			% posterior prediction calculation
 			obj.postPred = PosteriorPrediction(obj.coda, obj.data, obj.observedData);
 
+			% calc and export convergence summary and parameter estimates
+			obj.export();
 
-			% TODO: This should be a method of CODA
- 			convergenceSummary(obj.coda.getStats('Rhat',[]), obj.plotOptions.savePath, obj.data.getIDnames('all'))
-
-			exporter = ResultsExporter(obj.coda, obj.data, obj.postPred.postPred, obj.varList, obj.plotOptions);
-			exporter.printToScreen();
-			exporter.export(obj.plotOptions.savePath, obj.plotOptions.pointEstimateType);
-			% TODO ^^^^ avoid this duplicate use of pointEstimateType
-
+			% plot or not
 			if ~strcmp(obj.plotOptions.shouldPlot,'no')
 				% TODO: Allow public calls of obj.plot to specify options.
 				% At the moment the options need to be provided on Model
 				% object construction
 				obj.plot()
 			end
-
+			
 			obj.tellUserAboutPublicMethods()
+		end
+		
+		function export(obj)
+			% TODO: This should be a method of CODA
+			% TODO: better function name. What does it do? Calculate or
+			% export, or both?
+			convergenceSummary(obj.coda.getStats('Rhat',[]),...
+				obj.plotOptions.savePath,...
+				obj.data.getIDnames('all'))
+			
+			exporter = ResultsExporter(obj.coda, obj.data,...
+				obj.postPred.postPred,...
+				obj.varList,...
+				obj.plotOptions);
+			exporter.printToScreen();
+			exporter.export(obj.plotOptions.savePath, obj.plotOptions.pointEstimateType);
+			% TODO ^^^^ avoid this duplicate use of pointEstimateType
 		end
 
 		%% Public MIDDLE-MAN METHODS
