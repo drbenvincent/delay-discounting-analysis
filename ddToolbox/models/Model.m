@@ -167,22 +167,16 @@ classdef (Abstract) Model
 			% get point estimates of present subjective values. These will
 			% be vectors. Each value corresponds to one trial in the
 			% overall dataset
-			VA_point_estimate = obj.coda.getStats(obj.plotOptions.pointEstimateType, 'VA');
-			VB_point_estimate = obj.coda.getStats(obj.plotOptions.pointEstimateType, 'VB');
-			assert(isvector(VA_point_estimate))
-			assert(isvector(VB_point_estimate))
-
+            
+            %% return point estimates of present subjective values...
 			all_data_table = obj.data.groupTable;
-			all_data_table.VA = VA_point_estimate;
-			all_data_table.VB = VB_point_estimate;
+			all_data_table.VA = obj.coda.getStats(obj.plotOptions.pointEstimateType, 'VA');
+			all_data_table.VB = obj.coda.getStats(obj.plotOptions.pointEstimateType, 'VB');
+            predicted_subjective_values.point_estimates = all_data_table;
 
-			%% Return full posterior distributions of present subjective values
-			% TODO
+			%% TODO: Return full posterior distributions of present subjective values
 			% predicted_subjective_values.A_full_posterior =
 			% predicted_subjective_values.B_full_posterior =
-
-			%% return point estimates of present subjectiv values...
-			predicted_subjective_values.point_estimates = all_data_table;
 		end
 
 	end
