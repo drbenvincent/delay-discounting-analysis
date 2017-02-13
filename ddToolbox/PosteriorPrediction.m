@@ -35,10 +35,23 @@ classdef PosteriorPrediction
 		end
         
         function plot(obj, plotOptions, modelFilename)
-            % loop over all experiments/people, prodicing plot figures
+            % loop over all experiments/people, producing plot figures
             N = length(obj.postPred);
             for n = 1:N
                 obj.posterior_prediction_figure(n, plotOptions, modelFilename)
+                
+                pp = obj.postPred(n);
+                
+                % Export figure
+                % TODO: Exporting is not the responsibility of PosteriorPrediction class, so we need to extract this up to Model subclasses. They call it as:
+                % obj.postPred.plot(obj.plotOptions, obj.modelFilename)
+                if plotOptions.shouldExportPlots
+                    myExport(plotOptions.savePath,...
+                        'PosteriorPredictive',...
+                        'prefix', pp.IDname{:},...
+                        'suffix', modelFilename,...
+                        'formats', plotOptions.exportFormats)
+                end
             end
         end
         
@@ -56,15 +69,7 @@ classdef PosteriorPrediction
             subplot(h(1)), obj.pp_plotTrials(n)
             subplot(h(2)), obj.pp_plotGOFdistribution(n, plotOptions)
             subplot(h(3)), obj.pp_plotPercentPredictedDistribution(n, plotOptions)
-            % Export figure
             drawnow
-            if plotOptions.shouldExportPlots
-            	myExport(plotOptions.savePath,...
-                    'PosteriorPredictive',...
-            		'prefix', pp.IDname{:},...
-            		'suffix', modelFilename,...
-            		'formats', plotOptions.exportFormats)
-            end
         end
         
         function pp_plotGOFdistribution(obj, n, plotOptions)
