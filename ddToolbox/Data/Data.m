@@ -32,6 +32,7 @@ classdef Data
 			p.addParameter('files',[],@(x) iscellstr(x)|ischar(x));
 			p.parse(dataFolder, varargin{:});
 
+			assert(~isempty(p.Results.files), 'no filenames provided under ''files'' input argument')
 			try
 				table();
 			catch
