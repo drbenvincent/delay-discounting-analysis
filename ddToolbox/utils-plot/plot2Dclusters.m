@@ -1,4 +1,4 @@
-function plot2Dclusters(mcmcContainer, data, col, modelFilename, plotOptions, varInfo)
+function plot2Dclusters(mcmcContainer, data, col, plotOptions, varInfo)
 
 % TODO:
 % remove input:
@@ -90,12 +90,6 @@ set(gca,'XAxisLocation','origin',...
 	'YAxisLocation','origin')
 drawnow
 
-if plotOptions.shouldExportPlots
-	myExport(plotOptions.savePath,...
-        'summary_plot',...
-		'suffix', modelFilename,...
-        'formats', plotOptions.exportFormats)
-end
 
 	function properties = definePlotOptions4Participant(col)
 		properties = {'FaceAlpha', 0.1,...

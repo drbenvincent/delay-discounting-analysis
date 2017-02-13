@@ -1,4 +1,4 @@
-function plot1Dclusters(mcmcContainer, data, col, modelFilename, plotOptions, varInfo)
+function plot1Dclusters(mcmcContainer, data, col, plotOptions, varInfo)
 
 % TODO: plotExpclusters.m and plotLOGKclusters are pretty much identical
 
@@ -54,13 +54,6 @@ axis(participantAxisBounds)
 % set(gca,'XAxisLocation','origin',...
 % 	'YAxisLocation','origin')
 drawnow
-
-if plotOptions.shouldExportPlots
-	myExport(plotOptions.savePath,...
-        'summary_plot',...
-		'suffix', modelFilename,...
-        'formats', plotOptions.exportFormats)
-end
 
 
 	function properties = definePlotOptions4Participant(col)
