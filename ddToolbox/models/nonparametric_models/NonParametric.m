@@ -40,6 +40,13 @@ classdef (Abstract) NonParametric < Model
 			p.parse(varargin{:});
 
 			obj.plot_discount_functions_in_grid();
+            % Export
+            if obj.plotOptions.shouldExportPlots
+                myExport(obj.plotOptions.savePath,...
+                    'grid_discount_functions',...
+                    'suffix', obj.modelFilename,...
+                    'formats', obj.plotOptions.exportFormats);
+            end
 			
 			% EXPERIMENT PLOT ==================================================
             obj.psychometric_plots();
@@ -124,13 +131,6 @@ classdef (Abstract) NonParametric < Model
 				% ~~~~~~~~~~~~~~~~~~
 			end
 			drawnow
-			
-			if obj.plotOptions.shouldExportPlots
-				myExport(obj.plotOptions.savePath,...
-                    'grid_discount_functions',...
-					'suffix', obj.modelFilename,...
-					'formats', obj.plotOptions.exportFormats);
-			end
 			
 			function plot_df(ind)
 				% Set up discount function
