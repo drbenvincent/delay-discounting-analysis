@@ -31,7 +31,8 @@ classdef (Abstract) Parametric < Model
                     'formats', obj.plotOptions.exportFormats)
             end
 			
-			%% summary figure of core discounting parameters
+            
+			% summary figure of core discounting parameters
 			clusterPlot(...
 				obj.coda,...
 				obj.data,...
@@ -46,6 +47,7 @@ classdef (Abstract) Parametric < Model
             		'suffix', obj.modelFilename,...
                     'formats', obj.plotOptions.exportFormats)
             end
+                
                 
 			%% Plots, one per data file ===================================		
 			obj.plotAllExperimentFigures();
@@ -120,21 +122,25 @@ classdef (Abstract) Parametric < Model
     methods (Access = private)
     
         function plotAllTriPlots(obj, plotOptions, modelFilename)
+            
+            pVariableNames =  obj.varList.participantLevel;
+            
             for p = 1:obj.data.getNExperimentFiles
                 figure(87), clf
                 
-				pVariableNames =  obj.varList.participantLevel;
 				posteriorSamples = obj.coda.getSamplesAtIndex_asMatrix(p, pVariableNames);
 				
                 mcmc.TriPlotSamples(posteriorSamples,...
                 	pVariableNames,...
                 	'pointEstimateType', plotOptions.pointEstimateType);
 
+                id_prefix = obj.data.getIDnames(p);
+                
+                % Export            
                 if plotOptions.shouldExportPlots
-					id = obj.data.getIDnames(p);
                 	myExport(plotOptions.savePath,...
                         'triplot',...
-                		'prefix', id{:},...
+                		'prefix', id_prefix{:},...
                 		'suffix', modelFilename,...
                         'formats', plotOptions.exportFormats);
                 end
