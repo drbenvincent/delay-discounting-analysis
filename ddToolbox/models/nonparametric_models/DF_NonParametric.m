@@ -33,7 +33,9 @@ classdef DF_NonParametric < DiscountFunction
             
 			% We will estimate AUC
 			AUC_samples = obj.calcAUC();
+            
 			% create AUC as a Stochastic object
+            % TODO: this violates dependency injection, so we may want to pass these Stochastic objects in
 			obj.AUC = Stochastic('AUC');
 			obj.AUC.addSamples(AUC_samples);
         end

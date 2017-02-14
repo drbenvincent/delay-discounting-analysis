@@ -9,6 +9,7 @@ classdef DF_SLICE_PsychometricFunction < DeterministicFunction
 			obj = obj@DeterministicFunction();
 			
 			% create Stochastic objects
+            % TODO: this violates dependency injection, so we may want to pass these Stochastic objects in
 			obj.theta.indifference = Stochastic('indifference');
 			obj.theta.alpha = Stochastic('alpha');
 			obj.theta.epsilon = Stochastic('epsilon');

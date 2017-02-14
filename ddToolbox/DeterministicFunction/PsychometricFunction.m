@@ -6,6 +6,7 @@ classdef PsychometricFunction < DeterministicFunction
 		function obj = PsychometricFunction(varargin)
 			obj = obj@DeterministicFunction(varargin{:});
 			
+            % TODO: this violates dependency injection, so we may want to pass these Stochastic objects in
 			obj.theta.alpha = Stochastic('alpha');
 			obj.theta.epsilon = Stochastic('epsilon');
 			

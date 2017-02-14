@@ -18,13 +18,13 @@ classdef DataImporter
 			obj.path = path;
 			obj.fnames = fnames;
 			obj.nFiles = numel(fnames);
-			obj = obj.import();
-			
+            % do importing
+			obj.dataArray = obj.import();
 			disp('The following data files were imported:')
 			disp(fnames')
 		end
 		
-		function obj = import(obj)
+		function dataArray = import(obj)
 			for n=1:obj.nFiles
 				%% do the actual file import
 				experimentTable = readtable(...
@@ -47,7 +47,6 @@ classdef DataImporter
 				
 				dataArray(n) = DataFile(experimentTable);
 			end
-			obj.dataArray = dataArray;
 		end
 		
 		function dataArray = getData(obj)
