@@ -2,7 +2,7 @@ classdef PosteriorPrediction
 	%PosteriorPrediction Summary of this class goes here
 	%   Detailed explanation goes here
 	
-	properties
+	properties (SetAccess = private, GetAccess = private)
 		postPred
 	end
 	
@@ -44,7 +44,17 @@ classdef PosteriorPrediction
                 prefix_string = obj.postPred(n).IDname{:};
                 obj.exportFigure(plotOptions, prefix_string, modelFilename)
             end
-        end
+		end
+		
+		% PUBLIC GETTERS --------------------------------------------------
+		
+		function score = getScores(obj)
+			score = [obj.postPred(:).score]';
+		end
+		
+		function pp = getPercentPredictedDistribution(obj)
+			pp = {obj.postPred(:).percentPredictedDistribution};
+		end
         
 	end
     
