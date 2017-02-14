@@ -40,18 +40,9 @@ classdef PosteriorPrediction
             for n = 1:N
                 obj.posterior_prediction_figure(n, plotOptions, modelFilename)
                 
-                pp = obj.postPred(n);
-                
-                % Export figure
-                % TODO: Exporting is not the responsibility of PosteriorPrediction class, so we need to extract this up to Model subclasses. They call it as:
-                % obj.postPred.plot(obj.plotOptions, obj.modelFilename)
-                if plotOptions.shouldExportPlots
-                    myExport(plotOptions.savePath,...
-                        'PosteriorPredictive',...
-                        'prefix', pp.IDname{:},...
-                        'suffix', modelFilename,...
-                        'formats', plotOptions.exportFormats)
-                end
+                % Exporting
+                prefix_string = obj.postPred(n).IDname{:};
+                obj.exportFigure(plotOptions, prefix_string, modelFilename)
             end
         end
         
@@ -60,7 +51,6 @@ classdef PosteriorPrediction
     methods (Access = private)
     
         function posterior_prediction_figure(obj, n, plotOptions, modelFilename)
-			pp = obj.postPred(n);
 			% Sort figure
             figure(1), colormap(gray), clf
             latex_fig(16, 9, 6)
@@ -73,16 +63,16 @@ classdef PosteriorPrediction
         end
         
         function pp_plotGOFdistribution(obj, n, plotOptions)
-			pp = obj.postPred(n);
-            uni = mcmc.UnivariateDistribution(pp.GOF_distribtion(:),...
+            uni = mcmc.UnivariateDistribution(...
+                obj.postPred(n).GOF_distribtion(:),...
                 'xLabel', 'goodness of fit score',...
                 'plotStyle','hist',...
                 'pointEstimateType', plotOptions.pointEstimateType);
         end
 
         function pp_plotPercentPredictedDistribution(obj, n, plotOptions)
-			pp = obj.postPred(n);
-            uni = mcmc.UnivariateDistribution(pp.percentPredictedDistribution(:),...
+            uni = mcmc.UnivariateDistribution(...
+                obj.postPred(n).percentPredictedDistribution(:),...
                 'xLabel', '$\%$ proportion responses accounted for',...
                 'plotStyle','hist',...
                 'pointEstimateType', plotOptions.pointEstimateType);
@@ -92,21 +82,19 @@ classdef PosteriorPrediction
         end
 
         function pp_plotTrials(obj, n)
-			pp = obj.postPred(n);
             % plot predicted probability of choosing delayed
-            bar(pp.responses_predicted, 'BarWidth',1)
+            bar(obj.postPred(n).responses_predicted, 'BarWidth',1)
             % formatting
             box off
             axis tight
             % plot response data
             hold on
-            plot([1:numel(pp.responses_actual)], pp.responses_actual, '+')
+            plot([1:numel(obj.postPred(n).responses_actual)], obj.postPred(n).responses_actual, '+')
             % formatting
             xlabel('trial')
             ylabel('response')
             legend('prediction','response', 'Location','East')
         end
-        
         
     end
 	
@@ -124,7 +112,7 @@ classdef PosteriorPrediction
 		end
 
 		function percentResponsesPredicted = calcPercentResponsesCorrectlyPredicted(responses_predictedMCMC, responses_actual)
-			%% Calculate % responses predicted by the model
+			% Calculate % responses predicted by the model
 			totalSamples				= size(responses_predictedMCMC,2);
 			nQuestions					= numel(responses_actual);
 			modelPrediction				= zeros(size(responses_predictedMCMC));
@@ -138,11 +126,21 @@ classdef PosteriorPrediction
 			% Calculate log posterior odds of data under the model and a
 			% control model where prob of responding is 0.5.
 			responses_control_model = ones(size(responses_predicted)).*0.5;
-			
 			score = calcLogOdds(...
 				calcDataLikelihood(responses_actual, responses_predicted'),...
 				calcDataLikelihood(responses_actual, responses_control_model'));
 		end
+        
+        function exportFigure(plotOptions, prefix_string, modelFilename)
+            % TODO: Exporting is not the responsibility of PosteriorPrediction class, so we need to extract this up to Model subclasses. They call it as: obj.postPred.plot(obj.plotOptions, obj.modelFilename)
+            if plotOptions.shouldExportPlots
+                myExport(plotOptions.savePath,...
+                    'PosteriorPredictive',...
+                    'prefix', prefix_string,...
+                    'suffix', modelFilename,...
+                    'formats', plotOptions.exportFormats)
+            end    
+        end
 
 	end
 	
