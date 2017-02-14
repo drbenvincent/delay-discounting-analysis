@@ -268,7 +268,7 @@ classdef (Abstract) NonParametric < Model
 	
 	methods (Static, Access = protected)
 		
-		function observedData = addititional_model_specific_ObservedData(observedData)
+		function observedData = additional_model_specific_ObservedData(observedData)
 			observedData.uniqueDelays = sort(unique(observedData.DB))';
 			observedData.delayLookUp = calcDelayLookup();
 

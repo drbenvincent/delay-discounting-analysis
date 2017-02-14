@@ -205,7 +205,7 @@ classdef (Abstract) Model
 			observedData.nRealExperimentFiles = obj.data.getNRealExperimentFiles();
 			observedData.totalTrials = height(all_data);
 			% protected method which can be over-ridden by model sub-classes
-			observedData = obj.addititional_model_specific_ObservedData(observedData);
+			observedData = obj.additional_model_specific_ObservedData(observedData);
 		end
 
 		function obj = calcDerivedMeasures(obj)
@@ -248,7 +248,7 @@ classdef (Abstract) Model
 
 	methods (Static, Access = protected)
 
-		function observedData = addititional_model_specific_ObservedData(observedData)
+		function observedData = additional_model_specific_ObservedData(observedData)
 			% KEEP THIS HERE. IT IS OVER-RIDDEN IN SOME MODEL SUB-CLASSES
 
 			% TODO: can we move this to NonParamtric abstract class?
