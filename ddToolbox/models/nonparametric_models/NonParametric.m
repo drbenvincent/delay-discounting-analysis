@@ -71,21 +71,21 @@ classdef (Abstract) NonParametric < Model
             latex_fig(12, 14, 3)
             h = layout([1 2 3 3]);
             
-            %%  Set up psychometric function
-            psycho = PsychometricFunction('samples', obj.coda.getSamplesAtIndex_asStruct(ind,{'alpha','epsilon'}));
+            opts.pointEstimateType	= obj.plotOptions.pointEstimateType;
+            opts.timeUnits			= obj.timeUnits;
             
-            %% plot bivariate distribution of alpha, epsilon
-            subplot(h(1))
-            samples = obj.coda.getSamplesAtIndex_asStruct(ind,{'alpha','epsilon'});
-            mcmc.BivariateDistribution(...
-                samples.epsilon(:),...
-                samples.alpha(:),...
-                'xLabel','error rate, $\epsilon$',...
-                'ylabel','comparison accuity, $\alpha$',...
-                'pointEstimateType',obj.plotOptions.pointEstimateType,...
-                'plotStyle', 'hist',...
-                'axisSquare', true);
-    
+            responseErrorVariables    = {obj.varList.responseErrorParams.name};
+            
+            %%  Set up psychometric function
+            psycho = PsychometricFunction('samples', obj.coda.getSamplesAtIndex_asStruct(ind,responseErrorVariables));
+                
+            %% PLOT: density plot of (alpha, epsilon)
+            obj.coda.plot_bivariate_distribution(h(1),...
+                responseErrorVariables(1),...
+                responseErrorVariables(2),...
+                ind,...
+                opts)
+                
             %% Set up discount function
             personInfo = obj.getExperimentData(ind);
             discountFunction = DF_NonParametric('delays',personInfo.delays,...
@@ -123,16 +123,13 @@ classdef (Abstract) NonParametric < Model
 			
 			% Iterate over files, plotting
 			disp('Plotting...')
-			
 			for n = 1:numel(names)
-				subplot(subplot_handles(n))
-				% ~~~~~~~~~~~~~~~~~~
-				plot_df(n)
-				% ~~~~~~~~~~~~~~~~~~
+				plot_df(n, subplot_handles(n))
 			end
 			drawnow
 			
-			function plot_df(ind)
+			function plot_df(ind, subplot_handle)
+                subplot(subplot_handle)
 				% Set up discount function
 				personInfo = obj.getExperimentData(ind);
 				discountFunction = DF_NonParametric('delays',personInfo.delays,...
