@@ -3,7 +3,6 @@ classdef (Abstract) NonParametric < Model
 
     properties (Access = private)
         AUC_DATA
-		getDiscountRate % function handle
 	end
 
 	methods (Access = public)

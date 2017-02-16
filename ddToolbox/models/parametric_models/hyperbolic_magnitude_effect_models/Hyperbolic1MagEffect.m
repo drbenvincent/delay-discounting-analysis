@@ -1,10 +1,6 @@
 classdef (Abstract) Hyperbolic1MagEffect < Parametric
 	%Hyperbolic1MagEffect  Hyperbolic1MagEffect is a subclass of Model for examining the 1-parameter hyperbolic discounting function.
 
-	properties (Access = private)
-		getDiscountRate % function handle
-	end
-
 	methods (Access = public)
 
 		function obj = Hyperbolic1MagEffect(data, varargin)

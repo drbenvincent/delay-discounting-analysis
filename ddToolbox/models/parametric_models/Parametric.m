@@ -1,9 +1,5 @@
 classdef (Abstract) Parametric < Model
-	
-	properties (Access = private)
 		
-	end
-	
 	methods (Access = public)
 		
 		function obj = Parametric(data, varargin)
@@ -132,6 +128,7 @@ classdef (Abstract) Parametric < Model
     
     methods (Access = private)
     
+        % TODO: this should be moved to CODA
         function plotAllTriPlots(obj, plotOptions, modelFilename)
             
             pVariableNames =  obj.varList.participantLevel;
