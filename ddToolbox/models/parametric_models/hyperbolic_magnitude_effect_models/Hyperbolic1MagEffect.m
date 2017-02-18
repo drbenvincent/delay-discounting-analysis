@@ -1,10 +1,6 @@
 classdef (Abstract) Hyperbolic1MagEffect < Parametric
 	%Hyperbolic1MagEffect  Hyperbolic1MagEffect is a subclass of Model for examining the 1-parameter hyperbolic discounting function.
 
-	properties (Access = private)
-		getDiscountRate % function handle
-	end
-
 	methods (Access = public)
 
 		function obj = Hyperbolic1MagEffect(data, varargin)
@@ -109,6 +105,27 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 
 
 		end
+		
+		
+		% OVERRIDING : TODO: remove the need for this by making all
+		% discountFunction.plot methods have the same interface / input
+		% arguments.
+		function plot_discount_function(obj, subplot_handle, ind)
+			discountFunctionVariables = {obj.varList.discountFunctionParams.name};
+			
+			subplot(subplot_handle)
+			discountFunction = obj.dfClass(...
+				'samples', obj.coda.getSamplesAtIndex_asStruct(ind, discountFunctionVariables),...
+				'data', obj.data.getExperimentObject(ind));
+			
+			discountFunction.plot(obj.plotOptions.pointEstimateType,...
+				obj.plotOptions.dataPlotType,...
+				obj.timeUnits,...
+				obj.data.getMaxRewardValue(ind),...
+				obj.data.getMaxDelayValue(ind));
+			% TODO #166 avoid having to parse these args in here
+		end
+		
 
         % MIDDLE-MAN METHOD
         function logk = getLogDiscountRate(obj, reward, index, varargin)

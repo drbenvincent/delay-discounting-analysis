@@ -12,6 +12,7 @@ classdef DF_HyperbolicMagnitudeEffect < DiscountFunction
 			obj = obj@DiscountFunction(varargin{:});
 
 			obj.theta = []; % clear anything from superclass
+            % TODO: this violates dependency injection, so we may want to pass these Stochastic objects in
 			obj.theta.m = Stochastic('m');
 			obj.theta.c = Stochastic('c');
 

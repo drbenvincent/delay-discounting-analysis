@@ -1,10 +1,6 @@
 classdef (Abstract) Hyperbolic1 < Parametric
 	%Hyperbolic1  Hyperbolic1 is a subclass of Model for examining the 1-parameter hyperbolic discounting function.
 
-	properties (Access = private)
-		getDiscountRate % function handle
-	end
-
 	methods (Access = public)
 
 		function obj = Hyperbolic1(data, varargin)

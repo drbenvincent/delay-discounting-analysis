@@ -3,7 +3,6 @@ classdef (Abstract) NonParametric < Model
 
     properties (Access = private)
         AUC_DATA
-		getDiscountRate % function handle
 	end
 
 	methods (Access = public)
@@ -14,21 +13,11 @@ classdef (Abstract) NonParametric < Model
             % Create variables
 			obj.varList.participantLevel = {'Rstar'};
 			obj.varList.monitored = {'Rstar', 'alpha', 'epsilon', 'Rpostpred', 'P'};
+            
+            obj.varList.discountFunctionParams(1).name = 'Rstar';
+            obj.varList.discountFunctionParams(1).label = 'Rstar';
 		end
 
-	end
-
-    
-    methods (Access = protected)
-
-        function obj = calcDerivedMeasures(obj)
-        end
-
-    end
-    
-    
-    
-    methods (Access = public)
 
 		function plot(obj, varargin) % overriding from Model base class
 			close all
@@ -40,6 +29,13 @@ classdef (Abstract) NonParametric < Model
 			p.parse(varargin{:});
 
 			obj.plot_discount_functions_in_grid();
+            % Export
+            if obj.plotOptions.shouldExportPlots
+                myExport(obj.plotOptions.savePath,...
+                    'grid_discount_functions',...
+                    'suffix', obj.modelFilename,...
+                    'formats', obj.plotOptions.exportFormats);
+            end
 			
 			% EXPERIMENT PLOT ==================================================
             obj.psychometric_plots();
@@ -64,24 +60,24 @@ classdef (Abstract) NonParametric < Model
             latex_fig(12, 14, 3)
             h = layout([1 2 3 3]);
             
-            %%  Set up psychometric function
-            psycho = PsychometricFunction('samples', obj.coda.getSamplesAtIndex_asStruct(ind,{'alpha','epsilon'}));
+            opts.pointEstimateType	= obj.plotOptions.pointEstimateType;
+            opts.timeUnits			= obj.timeUnits;
             
-            %% plot bivariate distribution of alpha, epsilon
-            subplot(h(1))
-            samples = obj.coda.getSamplesAtIndex_asStruct(ind,{'alpha','epsilon'});
-            mcmc.BivariateDistribution(...
-                samples.epsilon(:),...
-                samples.alpha(:),...
-                'xLabel','error rate, $\epsilon$',...
-                'ylabel','comparison accuity, $\alpha$',...
-                'pointEstimateType',obj.plotOptions.pointEstimateType,...
-                'plotStyle', 'hist',...
-                'axisSquare', true);
-    
+            responseErrorVariables    = {obj.varList.responseErrorParams.name};
+            
+            %%  Set up psychometric function
+            psycho = PsychometricFunction('samples', obj.coda.getSamplesAtIndex_asStruct(ind,responseErrorVariables));
+                
+            %% PLOT: density plot of (alpha, epsilon)
+            obj.coda.plot_bivariate_distribution(h(1),...
+                responseErrorVariables(1),...
+                responseErrorVariables(2),...
+                ind,...
+                opts)
+                
             %% Set up discount function
             personInfo = obj.getExperimentData(ind);
-            discountFunction = DF_NonParametric('delays',personInfo.delays,...
+            discountFunction = obj.dfClass('delays',personInfo.delays,...
                 'theta', personInfo.dfSamples);
             % inject a DataFile object into the discount function
             discountFunction.data = obj.data.getExperimentObject(ind);
@@ -92,60 +88,27 @@ classdef (Abstract) NonParametric < Model
             xlim([0 2])
             
             %% plot discount function
-            subplot(h(3))
-            discountFunction.plot();
+            obj.plot_discount_function(h(3), ind)
             
 		end
-		
-		
-		function plot_discount_functions_in_grid(obj)
-			latex_fig(12, 11,11)
-			
-			% TODO: extract the grid formatting stuff to be able to call
-			% any plot function we want
-			% USE: apply_plot_function_to_subplot_handle.m ??
-			
-			%fh = figure('Name', names{experimentIndex});
-			names = obj.data.getIDnames('all');
-			
-			clf, drawnow
-			
-			% create grid layout
-			N = numel(names);
-			subplot_handles = create_subplots(N, 'square');
-			
-			% Iterate over files, plotting
-			disp('Plotting...')
-			
-			for n = 1:numel(names)
-				subplot(subplot_handles(n))
-				% ~~~~~~~~~~~~~~~~~~
-				plot_df(n)
-				% ~~~~~~~~~~~~~~~~~~
-			end
-			drawnow
-			
-			if obj.plotOptions.shouldExportPlots
-				myExport(obj.plotOptions.savePath, 'grid_discount_functions',...
-					'suffix', obj.modelFilename,...
-					'formats', obj.plotOptions.exportFormats);
-			end
-			
-			function plot_df(ind)
-				% Set up discount function
-				personInfo = obj.getExperimentData(ind);
-				discountFunction = DF_NonParametric('delays',personInfo.delays,...
-					'theta', personInfo.dfSamples);
-				discountFunction.data = obj.data.getExperimentObject(ind);
-				
-				discountFunction.plot();
-			end
-			
-		end
-		
-		
-		
-		
+        
+        
+        % TODO: work to be able to move this method up to Model base class from both Parametric and NonParamtric
+        function plot_discount_function(obj, subplot_handle, ind)
+            discountFunctionVariables = {obj.varList.discountFunctionParams.name};
+            subplot(subplot_handle)
+            
+            personInfo = obj.getExperimentData(ind); % TODO: do we really need this?
+            
+
+            % TODO: DF_NonParametric should have same interface as DF_Hyperbolic1 etc
+            discountFunction = obj.dfClass('delays',personInfo.delays,...
+                'theta', personInfo.dfSamples);
+            discountFunction.data = obj.data.getExperimentObject(ind);
+            
+            discountFunction.plot();
+            % TODO #166 avoid having to parse these args in here
+        end
         
         
 		function personStruct = getExperimentData(obj, p)
@@ -214,7 +177,12 @@ classdef (Abstract) NonParametric < Model
         
     end
     
+    
+    
     methods (Access = protected)
+    
+        function obj = calcDerivedMeasures(obj)
+        end
     
         function psychometric_plots(obj)
             % TODO: plot data on these figures
@@ -240,7 +208,6 @@ classdef (Abstract) NonParametric < Model
                     psycho.plot();
                     %% plot response data TODO: move this to Data ~~~~~~~~~
                     hold on
-                    %pTable = obj.data.getRawDataTableForParticipant(ind);
                     AoverB = personStruct.data.A ./ personStruct.data.B;
                     R = personStruct.data.R;
                     % grab just for this delay
@@ -253,7 +220,8 @@ classdef (Abstract) NonParametric < Model
                 end
                 drawnow
                 if obj.plotOptions.shouldExportPlots
-                    myExport(obj.plotOptions.savePath, 'expt_psychometric',...
+                    myExport(obj.plotOptions.savePath,...
+                        'expt_psychometric',...
                         'prefix', names{ind},...
                         'suffix', obj.modelFilename,...
                         'formats', obj.plotOptions.exportFormats );
@@ -266,7 +234,7 @@ classdef (Abstract) NonParametric < Model
 	
 	methods (Static, Access = protected)
 		
-		function observedData = addititional_model_specific_ObservedData(observedData)
+		function observedData = additional_model_specific_ObservedData(observedData)
 			observedData.uniqueDelays = sort(unique(observedData.DB))';
 			observedData.delayLookUp = calcDelayLookup();
 

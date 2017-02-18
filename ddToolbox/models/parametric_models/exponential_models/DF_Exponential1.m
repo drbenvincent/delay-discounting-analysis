@@ -10,6 +10,7 @@ classdef DF_Exponential1 < DiscountFunction
 		function obj = DF_Exponential1(varargin)
 			obj = obj@DiscountFunction(varargin{:});
 			
+            % TODO: this violates dependency injection, so we may want to pass these Stochastic objects in
 			obj.theta.k = Stochastic('k');
 			
             obj = obj.parse_for_samples_and_data(varargin{:});

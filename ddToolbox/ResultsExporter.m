@@ -85,7 +85,7 @@ classdef ResultsExporter
 		end
 		
 		function postPredTable = makePostPredTable(obj)
-			postPredTable = table([obj.postPred(:).score]',...
+			postPredTable = table(obj.postPred.getScores(),...
 				obj.calc_percent_predicted_point_estimate(),...
 				obj.any_percent_predicted_warnings(),...
 				'RowNames', obj.data.getIDnames('experiments'),...
@@ -106,7 +106,7 @@ classdef ResultsExporter
 			% estimate type that the user specified
 			pointEstFunc = str2func(obj.plotOptions.pointEstimateType);
 			percentPredicted = cellfun(pointEstFunc,...
-				{obj.postPred.percentPredictedDistribution})';
+				obj.postPred.getPercentPredictedDistribution())';
 		end
 		
 		function pp_warning = any_percent_predicted_warnings(obj)
@@ -115,7 +115,7 @@ classdef ResultsExporter
 			warningFunc = @(x) x(1) < ppLowerThreshold;
 			warnOnHDI = @(x) warningFunc( hdiFunc(x) );
 			pp_warning = cellfun( warnOnHDI,...
-				{obj.postPred.percentPredictedDistribution})';
+				obj.postPred.getPercentPredictedDistribution())';
 		end
 	end
 end

@@ -12,16 +12,12 @@ classdef (Abstract) Model
 	properties (SetAccess = protected, GetAccess = protected)
 		dfClass % function handle to DiscountFunction class
 		samplerType
-		discountFuncType
 		postPred
-		parameterEstimateTable
-		experimentFigPlotFuncs
 		mcmcParams % structure of user-supplied params
 		observedData
 		% User supplied preferences
 		modelFilename % string (ie modelFilename.jags, or modelFilename.stan)
 		varList
-		plotFuncs % structure of function handles
 		plotOptions
 		timeUnits % string whose name must be a function to create a Duration.
 	end
@@ -31,11 +27,6 @@ classdef (Abstract) Model
         plot()
         initialiseChainValues()
         experimentMultiPanelFigure()
-        plot_discount_functions_in_grid()
-        
-        % TODO: sort these out, #172... probably want to rejig so it's done differently
-        %getExperimentData
-        %extractDiscountFunctionSamples
     end
 
 	methods (Access = public)
@@ -128,7 +119,7 @@ classdef (Abstract) Model
 				obj.data.getIDnames('all'))
 			
 			exporter = ResultsExporter(obj.coda, obj.data,...
-				obj.postPred.postPred,...
+				obj.postPred,...
 				obj.varList,...
 				obj.plotOptions);
 			exporter.printToScreen();
@@ -141,6 +132,10 @@ classdef (Abstract) Model
 		function obj = plotMCMCchains(obj,vars)
 			obj.coda.plotMCMCchains(vars);
 		end
+        
+        function [samples] = getGroupLevelSamples(obj, fieldsToGet)
+            [samples] = obj.data.getGroupLevelSamples(fieldsToGet);
+        end
 
 	end
 
@@ -152,37 +147,24 @@ classdef (Abstract) Model
 			nChains = obj.mcmcParams.nchains;
 		end
 
-		function [samples] = getGroupLevelSamples(obj, fieldsToGet)
-			if ~obj.data.isUnobservedPartipantPresent()
-				% exit if we don't have any group level inference
-				error('Looks like we don''t have group level estimates.')
-			else
-				index = obj.data.getIndexOfUnobservedParticipant();
-				samples = obj.coda.getSamplesAtIndex_asStruct(index, fieldsToGet);
-			end
-		end
+
 
 		function [predicted_subjective_values] = get_inferred_present_subjective_values(obj)
 			%% calculate point estimates
 			% get point estimates of present subjective values. These will
 			% be vectors. Each value corresponds to one trial in the
 			% overall dataset
-			VA_point_estimate = obj.coda.getStats(obj.plotOptions.pointEstimateType, 'VA');
-			VB_point_estimate = obj.coda.getStats(obj.plotOptions.pointEstimateType, 'VB');
-			assert(isvector(VA_point_estimate))
-			assert(isvector(VB_point_estimate))
-
+            
+            %% return point estimates of present subjective values...
 			all_data_table = obj.data.groupTable;
-			all_data_table.VA = VA_point_estimate;
-			all_data_table.VB = VB_point_estimate;
+            % add new columns for present subjective value (VA, VB)
+			all_data_table.VA = obj.coda.getStats(obj.plotOptions.pointEstimateType, 'VA');
+			all_data_table.VB = obj.coda.getStats(obj.plotOptions.pointEstimateType, 'VB');
+            predicted_subjective_values.point_estimates = all_data_table;
 
-			%% Return full posterior distributions of present subjective values
-			% TODO
+			%% TODO: Return full posterior distributions of present subjective values
 			% predicted_subjective_values.A_full_posterior =
 			% predicted_subjective_values.B_full_posterior =
-
-			%% return point estimates of present subjectiv values...
-			predicted_subjective_values.point_estimates = all_data_table;
 		end
 
 	end
@@ -211,7 +193,7 @@ classdef (Abstract) Model
 			observedData.nRealExperimentFiles = obj.data.getNRealExperimentFiles();
 			observedData.totalTrials = height(all_data);
 			% protected method which can be over-ridden by model sub-classes
-			observedData = obj.addititional_model_specific_ObservedData(observedData);
+			observedData = obj.additional_model_specific_ObservedData(observedData);
 		end
 
 		function obj = calcDerivedMeasures(obj)
@@ -238,7 +220,8 @@ classdef (Abstract) Model
                 drawnow
 
                 if obj.plotOptions.shouldExportPlots
-                    myExport(obj.plotOptions.savePath, 'expt',...
+                    myExport(obj.plotOptions.savePath,...
+                        'expt',...
                         'prefix', names{experimentIndex},...
                         'suffix', obj.modelFilename,...
                         'formats', obj.plotOptions.exportFormats);
@@ -247,13 +230,38 @@ classdef (Abstract) Model
                 close(fh);
             end
         end
+        
+        function plot_discount_functions_in_grid(obj)
+            latex_fig(12, 11,11)
+            clf, drawnow
+            
+            % TODO: extract the grid formatting stuff to be able to call
+            % any plot function we want
+            % USE: apply_plot_function_to_subplot_handle.m ??
+            
+            %fh = figure('Name', names{experimentIndex});
+            names = obj.data.getIDnames('all');
+            
+            % create grid layout
+            N = numel(names);
+            subplot_handles = create_subplots(N, 'square');
+            
+            % Iterate over files, plotting
+            disp('Plotting...')
+            for n = 1:numel(names)
+                obj.plot_discount_function(subplot_handles(n), n)
+				title(names{n}, 'FontSize',10)
+				set(gca,'FontSize',10)
+            end
+            drawnow
+        end
 
 	end
 
 
 	methods (Static, Access = protected)
 
-		function observedData = addititional_model_specific_ObservedData(observedData)
+		function observedData = additional_model_specific_ObservedData(observedData)
 			% KEEP THIS HERE. IT IS OVER-RIDDEN IN SOME MODEL SUB-CLASSES
 
 			% TODO: can we move this to NonParamtric abstract class?

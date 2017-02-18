@@ -1,9 +1,5 @@
 classdef (Abstract) Exponential1 < Parametric
 
-	properties (Access = private)
-		getDiscountRate % function handle
-	end
-
 	methods (Access = public)
 
 		function obj = Exponential1(data, varargin)

@@ -14,7 +14,7 @@ classdef Data
     
     properties (Dependent)
         totalTrials
-        groupTable % table of A§, DA, B, DB, R, ID, PA, PB
+        groupTable % table of A, DA, B, DB, R, ID, PA, PB
     end
 
 	% NOTE TO SELF: These public methods need to be seen as interfaces to
@@ -234,9 +234,13 @@ classdef Data
 			end
 		end
         
-        function output = getEverythingAboutAnExperiment(obj, ind)
-            % return a structure of everything about the data file 'ind'
-            
+        function [samples] = getGroupLevelSamples(obj, fieldsToGet)
+            if ~obj.isUnobservedPartipantPresent()
+                error('Looks like we don''t have group level estimates.')
+            else
+                index = obj.data.getIndexOfUnobservedParticipant();
+                samples = obj.coda.getSamplesAtIndex_asStruct(index, fieldsToGet);
+            end
         end
 		
 		function participantIndexList = getParticipantIndexList(obj)

@@ -173,12 +173,6 @@ classdef CODA
 			if ~isempty(targetAxisHandle)
 				subplot(targetAxisHandle)
 			end
-			
-			
-% 			% using my plot tools package
-% 			mcmc.UnivariateDistribution(samples',...
-% 				'plotStyle','hist',...
-% 				'plotHDI',false);
 
             univariateObject = Stochastic('name_here');
             univariateObject.addSamples(samples);
@@ -208,7 +202,7 @@ classdef CODA
 				'axisSquare', true);
 		end
 
-        function plotUnivariateSummaries(obj, variables, plotOptions, modelFilename, idNames)
+        function plotUnivariateSummaries(obj, variables, plotOptions, idNames)
             % create a figure with multiple subplots (boxplots) for each input variable privided
             
             % create subplots
@@ -238,14 +232,6 @@ classdef CODA
             % screen_size = get(0,'ScreenSize');
             % fig_width = min(screen_size(3), 100+numel(participantNames)*20);
             % set(gcf,'Position',[100 200 fig_width 1000])
-            
-            % Export
-            if plotOptions.shouldExportPlots
-            	myExport(plotOptions.savePath,...
-            		'UnivariateSummary',...
-            		'suffix', modelFilename,...
-                    'formats', plotOptions.exportFormats)
-            end
         end
 
 
