@@ -110,56 +110,8 @@ classdef (Abstract) NonParametric < Model
             % TODO #166 avoid having to parse these args in here
         end
         
-        
-		function personStruct = getExperimentData(obj, p)
-			% Create a structure with all the useful info about a person
-			% p = person number
-			participantName = obj.data.getIDnames(p);
-			try
-				parts = strsplit(participantName,'-');
-				personStruct.participantName = strjoin(parts(1:2),'-');
-			catch
-				personStruct.participantName = participantName;
-			end
-			personStruct.delays = obj.observedData.uniqueDelays;
-			personStruct.dfSamples = obj.extractDiscountFunctionSamples(p);
-			personStruct.data = obj.data.getExperimentData(p);
-			
-			% TODO: THIS IS A BOTCH ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			% the model currently assumes all participants have been
-			% tested on the same set of delays. But this is not
-			% necessarily true. So here we need to exclude inferences
-			% about discount fractions for delays that this person was
-			% never tested on.
-			
-			% want to remove:
-			% - columns of personStruct.dfSamples
-			% - personStruct.delays
-			% where this person was not tested on this delay
-			
-			temp = obj.data.getRawDataTableForParticipant(p);
-			delays_tested = unique(temp.DB);
-			
-			keep = ismember(personStruct.delays, delays_tested);
-			
-			personStruct.delays = personStruct.delays(keep);
-			personStruct.dfSamples = personStruct.dfSamples(:,keep);
-			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		end
-
-		function dfSamples = extractDiscountFunctionSamples(obj, personNumber)
-			samples = obj.coda.getSamples({'Rstar'});
-			[chains, nSamples, participants, nDelays] = size(samples.Rstar);
-			personSamples = squeeze(samples.Rstar(:,:,personNumber,:));
-			% collapse over chains
-			for d=1:nDelays
-				dfSamples(:,d) = vec(personSamples(:,:,d));
-			end
-		end
-
 		
         % TODO: do this by injecting new AUC values into CODA?
-        % TODO: do it for Parametric models as well
 		function [auc] = getAUC(obj)
 			% return AUC measurements. 
 			% This will return an object array of stocastic objects
@@ -167,7 +119,7 @@ classdef (Abstract) NonParametric < Model
 
 			for ind = 1:numel(names)
 				personInfo = obj.getExperimentData(ind);
-				discountFunction = DF_NonParametric('delays',personInfo.delays,...
+				discountFunction = obj.dfClass('delays',personInfo.delays,...
 					'theta', personInfo.dfSamples);
 				
 				% append to object array
@@ -249,5 +201,53 @@ classdef (Abstract) NonParametric < Model
         
 	end
     
+    methods (Access = private)
+    
+        function personStruct = getExperimentData(obj, p)
+            % Create a structure with all the useful info about a person
+            % p = person number
+            participantName = obj.data.getIDnames(p);
+            try
+                parts = strsplit(participantName,'-');
+                personStruct.participantName = strjoin(parts(1:2),'-');
+            catch
+                personStruct.participantName = participantName;
+            end
+            personStruct.delays = obj.observedData.uniqueDelays;
+            personStruct.dfSamples = obj.extractDiscountFunctionSamples(p);
+            personStruct.data = obj.data.getExperimentData(p);
+            
+            % TODO: THIS IS A BOTCH ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            % the model currently assumes all participants have been
+            % tested on the same set of delays. But this is not
+            % necessarily true. So here we need to exclude inferences
+            % about discount fractions for delays that this person was
+            % never tested on.
+            
+            % want to remove:
+            % - columns of personStruct.dfSamples
+            % - personStruct.delays
+            % where this person was not tested on this delay
+            
+            temp = obj.data.getRawDataTableForParticipant(p);
+            delays_tested = unique(temp.DB);
+            
+            keep = ismember(personStruct.delays, delays_tested);
+            
+            personStruct.delays = personStruct.delays(keep);
+            personStruct.dfSamples = personStruct.dfSamples(:,keep);
+            % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        end
 
+        function dfSamples = extractDiscountFunctionSamples(obj, personNumber)
+            samples = obj.coda.getSamples({'Rstar'});
+            [chains, nSamples, participants, nDelays] = size(samples.Rstar);
+            personSamples = squeeze(samples.Rstar(:,:,personNumber,:));
+            % collapse over chains
+            for d=1:nDelays
+                dfSamples(:,d) = vec(personSamples(:,:,d));
+            end
+        end
+    
+    end
 end
