@@ -250,6 +250,8 @@ classdef (Abstract) Model
             disp('Plotting...')
             for n = 1:numel(names)
                 obj.plot_discount_function(subplot_handles(n), n)
+				title(names{n}, 'FontSize',10)
+				set(gca,'FontSize',10)
             end
             drawnow
         end
