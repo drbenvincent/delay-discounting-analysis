@@ -12,16 +12,12 @@ classdef (Abstract) Model
 	properties (SetAccess = protected, GetAccess = protected)
 		dfClass % function handle to DiscountFunction class
 		samplerType
-		discountFuncType
 		postPred
-		parameterEstimateTable
-		experimentFigPlotFuncs
 		mcmcParams % structure of user-supplied params
 		observedData
 		% User supplied preferences
 		modelFilename % string (ie modelFilename.jags, or modelFilename.stan)
 		varList
-		plotFuncs % structure of function handles
 		plotOptions
 		timeUnits % string whose name must be a function to create a Duration.
 	end
