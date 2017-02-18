@@ -27,11 +27,6 @@ classdef (Abstract) Model
         plot()
         initialiseChainValues()
         experimentMultiPanelFigure()
-        plot_discount_functions_in_grid()
-        
-        % TODO: sort these out, #172... probably want to rejig so it's done differently
-        %getExperimentData
-        %extractDiscountFunctionSamples
     end
 
 	methods (Access = public)
@@ -234,6 +229,29 @@ classdef (Abstract) Model
 
                 close(fh);
             end
+        end
+        
+        function plot_discount_functions_in_grid(obj)
+            latex_fig(12, 11,11)
+            clf, drawnow
+            
+            % TODO: extract the grid formatting stuff to be able to call
+            % any plot function we want
+            % USE: apply_plot_function_to_subplot_handle.m ??
+            
+            %fh = figure('Name', names{experimentIndex});
+            names = obj.data.getIDnames('all');
+            
+            % create grid layout
+            N = numel(names);
+            subplot_handles = create_subplots(N, 'square');
+            
+            % Iterate over files, plotting
+            disp('Plotting...')
+            for n = 1:numel(names)
+                obj.plot_discount_function(subplot_handles(n), n)
+            end
+            drawnow
         end
 
 	end

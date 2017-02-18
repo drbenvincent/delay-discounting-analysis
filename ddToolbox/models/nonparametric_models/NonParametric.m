@@ -13,21 +13,11 @@ classdef (Abstract) NonParametric < Model
             % Create variables
 			obj.varList.participantLevel = {'Rstar'};
 			obj.varList.monitored = {'Rstar', 'alpha', 'epsilon', 'Rpostpred', 'P'};
+            
+            obj.varList.discountFunctionParams(1).name = 'Rstar';
+            obj.varList.discountFunctionParams(1).label = 'Rstar';
 		end
 
-	end
-
-    
-    methods (Access = protected)
-
-        function obj = calcDerivedMeasures(obj)
-        end
-
-    end
-    
-    
-    
-    methods (Access = public)
 
 		function plot(obj, varargin) % overriding from Model base class
 			close all
@@ -87,7 +77,7 @@ classdef (Abstract) NonParametric < Model
                 
             %% Set up discount function
             personInfo = obj.getExperimentData(ind);
-            discountFunction = DF_NonParametric('delays',personInfo.delays,...
+            discountFunction = obj.dfClass('delays',personInfo.delays,...
                 'theta', personInfo.dfSamples);
             % inject a DataFile object into the discount function
             discountFunction.data = obj.data.getExperimentObject(ind);
@@ -98,51 +88,27 @@ classdef (Abstract) NonParametric < Model
             xlim([0 2])
             
             %% plot discount function
-            subplot(h(3))
-            discountFunction.plot();
+            obj.plot_discount_function(h(3), ind)
             
 		end
-		
-		
-		function plot_discount_functions_in_grid(obj)
-			latex_fig(12, 11,11)
-			
-			% TODO: extract the grid formatting stuff to be able to call
-			% any plot function we want
-			% USE: apply_plot_function_to_subplot_handle.m ??
-			
-			%fh = figure('Name', names{experimentIndex});
-			names = obj.data.getIDnames('all');
-			
-			clf, drawnow
-			
-			% create grid layout
-			N = numel(names);
-			subplot_handles = create_subplots(N, 'square');
-			
-			% Iterate over files, plotting
-			disp('Plotting...')
-			for n = 1:numel(names)
-				plot_df(n, subplot_handles(n))
-			end
-			drawnow
-			
-			function plot_df(ind, subplot_handle)
-                subplot(subplot_handle)
-				% Set up discount function
-				personInfo = obj.getExperimentData(ind);
-				discountFunction = DF_NonParametric('delays',personInfo.delays,...
-					'theta', personInfo.dfSamples);
-				discountFunction.data = obj.data.getExperimentObject(ind);
-				
-				discountFunction.plot();
-			end
-			
-		end
-		
-		
-		
-		
+        
+        
+        % TODO: work to be able to move this method up to Model base class from both Parametric and NonParamtric
+        function plot_discount_function(obj, subplot_handle, ind)
+            discountFunctionVariables = {obj.varList.discountFunctionParams.name};
+            subplot(subplot_handle)
+            
+            personInfo = obj.getExperimentData(ind); % TODO: do we really need this?
+            
+
+            % TODO: DF_NonParametric should have same interface as DF_Hyperbolic1 etc
+            discountFunction = obj.dfClass('delays',personInfo.delays,...
+                'theta', personInfo.dfSamples);
+            discountFunction.data = obj.data.getExperimentObject(ind);
+            
+            discountFunction.plot();
+            % TODO #166 avoid having to parse these args in here
+        end
         
         
 		function personStruct = getExperimentData(obj, p)
@@ -211,7 +177,12 @@ classdef (Abstract) NonParametric < Model
         
     end
     
+    
+    
     methods (Access = protected)
+    
+        function obj = calcDerivedMeasures(obj)
+        end
     
         function psychometric_plots(obj)
             % TODO: plot data on these figures

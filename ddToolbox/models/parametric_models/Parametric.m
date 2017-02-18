@@ -44,6 +44,14 @@ classdef (Abstract) Parametric < Model
                     'formats', obj.plotOptions.exportFormats)
             end
                 
+            obj.plot_discount_functions_in_grid();
+            % Export
+            if obj.plotOptions.shouldExportPlots
+                myExport(obj.plotOptions.savePath,...
+                    'grid_discount_functions',...
+                    'suffix', obj.modelFilename,...
+                    'formats', obj.plotOptions.exportFormats);
+            end
                 
 			%% Plots, one per data file ===================================		
 			obj.plotAllExperimentFigures();
@@ -71,7 +79,7 @@ classdef (Abstract) Parametric < Model
             plot_density_alpha_epsilon(h(1))
             plot_psychometric_function(h(2))
             plot_discount_function_parameters(h(3))
-            plot_discount_function(h(4))
+            obj.plot_discount_function(h(4), ind)
 
             function plot_density_alpha_epsilon(subplot_handle)
                 obj.coda.plot_bivariate_distribution(subplot_handle,...
@@ -104,24 +112,22 @@ classdef (Abstract) Parametric < Model
                         error('Currently only set up to plot univariate or bivariate distributions, ie discount functions 1 or 2 params.')
                 end
             end
-            
-            function plot_discount_function(subplot_handle)
-                subplot(subplot_handle)
-    			discountFunction = obj.dfClass(...
-    				'samples', obj.coda.getSamplesAtIndex_asStruct(ind, discountFunctionVariables),...
-    				'data', obj.data.getExperimentObject(ind));
-    			discountFunction.plot(obj.plotOptions.pointEstimateType,...
-    				obj.plotOptions.dataPlotType,...
-    				obj.timeUnits);
-    			% TODO #166 avoid having to parse these args in here
-            end
-            
-		end
-        
 
-        
-        function plot_discount_functions_in_grid(obj)
-            error('Implement this! See #170')
+		end
+
+
+        % TODO: work to be able to move this method up to Model base class from both Parametric and NonParamtric
+        function plot_discount_function(obj, subplot_handle, ind)
+            discountFunctionVariables = {obj.varList.discountFunctionParams.name};
+            
+            subplot(subplot_handle)
+            discountFunction = obj.dfClass(...
+                'samples', obj.coda.getSamplesAtIndex_asStruct(ind, discountFunctionVariables),...
+                'data', obj.data.getExperimentObject(ind));
+            discountFunction.plot(obj.plotOptions.pointEstimateType,...
+                obj.plotOptions.dataPlotType,...
+                obj.timeUnits);
+            % TODO #166 avoid having to parse these args in here
         end
 		
 	end
