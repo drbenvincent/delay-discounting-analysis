@@ -173,12 +173,6 @@ classdef CODA
 			if ~isempty(targetAxisHandle)
 				subplot(targetAxisHandle)
 			end
-			
-			
-% 			% using my plot tools package
-% 			mcmc.UnivariateDistribution(samples',...
-% 				'plotStyle','hist',...
-% 				'plotHDI',false);
 
             univariateObject = Stochastic('name_here');
             univariateObject.addSamples(samples);

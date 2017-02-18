@@ -237,7 +237,6 @@ classdef (Abstract) NonParametric < Model
                     psycho.plot();
                     %% plot response data TODO: move this to Data ~~~~~~~~~
                     hold on
-                    %pTable = obj.data.getRawDataTableForParticipant(ind);
                     AoverB = personStruct.data.A ./ personStruct.data.B;
                     R = personStruct.data.R;
                     % grab just for this delay

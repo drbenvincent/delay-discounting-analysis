@@ -141,6 +141,10 @@ classdef (Abstract) Model
 		function obj = plotMCMCchains(obj,vars)
 			obj.coda.plotMCMCchains(vars);
 		end
+        
+        function [samples] = getGroupLevelSamples(obj, fieldsToGet)
+            [samples] = obj.data.getGroupLevelSamples(fieldsToGet);
+        end
 
 	end
 
@@ -152,15 +156,7 @@ classdef (Abstract) Model
 			nChains = obj.mcmcParams.nchains;
 		end
 
-		function [samples] = getGroupLevelSamples(obj, fieldsToGet)
-			if ~obj.data.isUnobservedPartipantPresent()
-				% exit if we don't have any group level inference
-				error('Looks like we don''t have group level estimates.')
-			else
-				index = obj.data.getIndexOfUnobservedParticipant();
-				samples = obj.coda.getSamplesAtIndex_asStruct(index, fieldsToGet);
-			end
-		end
+
 
 		function [predicted_subjective_values] = get_inferred_present_subjective_values(obj)
 			%% calculate point estimates
@@ -170,6 +166,7 @@ classdef (Abstract) Model
             
             %% return point estimates of present subjective values...
 			all_data_table = obj.data.groupTable;
+            % add new columns for present subjective value (VA, VB)
 			all_data_table.VA = obj.coda.getStats(obj.plotOptions.pointEstimateType, 'VA');
 			all_data_table.VB = obj.coda.getStats(obj.plotOptions.pointEstimateType, 'VB');
             predicted_subjective_values.point_estimates = all_data_table;
