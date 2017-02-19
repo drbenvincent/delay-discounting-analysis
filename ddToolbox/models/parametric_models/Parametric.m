@@ -114,21 +114,6 @@ classdef (Abstract) Parametric < Model
             end
 
 		end
-
-
-        % TODO: work to be able to move this method up to Model base class from both Parametric and NonParamtric
-        function plot_discount_function(obj, subplot_handle, ind)
-            discountFunctionVariables = {obj.varList.discountFunctionParams.name};
-            
-            subplot(subplot_handle)
-            discountFunction = obj.dfClass(...
-                'samples', obj.coda.getSamplesAtIndex_asStruct(ind, discountFunctionVariables),...
-                'data', obj.data.getExperimentObject(ind));
-            discountFunction.plot(obj.plotOptions.pointEstimateType,...
-                obj.plotOptions.dataPlotType,...
-                obj.timeUnits);
-            % TODO #166 avoid having to parse these args in here
-        end
 		
 	end
     

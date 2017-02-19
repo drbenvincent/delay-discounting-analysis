@@ -270,6 +270,7 @@ classdef CODA
 					samples.(fieldsToGet{n}) = NaN;
 				end
 			end
+            samples = squeeze(samples);
 		end
 		
 		function [samplesMatrix] = getSamplesAtIndex_asMatrix(obj, index, fieldsToGet)

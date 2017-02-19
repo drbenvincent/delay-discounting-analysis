@@ -16,6 +16,8 @@ classdef (Abstract) NonParametric < Model
             
             obj.varList.discountFunctionParams(1).name = 'Rstar';
             obj.varList.discountFunctionParams(1).label = 'Rstar';
+            
+            obj.plotOptions.dataPlotType = '2D';
 		end
 
 
@@ -74,41 +76,23 @@ classdef (Abstract) NonParametric < Model
                 responseErrorVariables(2),...
                 ind,...
                 opts)
-                
-            %% Set up discount function
-            personInfo = obj.getExperimentData(ind);
-            discountFunction = obj.dfClass('delays',personInfo.delays,...
-                'theta', personInfo.dfSamples);
-            % inject a DataFile object into the discount function
-            discountFunction.data = obj.data.getExperimentObject(ind);
             
-            %% plot distribution of AUC
-            subplot(h(2))
-            discountFunction.AUC.plot();
-            xlim([0 2])
             
+            
+            %---- TEMP COMMENTED OUT WHILE I FIX THINGS ----
+            % %% Set up discount function
+            % discountFunction = obj.dfClass('samples', samples,...
+            %    'data', obj.data.getExperimentObject(ind));
+            % 
+            % %% plot distribution of AUC
+            % subplot(h(2))
+            % discountFunction.AUC.plot();
+            % xlim([0 2])
+            % 
             %% plot discount function
             obj.plot_discount_function(h(3), ind)
             
 		end
-        
-        
-        % TODO: work to be able to move this method up to Model base class from both Parametric and NonParamtric
-        function plot_discount_function(obj, subplot_handle, ind)
-            discountFunctionVariables = {obj.varList.discountFunctionParams.name};
-            subplot(subplot_handle)
-            
-            personInfo = obj.getExperimentData(ind); % TODO: do we really need this?
-            
-
-            % TODO: DF_NonParametric should have same interface as DF_Hyperbolic1 etc
-            discountFunction = obj.dfClass('delays',personInfo.delays,...
-                'theta', personInfo.dfSamples);
-            discountFunction.data = obj.data.getExperimentObject(ind);
-            
-            discountFunction.plot();
-            % TODO #166 avoid having to parse these args in here
-        end
         
 		
         % TODO: do this by injecting new AUC values into CODA?

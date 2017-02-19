@@ -1,4 +1,4 @@
-classdef DF_ExponentialPower < DiscountFunction
+classdef DF_ExponentialPower < DF1
 	%DF_ExponentialPower The classic 1-parameter discount function
 
 	properties (Dependent)
@@ -8,8 +8,9 @@ classdef DF_ExponentialPower < DiscountFunction
 	methods (Access = public)
 
 		function obj = DF_ExponentialPower(varargin)
-			obj = obj@DiscountFunction(varargin{:});
+			obj = obj@DF1(varargin{:});
 			
+            % TODO: this violates dependency injection, so we may want to pass these Stochastic objects in
 			obj.theta.k = Stochastic('k');
             obj.theta.tau = Stochastic('tau');
             

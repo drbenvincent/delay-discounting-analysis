@@ -27,6 +27,8 @@ classdef (Abstract) Model
         plot()
         initialiseChainValues()
         experimentMultiPanelFigure()
+        %plot_discount_function(obj, subplot_handle, ind)
+        %getAUC(obj)
     end
 
 	methods (Access = public)
@@ -126,6 +128,21 @@ classdef (Abstract) Model
 			exporter.export(obj.plotOptions.savePath, obj.plotOptions.pointEstimateType);
 			% TODO ^^^^ avoid this duplicate use of pointEstimateType
 		end
+        
+        function plot_discount_function(obj, subplot_handle, ind)
+            discountFunctionVariables = {obj.varList.discountFunctionParams.name};
+            
+            subplot(subplot_handle)
+            
+            discountFunction = obj.dfClass(...
+                'samples', obj.coda.getSamplesAtIndex_asStruct(ind, discountFunctionVariables),...
+                'data', obj.data.getExperimentObject(ind));
+                
+            discountFunction.plot(obj.plotOptions.pointEstimateType,...
+                obj.plotOptions.dataPlotType,...
+                obj.timeUnits);
+            % TODO #166 avoid having to parse these args in here
+        end
 
 		%% Public MIDDLE-MAN METHODS
 

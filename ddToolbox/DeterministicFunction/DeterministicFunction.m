@@ -39,21 +39,22 @@ classdef (Abstract) DeterministicFunction
 			fieldnames = fields(p.Results.samples);
 			for n = 1:numel(fieldnames)
 				obj.theta.(fieldnames{n}).addSamples( p.Results.samples.(fieldnames{n}) );
+				%obj.theta.(fieldnames{n}).samples = p.Results.samples.(fieldnames{n}) ;
 			end
 			
             % Add data
 			obj.data = p.Results.data;
         end
 		
-		function obj = addSamples(obj, paramName, samples)
-			obj.theta.(paramName).addSamples(samples);
-			
-			% TODO: check we have same number samples coming in over all
-			% the variables
-			
-% 			% define the number of samples
-% 			obj.nSamples = numel(samples);
-		end
+% 		function obj = addSamples(obj, paramName, samples)
+% 			obj.theta.(paramName).addSamples(samples);
+% 			
+% 			% TODO: check we have same number samples coming in over all
+% 			% the variables
+% 			
+% % 			% define the number of samples
+% % 			obj.nSamples = numel(samples);
+% 		end
 		
 		function obj = set.data(obj, dataObject)
 			
@@ -222,11 +223,6 @@ classdef (Abstract) DeterministicFunction
 			set(gca,'Layer','top');
 			xlabel(obj.name, 'interpreter', 'latex')
 		end
-		
-		
-
-		
-		
 		
 	end
 end
