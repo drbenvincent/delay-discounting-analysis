@@ -134,47 +134,59 @@ classdef DataFile
 		
 		function [x,y,z,markerCol,markerSize] = convertDataIntoMarkers_Homogenous(obj)
 			% FOR 2D DISCOUNT FUNCTIONS
-			
-			% find unique experimental designs
-			D=[abs(obj.datatable.A), abs(obj.datatable.B), obj.datatable.DA, obj.datatable.DB];
-			[C, ia, ic] = unique(D,'rows');
-			%loop over unique designs (ic)
+			[ia, ic] = obj.calcUniqueDesigns();
+            markerSize = obj.calcMarkerSize(ic);
+            markerCol = obj.calcMarkerCol(ic);
+            
 			for n=1:max(ic)
-				% binary set of which trials this design was used on
-				myset=ic==n;
-				% Size = number of times this design has been run
-				markerSize(n) = sum(myset);
-				% Colour = proportion of times that participant chose immediate
-				% for that design
-				markerCol(n) = sum(obj.datatable.R(myset)==0) ./ markerSize(n);
-				
-				%x(n) = abs(p.Results.datatable.B( ia(n) )); % �B
-				x(n) = obj.datatable.DB( ia(n) ); % delay to get �B
+				x(n) = obj.datatable.DB( ia(n) ); % delay to get B
 				y(n) = abs(obj.datatable.A( ia(n) )) ./ abs(obj.datatable.B( ia(n) ));
 			end
-			z=[];
+			z = [];
 		end
 		
 		function [x,y,z,markerCol,markerSize] = convertDataIntoMarkers_Heterogenous(obj)
 			% FOR 3D DISCOUNT FUNCTIONS
-			
-			% find unique experimental designs
-			D=[abs(obj.datatable.A), abs(obj.datatable.B), obj.datatable.DA, obj.datatable.DB];
-			[C, ia, ic] = unique(D,'rows');
-			% loop over unique designs (ic)
+            [ia, ic] = obj.calcUniqueDesigns();
+            markerSize = obj.calcMarkerSize(ic);
+            markerCol = obj.calcMarkerCol(ic);
 			for n=1:max(ic)
-				% binary set of which trials this design was used on
-				myset=ic==n;
-				% markerSize = number of times this design has been run
-				markerSize(n) = sum(myset);
-				% Colour = proportion of times participant chose immediate for that design
-				markerCol(n) = sum(obj.datatable.R(myset)==0) ./ markerSize(n);
-				
-				x(n) = abs(obj.datatable.B( ia(n) )); % �B
-				y(n) = obj.datatable.DB( ia(n) ); % delay to get �B
+				x(n) = abs(obj.datatable.B( ia(n) )); % B
+				y(n) = obj.datatable.DB( ia(n) ); % delay to get B
 				z(n) = abs(obj.datatable.A( ia(n) )) ./ abs(obj.datatable.B( ia(n) ));
 			end
 		end
-		
+        
+        function [ia, ic] = calcUniqueDesigns(obj)
+            designs = [abs(obj.datatable.A), abs(obj.datatable.B), obj.datatable.DA, obj.datatable.DB];
+            [C, ia, ic] = unique(designs,'rows');
+        end
+        
+        function markerSize = calcMarkerSize(obj, ic)
+            for n=1:max(ic)
+                markerSize(n) = obj.nDesignOccurrences(ic, n);
+            end
+        end
+        
+        function markerCol = calcMarkerCol(obj, ic)
+            % Colour = prop. of times they chose immediate, for that design
+            for n=1:max(ic)
+                markerCol(n) = obj.nChoseImmediate(obj.datatable.R, ic, n)...
+					./ obj.nDesignOccurrences(ic, n);
+            end
+		end
+        
 	end
+    
+    methods(Static)
+    
+		function nImmediateChoicesMade = nChoseImmediate(responses, ic, n)
+			nImmediateChoicesMade = sum(responses(ic==n)==0);
+		end
+		
+        function nOccurrences = nDesignOccurrences(ic, n)
+            nOccurrences = sum(ic==n);
+        end
+
+    end
 end
