@@ -10,6 +10,12 @@ classdef Data
         unobservedPartipantPresent
         nExperimentFiles		% includes optional unobserved participant
 		nRealExperimentFiles	% only includes number of real experiment files
+		
+		metaTable
+		% metaTable is (currently) provided by the user as an
+		% optional input into the constructor. This is meant to contain
+		% information about the overall experiment, such as participant
+		% names, id's, ages, genders, conditions etc.
 	end
     
     properties (Dependent)
@@ -30,6 +36,7 @@ classdef Data
 			p.addRequired('dataFolder',@isstr);
 			p.FunctionName = mfilename;
 			p.addParameter('files',[],@(x) iscellstr(x)|ischar(x));
+			p.addParameter('metaTable', table(), @istable);
 			p.parse(dataFolder, varargin{:});
 
 			assert(~isempty(p.Results.files), 'no filenames provided under ''files'' input argument')
@@ -44,6 +51,7 @@ classdef Data
 			if ~isempty(p.Results.files)
 				obj = obj.importAllFiles(p.Results.files);
 			end
+			obj.metaTable = p.Results.metaTable;
 		end
 
 
