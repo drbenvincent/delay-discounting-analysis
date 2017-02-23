@@ -52,6 +52,16 @@ classdef Data
 				obj = obj.importAllFiles(p.Results.files);
 			end
 			
+			
+			%% Validate metaTable
+			if ~isempty(p.Results.metaTable)
+				% Check 1: metaTable must have Row names equal to those in files
+				assert(numel(p.Results.metaTable.Row) == numel(p.Results.files),...
+					'metaTable must have same number of rows as number of files passed in')
+				% Check 2: they actually match up
+				warning('Implement this validation check for extra safety.')
+			end
+			
 			obj.metaTable = p.Results.metaTable;
 		end
 
