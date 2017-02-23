@@ -17,7 +17,7 @@ classdef Data
 		% information about the overall experiment, such as participant
 		% names, id's, ages, genders, conditions etc.
 	end
-    
+	
     properties (Dependent)
         totalTrials
         groupTable % table of A, DA, B, DB, R, ID, PA, PB
@@ -51,6 +51,7 @@ classdef Data
 			if ~isempty(p.Results.files)
 				obj = obj.importAllFiles(p.Results.files);
 			end
+			
 			obj.metaTable = p.Results.metaTable;
 		end
 
@@ -93,7 +94,8 @@ classdef Data
 				error('Have already added unobserved participant')
 			end
 
-			obj.filenames{obj.nRealExperimentFiles+1} = unobservedParticipantString;
+			obj.filenames{obj.nRealExperimentFiles+1}	   = unobservedParticipantString;
+			obj.filenames_full{obj.nRealExperimentFiles+1} = unobservedParticipantString;
 			obj.participantIDs{obj.nRealExperimentFiles+1} = unobservedParticipantString;
 
 			obj.nExperimentFiles = obj.nExperimentFiles + 1;
@@ -214,14 +216,14 @@ classdef Data
 			if ischar(whatIwant)
 				switch whatIwant
 					case{'all'}
-						names = obj.filenames;
+						names = obj.filenames_full;
 					case{'experiments'}
-						names = obj.filenames([1:obj.nRealExperimentFiles]);
+						names = obj.filenames_full([1:obj.nRealExperimentFiles]);
 					case{'group'}
 						if ~obj.unobservedPartipantPresent
 							error('Asking for group-level (unobserved) participant, but they do not exist')
 						end
-						names = obj.filenames(end);
+						names = obj.filenames_full(end);
 				end
 			elseif isnumeric(whatIwant)
 				% assume we want to index into IDnames
@@ -293,6 +295,10 @@ classdef Data
 			for n=1:N
 				groupTable = vertcat(groupTable, obj.experiment(n).getDataAsTable);
 			end
+		end
+		
+		function metaTable = getMetaTable(obj)
+			metaTable = obj.metaTable;
 		end
         
 	end
