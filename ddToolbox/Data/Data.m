@@ -196,16 +196,7 @@ classdef Data
 		end
 
 		function nTrials = getTrialsForThisParticant(obj, p)
-			% TODO: really need to get a better solution that this special
-			% case nonsense for the unobserved group participant with no
-			% data
-			if p > numel(obj.experiment)
-				% asking for an experiment which doesnt exist. Probably
-				% happening because of the group-level estimate
-				nTrials = [];
-			else
-				nTrials = obj.experiment(p).getTrialsForThisParticant;
-			end
+            nTrials = height(obj.experiment(p).getDataAsTable());
 		end
 
 		function pTable = getRawDataTableForParticipant(obj, p)

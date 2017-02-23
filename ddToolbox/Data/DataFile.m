@@ -19,16 +19,6 @@ classdef DataFile
 			
 			% TODO: throw error if we have no data
 		end
-
-		function aTable = getDataAsTable(obj)
-			aTable = obj.datatable;
-			assert(istable(aTable))
-		end
-		
-		function nTrials = getTrialsForThisParticant(obj)
-			% TODO: rename this function
-			nTrials = height(obj.datatable);
-		end
 		
 		function obj = plot(obj, dataPlotType, timeUnits)
 			% This should be able to deal with:
@@ -40,9 +30,7 @@ classdef DataFile
 			else
 				timeUnitFunction = str2func(timeUnits);
 			end
-			
-			
-			
+
 			% exit if we have got no data
 			if isempty(obj.datatable)
 				warning('Trying to plot, but have no data. This is probably due to this being the (group/unobserved) participant, who has no data. This is only an error if you are not getting data corresponding to a specific data file.')
@@ -118,8 +106,14 @@ classdef DataFile
 			
 		end
 		
+        % PUBLIC GETTERS =======================================================
 		
-		function r = getDelayRange(obj)
+        function aTable = getDataAsTable(obj)
+            aTable = obj.datatable;
+            assert(istable(aTable))
+        end
+        
+		function r = getUniqueDelays(obj)
 			try
 				r = unique(sort([obj.datatable.DA(:) ;obj.datatable.DB(:)]));
 			catch
@@ -127,7 +121,6 @@ classdef DataFile
 				r = [];
 			end
 		end
-		
 		
 	end
 	
@@ -164,7 +157,6 @@ classdef DataFile
 		
 		function [x,y,z,markerCol,markerSize] = convertDataIntoMarkers_Heterogenous(obj)
 			% FOR 3D DISCOUNT FUNCTIONS
-			
 			
 			% find unique experimental designs
 			D=[abs(obj.datatable.A), abs(obj.datatable.B), obj.datatable.DA, obj.datatable.DB];

@@ -25,7 +25,7 @@ classdef (Abstract) DiscountFunction < DeterministicFunction
             % TODO: remove this stupid special-case handling of group-level
             % participant with no data
             try
-                maxDelayRange = max( obj.data.getDelayRange() )*1.2;
+                maxDelayRange = max( obj.data.getUniqueDelays() )*1.2;
             catch
                 % default (happens when there is no data, ie group level
                 % observer).
