@@ -14,35 +14,25 @@ classdef (Abstract) Parametric < Model
 			p.parse(varargin{:});
 			
 			%% Plot functions that use data from all participants ========
+            
+            % Plot univariate summary stats
+            plot_savename = 'UnivariateSummary';
             variables = obj.varList.participantLevel;
             obj.coda.plotUnivariateSummaries(variables,...
 				obj.plotOptions,...
 				obj.data.getParticipantNames());
-            
-            % Export
-            if obj.plotOptions.shouldExportPlots
-                myExport(obj.plotOptions.savePath,...
-                    'UnivariateSummary',...
-                    'suffix', obj.modelFilename,...
-                    'formats', obj.plotOptions.exportFormats)
-            end
+            export_it(plot_savename)
 			
-            
 			% summary figure of core discounting parameters
+            plot_savename = 'summary_plot';
 			clusterPlot(...
 				obj.coda,...
 				obj.data,...
 				[1 0 0],...
 				obj.plotOptions,...
 			    obj.varList.discountFunctionParams)
-                
-            % Export
-            if obj.plotOptions.shouldExportPlots
-            	myExport(obj.plotOptions.savePath,...
-                    'summary_plot',...
-            		'suffix', obj.modelFilename,...
-                    'formats', obj.plotOptions.exportFormats)
-            end
+            export_it(plot_savename)
+
                 
             obj.plot_discount_functions_in_grid();
             % Export
@@ -55,12 +45,17 @@ classdef (Abstract) Parametric < Model
                 
 			%% Plots, one per data file ===================================		
 			obj.plotAllExperimentFigures();
-			
-			% Corner plot of parameters
             obj.plotAllTriPlots(obj.plotOptions, obj.modelFilename)
-			
-			% Posterior prediction plot
             obj.postPred.plot(obj.plotOptions, obj.modelFilename)
+            
+            function export_it(savename)
+                if obj.plotOptions.shouldExportPlots
+                    myExport(obj.plotOptions.savePath,...
+                        savename,...
+                        'suffix', obj.modelFilename,...
+                        'formats', obj.plotOptions.exportFormats)
+                end
+            end
 		end
 		
 		
