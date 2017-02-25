@@ -1,4 +1,4 @@
-classdef DF_SLICE_PsychometricFunction < DF1
+classdef DF_SLICE_PsychometricFunction < DeterministicFunction
 	%DF_SLICE_PsychometricFunction Model a psychometric function for a
 	%given delay period, modelling the probability of choosing delayed
 	%option given A/B
@@ -6,7 +6,7 @@ classdef DF_SLICE_PsychometricFunction < DF1
 	methods (Access = public)
 		
 		function obj = DF_SLICE_PsychometricFunction(varargin)
-			obj = obj@DF1(varargin{:});
+			obj = obj@DeterministicFunction(varargin{:});
 		end
 		
 		function plot(obj)
