@@ -29,11 +29,12 @@ switch(facetStyle)
 		end
 		
 	case{'square'}
-		rows = ceil(sqrt(N));
 		cols = ceil(sqrt(N));
+		rows = max(1,floor(N/cols));
+        while rows*cols < N
+            cols = cols + 1;
+        end
 		for n = 1:N
 			subplot_handles(n) = subplot(rows, cols, n);
 		end
-end
-
 end
