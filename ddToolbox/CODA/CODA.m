@@ -285,10 +285,11 @@ classdef CODA
 			fieldnames = fields(samples_struct);
 			for n = 1:numel(fieldnames)
 				ncols = size(samples_struct.(fieldnames{n}),2);
-				% create empty object array of Stochastic objects
-				samples.(fieldnames{n})([1:ncols]) = Stochastic(fieldnames{n});
 				% add samples to it
 				for col = 1:ncols
+					% create new element in object array
+					samples.(fieldnames{n})(col) = Stochastic(fieldnames{n});
+					% add samples to it
 					samples_to_add = samples_struct.(fieldnames{n})(:,col);
 					samples.(fieldnames{n})(col).addSamples( samples_to_add );
 				end
