@@ -9,11 +9,6 @@ classdef DF_Hyperbolic1 < DF1
 		
 		function obj = DF_Hyperbolic1(varargin)
 			obj = obj@DF1(varargin{:});
-			
-            % % TODO: this violates dependency injection, so we may want to pass these Stochastic objects in
-			% obj.theta.logk = Stochastic('logk');
-			
-            %obj = obj.parse_for_samples_and_data(varargin{:});
 		end
 		
 	end

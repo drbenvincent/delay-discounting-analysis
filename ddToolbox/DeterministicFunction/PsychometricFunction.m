@@ -5,26 +5,6 @@ classdef PsychometricFunction < DeterministicFunction
 		
 		function obj = PsychometricFunction(varargin)
 			obj = obj@DeterministicFunction(varargin{:});
-			
-%             % TODO: this violates dependency injection, so we may want to pass these Stochastic objects in
-% 			obj.theta.alpha = Stochastic('alpha');
-% 			obj.theta.epsilon = Stochastic('epsilon');
-% 			
-% 			% Input parsing ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-% 			% MUST HAPPEN *AFTER* WE HAVE CREATED obj.theta
-% 			% TODO: THIS CAN BE PUT INTO A METHOD IN THE SUPERCLASS (DeterministicFunction)
-% 			p = inputParser;
-% 			p.KeepUnmatched = true;
-% 			p.StructExpand = false;
-% 			p.addParameter('samples',struct(), @isstruct)
-% 			p.parse(varargin{:});
-% 			
-% 			fieldnames = fields(p.Results.samples);
-% 			% Add any provided samples
-% 			for n = 1:numel(fieldnames)
-% 				obj.theta.(fieldnames{n}).addSamples( p.Results.samples.(fieldnames{n}) );
-% 			end
-% 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		end
 		
 		function plot(obj, pointEstimateType)

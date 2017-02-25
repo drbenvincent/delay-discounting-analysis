@@ -34,17 +34,6 @@ classdef (Abstract) DiscountFunction < DeterministicFunction
             delayValues = linspace(0, maxDelayRange, 1000);
         end
         
-%         function nansPresent = anyNaNsPresent(obj)
-%             nansPresent = false;
-%             for field = fields(obj.theta)'
-%                 if any(isnan(obj.theta.(field{:}).samples))
-%                     nansPresent = true;
-%                     warning('NaN''s detected in theta')
-%                     break
-%                 end
-%             end
-%         end
-
     end	
     
 end

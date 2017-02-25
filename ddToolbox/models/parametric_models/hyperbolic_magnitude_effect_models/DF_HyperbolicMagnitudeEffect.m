@@ -10,13 +10,6 @@ classdef DF_HyperbolicMagnitudeEffect < DF2
 
 		function obj = DF_HyperbolicMagnitudeEffect(varargin)
 			obj = obj@DF2(varargin{:});
-
-			% obj.theta = []; % clear anything from superclass
-            % % TODO: this violates dependency injection, so we may want to pass these Stochastic objects in
-			% obj.theta.m = Stochastic('m');
-			% obj.theta.c = Stochastic('c');
-
-			%obj = obj.parse_for_samples_and_data(varargin{:});
 		end
 
 

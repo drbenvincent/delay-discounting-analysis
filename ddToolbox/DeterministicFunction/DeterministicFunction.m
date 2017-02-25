@@ -33,7 +33,6 @@ classdef (Abstract) DeterministicFunction
 			
 			obj.theta = p.Results.samples;	
 			obj.data = p.Results.data;
-			
 		end
 		
 		function obj = set.data(obj, dataObject)
@@ -90,12 +89,9 @@ classdef (Abstract) DeterministicFunction
 			p.addParameter('pointEstimateType',[], @(x)any(strcmp(x,{'mean','median','mode'})));
 			p.parse(x, varargin{:});
 			
-			
 			theta_vals_to_evaluate = determineThetaValsToEvaluate();
 			
 			y = obj.function_evaluation(x, theta_vals_to_evaluate);
-			
-			
 			
 			function thetaStruct = determineThetaValsToEvaluate()
 				
@@ -103,12 +99,9 @@ classdef (Abstract) DeterministicFunction
 				
 				if pointEstimatePrivided()
 					thetaStruct = extractThetaPointEstimates();
-					%thetaStruct = extractThetaStructFromStochastics(p.Results.pointEstimateType);
 				else
-					
 					examplesToPlot = getExamplesToPlot();
 					thetaStruct = extractTheseThetaSamples(examplesToPlot);
-					%thetaStruct = extractThetaStructFromStochastics(examplesToPlot);
 				end
 				
 				
@@ -155,23 +148,6 @@ classdef (Abstract) DeterministicFunction
 					shuffledExamples = randperm(n_samples_got);
 					examplesToPlot = shuffledExamples([1:n_samples_to_get]);
 				end
-				
-% 				function thetaStruct = extractThetaStructFromStochastics(thingy)
-% 					thetaStruct = struct();
-% 					for field = fields(obj.theta)'
-% 						thetaStruct.(field{:}) = obj.theta.(field{:}).(thingy);
-% 						if numel( obj.theta.(field{:}))==1
-% 							% one Stochastic object?
-% 							thetaStruct.(field{:}) = obj.theta.(field{:})(1).(thingy);
-% 						elseif numel( obj.theta.(field{:}))>1
-% 							% array of stochastics?
-% 							for n=1:numel( obj.theta.(field{:}))
-% 								temp(:,n) = obj.theta.(field{:})(n).(thingy);
-% 							end
-% 							thetaStruct.(field{:}) = temp';
-% 						end
-% 					end
-% 				end
 				
 			end
 			
