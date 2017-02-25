@@ -269,9 +269,32 @@ classdef CODA
 				catch
 					samples.(fieldsToGet{n}) = NaN;
 				end
+				samples.(fieldsToGet{n}) = squeeze(samples.(fieldsToGet{n}));
 			end
-            samples = squeeze(samples);
 		end
+		
+		
+		function [samples] = getSamplesAtIndex_asStochastic(obj, index, fieldsToGet)
+			samples_struct = getSamplesAtIndex_asStruct(obj, index, fieldsToGet);
+			
+			% converts a structure of matricies, to a structure of
+			% Stochastics, and they are arrays of Stochastic's when
+			% appropriate
+			
+			% convert samples to an array of Stochastic objects ===========
+			fieldnames = fields(samples_struct);
+			for n = 1:numel(fieldnames)
+				ncols = size(samples_struct.(fieldnames{n}),2);
+				% create empty object array of Stochastic objects
+				samples.(fieldnames{n})([1:ncols]) = Stochastic(fieldnames{n});
+				% add samples to it
+				for col = 1:ncols
+					samples_to_add = samples_struct.(fieldnames{n})(:,col);
+					samples.(fieldnames{n})(col).addSamples( samples_to_add );
+				end
+			end
+		end
+		
 		
 		function [samplesMatrix] = getSamplesAtIndex_asMatrix(obj, index, fieldsToGet)
 			samples = getSamplesAtIndex_asStruct(obj, index, fieldsToGet);

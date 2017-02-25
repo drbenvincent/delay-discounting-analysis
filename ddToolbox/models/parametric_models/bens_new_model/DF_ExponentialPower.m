@@ -10,11 +10,11 @@ classdef DF_ExponentialPower < DF1
 		function obj = DF_ExponentialPower(varargin)
 			obj = obj@DF1(varargin{:});
 			
-            % TODO: this violates dependency injection, so we may want to pass these Stochastic objects in
-			obj.theta.k = Stochastic('k');
-            obj.theta.tau = Stochastic('tau');
+            % % TODO: this violates dependency injection, so we may want to pass these Stochastic objects in
+			% obj.theta.k = Stochastic('k');
+            % obj.theta.tau = Stochastic('tau');
             
-            obj = obj.parse_for_samples_and_data(varargin{:});
+            %obj = obj.parse_for_samples_and_data(varargin{:});
 		end
         
 	end
@@ -23,7 +23,7 @@ classdef DF_ExponentialPower < DF1
 		
 		function y = function_evaluation(x, theta)
 			if verLessThan('matlab','9.1')
-				error('implement this using bsxfun: y = exp( - theta.k .* x.^theta.tau )')
+				y = exp( - bsxfun(@times, theta.k , bsxfun(@power, x, theta.tau)) );
 			else
 				% use new array broadcasting in 2016b
 				y = exp( - theta.k .* x.^theta.tau );

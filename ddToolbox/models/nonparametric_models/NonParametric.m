@@ -138,9 +138,12 @@ classdef (Abstract) NonParametric < Model
                 for d = 1:nSubplots
                     subplot(subplot_handles(d))
                     %% plot the psychometric function ~~~~~~~~~~~~~~~~~~~~~
-                    samples = obj.coda.getSamplesAtIndex_asStruct(ind,{'alpha','epsilon'});
-                    samples.indifference  = personStruct.dfSamples(:,d);
-                    psycho = DF_SLICE_PsychometricFunction('samples', samples);
+					% build structure of Stochastic objects
+                    samples = obj.coda.getSamplesAtIndex_asStochastic(ind,{'alpha','epsilon'});
+                    samples.indifference = Stochastic('rstar');
+					samples.indifference.addSamples(personStruct.dfSamples(:,d));
+					
+					psycho = DF_SLICE_PsychometricFunction('samples', samples);
                     psycho.plot();
                     %% plot response data TODO: move this to Data ~~~~~~~~~
                     hold on
@@ -187,7 +190,12 @@ classdef (Abstract) NonParametric < Model
     
     methods (Access = private)
     
+    
+        % TODO: All this will be removed once refactoring of 
         function personStruct = getExperimentData(obj, p)
+            
+            
+            
             % Create a structure with all the useful info about a person
             % p = person number
             participantName = obj.data.getIDnames(p);

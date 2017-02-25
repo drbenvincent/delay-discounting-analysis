@@ -31,11 +31,11 @@ classdef DF1 < DiscountFunction
                 delaysDuration = timeUnitFunction(delays);
             end
             
-            %% don't plot if we've been given NaN's
-            if obj.anyNaNsPresent()
-                warning('Not plotting due to NaN''s')
-                return
-            end
+%             %% don't plot if we've been given NaN's
+%             if obj.anyNaNsPresent()
+%                 warning('Not plotting due to NaN''s')
+%                 return
+%             end
             
             %% Plot N samples from posterior
             discountFraction = obj.eval(delays, 'nExamples', N_SAMPLES_FROM_POSTERIOR);

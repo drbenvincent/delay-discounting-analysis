@@ -113,3 +113,7 @@ ddToolbox/models/parametric_models/hyperbolic_magnitude_effect_models/hierarchic
 ddToolbox/models/parametric_models/hyperbolic_models/separateLogK
 
 demo/datasets/non_parametric/groupLevelData/COMBINED_DATA.txt
+
+ddToolbox/models/parametric_models/hyperbolic_models/hierarchicalLogK
+
+demo/temp.init.R

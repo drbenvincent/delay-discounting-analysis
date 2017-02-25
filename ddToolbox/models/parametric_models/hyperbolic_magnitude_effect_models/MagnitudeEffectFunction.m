@@ -1,34 +1,35 @@
 classdef MagnitudeEffectFunction < DeterministicFunction
 	%MagnitudeEffectFunction 
 	
-	properties (Access = private)
+	properties (Access = public)
 		maxRewardValue
 	end
 	
 	methods (Access = public)
 		
 		function obj = MagnitudeEffectFunction(varargin)
-            obj = obj@DeterministicFunction();
+            obj = obj@DeterministicFunction(varargin{:});
 			
-			obj.theta.m = Stochastic('m');
-			obj.theta.c = Stochastic('c');
-			
-			% Input parsing ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			p = inputParser;
-			p.StructExpand = false;
-			p.addParameter('samples',struct(), @isstruct)
-			p.addParameter('maxRewardValue', 100, @isscalar)
-			p.parse(varargin{:});
-			
-			% Add any provided samples
-			fieldnames = fields(p.Results.samples);
-			for n = 1:numel(fieldnames)
-				obj.theta.(fieldnames{n}).addSamples( p.Results.samples.(fieldnames{n}) );
-			end
-			
-			% Add other inputs to object
-			obj.maxRewardValue = p.Results.maxRewardValue;
-			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% 			obj.theta.m = Stochastic('m');
+% 			obj.theta.c = Stochastic('c');
+% 			
+% 			% Input parsing ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% 			p = inputParser;
+% 			p.StructExpand = false;
+% 			p.KeepUnmatched = true;
+% 			%p.addParameter('samples',struct(), @isstruct)
+% 			p.addParameter('maxRewardValue', 100, @isscalar)
+% 			p.parse(varargin{:});
+% % 			
+% % 			% Add any provided samples
+% % 			fieldnames = fields(p.Results.samples);
+% % 			for n = 1:numel(fieldnames)
+% % 				obj.theta.(fieldnames{n}).addSamples( p.Results.samples.(fieldnames{n}) );
+% % 			end
+% % 			
+% 			% Add other inputs to object
+% 			obj.maxRewardValue = p.Results.maxRewardValue;
+% % 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		end
         
         function plot(obj)

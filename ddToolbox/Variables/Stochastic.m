@@ -38,7 +38,7 @@ classdef Stochastic < handle
 		
 	end
 	
-	methods (Access = public)
+	methods
 		
 		function obj = Stochastic(name, varargin)
 			

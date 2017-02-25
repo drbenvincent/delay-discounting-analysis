@@ -45,13 +45,13 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			% TODO #166 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			%%  Set up psychometric function
-			respErrSamples = obj.coda.getSamplesAtIndex_asStruct(ind, responseErrorVariables);
+			respErrSamples = obj.coda.getSamplesAtIndex_asStochastic(ind, responseErrorVariables);
 			psycho = PsychometricFunction('samples', respErrSamples);
 			%% Plot the psychometric function ------------------------------
 			subplot(h(2))
 			psycho.plot(obj.plotOptions.pointEstimateType);
 			%% Set up discount function
-			dfSamples = obj.coda.getSamplesAtIndex_asStruct(ind, discountFunctionVariables);
+			dfSamples = obj.coda.getSamplesAtIndex_asStochastic(ind, discountFunctionVariables);
 			discountFunction = obj.dfClass('samples', dfSamples);
             % inject a DataFile object into the discount function
             discountFunction.data = obj.data.getExperimentObject(ind);
@@ -74,8 +74,8 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			% TODO #166 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			%% Set up magnitude effect function -----------------------
-			me = MagnitudeEffectFunction('samples', dfSamples,...
-				'maxRewardValue', obj.data.getMaxRewardValue(ind));
+			me = MagnitudeEffectFunction('samples', dfSamples);
+			me.maxRewardValue = obj.data.getMaxRewardValue(ind);
 			% plot magnitude effect
 			subplot(h(4)) % -----------------------------------------------
 			me.plot();
@@ -115,7 +115,7 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			
 			subplot(subplot_handle)
 			discountFunction = obj.dfClass(...
-				'samples', obj.coda.getSamplesAtIndex_asStruct(ind, discountFunctionVariables),...
+				'samples', obj.coda.getSamplesAtIndex_asStochastic(ind, discountFunctionVariables),...
 				'data', obj.data.getExperimentObject(ind));
 			
 			discountFunction.plot(obj.plotOptions.pointEstimateType,...

@@ -11,12 +11,12 @@ classdef DF_HyperbolicMagnitudeEffect < DF2
 		function obj = DF_HyperbolicMagnitudeEffect(varargin)
 			obj = obj@DF2(varargin{:});
 
-			obj.theta = []; % clear anything from superclass
-            % TODO: this violates dependency injection, so we may want to pass these Stochastic objects in
-			obj.theta.m = Stochastic('m');
-			obj.theta.c = Stochastic('c');
+			% obj.theta = []; % clear anything from superclass
+            % % TODO: this violates dependency injection, so we may want to pass these Stochastic objects in
+			% obj.theta.m = Stochastic('m');
+			% obj.theta.c = Stochastic('c');
 
-			obj = obj.parse_for_samples_and_data(varargin{:});
+			%obj = obj.parse_for_samples_and_data(varargin{:});
 		end
 
 
@@ -37,7 +37,8 @@ classdef DF_HyperbolicMagnitudeEffect < DF2
 			% Create an array of Stochastic objects to pass back
 			for n=1:numel(reward)
 				logk(n) = Stochastic('logk');
-				logk_samples = obj.eval(reward(n)); %<------ TODO: This needs to return many values, not just one
+				logk_samples = obj.eval(reward(n));
+				
 				logk(n).addSamples(logk_samples);
 			end
 

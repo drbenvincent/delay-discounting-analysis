@@ -1,4 +1,4 @@
-classdef DF_SLICE_PsychometricFunction < DeterministicFunction
+classdef DF_SLICE_PsychometricFunction < DF1
 	%DF_SLICE_PsychometricFunction Model a psychometric function for a
 	%given delay period, modelling the probability of choosing delayed
 	%option given A/B
@@ -6,15 +6,15 @@ classdef DF_SLICE_PsychometricFunction < DeterministicFunction
 	methods (Access = public)
 		
 		function obj = DF_SLICE_PsychometricFunction(varargin)
-			obj = obj@DeterministicFunction();
-			
-			% create Stochastic objects
-            % TODO: this violates dependency injection, so we may want to pass these Stochastic objects in
-			obj.theta.indifference = Stochastic('indifference');
-			obj.theta.alpha = Stochastic('alpha');
-			obj.theta.epsilon = Stochastic('epsilon');
-
-			obj = obj.parse_for_samples_and_data(varargin{:});
+			%obj = obj@DeterministicFunction();
+			obj = obj@DF1(varargin{:});
+% 			% create Stochastic objects
+%             % TODO: this violates dependency injection, so we may want to pass these Stochastic objects in
+% 			obj.theta.indifference = Stochastic('indifference');
+% 			obj.theta.alpha = Stochastic('alpha');
+% 			obj.theta.epsilon = Stochastic('epsilon');
+% 
+% 			obj = obj.parse_for_samples_and_data(varargin{:});
 		end
 		
 		function plot(obj)

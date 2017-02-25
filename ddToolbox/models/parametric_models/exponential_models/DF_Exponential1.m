@@ -10,10 +10,10 @@ classdef DF_Exponential1 < DF1
 		function obj = DF_Exponential1(varargin)
 			obj = obj@DF1(varargin{:});
 			
-            % TODO: this violates dependency injection, so we may want to pass these Stochastic objects in
-			obj.theta.k = Stochastic('k');
+            % % TODO: this violates dependency injection, so we may want to pass these Stochastic objects in
+			% obj.theta.k = Stochastic('k');
 			
-            obj = obj.parse_for_samples_and_data(varargin{:});
+            %obj = obj.parse_for_samples_and_data(varargin{:});
         end
 
 	end

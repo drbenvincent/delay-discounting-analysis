@@ -86,7 +86,8 @@ classdef (Abstract) Parametric < Model
             
             function plot_psychometric_function(subplot_handle)
                 subplot(subplot_handle)
-    			psycho = PsychometricFunction('samples', obj.coda.getSamplesAtIndex_asStruct(ind, responseErrorVariables));
+    			psycho = PsychometricFunction('samples',...
+					obj.coda.getSamplesAtIndex_asStochastic(ind, responseErrorVariables));
     			psycho.plot(obj.plotOptions.pointEstimateType)
             end
             

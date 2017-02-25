@@ -21,40 +21,20 @@ classdef (Abstract) DeterministicFunction
 	methods
 		
 		function obj = DeterministicFunction(varargin)
-			theta = struct([]);
 			obj.plot_options = obj.set_plot_options(varargin{:});
-		end
-        
-        function obj = parse_for_samples_and_data(obj, varargin)
-            % MUST HAPPEN *AFTER* WE HAVE CREATED obj.theta
-			% TODO: THIS CAN BE PUT INTO A METHOD IN THE SUPERCLASS (DeterministicFunction)
+			
+			% Parse inputs ================================================
 			p = inputParser;
 			p.KeepUnmatched = true;
 			p.StructExpand = false;
-			p.addParameter('samples',struct(), @isstruct)
+			p.addParameter('samples', struct(), @isstruct) % structure of Stochastics
 			p.addParameter('data',[], @(x) isobject(x) | isempty(x) )
 			p.parse(varargin{:});
 			
-			% Add any provided samples
-			fieldnames = fields(p.Results.samples);
-			for n = 1:numel(fieldnames)
-				obj.theta.(fieldnames{n}).addSamples( p.Results.samples.(fieldnames{n}) );
-				%obj.theta.(fieldnames{n}).samples = p.Results.samples.(fieldnames{n}) ;
-			end
-			
-            % Add data
+			obj.theta = p.Results.samples;	
 			obj.data = p.Results.data;
-        end
-		
-% 		function obj = addSamples(obj, paramName, samples)
-% 			obj.theta.(paramName).addSamples(samples);
-% 			
-% 			% TODO: check we have same number samples coming in over all
-% 			% the variables
-% 			
-% % 			% define the number of samples
-% % 			obj.nSamples = numel(samples);
-% 		end
+			
+		end
 		
 		function obj = set.data(obj, dataObject)
 			
@@ -116,55 +96,103 @@ classdef (Abstract) DeterministicFunction
 			y = obj.function_evaluation(x, theta_vals_to_evaluate);
 			
 			
+			
 			function thetaStruct = determineThetaValsToEvaluate()
-				% decide if we are plotting N samples from postior, or a point
-				% estimate
-				%if isempty(p.Results.nExamples)
-				if ~isempty(p.Results.pointEstimateType)
-					% plot point estimate
 				
-					% create theta vec of point estimates
+				pointEstimatePrivided = @() ~isempty(p.Results.pointEstimateType);
+				
+				if pointEstimatePrivided()
+					thetaStruct = extractThetaPointEstimates();
+					%thetaStruct = extractThetaStructFromStochastics(p.Results.pointEstimateType);
+				else
+					
+					examplesToPlot = getExamplesToPlot();
+					thetaStruct = extractTheseThetaSamples(examplesToPlot);
+					%thetaStruct = extractThetaStructFromStochastics(examplesToPlot);
+				end
+				
+				
+				function thetaStruct = extractThetaPointEstimates()
 					thetaStruct = struct();
 					for field = fields(obj.theta)'
 						thetaStruct.(field{:}) = obj.theta.(field{:}).(p.Results.pointEstimateType);
+						if numel( obj.theta.(field{:}))==1
+							% one Stochastic object?
+							thetaStruct.(field{:}) = obj.theta.(field{:})(1).(p.Results.pointEstimateType);
+						elseif numel( obj.theta.(field{:}))>1
+							% array of stochastics?
+							for n=1:numel( obj.theta.(field{:}))
+								temp(:,n) = obj.theta.(field{:})(n).(p.Results.pointEstimateType);
+							end
+							thetaStruct.(field{:}) = temp';
+						end
 					end
-					
-				else
-					% plot N samples from posterior
-					
-% 					% if not specified, use all samples to evaluate with
-% 					if isempty(p.Results.nExamples)
-% 						%plot all samples
-% 						obj.nSamples;
-% 					end
-					
-					% TODO: extract this into a "getShuffledValues" utility
-					% function.
+				end
+				
+				function thetaStruct = extractTheseThetaSamples(examplesToPlot)					
+					thetaStruct = struct();
+					for field = fields(obj.theta)'
+						if numel( obj.theta.(field{:}))==1
+							% one Stochastic object?
+							thetaStruct.(field{:}) = obj.theta.(field{:})(1).samples(examplesToPlot);
+						elseif numel( obj.theta.(field{:}))>1
+							% array of stochastics?
+							for n=1:numel( obj.theta.(field{:}))
+								temp(:,n) = obj.theta.(field{:})(n).samples(examplesToPlot);
+							end
+							thetaStruct.(field{:}) = temp';
+						end
+					end
+				end
+				
+				function examplesToPlot = getExamplesToPlot()
 					%% create a vector of indexes into the samples to evaluate
 					n_samples_requested = p.Results.nExamples;
 					n_samples_got = obj.nSamples;
 					n_samples_to_get = min([n_samples_requested n_samples_got]);
-
+					
 					% shuffle the deck and pick the top nExamples
 					shuffledExamples = randperm(n_samples_got);
-					ExamplesToPlot = shuffledExamples([1:n_samples_to_get]);
-
-					thetaStruct = struct();
-					for field = fields(obj.theta)'
-						thetaStruct.(field{:}) = obj.theta.(field{:}).samples(ExamplesToPlot);
-					end
-					
+					examplesToPlot = shuffledExamples([1:n_samples_to_get]);
 				end
+				
+% 				function thetaStruct = extractThetaStructFromStochastics(thingy)
+% 					thetaStruct = struct();
+% 					for field = fields(obj.theta)'
+% 						thetaStruct.(field{:}) = obj.theta.(field{:}).(thingy);
+% 						if numel( obj.theta.(field{:}))==1
+% 							% one Stochastic object?
+% 							thetaStruct.(field{:}) = obj.theta.(field{:})(1).(thingy);
+% 						elseif numel( obj.theta.(field{:}))>1
+% 							% array of stochastics?
+% 							for n=1:numel( obj.theta.(field{:}))
+% 								temp(:,n) = obj.theta.(field{:})(n).(thingy);
+% 							end
+% 							thetaStruct.(field{:}) = temp';
+% 						end
+% 					end
+% 				end
+				
 			end
 			
 		end
 		
+
 		function nSamples = get.nSamples(obj)
 			% return the number of samples we have
 			
 			f = fields(obj.theta);
 			for n=1:numel(f)
-				nSamples(n) = numel( obj.theta.(f{n}).samples );
+				
+				% TODO: FIX THIS !!!
+				try
+					% array of stochastics?
+					nSamples(n) = numel( obj.theta.(f{n})(1).samples );
+				catch
+					% plain vectors?
+					nSamples(n) = numel(obj.theta.(f{n}));
+				end
+				
 			end
 			% TODO: check we have same number of samples for each theta
 			
