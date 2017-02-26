@@ -8,10 +8,10 @@ classdef DF2 < DiscountFunction
 		end
 		
 		
+		% TODO: contents of this function is NOT generic to all 2D discount
+		% surfaces. It contains lots of code specific to Hyperbolic +
+		% magnitude discounting
 		function plot(obj, pointEstimateType, dataPlotType, timeUnits, maxRewardValue, maxDelayValue)
-			
-			% 			maxRewardValue = 100;
-			% 			maxDelayValue = 365;
 			
 			if verLessThan('matlab','9.1') % backward compatability
 				timeUnitFunction = @(x) x; % do nothing
@@ -35,24 +35,26 @@ classdef DF2 < DiscountFunction
 			m = mc(1);
 			c = mc(2);
 			
+			%% Calculate (X,Y,Z) 2D matricies for plotting --------------
 			
-			%% x-axis = b
-			% *** TODO: DOCUMENT WHAT THIS DOES ***
-			nIndifferenceLines = 10;
-			pow=1; while maxRewardValue > 10^pow; pow=pow+1; end
-			logbvec=log(logspace(1, pow, nIndifferenceLines));
+			% x-axis = reward
+			nLines = 10;
+			logRewardVector = calcLogRewardVector(nLines, maxRewardValue);
 			
-			%% y-axis = d
-			dvec=linspace(0, maxDelayValue, 100);
+			% y-axis = delays
+			delayVector = linspace(0, maxDelayValue, 100);
 			
-			%% z-axis (AB)
-			[logB,D] = meshgrid(logbvec,dvec); % create x,y (b,d) grid values
-			k		= exp(m .* logB + c); % magnitude effect
-			AB		= 1 ./ (1 + k.*D); % hyperbolic discount function
-			B = exp(logB);
+			% calculate 2D matricies
+			[logB, delayMatrix] = meshgrid(logRewardVector,delayVector); % create x,y (b,d) grid values
+			rewardMatrix = exp(logB);
 			
-			%% PLOT
-			hmesh = mesh(B,timeUnitFunction(D),AB);
+			k = exp(m .* logB + c); % magnitude effect
+			discountFractionMatrix = 1 ./ (1 + k.*delayMatrix); % hyperbolic discount function
+			% -------------------------------------------------------------
+			
+			
+			%% PLOT -------------------------------------------------------
+			hmesh = mesh(rewardMatrix, timeUnitFunction(delayMatrix), discountFractionMatrix);
 			% shading
 			hmesh.FaceColor		='interp';
 			hmesh.FaceAlpha		=0.7;
@@ -61,7 +63,8 @@ classdef DF2 < DiscountFunction
 			hmesh.EdgeColor		='k';
 			hmesh.EdgeAlpha		=1;
 			
-			obj.formatAxes(pow)
+			obj.formatAxes( calcOrderOfMagnitude(maxRewardValue) )
+			%set(gca,'XLim',[0 maxRewardValue])
 			
 			%% Overlay data
 			% TODO: Fix this special case of their being no data (ie for
@@ -69,8 +72,23 @@ classdef DF2 < DiscountFunction
 			if ~isempty(obj.data)
 				obj.data.plot(dataPlotType, timeUnits);
 			end
-			
+
 			drawnow
+			
 		end
 	end
+end
+
+function orderOfMagnitude = calcOrderOfMagnitude(maxRewardValue)
+% Calculate the order of magnitude which contains all the
+% rewards
+orderOfMagnitude = 1;
+while maxRewardValue > 10^orderOfMagnitude
+	orderOfMagnitude = orderOfMagnitude+1;
+end
+end
+
+function logRewardVector = calcLogRewardVector(nIndifferenceLines, maxRewardValue)
+orderOfMagnitude = calcOrderOfMagnitude(maxRewardValue);
+logRewardVector=log(logspace(1, orderOfMagnitude, nIndifferenceLines));
 end
