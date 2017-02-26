@@ -10,9 +10,10 @@ classdef ModelMixedExpPower < ExponentialPower
             % MUST CALL THIS METHOD AT THE END OF ALL MODEL-SUBCLASS CONSTRUCTORS
             obj = obj.conductInference();
 		end
+
     end
     
-    methods 
+    methods (Access = protected)
     
 		function initialParams = initialiseChainValues(obj, nchains)
 			% Generate initial values of the root nodes

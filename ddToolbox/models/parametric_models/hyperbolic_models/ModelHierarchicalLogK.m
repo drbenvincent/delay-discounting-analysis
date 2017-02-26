@@ -13,10 +13,9 @@ classdef ModelHierarchicalLogK < Hyperbolic1
             obj = obj.conductInference();
         end
 
-	end
-
-	
-	methods 
+    end
+    
+    methods (Access = protected)
 		
 		function initialParams = initialiseChainValues(obj, nchains)
 			% Generate initial values of the root nodes

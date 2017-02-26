@@ -25,11 +25,14 @@ classdef (Abstract) Model
     % methods that subclasses must implement
     methods (Abstract, Access = public)
         plot()
-        initialiseChainValues()
         experimentMultiPanelFigure()
         %plot_discount_function(obj, subplot_handle, ind)
         %getAUC(obj)
-    end
+	end
+	methods (Abstract, Access = protected)
+		initialiseChainValues()
+	end
+	
 
 	methods (Access = public)
 
@@ -85,33 +88,6 @@ classdef (Abstract) Model
 			obj = obj.postSamplingActivities();
 		end
 
-		
-		function obj = postSamplingActivities(obj)
-
-			%% Post-sampling activities (for model sub-classes) -----------
-			% If a model has additional measures that need to be calculated
-			% from the MCMC samples, then we can do by overriding this
-			% method in the model sub-classes
-			obj = obj.calcDerivedMeasures();
-
-			%% Post-sampling activities (common to all models) ------------
-			% posterior prediction calculation
-			obj.postPred = PosteriorPrediction(obj.coda, obj.data, obj.observedData);
-
-			% calc and export convergence summary and parameter estimates
-			obj.export();
-
-			% plot or not
-			if ~strcmp(obj.plotOptions.shouldPlot,'no')
-				% TODO: Allow public calls of obj.plot to specify options.
-				% At the moment the options need to be provided on Model
-				% object construction
-				obj.plot()
-			end
-			
-			obj.tellUserAboutPublicMethods()
-		end
-		
 		function export(obj)
 			% TODO: This should be a method of CODA
 			% TODO: better function name. What does it do? Calculate or
@@ -129,10 +105,16 @@ classdef (Abstract) Model
 			% TODO ^^^^ avoid this duplicate use of pointEstimateType
 		end
         
-        function plot_discount_function(obj, subplot_handle, ind)
+        function plot_discount_function(obj, axis_handle, ind)
+			%plot_discount_function
+			% Example public call. This will plot a discount function to a
+			% specified subplot, for the experiment file determined by the
+			% numerical 'index'
+			% model.plot_discount_function(axis_handle, index)
+			
             discountFunctionVariables = {obj.varList.discountFunctionParams.name};
             
-            subplot(subplot_handle)
+            subplot(axis_handle)
             
 			samples = obj.coda.getSamplesAtIndex_asStochastic(ind, discountFunctionVariables);
 			
@@ -146,29 +128,17 @@ classdef (Abstract) Model
             % TODO #166 avoid having to parse these args in here
         end
 
-		%% Public MIDDLE-MAN METHODS
-
-		function obj = plotMCMCchains(obj,vars)
-			obj.coda.plotMCMCchains(vars);
-		end
-        
-        function [samples] = getGroupLevelSamples(obj, fieldsToGet)
-            [samples] = obj.data.getGroupLevelSamples(fieldsToGet);
-        end
-
 	end
 
 	%%  GETTERS
 
 	methods
 
-		function nChains = get_nChains(obj)
-			nChains = obj.mcmcParams.nchains;
-		end
-
-
-
 		function [predicted_subjective_values] = get_inferred_present_subjective_values(obj)
+			%get_inferred_present_subjective_values
+			% returns the inferred present subjective values of the 
+			% objective reward values
+			
 			%% calculate point estimates
 			% get point estimates of present subjective values. These will
 			% be vectors. Each value corresponds to one trial in the
@@ -202,6 +172,39 @@ classdef (Abstract) Model
 
 	methods (Access = protected)
 
+		function nChains = get_nChains(obj)
+			nChains = obj.mcmcParams.nchains;
+		end
+		
+		function [samples] = getGroupLevelSamples(obj, fieldsToGet)
+			[samples] = obj.data.getGroupLevelSamples(fieldsToGet);
+		end
+		
+		function obj = postSamplingActivities(obj)
+			%% Post-sampling activities (for model sub-classes) -----------
+			% If a model has additional measures that need to be calculated
+			% from the MCMC samples, then we can do by overriding this
+			% method in the model sub-classes
+			obj = obj.calcDerivedMeasures();
+			
+			%% Post-sampling activities (common to all models) ------------
+			% posterior prediction calculation
+			obj.postPred = PosteriorPrediction(obj.coda, obj.data, obj.observedData);
+			
+			% calc and export convergence summary and parameter estimates
+			obj.export();
+			
+			% plot or not
+			if ~strcmp(obj.plotOptions.shouldPlot,'no')
+				% TODO: Allow public calls of obj.plot to specify options.
+				% At the moment the options need to be provided on Model
+				% object construction
+				obj.plot()
+			end
+			
+			obj.tellUserAboutPublicMethods()
+		end
+		
 		function observedData = constructObservedDataForMCMC(obj)
 			% This function can be overridden by model subclasses, however
 			% we still expect them to call this model baseclass method to
