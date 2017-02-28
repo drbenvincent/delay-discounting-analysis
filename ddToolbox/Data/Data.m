@@ -57,10 +57,9 @@ classdef Data
 			%% Parse things related to metaTable ==========================
 			% Note that the first column of the file MUST be the filenames
 			
-			% default behaviour if no arguments
+			% default behaviour if no arguments:
 			if isempty(p.Results.metaTable) && isempty(p.Results.metaTableFile)
-				
-				obj.metaTable = table(p.Results.files','RowNames',p.Results.files');
+				obj.metaTable = table(p.Results.files', 'RowNames',p.Results.files');
 				obj.metaTable.Properties.VariableNames{1} = 'filename';
 			end
 			
