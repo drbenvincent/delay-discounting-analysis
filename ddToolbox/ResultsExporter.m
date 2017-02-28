@@ -80,12 +80,12 @@ classdef ResultsExporter
 		function export(obj, savePath, pointEstimateType)
 			% TODO: inject the prefix and suffix
 			full_export_path_filename = fullfile(savePath,...
-				['parameterEstimates_Posterior_' pointEstimateType '.csv']);
+				'parameterEstimates.csv');
 			exportTable(obj.finalTable, full_export_path_filename);
 			
 			if ~isempty(obj.alternativeTable)
 				full_export_path_filename = fullfile(savePath,...
-					['parameterEstimates_Posterior_ALT_' pointEstimateType '.csv']);
+					'parameterEstimates_ALT.csv');
 				exportTable(obj.alternativeTable, full_export_path_filename);
 			end
 		end
