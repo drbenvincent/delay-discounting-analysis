@@ -16,7 +16,10 @@ classdef test_Data < matlab.unittest.TestCase
 			addpath('~/git-local/delay-discounting-analysis/ddToolbox')
 			testCase.datapath = '~/git-local/delay-discounting-analysis/demo/datasets/kirby';
 			
-			% only analyse 2 people, for speed of running tests
+			% only analyse 2 people, for speed of running tests			
+			filesToAnalyse = allFilesInFolder(datapath, 'txt');
+			testCase.filesToAnalyse = filesToAnalyse(1:2);
+			
 			testCase.filesToAnalyse={'AC-kirby27-DAYS.txt', 'CS-kirby27-DAYS.txt'};
 			testCase.data = Data(testCase.datapath, 'files', testCase.filesToAnalyse);
 		end
@@ -63,4 +66,3 @@ classdef test_Data < matlab.unittest.TestCase
 	end
 	
 end
-

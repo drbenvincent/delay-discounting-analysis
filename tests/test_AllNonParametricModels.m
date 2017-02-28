@@ -29,7 +29,7 @@ classdef test_AllNonParametricModels < matlab.unittest.TestCase
 			
 			% only analyse 2 people, for speed of running tests
 			filesToAnalyse = allFilesInFolder(datapath, 'txt');
-			filesToAnalyse = filesToAnalyse(1:3);
+			filesToAnalyse = filesToAnalyse(1:2);
 			testCase.data = Data(datapath, 'files', filesToAnalyse);
 		end
 	end
