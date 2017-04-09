@@ -60,16 +60,19 @@ classdef (Abstract) NonParametric < Model
         function experimentMultiPanelFigure(obj, ind)
             
             latex_fig(12, 14, 3)
-            h = layout([1 2 3 3]);
+            h = layout([1 2 3]);
             
             opts.pointEstimateType	= obj.plotOptions.pointEstimateType;
             opts.timeUnits			= obj.timeUnits;
             
-            responseErrorVariables    = {obj.varList.responseErrorParams.name};
+            % create cell arrays of relevant variables
+			discountFunctionVariables = {obj.varList.discountFunctionParams.name};
+			responseErrorVariables    = {obj.varList.responseErrorParams.name};
             
             %%  Set up psychometric function
-            psycho = PsychometricFunction('samples', obj.coda.getSamplesAtIndex_asStruct(ind,responseErrorVariables));
-                
+            %psycho = PsychometricFunction('samples', obj.coda.getSamplesAtIndex_asStruct(ind,responseErrorVariables));
+            psycho = PsychometricFunction('samples', obj.coda.getSamplesAtIndex_asStochastic(ind,responseErrorVariables));
+			
             %% PLOT: density plot of (alpha, epsilon)
             obj.coda.plot_bivariate_distribution(h(1),...
                 responseErrorVariables(1),...
@@ -80,15 +83,15 @@ classdef (Abstract) NonParametric < Model
             
             
             %---- TEMP COMMENTED OUT WHILE I FIX THINGS ----
-            % %% Set up discount function
-            % discountFunction = obj.dfClass('samples', samples,...
-            %    'data', obj.data.getExperimentObject(ind));
-            % 
-            % %% plot distribution of AUC
-            % subplot(h(2))
-            % discountFunction.AUC.plot();
-            % xlim([0 2])
-            % 
+             %% Set up discount function
+%             discountFunction = obj.dfClass('samples', samples,...
+%                'data', obj.data.getExperimentObject(ind));
+%             
+%             %% plot distribution of AUC
+%             subplot(h(2))
+%             discountFunction.AUC.plot();
+%             xlim([0 2])
+            
             %% plot discount function
             obj.plot_discount_function(h(3), ind)
             
@@ -117,8 +120,8 @@ classdef (Abstract) NonParametric < Model
     
     methods (Access = protected)
     
-        function obj = calcDerivedMeasures(obj)
-        end
+%         function obj = calcDerivedMeasures(obj)
+%         end
     
         function psychometric_plots(obj)
             % TODO: plot data on these figures
