@@ -17,7 +17,7 @@ classdef test_ModelNonParametric < matlab.unittest.TestCase
 		function setupData(testCase)
 			% assuming this is running on my machine
 			%addpath('~/git-local/delay-discounting-analysis/ddToolbox')
-			datapath = '~/git-local/delay-discounting-analysis/demo/datasets/non-parametric';
+			datapath = '~/git-local/delay-discounting-analysis/demo/datasets/non_parametric';
 
 			filesToAnalyse={'BD1.txt', 'BD2.txt', 'BD3.txt', 'BD4.txt', 'BD5.txt', 'BD6.txt'};
 			testCase.data = Data(datapath, 'files', filesToAnalyse);
