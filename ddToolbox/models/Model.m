@@ -219,6 +219,28 @@ classdef (Abstract) Model
 		end
 
 		function obj = calcDerivedMeasures(obj)
+%             %% Calculate AUC
+% 
+%             % 1) Use the discount function object to calculate a distribution of AUC values, one for each MCMC sample
+% 			discountFunctionVariables = {obj.varList.discountFunctionParams.name};
+% 			
+% 			N = obj.data.getNExperimentFiles();
+% 			
+% 			for ind = 1:N % loop over files
+% 				
+% 				samples = obj.coda.getSamplesAtIndex_asStochastic(ind, discountFunctionVariables);
+% 				data = obj.data.getExperimentObject(ind);
+% 				
+% 				discountFunction = obj.dfClass(...
+% 					'samples', samples,...
+% 					'data', data);
+% 				
+% % 				% calc AUC values
+% % 				AUC = discountFunction.calcAUC();
+% 				
+% 				% 2) Inject these into a new variable into coda
+% 
+% 			end
 		end
 
 		function tellUserAboutPublicMethods(obj)
