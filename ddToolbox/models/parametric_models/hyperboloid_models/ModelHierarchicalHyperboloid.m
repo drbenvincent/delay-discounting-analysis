@@ -1,11 +1,11 @@
-classdef ModelHierarchicalHyperboloid < Hyperbolic1
+classdef ModelHierarchicalHyperboloid < Hyperboloid
 	%ModelHierarchical A model to estimate the log discount rate, according to the 1-parameter hyperbolic discount function.
     %  All parameters are estimated hierarchically.
 
 	methods (Access = public)
 
 		function obj = ModelHierarchicalHyperboloid(data, varargin)
-			obj = obj@Hyperbolic1(data, varargin{:});
+			obj = obj@Hyperboloid(data, varargin{:});
             obj.modelFilename = 'hierarchicalHyperboloid';
             obj = obj.addUnobservedParticipant('GROUP');
             
