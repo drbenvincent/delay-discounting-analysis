@@ -9,17 +9,22 @@ model{
 groupLogKmu       ~ dnorm(log(1/50),1/(2.5^2))
 groupLogKsigma    ~ dexp(0.5)
 
+S_MEAN ~ dnorm(1,1/(1^2))
+S_PRECISION ~ dgamma(0.01,0.01)
+
 for (p in 1:(nRealExperimentFiles+1)){ # +1 for unobserved participant
     # using reparameterisation to avoid funnel of hell
     logk_offset[p] ~ dnorm(0,1)
     logk[p] <- groupLogKmu + logk_offset[p] * groupLogKsigma
+    
+    S[p]       ~ dnorm(S_MEAN, S_PRECISION) T(-1,)
 }
 
 # MODEL-SPECIFIC: CALCULATION OF PRESENT SUBJECTIVE VALUES
 for (t in 1:length(ID)) {
 	# calculate present subjective value for each reward
-	VA[t] <- A[t] / (1+(exp(logk[ID[t]])*DA[t]))
-	VB[t] <- B[t] / (1+(exp(logk[ID[t]])*DB[t]))
+	VA[t] <- A[t] / (1+(exp(logk[ID[t]])*DA[t]))^S[ID[t]]
+	VB[t] <- B[t] / (1+(exp(logk[ID[t]])*DB[t]))^S[ID[t]]
 }
 
 # RESPONSE ERROR PARAMETERS ====================================================

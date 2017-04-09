@@ -9,11 +9,15 @@ model{
 # mean half-life of 50 days from a sample from my lab, with a std of ~2.5. Note k = 1/halflife.
 groupLogKmu <- log(1/50)
 groupLogKsigma <- 2.5
+S_MEAN <- 1
+S_PRECISION <- 1/(1^2)
 
 for (p in 1:nRealExperimentFiles){
     # using reparameterisation to avoid funnel of hell
     logk_offset[p] ~ dnorm(0,1)
     logk[p] <- groupLogKmu + logk_offset[p] * groupLogKsigma
+    
+    S[p]       ~ dnorm(S_MEAN, S_PRECISION) T(-1,)
 }
 
 
@@ -41,8 +45,8 @@ for (p in 1:(nRealExperimentFiles+1)){ # +1 for unobserved participant
 
 # MODEL-SPECIFIC: CALCULATION OF PRESENT SUBJECTIVE VALUES
 for (t in 1:length(ID)) {
-	VA[t] <- A[t] / (1+(exp(logk[ID[t]])*DA[t]))
-	VB[t] <- B[t] / (1+(exp(logk[ID[t]])*DB[t]))
+	VA[t] <- A[t] / (1+(exp(logk[ID[t]])*DA[t]))^S[ID[t]]
+	VB[t] <- B[t] / (1+(exp(logk[ID[t]])*DB[t]))^S[ID[t]]
 }
 
 # MODEL IN-SPECIFIC CODE BELOW... SHOULD NOT CHANGE ACROSS MODELS ==============

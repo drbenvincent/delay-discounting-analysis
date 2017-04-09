@@ -20,6 +20,8 @@ classdef ModelHierarchicalHyperboloid < Hyperboloid
 		function initialParams = initialiseChainValues(obj, nchains)
 			% Generate initial values of the root nodes
 			for chain = 1:nchains
+                % initialParams(chain).S_MEAN         = normrnd(1,1);
+				% initialParams(chain).S_PRECISION    = rand*5;
 				initialParams(chain).groupLogKmu		= normrnd(log(1/50),1);
 				initialParams(chain).groupLogKsigma		= rand*5;
 				initialParams(chain).groupW				= rand;
