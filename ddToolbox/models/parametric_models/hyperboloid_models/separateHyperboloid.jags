@@ -1,0 +1,50 @@
+# RANDOM FACTORS:   logk[p], epsilon[p], alpha[p]
+# HYPER-PRIORS ON:  none
+
+model{
+
+# DISCOUNT FUNCTION PARAMETERS =================================================
+# RANDOM (BY PARTICIPANT) FACTORS; HYPER-PRIORS = NO 
+
+# mean half-life of 50 days from a sample from my lab, with a std of ~2.5. Note k = 1/halflife.
+logk_MEAN      <- log(1/50)
+logk_PRECISION <- 1/(2.5^2)
+
+for (p in 1:nRealExperimentFiles){
+	logk[p]     ~ dnorm(logk_MEAN, logk_PRECISION)
+}
+
+# MODEL-SPECIFIC: CALCULATION OF PRESENT SUBJECTIVE VALUES
+for (t in 1:length(ID)) {
+	VA[t] <- A[t] / (1+(exp(logk[ID[t]])*DA[t]))
+	VB[t] <- B[t] / (1+(exp(logk[ID[t]])*DB[t]))
+}
+
+# RESPONSE ERROR PARAMETERS ====================================================
+
+epsilon_alpha <- 1.1
+epsilon_beta <- 10.9
+
+for (p in 1:nRealExperimentFiles){
+    epsilon[p]  ~ dbeta(epsilon_alpha , epsilon_beta ) T(,0.5)
+	alpha[p]    ~ dexp(0.01)
+}
+
+# MODEL IN-SPECIFIC CODE BELOW... SHOULD NOT CHANGE ACROSS MODELS ==============
+
+# Psychometric function
+for (t in 1:length(ID)) {
+	P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * phi( (VB[t]-VA[t]) / alpha[ID[t]] )
+}
+
+# response likelihood
+for (t in 1:length(ID)) {
+	R[t]  ~ dbern(P[t]) # likelihood of actual response
+}
+
+# POSTERIOR PREDICTION
+for (t in 1:length(ID)) {
+	Rpostpred[t] ~ dbern(P[t])
+}
+
+}
