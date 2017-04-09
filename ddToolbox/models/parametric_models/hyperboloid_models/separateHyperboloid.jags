@@ -1,4 +1,4 @@
-# RANDOM FACTORS:   logk[p], epsilon[p], alpha[p]
+# RANDOM FACTORS:   logk[p], S[p], epsilon[p], alpha[p]
 # HYPER-PRIORS ON:  none
 
 model{
@@ -11,13 +11,14 @@ logk_MEAN      <- log(1/50)
 logk_PRECISION <- 1/(2.5^2)
 
 for (p in 1:nRealExperimentFiles){
-	logk[p]     ~ dnorm(logk_MEAN, logk_PRECISION)
+	logk[p]    ~ dnorm(logk_MEAN, logk_PRECISION)
+    S[p]       ~ dnorm(1, 3)
 }
 
 # MODEL-SPECIFIC: CALCULATION OF PRESENT SUBJECTIVE VALUES
 for (t in 1:length(ID)) {
-	VA[t] <- A[t] / (1+(exp(logk[ID[t]])*DA[t]))
-	VB[t] <- B[t] / (1+(exp(logk[ID[t]])*DB[t]))
+	VA[t] <- A[t] / (1+(exp(logk[ID[t]])*DA[t])^S[ID[t]])
+	VB[t] <- B[t] / (1+(exp(logk[ID[t]])*DB[t])^S[ID[t]])
 }
 
 # RESPONSE ERROR PARAMETERS ====================================================
