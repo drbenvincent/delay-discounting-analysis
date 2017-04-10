@@ -42,6 +42,15 @@ classdef (Abstract) Parametric < Model
                     'suffix', obj.modelFilename,...
                     'formats', obj.plotOptions.exportFormats);
             end
+            
+            obj.plot_discount_functions_in_one();
+            % Export
+            if obj.plotOptions.shouldExportPlots
+                myExport(obj.plotOptions.savePath,...
+                    'discount_functions',...
+                    'suffix', obj.modelFilename,...
+                    'formats', obj.plotOptions.exportFormats);
+            end
                 
 			%% Plots, one per data file ===================================		
 			obj.plotAllExperimentFigures();

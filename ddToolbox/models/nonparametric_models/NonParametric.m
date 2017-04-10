@@ -29,30 +29,39 @@ classdef (Abstract) NonParametric < Model
 			p.FunctionName = mfilename;
 			p.addParameter('shouldExportPlots', true, @islogical);
 			p.parse(varargin{:});
-
+			
 			obj.plot_discount_functions_in_grid();
-            % Export
-            if obj.plotOptions.shouldExportPlots
-                myExport(obj.plotOptions.savePath,...
-                    'grid_discount_functions',...
-                    'suffix', obj.modelFilename,...
-                    'formats', obj.plotOptions.exportFormats);
-            end
+			% Export
+			if obj.plotOptions.shouldExportPlots
+				myExport(obj.plotOptions.savePath,...
+					'grid_discount_functions',...
+					'suffix', obj.modelFilename,...
+					'formats', obj.plotOptions.exportFormats);
+			end
+			
+			obj.plot_discount_functions_in_one();
+			% Export
+			if obj.plotOptions.shouldExportPlots
+				myExport(obj.plotOptions.savePath,...
+					'discount_functions',...
+					'suffix', obj.modelFilename,...
+					'formats', obj.plotOptions.exportFormats);
+			end
 			
 			% EXPERIMENT PLOT ==================================================
-            obj.psychometric_plots();
+			obj.psychometric_plots();
 			obj.plotAllExperimentFigures();
 			
-            % Posterior prediction plot
-            obj.postPred.plot(obj.plotOptions, obj.modelFilename)
+			% Posterior prediction plot
+			obj.postPred.plot(obj.plotOptions, obj.modelFilename)
 			
-
+			
 			%% TODO...
-            % FOREST PLOT OF AUC VALUES ========================================
-            % TODO: Think about plotting this with GRAMM
-            % https://github.com/piermorel/gramm
-            %
-            %figUnivariateSummary(alldata)
+			% FOREST PLOT OF AUC VALUES ========================================
+			% TODO: Think about plotting this with GRAMM
+			% https://github.com/piermorel/gramm
+			%
+			%figUnivariateSummary(alldata)
 			
 		end
         

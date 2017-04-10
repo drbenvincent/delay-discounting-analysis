@@ -105,12 +105,17 @@ classdef (Abstract) Model
 			% TODO ^^^^ avoid this duplicate use of pointEstimateType
 		end
         
-        function plot_discount_function(obj, axis_handle, ind)
+        function plot_discount_function(obj, axis_handle, ind, varargin)
 			%plot_discount_function
 			% Example public call. This will plot a discount function to a
 			% specified subplot, for the experiment file determined by the
 			% numerical 'index'
 			% model.plot_discount_function(axis_handle, index)
+			
+			p = inputParser;
+			p.FunctionName = mfilename;
+			p.addParameter('plot_mode', 'full', @isstr);
+			p.parse(varargin{:});
 			
             discountFunctionVariables = {obj.varList.discountFunctionParams.name};
             
@@ -124,7 +129,8 @@ classdef (Abstract) Model
                 
             discountFunction.plot(obj.plotOptions.pointEstimateType,...
                 obj.plotOptions.dataPlotType,...
-                obj.timeUnits);
+                obj.timeUnits,...
+				'plot_mode', p.Results.plot_mode);
             % TODO #166 avoid having to parse these args in here
         end
 
@@ -299,6 +305,32 @@ classdef (Abstract) Model
             end
             drawnow
         end
+        
+        
+        function plot_discount_functions_in_one(obj)
+			latex_fig(12, 8,6)
+			clf, drawnow
+			
+			% don't want the group level estimate, so not asking for 'all'
+			names = obj.data.getIDnames('experiments');
+			
+			% plot curves in same axis
+			subplot_handle = subplot(1,1,1);
+			
+			% Iterate over files, plotting
+			disp('Plotting...')
+			for n = 1:numel(names)
+				hold on
+				obj.plot_discount_function(subplot_handle, n,...
+					'plot_mode', 'point_estimate_only')
+			end
+			set(gca,'PlotBoxAspectRatio',[1.5,1,1])
+			y = get(gca,'ylim');
+			set(gca, 'ylim', [0 min([y(2), 2])])
+			%             title(names{n}, 'FontSize',10)
+			%             set(gca,'FontSize',10)
+			drawnow
+		end
 
 	end
 

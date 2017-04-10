@@ -20,7 +20,13 @@ classdef DF1 < DiscountFunction
         end
         
         
-        function plot(obj, pointEstimateType, dataPlotType, timeUnits)
+        function plot(obj, pointEstimateType, dataPlotType, timeUnits, varargin)
+            
+            p = inputParser;
+			p.FunctionName = mfilename;
+			p.addParameter('plot_mode', 'full', @isstr);
+			p.parse(varargin{:});
+            
             timeUnitFunction = str2func(timeUnits);
             N_SAMPLES_FROM_POSTERIOR = 100;
             
@@ -31,26 +37,44 @@ classdef DF1 < DiscountFunction
                 delaysDuration = timeUnitFunction(delays);
             end
             
-%             %% don't plot if we've been given NaN's
-%             if obj.anyNaNsPresent()
-%                 warning('Not plotting due to NaN''s')
-%                 return
-%             end
-            
-            %% Plot N samples from posterior
-            discountFraction = obj.eval(delays, 'nExamples', N_SAMPLES_FROM_POSTERIOR);
-            plot(delaysDuration,...
-                discountFraction,...
-                '-', 'Color',[0.5 0.5 0.5 0.1])
-            hold on
-            
-            %% Plot point estimate
-            discountFraction = obj.eval(delays, 'pointEstimateType', pointEstimateType);
-            plot(delaysDuration,...
-                discountFraction,...
-                '-',...
-                'Color', 'k',...
-                'LineWidth', 2)
+            switch p.Results.plot_mode
+                case{'point_estimate_only'}
+                    %% Plot point estimate
+                    discountFraction = obj.eval(delays, 'pointEstimateType', pointEstimateType);
+                    plot(delaysDuration,...
+                        discountFraction,...
+                        '-',...
+                        'Color', 'k',...
+                        'LineWidth', 2)
+                        
+                case{'full'}
+    %             %% don't plot if we've been given NaN's
+    %             if obj.anyNaNsPresent()
+    %                 warning('Not plotting due to NaN''s')
+    %                 return
+    %             end
+                
+                %% Plot N samples from posterior
+                discountFraction = obj.eval(delays, 'nExamples', N_SAMPLES_FROM_POSTERIOR);
+                plot(delaysDuration,...
+                    discountFraction,...
+                    '-', 'Color',[0.5 0.5 0.5 0.1])
+                hold on
+                
+                %% Plot point estimate
+                discountFraction = obj.eval(delays, 'pointEstimateType', pointEstimateType);
+                plot(delaysDuration,...
+                    discountFraction,...
+                    '-',...
+                    'Color', 'k',...
+                    'LineWidth', 2)
+
+                %% Overlay data
+                %TODO: fix this special-case check for group-level
+                if ~isempty(obj.data)
+                    obj.data.plot(dataPlotType, timeUnits);
+                end
+            end
             
             %% Formatting
             xlabel('delay $D^B$', 'interpreter','latex')
@@ -58,12 +82,6 @@ classdef DF1 < DiscountFunction
             set(gca,'Xlim', [0 max(delaysDuration)])
             box off
             axis square
-            
-            %% Overlay data
-            %TODO: fix this special-case check for group-level
-            if ~isempty(obj.data)
-                obj.data.plot(dataPlotType, timeUnits);
-            end
             
             drawnow
         end
