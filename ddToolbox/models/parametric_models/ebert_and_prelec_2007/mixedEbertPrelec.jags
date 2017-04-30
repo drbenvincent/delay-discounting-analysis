@@ -1,0 +1,72 @@
+# RANDOM FACTORS:   k[p], tau[p], epsilon[p], alpha[p]
+# HYPER-PRIORS ON:  epsilon[p], alpha[p]
+
+# RANDOM (by participant) FACTORS APPEAR IN A LOOP OVER PARTICIPANTS
+# VARIABLES *WITH* GROUP SHRINKAGE HYPERPRIORS HAVE AN EXTRA (UNOBSERVED) PARTICIPANT
+
+model{
+
+
+# DISCOUNT FUNCTION PARAMETERS =================================================
+# RANDOM (BY PARTICIPANT) FACTORS; HYPER-PRIORS = NO 
+
+K_MEAN          <- 0                     # <---- currently guesstimating
+K_PRECISION     <- 1/(0.01)              # <---- currently guesstimating
+TAU_MEAN        <- 1                     # <---- currently guesstimating
+TAU_PRECISION   <- 1/1^2                 # <---- currently guesstimating
+
+for (p in 1:nRealExperimentFiles){       # no +1 because no shrinkage hyperprior
+	k[p]        ~ dnorm(K_MEAN, K_PRECISION)
+    tau[p]      ~ dnorm(TAU_MEAN, TAU_PRECISION) T(0,)
+}
+
+# MODEL-SPECIFIC: CALCULATION OF PRESENT SUBJECTIVE VALUES
+for (t in 1:length(ID)) {
+    VA[t] <- A[t] * (exp( - (k[ID[t]] * DA[t]^tau[ID[t]]) ) )
+	VB[t] <- B[t] * (exp( - (k[ID[t]] * DB[t]^tau[ID[t]]) ) )
+}
+
+
+# RESPONSE ERROR PARAMETERS ====================================================
+
+# comparison acuity (alpha) hyperprior
+# NOTE: because we have 2 discounting parameters, I've found that more restrictive priors need to be placed on the error parameters
+alpha_mu        ~ dnorm(0,1/(10^2)) T(0,)
+alpha_precision ~ dgamma(0.01,0.01)
+alpha_sigma     <- sqrt(1/alpha_precision)
+
+# error rates (epsilon) hyperprior
+groupW          ~ dbeta(1.1, 10.9)  # mode for lapse rate
+groupKminus2    ~ dgamma(0.5,0.5) # concentration parameter ## UPDATED SINCE PAPER
+groupK          <- groupKminus2+2
+
+epsilon_alpha <- groupW*(groupK-2)+1
+epsilon_beta <- (1-groupW)*(groupK-2)+1
+
+for (p in 1:(nRealExperimentFiles+1)){ # +1 for unobserved participant
+    epsilon[p]  ~ dbeta(epsilon_alpha , epsilon_beta ) T(,0.5)
+    
+    # using reparameterisation to avoid funnel of hell
+    alpha_offset[p] ~ dnorm(0,1) T(0,)
+    alpha[p] <- alpha_mu + alpha_offset[p] * alpha_sigma
+}
+
+
+# MODEL IN-SPECIFIC CODE BELOW... SHOULD NOT CHANGE ACROSS MODELS ==============
+
+# Psychometric function
+for (t in 1:length(ID)) {
+	P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * phi( (VB[t]-VA[t]) / alpha[ID[t]] )
+}
+
+# response likelihood
+for (t in 1:length(ID)) {
+	R[t]  ~ dbern(P[t]) # likelihood of actual response
+}
+
+# POSTERIOR PREDICTION
+for (t in 1:length(ID)) {
+	Rpostpred[t] ~ dbern(P[t])
+}
+
+}
