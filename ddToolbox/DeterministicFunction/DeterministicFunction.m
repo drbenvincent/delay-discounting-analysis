@@ -91,6 +91,15 @@ classdef (Abstract) DeterministicFunction
 			
 			theta_vals_to_evaluate = determineThetaValsToEvaluate();
 			
+			% BOTCH: this is being called with group level but for mixed
+			% models. Ideally this will not even be called, but temp fix we
+			% will abort if there are no samples.
+			f = fields(theta_vals_to_evaluate);
+			if isempty(theta_vals_to_evaluate.(f{1}))
+				y=[];
+				return
+			end
+			
 			y = obj.function_evaluation(x, theta_vals_to_evaluate);
 			
 			function thetaStruct = determineThetaValsToEvaluate()

@@ -56,7 +56,8 @@ classdef ResultsExporter
 				% remove 'GROUP' row, if it exists
 				GROUPNAME = 'GROUP';
 				final_group_removed = obj.finalTable;
-				match_vec = strmatch(GROUPNAME,final_group_removed.Row);
+				%match_vec = strmatch(GROUPNAME,final_group_removed.Row);
+				match_vec = strmatch(GROUPNAME,final_group_removed.Properties.RowNames);
 				final_group_removed(match_vec,:) = [];
 				
 				metaTable = data.getMetaTable;
