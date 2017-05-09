@@ -1,4 +1,4 @@
-classdef DF2 < DiscountFunction
+classdef (Abstract) DF2 < DiscountFunction
 	%DF2
 	
 	methods (Access = public)
@@ -11,12 +11,12 @@ classdef DF2 < DiscountFunction
 		% TODO: contents of this function is NOT generic to all 2D discount
 		% surfaces. It contains lots of code specific to Hyperbolic +
 		% magnitude discounting
-		function plot(obj, pointEstimateType, dataPlotType, timeUnits, maxRewardValue, maxDelayValue)
+		function plot(obj, plotOptions)
 			
 			if verLessThan('matlab','9.1') % backward compatability
 				timeUnitFunction = @(x) x; % do nothing
 			else
-				timeUnitFunction = str2func(timeUnits);
+				timeUnitFunction = str2func(plotOptions.timeUnits);
 			end
 			
 			% don't plot if we've been given NaN's
@@ -30,8 +30,8 @@ classdef DF2 < DiscountFunction
 				obj.theta.m.samples,...
 				obj.theta.c.samples,...
 				'shouldPlot',false,...
-				'pointEstimateType', pointEstimateType);
-			mc = mcBivariate.(pointEstimateType);
+				'pointEstimateType', plotOptions.pointEstimateType);
+			mc = mcBivariate.(plotOptions.pointEstimateType);
 			m = mc(1);
 			c = mc(2);
 			
@@ -39,10 +39,10 @@ classdef DF2 < DiscountFunction
 			
 			% x-axis = reward
 			nLines = 10;
-			logRewardVector = calcLogRewardVector(nLines, maxRewardValue);
+			logRewardVector = calcLogRewardVector(nLines, plotOptions.maxRewardValue);
 			
 			% y-axis = delays
-			delayVector = linspace(0, maxDelayValue, 100);
+			delayVector = linspace(0, plotOptions.maxDelayValue, 100);
 			
 			% calculate 2D matricies
 			[logB, delayMatrix] = meshgrid(logRewardVector,delayVector); % create x,y (b,d) grid values
@@ -63,14 +63,14 @@ classdef DF2 < DiscountFunction
 			hmesh.EdgeColor		='k';
 			hmesh.EdgeAlpha		=1;
 			
-			obj.formatAxes( calcOrderOfMagnitude(maxRewardValue) )
+			obj.formatAxes( calcOrderOfMagnitude(plotOptions.maxRewardValue) )
 			%set(gca,'XLim',[0 maxRewardValue])
 			
 			%% Overlay data
 			% TODO: Fix this special case of their being no data (ie for
 			% group level)
 			if ~isempty(obj.data)
-				obj.data.plot(dataPlotType, timeUnits);
+				obj.data.plot(plotOptions.dataPlotType, plotOptions.timeUnits);
 			end
 
 			drawnow

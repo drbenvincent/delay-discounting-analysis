@@ -94,11 +94,15 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			% smoother, more robust way
 			if ~isempty(dfSamples) || ~any(isnan(dfSamples))
 				subplot(h(6)) % -------------------------------------------
-				discountFunction.plot(obj.plotOptions.pointEstimateType,...
-					obj.plotOptions.dataPlotType,...
-					obj.timeUnits,...
-					obj.data.getMaxRewardValue(ind),...
-					obj.data.getMaxDelayValue(ind));
+				
+				plotOptions.pointEstimateType = obj.plotOptions.pointEstimateType;
+				plotOptions.dataPlotType = obj.plotOptions.dataPlotType;
+				plotOptions.timeUnits = obj.timeUnits;
+				%plotOptions.plotMode = p.Results.plot_mode;
+				plotOptions.maxRewardValue = obj.data.getMaxRewardValue(ind);
+				plotOptions.maxDelayValue = obj.data.getMaxDelayValue(ind);
+				
+				discountFunction.plot(plotOptions);
 			end
 			% TODO #166 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -135,12 +139,14 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 				'samples', obj.coda.getSamplesAtIndex_asStochastic(ind, discountFunctionVariables),...
 				'data', obj.data.getExperimentObject(ind));
 			
-			discountFunction.plot(obj.plotOptions.pointEstimateType,...
-				obj.plotOptions.dataPlotType,...
-				obj.timeUnits,...
-				obj.data.getMaxRewardValue(ind),...
-				obj.data.getMaxDelayValue(ind));
-			% TODO #166 avoid having to parse these args in here
+			plotOptions.pointEstimateType = obj.plotOptions.pointEstimateType;
+			plotOptions.dataPlotType = obj.plotOptions.dataPlotType;
+			plotOptions.timeUnits = obj.timeUnits;
+			%plotOptions.plotMode = p.Results.plot_mode;
+			plotOptions.maxRewardValue = obj.data.getMaxRewardValue(ind);
+			plotOptions.maxDelayValue = obj.data.getMaxDelayValue(ind);
+			
+			discountFunction.plot(plotOptions);
 		end
 		
 		

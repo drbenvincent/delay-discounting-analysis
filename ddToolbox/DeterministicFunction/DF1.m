@@ -1,4 +1,4 @@
-classdef DF1 < DiscountFunction
+classdef (Abstract) DF1 < DiscountFunction
 	%DF1 
 
     properties
@@ -20,14 +20,9 @@ classdef DF1 < DiscountFunction
         end
         
         
-        function plot(obj, pointEstimateType, dataPlotType, timeUnits, varargin)
+        function plot(obj, plotOptions)
             
-            p = inputParser;
-			p.FunctionName = mfilename;
-			p.addParameter('plot_mode', 'full', @isstr);
-			p.parse(varargin{:});
-            
-            timeUnitFunction = str2func(timeUnits);
+            timeUnitFunction = str2func(plotOptions.timeUnits);
             N_SAMPLES_FROM_POSTERIOR = 100;
             
             delays = obj.getDelayValues();
@@ -37,10 +32,10 @@ classdef DF1 < DiscountFunction
                 delaysDuration = timeUnitFunction(delays);
             end
             
-            switch p.Results.plot_mode
+            switch plotOptions.plotMode
                 case{'point_estimate_only'}
                     %% Plot point estimate
-                    discountFraction = obj.eval(delays, 'pointEstimateType', pointEstimateType);
+                    discountFraction = obj.eval(delays, 'pointEstimateType', plotOptions.pointEstimateType);
                     plot(delaysDuration,...
                         discountFraction,...
                         '-',...
@@ -62,7 +57,7 @@ classdef DF1 < DiscountFunction
                 hold on
                 
                 %% Plot point estimate
-                discountFraction = obj.eval(delays, 'pointEstimateType', pointEstimateType);
+                discountFraction = obj.eval(delays, 'pointEstimateType', plotOptions.pointEstimateType);
                 plot(delaysDuration,...
                     discountFraction,...
                     '-',...
@@ -72,7 +67,7 @@ classdef DF1 < DiscountFunction
                 %% Overlay data
                 %TODO: fix this special-case check for group-level
                 if ~isempty(obj.data)
-                    obj.data.plot(dataPlotType, timeUnits);
+                    obj.data.plot(plotOptions.dataPlotType, plotOptions.timeUnits);
                 end
             end
             

@@ -127,11 +127,12 @@ classdef (Abstract) Model
                 'samples', samples,...
                 'data', obj.data.getExperimentObject(ind));
                 
-            discountFunction.plot(obj.plotOptions.pointEstimateType,...
-                obj.plotOptions.dataPlotType,...
-                obj.timeUnits,...
-				'plot_mode', p.Results.plot_mode);
-            % TODO #166 avoid having to parse these args in here
+			plotOptions.pointEstimateType = obj.plotOptions.pointEstimateType;
+			plotOptions.dataPlotType = obj.plotOptions.dataPlotType;
+			plotOptions.timeUnits = obj.timeUnits;
+			plotOptions.plotMode = p.Results.plot_mode;
+			
+            discountFunction.plot(plotOptions);
         end
 
 	end
