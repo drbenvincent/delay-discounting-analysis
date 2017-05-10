@@ -1,11 +1,11 @@
 classdef (Abstract) DeterministicFunction
-	%DeterministicFunction A class to deal with deterministic functions with parameters that we have a distribution of samples over.
-	properties
+	%DeterministicFunction A class to deal with deterministic functions with parameters that we have a distribution of samples over. The value of a deterministic function is determined by its parent's node values. In this implementation we have an explicitly separate list of parameters theta (ie Stochastic nodes) and fixed, observed data (here this is an object)
+    
+	properties         
 		theta % Stochastic objects (or object array)
-		% TODO: theta samples should be a Table !
 		
-		% This is Object to store data associated with the function. It
-		% must have a plot method
+		% data is an object to store data associated with the function. It must have a plot method. 
+        % TODO: at the moment this is only used to plot the data, and not to actually provide fixed input values to the function. Eg the values that we want to evaluate the expression for.
 		data 
 	end
 	
@@ -37,7 +37,7 @@ classdef (Abstract) DeterministicFunction
 		
 		function obj = set.data(obj, dataObject)
 			
-			% deal with speecial case of group-level
+			% deal with special case of group-level
 			if isempty(dataObject)
 				return
 			end
@@ -82,15 +82,15 @@ classdef (Abstract) DeterministicFunction
 			
 		end
 		
-		function y = eval(obj, x, varargin)
+		function y = eval(obj, xData, varargin)
 			p = inputParser;
-			p.addRequired('x', @isnumeric);
+			p.addRequired('xData', @isnumeric);
 			p.addParameter('nExamples', [], @isscalar);
 			p.addParameter('pointEstimateType',[], @(x)any(strcmp(x,{'mean','median','mode'})));
-			p.parse(x, varargin{:});
+			p.parse(xData, varargin{:});
 			
+            % Step 1) Determine which parameter values we want to use to evaluate the expression with. This is a hack workaround for efficiency. We could just evaluate for all theta values, it's just that this is wasteful if we only want to plot the function for the point estimate of the parameters, or just a random subset of parameters.
 			theta_vals_to_evaluate = determineThetaValsToEvaluate();
-			
 			% BOTCH: this is being called with group level but for mixed
 			% models. Ideally this will not even be called, but temp fix we
 			% will abort if there are no samples.
@@ -100,52 +100,29 @@ classdef (Abstract) DeterministicFunction
 				return
 			end
 			
-			y = obj.function_evaluation(x, theta_vals_to_evaluate);
+            % Step 2) Actually evaluate the expression
+			y = obj.function_evaluation(xData, theta_vals_to_evaluate);
 			
+            
 			function thetaStruct = determineThetaValsToEvaluate()
 				
-				pointEstimatePrivided = @() ~isempty(p.Results.pointEstimateType);
+				pointEstimateRequested = @() ~isempty(p.Results.pointEstimateType);
 				
-				if pointEstimatePrivided()
-					thetaStruct = extractThetaPointEstimates();
+				if pointEstimateRequested()
+					% loop over fields. TODO: use structfun, or make this not a structure
+					thetaStruct = struct();
+					for field = fields(obj.theta)'
+						thetaStruct.(field{:}) = obj.theta.(field{:}).extractThetaPointEstimates(p.Results.pointEstimateType);
+					end
 				else
 					examplesToPlot = getExamplesToPlot();
-					thetaStruct = extractTheseThetaSamples(examplesToPlot);
-				end
-				
-				
-				function thetaStruct = extractThetaPointEstimates()
+					% loop over fields. TODO: use structfun, or make this not a structure
 					thetaStruct = struct();
 					for field = fields(obj.theta)'
-						thetaStruct.(field{:}) = obj.theta.(field{:}).(p.Results.pointEstimateType);
-						if numel( obj.theta.(field{:}))==1
-							% one Stochastic object?
-							thetaStruct.(field{:}) = obj.theta.(field{:})(1).(p.Results.pointEstimateType);
-						elseif numel( obj.theta.(field{:}))>1
-							% array of stochastics?
-							for n=1:numel( obj.theta.(field{:}))
-								temp(:,n) = obj.theta.(field{:})(n).(p.Results.pointEstimateType);
-							end
-							thetaStruct.(field{:}) = temp';
-						end
+						thetaStruct.(field{:}) = obj.theta.(field{:}).extractTheseThetaSamples(examplesToPlot);
 					end
 				end
 				
-				function thetaStruct = extractTheseThetaSamples(examplesToPlot)					
-					thetaStruct = struct();
-					for field = fields(obj.theta)'
-						if numel( obj.theta.(field{:}))==1
-							% one Stochastic object?
-							thetaStruct.(field{:}) = obj.theta.(field{:})(1).samples(examplesToPlot);
-						elseif numel( obj.theta.(field{:}))>1
-							% array of stochastics?
-							for n=1:numel( obj.theta.(field{:}))
-								temp(:,n) = obj.theta.(field{:})(n).samples(examplesToPlot);
-							end
-							thetaStruct.(field{:}) = temp';
-						end
-					end
-				end
 				
 				function examplesToPlot = getExamplesToPlot()
 					%% create a vector of indexes into the samples to evaluate
@@ -165,23 +142,13 @@ classdef (Abstract) DeterministicFunction
 
 		function nSamples = get.nSamples(obj)
 			% return the number of samples we have
-			
+		
+			% loop over fields. TODO: use structfun, or make this not a structure
 			f = fields(obj.theta);
 			for n=1:numel(f)
-				
-				% TODO: FIX THIS !!!
-				try
-					% array of stochastics?
-					nSamples(n) = numel( obj.theta.(f{n})(1).samples );
-				catch
-					% plain vectors?
-					nSamples(n) = numel(obj.theta.(f{n}));
-				end
-				
+				nSamples(n) = obj.theta.(f{n}).howManySamples();
 			end
-			% TODO: check we have same number of samples for each theta
-			
-			nSamples = nSamples(1);
+ 			nSamples = nSamples(1);
 		end
 		
     end
