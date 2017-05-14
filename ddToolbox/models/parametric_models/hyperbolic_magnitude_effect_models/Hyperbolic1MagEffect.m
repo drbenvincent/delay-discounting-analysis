@@ -18,6 +18,32 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			
 			obj.plotOptions.dataPlotType = '3D';
 		end
+        
+        
+        % MIDDLE-MAN METHOD
+        function logk = getLogDiscountRate(obj, reward, index, varargin)
+            %% Set up discount function
+            discountFunctionVariables = {obj.varList.discountFunctionParams.name};
+            dfSamples = obj.coda.getSamplesAtIndex_asStruct(index, discountFunctionVariables);
+            discountFunction = obj.dfClass('samples', dfSamples);
+            %             % inject a DataFile object into the discount function
+            %             discountFunction.data = obj.data.getExperimentObject(index);
+            
+            %% Do the actual call
+            logk = discountFunction.getLogDiscountRate(reward, index, varargin{:});
+        end
+        
+        
+        
+        
+        
+        
+        % ==========================================================================
+        % ==========================================================================
+        % PLOTTING
+        % ==========================================================================
+        % ==========================================================================
+        
 		
 		% OVERRIDDING THIS METHOD FROM A SUPERCLASS
 		function experimentMultiPanelFigure(obj, ind)
@@ -110,58 +136,6 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			
 		end
 		
-		
-		% OVERRIDING : TODO: remove the need for this by making all
-		% discountFunction.plot methods have the same interface / input
-		% arguments.
-		function plot_discount_function(obj, subplot_handle, ind, varargin)
-			
-			p = inputParser;
-			p.FunctionName = mfilename;
-			p.addParameter('plot_mode', 'full', @isstr);
-			p.parse(varargin{:});
-			
-			% THIS IS A BOTCH. We ask for point estimate only when trying
-			% to plot all discount functions in the same plot, but this is
-			% not appropriate for 2D discount surfaces. But we have an
-			% issue in the objects meaning I can't resolve it in a clean
-			% way. So if this function is getting called in this context,
-			% then just exit out.
-			switch p.Results.plot_mode
-				case{'point_estimate_only'}
-					return
-			end
-			
-			discountFunctionVariables = {obj.varList.discountFunctionParams.name};
-			
-			subplot(subplot_handle)
-			discountFunction = obj.dfClass(...
-				'samples', obj.coda.getSamplesAtIndex_asStochastic(ind, discountFunctionVariables),...
-				'data', obj.data.getExperimentObject(ind));
-			
-			plotOptions.pointEstimateType = obj.plotOptions.pointEstimateType;
-			plotOptions.dataPlotType = obj.plotOptions.dataPlotType;
-			plotOptions.timeUnits = obj.timeUnits;
-			%plotOptions.plotMode = p.Results.plot_mode;
-			plotOptions.maxRewardValue = obj.data.getMaxRewardValue(ind);
-			plotOptions.maxDelayValue = obj.data.getMaxDelayValue(ind);
-			
-			discountFunction.plot(plotOptions);
-		end
-		
-		
-		% MIDDLE-MAN METHOD
-		function logk = getLogDiscountRate(obj, reward, index, varargin)
-			%% Set up discount function
-			discountFunctionVariables = {obj.varList.discountFunctionParams.name};
-			dfSamples = obj.coda.getSamplesAtIndex_asStruct(index, discountFunctionVariables);
-			discountFunction = obj.dfClass('samples', dfSamples);
-			%             % inject a DataFile object into the discount function
-			%             discountFunction.data = obj.data.getExperimentObject(index);
-			
-			%% Do the actual call
-			logk = discountFunction.getLogDiscountRate(reward, index, varargin{:});
-		end
 	end
 	
 end

@@ -1,13 +1,13 @@
 classdef (Abstract) Model
 	%Model Base class to provide basic functionality
-
+	
 	% Allow acces to these via Model, but we still only get access to these
 	% class's public interface.
 	properties (SetAccess = protected, GetAccess = public)
 		coda % handle to coda object
 		data % handle to Data class
 	end
-
+	
 	%% Private properties
 	properties (SetAccess = protected, GetAccess = protected)
 		dfClass % function handle to DiscountFunction class
@@ -21,21 +21,21 @@ classdef (Abstract) Model
 		plotOptions
 		timeUnits % string whose name must be a function to create a Duration.
 	end
-
-    % methods that subclasses must implement
-    methods (Abstract, Access = public)
-        plot()
-        experimentMultiPanelFigure()
-        %plot_discount_function(obj, subplot_handle, ind)
-        %getAUC(obj)
+	
+	% methods that subclasses must implement
+	methods (Abstract, Access = public)
+		plot()
+		experimentMultiPanelFigure()
+		%plot_discount_function(obj, subplot_handle, ind)
+		%getAUC(obj)
 	end
 	methods (Abstract, Access = protected)
 		initialiseChainValues()
 	end
 	
-
+	
 	methods (Access = public)
-
+		
 		function obj = Model(data, varargin)
 			% Input parsing ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			p = inputParser;
@@ -63,15 +63,15 @@ classdef (Abstract) Model
 			obj.mcmcParams	= obj.parse_mcmcparams(obj.mcmcParams);
 			obj.plotOptions = obj.parse_plot_options(varargin{:});
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+			
 			obj.varList.responseErrorParams(1).name = 'alpha';
 			obj.varList.responseErrorParams(1).label = 'comparison accuity, $\alpha$';
-
+			
 			obj.varList.responseErrorParams(2).name = 'epsilon';
 			obj.varList.responseErrorParams(2).label = 'error rate, $\epsilon$';
 		end
-
-
+		
+		
 		function obj = conductInference(obj)
 			% pre-sampling preparation
 			obj.observedData = obj.constructObservedDataForMCMC();
@@ -87,7 +87,7 @@ classdef (Abstract) Model
 			% This is a separate method, to allow for overriding in sub classes
 			obj = obj.postSamplingActivities();
 		end
-
+		
 		function export(obj)
 			% TODO: This should be a method of CODA
 			% TODO: better function name. What does it do? Calculate or
@@ -104,81 +104,43 @@ classdef (Abstract) Model
 			exporter.export(obj.plotOptions.savePath, obj.plotOptions.pointEstimateType);
 			% TODO ^^^^ avoid this duplicate use of pointEstimateType
 		end
-        
-        function plot_discount_function(obj, axis_handle, ind, varargin)
-			%plot_discount_function
-			% Example public call. This will plot a discount function to a
-			% specified subplot, for the experiment file determined by the
-			% numerical 'index'
-			% model.plot_discount_function(axis_handle, index)
-			
-			p = inputParser;
-			p.FunctionName = mfilename;
-			p.addParameter('plot_mode', 'full', @isstr);
-			p.parse(varargin{:});
-			
-            discountFunctionVariables = {obj.varList.discountFunctionParams.name};
-            
-            subplot(axis_handle)
-            
-			samples = obj.coda.getSamplesAtIndex_asStochastic(ind, discountFunctionVariables);
-			
-            discountFunction = obj.dfClass(...
-                'samples', samples,...
-                'data', obj.data.getExperimentObject(ind));
-                
-			plotOptions.pointEstimateType = obj.plotOptions.pointEstimateType;
-			plotOptions.dataPlotType = obj.plotOptions.dataPlotType;
-			plotOptions.timeUnits = obj.timeUnits;
-			plotOptions.plotMode = p.Results.plot_mode;
-			
-            discountFunction.plot(plotOptions);
-        end
-
+		
+		
 	end
-
+	
 	%%  GETTERS
-
+	
 	methods
-
+		
 		function [predicted_subjective_values] = get_inferred_present_subjective_values(obj)
 			%get_inferred_present_subjective_values
-			% returns the inferred present subjective values of the 
+			% returns the inferred present subjective values of the
 			% objective reward values
 			
 			%% calculate point estimates
 			% get point estimates of present subjective values. These will
 			% be vectors. Each value corresponds to one trial in the
 			% overall dataset
-            
-            %% return point estimates of present subjective values...
+			
+			%% return point estimates of present subjective values...
 			all_data_table = obj.data.groupTable;
-            % add new columns for present subjective value (VA, VB)
+			% add new columns for present subjective value (VA, VB)
 			all_data_table.VA = obj.coda.getStats(obj.plotOptions.pointEstimateType, 'VA');
 			all_data_table.VB = obj.coda.getStats(obj.plotOptions.pointEstimateType, 'VB');
-            predicted_subjective_values.point_estimates = all_data_table;
-
+			predicted_subjective_values.point_estimates = all_data_table;
+			
 			%% TODO: Return full posterior distributions of present subjective values
 			% predicted_subjective_values.A_full_posterior =
 			% predicted_subjective_values.B_full_posterior =
 		end
-
+		
 	end
-
-
-
-
-
-
-
-
-
-
-
+	
+	
 	%% Protected methods
-
+	
 	methods (Access = protected)
-
+		
 		function nChains = get_nChains(obj)
 			nChains = obj.mcmcParams.nchains;
 		end
@@ -224,91 +186,183 @@ classdef (Abstract) Model
 			% protected method which can be over-ridden by model sub-classes
 			observedData = obj.additional_model_specific_ObservedData(observedData);
 		end
-
+		
 		function obj = calcDerivedMeasures(obj)
-%             %% Calculate AUC
-% 
-%             % 1) Use the discount function object to calculate a distribution of AUC values, one for each MCMC sample
-% 			discountFunctionVariables = {obj.varList.discountFunctionParams.name};
-% 			
-% 			N = obj.data.getNExperimentFiles();
-% 			
-% 			for ind = 1:N % loop over files
-% 				
-% 				samples = obj.coda.getSamplesAtIndex_asStochastic(ind, discountFunctionVariables);
-% 				data = obj.data.getExperimentObject(ind);
-% 				
-% 				discountFunction = obj.dfClass(...
-% 					'samples', samples,...
-% 					'data', data);
-% 				
-% % 				% calc AUC values
-% % 				AUC = discountFunction.calcAUC();
-% 				
-% 				% 2) Inject these into a new variable into coda
-% 
-% 			end
+			%             %% Calculate AUC
+			%
+			%             % 1) Use the discount function object to calculate a distribution of AUC values, one for each MCMC sample
+			% 			discountFunctionVariables = {obj.varList.discountFunctionParams.name};
+			%
+			% 			N = obj.data.getNExperimentFiles();
+			%
+			% 			for ind = 1:N % loop over files
+			%
+			% 				samples = obj.coda.getSamplesAtIndex_asStochastic(ind, discountFunctionVariables);
+			% 				data = obj.data.getExperimentObject(ind);
+			%
+			% 				discountFunction = obj.dfClass(...
+			% 					'samples', samples,...
+			% 					'data', data);
+			%
+			% % 				% calc AUC values
+			% % 				AUC = discountFunction.calcAUC();
+			%
+			% 				% 2) Inject these into a new variable into coda
+			%
+			% 			end
 		end
-
+		
 		function tellUserAboutPublicMethods(obj)
 			% TODO - the point is to guide them into what to do next
 			methods(obj)
 		end
-
+		
 		function obj = addUnobservedParticipant(obj, str)
 			% TODO: Check we need this
 			obj.data = obj.data.add_unobserved_participant(str);	% add name (eg 'GROUP')
 		end
-
-        function plotAllExperimentFigures(obj)
-            % this is a wrapper function to loop over all data files, producing multi-panel figures. This is implemented by the experimentMultiPanelFigure method, which may be overridden by subclasses if need be.
-            names = obj.data.getIDnames('all');
-
-            for experimentIndex = 1:numel(names)
-                fh = figure('Name', names{experimentIndex});
-
-                obj.experimentMultiPanelFigure(experimentIndex);
-                drawnow
-
-                if obj.plotOptions.shouldExportPlots
-                    myExport(obj.plotOptions.savePath,...
-                        'expt',...
-                        'prefix', names{experimentIndex},...
-                        'suffix', obj.modelFilename,...
-                        'formats', obj.plotOptions.exportFormats);
-                end
-
-                close(fh);
-            end
-        end
-        
-        function plot_discount_functions_in_grid(obj)
-            latex_fig(12, 11,11)
-            clf, drawnow
-            
-            % TODO: extract the grid formatting stuff to be able to call
-            % any plot function we want
-            % USE: apply_plot_function_to_subplot_handle.m ??
-            
-            %fh = figure('Name', names{experimentIndex});
-            names = obj.data.getIDnames('all');
-            
-            % create grid layout
-            N = numel(names);
-            subplot_handles = create_subplots(N, 'square');
-            
-            % Iterate over files, plotting
-            disp('Plotting...')
-            for n = 1:numel(names)
-                obj.plot_discount_function(subplot_handles(n), n)
+		
+	end
+	
+	
+	methods (Static, Access = protected)
+		
+		function observedData = additional_model_specific_ObservedData(observedData)
+			% KEEP THIS HERE. IT IS OVER-RIDDEN IN SOME MODEL SUB-CLASSES
+			
+			% TODO: can we move this to NonParamtric abstract class?
+		end
+		
+		function samplerFunction = selectSampler(samplerType)
+			switch samplerType
+				case{'jags'}
+					samplerFunction = @sampleWithMatjags;
+				case{'stan'}
+					samplerFunction = @sampleWithMatlabStan;
+			end
+		end
+		
+		function mcmcparams = parse_mcmcparams(mcmcParams)
+			defaultMCMCParams.doparallel	= 1;
+			defaultMCMCParams.nburnin		= 1000;
+			defaultMCMCParams.nchains		= 2;
+			defaultMCMCParams.nsamples		= 10^4; % represents TOTAL number of samples we want
+			% update with any user-supplied options
+			if isfield(mcmcParams, 'chains')
+				error('Please pass in ''nchains'', not ''chains''.')
+			end
+			mcmcparams = kwargify(defaultMCMCParams, mcmcParams);
+		end
+		
+	end
+	
+	
+	
+	
+	% ==========================================================================
+	% ==========================================================================
+	% PLOTTING
+	% ==========================================================================
+	% ==========================================================================
+	
+	methods (Access = public)
+		
+		function plot_discount_function(obj, subplot_handle, ind, varargin)
+			%plot_discount_function
+			% Example public call. This will plot a discount function to a
+			% specified subplot, for the experiment file determined by the
+			% numerical 'index'
+			% model.plot_discount_function(subplot_handle, index)
+			
+			p = inputParser;
+			p.FunctionName = mfilename;
+			p.addParameter('plot_mode', 'full', @isstr);
+			p.parse(varargin{:});
+			
+			% THIS IS A BOTCH. We ask for point estimate only when trying
+			% to plot all discount functions in the same plot, but this is
+			% not appropriate for 2D discount surfaces. But we have an
+			% issue in the objects meaning I can't resolve it in a clean
+			% way. So if this function is getting called in this context,
+			% then just exit out.
+			switch p.Results.plot_mode
+				case{'point_estimate_only'}
+					return
+			end
+			
+			discountFunctionVariables = {obj.varList.discountFunctionParams.name};
+			
+			subplot(subplot_handle)
+			
+			samples = obj.coda.getSamplesAtIndex_asStochastic(ind, discountFunctionVariables);
+			
+			discountFunction = obj.dfClass(...
+				'samples', samples,...
+				'data', obj.data.getExperimentObject(ind));
+			
+			plotOptions.pointEstimateType = obj.plotOptions.pointEstimateType;
+			plotOptions.dataPlotType = obj.plotOptions.dataPlotType;
+			plotOptions.timeUnits = obj.timeUnits;
+			plotOptions.plotMode = p.Results.plot_mode;
+			plotOptions.maxRewardValue = obj.data.getMaxRewardValue(ind);
+			plotOptions.maxDelayValue = obj.data.getMaxDelayValue(ind);
+			
+			discountFunction.plot(plotOptions);
+		end
+		
+	end
+	
+	methods (Access = protected)
+		
+		function plotAllExperimentFigures(obj)
+			% this is a wrapper function to loop over all data files, producing multi-panel figures. This is implemented by the experimentMultiPanelFigure method, which may be overridden by subclasses if need be.
+			names = obj.data.getIDnames('all');
+			
+			for experimentIndex = 1:numel(names)
+				fh = figure('Name', names{experimentIndex});
+				
+				obj.experimentMultiPanelFigure(experimentIndex);
+				drawnow
+				
+				if obj.plotOptions.shouldExportPlots
+					myExport(obj.plotOptions.savePath,...
+						'expt',...
+						'prefix', names{experimentIndex},...
+						'suffix', obj.modelFilename,...
+						'formats', obj.plotOptions.exportFormats);
+				end
+				
+				close(fh);
+			end
+		end
+		
+		function plot_discount_functions_in_grid(obj)
+			latex_fig(12, 11,11)
+			clf, drawnow
+			
+			% TODO: extract the grid formatting stuff to be able to call
+			% any plot function we want
+			% USE: apply_plot_function_to_subplot_handle.m ??
+			
+			%fh = figure('Name', names{experimentIndex});
+			names = obj.data.getIDnames('all');
+			
+			% create grid layout
+			N = numel(names);
+			subplot_handles = create_subplots(N, 'square');
+			
+			% Iterate over files, plotting
+			disp('Plotting...')
+			for n = 1:numel(names)
+				obj.plot_discount_function(subplot_handles(n), n)
 				title(names{n}, 'FontSize',10)
 				set(gca,'FontSize',10)
-            end
-            drawnow
-        end
-        
-        
-        function plot_discount_functions_in_one(obj)
+			end
+			drawnow
+		end
+		
+		
+		function plot_discount_functions_in_one(obj)
 			latex_fig(12, 8,6)
 			clf, drawnow
 			
@@ -332,57 +386,29 @@ classdef (Abstract) Model
 			%             set(gca,'FontSize',10)
 			drawnow
 		end
-
+		
 	end
-
-
+	
 	methods (Static, Access = protected)
-
-		function observedData = additional_model_specific_ObservedData(observedData)
-			% KEEP THIS HERE. IT IS OVER-RIDDEN IN SOME MODEL SUB-CLASSES
-
-			% TODO: can we move this to NonParamtric abstract class?
-		end
-
-		function samplerFunction = selectSampler(samplerType)
-			switch samplerType
-				case{'jags'}
-					samplerFunction = @sampleWithMatjags;
-				case{'stan'}
-					samplerFunction = @sampleWithMatlabStan;
-			end
-		end
-
-		function mcmcparams = parse_mcmcparams(mcmcParams)
-			defaultMCMCParams.doparallel	= 1;
-			defaultMCMCParams.nburnin		= 1000;
-			defaultMCMCParams.nchains		= 2;
-			defaultMCMCParams.nsamples		= 10^4; % represents TOTAL number of samples we want
-			% update with any user-supplied options
-			if isfield(mcmcParams, 'chains')
-				error('Please pass in ''nchains'', not ''chains''.')
-			end
-			mcmcparams = kwargify(defaultMCMCParams, mcmcParams);
-		end
-
+		
 		function plotOptions = parse_plot_options(varargin)
 			p = inputParser;
 			p.StructExpand = false;
 			p.KeepUnmatched = true;
 			p.FunctionName = mfilename;
-
+			
 			p.addParameter('exportFormats', {'png'}, @iscellstr);
 			p.addParameter('savePath',tempname, @isstr);
 			p.addParameter('shouldPlot', 'no', @(x) any(strcmp(x,{'yes','no'})));
 			p.addParameter('shouldExportPlots', true, @islogical);
 			p.addParameter('pointEstimateType','mode',...
 				@(x) any(strcmp(x,{'mean','median','mode'})));
-
+			
 			p.parse(varargin{:});
-
+			
 			plotOptions = p.Results;
 		end
-
+		
 	end
-
+	
 end

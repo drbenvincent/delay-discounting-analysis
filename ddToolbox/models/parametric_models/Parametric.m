@@ -5,32 +5,47 @@ classdef (Abstract) Parametric < Model
 		function obj = Parametric(data, varargin)
 			obj = obj@Model(data, varargin{:});
 		end
-		
-		
-		function plot(obj, varargin)
-			p = inputParser;
-			p.FunctionName = mfilename;
-			p.addParameter('shouldExportPlots', true, @islogical);
-			p.parse(varargin{:});
-			
-			%% Plot functions that use data from all participants ========
+
+	end
+    
+
+    
+    
+    
+    
+    % ==========================================================================
+    % ==========================================================================
+    % PLOTTING
+    % ==========================================================================
+    % ==========================================================================
+    
+    methods (Access = public)
+
+
+        function plot(obj, varargin)
+            p = inputParser;
+            p.FunctionName = mfilename;
+            p.addParameter('shouldExportPlots', true, @islogical);
+            p.parse(varargin{:});
+            
+            %% Plot functions that use data from all participants ========
             
             % Plot univariate summary stats
             plot_savename = 'UnivariateSummary';
             variables = obj.varList.participantLevel;
             obj.coda.plotUnivariateSummaries(variables,...
-				obj.plotOptions,...
-				obj.data.getParticipantNames());
+                obj.plotOptions,...
+                obj.data.getParticipantNames());
             export_it(plot_savename)
-			
-			% summary figure of core discounting parameters
+            
+            % summary figure of core discounting parameters
             plot_savename = 'summary_plot';
-			clusterPlot(...
-				obj.coda,...
-				obj.data,...
-				[1 0 0],...
-				obj.plotOptions,...
-			    obj.varList.discountFunctionParams)
+            clusterPlot(...
+                obj.coda,...
+                obj.data,...
+                [1 0 0],...
+                obj.plotOptions,...
+                obj.varList.discountFunctionParams)
             export_it(plot_savename)
 
                 
@@ -47,13 +62,13 @@ classdef (Abstract) Parametric < Model
             % Export
             if obj.plotOptions.shouldExportPlots
                 myExport(obj.plotOptions.savePath,...
-                    'discount_functions',...
-                    'suffix', obj.modelFilename,...
+					'discount_functions_overlaid',...
+					'suffix', obj.modelFilename,...
                     'formats', obj.plotOptions.exportFormats);
             end
                 
-			%% Plots, one per data file ===================================		
-			obj.plotAllExperimentFigures();
+            %% Plots, one per data file ===================================		
+            obj.plotAllExperimentFigures();
             obj.plotAllTriPlots(obj.plotOptions, obj.modelFilename)
             obj.postPred.plot(obj.plotOptions, obj.modelFilename)
             
@@ -65,21 +80,21 @@ classdef (Abstract) Parametric < Model
                         'formats', obj.plotOptions.exportFormats)
                 end
             end
-		end
-		
-		
-		function experimentMultiPanelFigure(obj, ind)
-			
+        end
+    
+    
+        function experimentMultiPanelFigure(obj, ind)
+            
             latex_fig(12, 14, 3)
-			h = layout([1 2 3 4]);
-			opts.pointEstimateType	= obj.plotOptions.pointEstimateType;
-			opts.timeUnits			= obj.timeUnits;
-			opts.dataPlotType		= obj.plotOptions.dataPlotType;
-			
-			% create cell arrays of relevant variables
-			discountFunctionVariables = {obj.varList.discountFunctionParams.name};
-			responseErrorVariables    = {obj.varList.responseErrorParams.name};
-			
+            h = layout([1 2 3 4]);
+            opts.pointEstimateType	= obj.plotOptions.pointEstimateType;
+            opts.timeUnits			= obj.timeUnits;
+            opts.dataPlotType		= obj.plotOptions.dataPlotType;
+            
+            % create cell arrays of relevant variables
+            discountFunctionVariables = {obj.varList.discountFunctionParams.name};
+            responseErrorVariables    = {obj.varList.responseErrorParams.name};
+            
             plot_density_alpha_epsilon(h(1))
             plot_psychometric_function(h(2))
             plot_discount_function_parameters(h(3))
@@ -87,17 +102,17 @@ classdef (Abstract) Parametric < Model
 
             function plot_density_alpha_epsilon(subplot_handle)
                 obj.coda.plot_bivariate_distribution(subplot_handle,...
-    				responseErrorVariables(1),...
-    				responseErrorVariables(2),...
-    				ind,...
-    				opts)
+                    responseErrorVariables(1),...
+                    responseErrorVariables(2),...
+                    ind,...
+                    opts)
             end
             
             function plot_psychometric_function(subplot_handle)
                 subplot(subplot_handle)
-    			psycho = PsychometricFunction('samples',...
-					obj.coda.getSamplesAtIndex_asStochastic(ind, responseErrorVariables));
-    			psycho.plot(obj.plotOptions.pointEstimateType)
+                psycho = PsychometricFunction('samples',...
+                    obj.coda.getSamplesAtIndex_asStochastic(ind, responseErrorVariables));
+                psycho.plot(obj.plotOptions.pointEstimateType)
             end
             
             function plot_discount_function_parameters(subplot_handle)
@@ -118,9 +133,10 @@ classdef (Abstract) Parametric < Model
                 end
             end
 
-		end
-		
-	end
+        end
+        
+    end    
+    
     
     methods (Access = private)
     
@@ -132,20 +148,20 @@ classdef (Abstract) Parametric < Model
             for p = 1:obj.data.getNExperimentFiles
                 figure(87), clf
                 
-				posteriorSamples = obj.coda.getSamplesAtIndex_asMatrix(p, pVariableNames);
-				
+                posteriorSamples = obj.coda.getSamplesAtIndex_asMatrix(p, pVariableNames);
+                
                 mcmc.TriPlotSamples(posteriorSamples,...
-                	pVariableNames,...
-                	'pointEstimateType', plotOptions.pointEstimateType);
+                    pVariableNames,...
+                    'pointEstimateType', plotOptions.pointEstimateType);
 
                 id_prefix = obj.data.getIDnames(p);
                 
                 % Export            
                 if plotOptions.shouldExportPlots
-                	myExport(plotOptions.savePath,...
+                    myExport(plotOptions.savePath,...
                         'triplot',...
-                		'prefix', id_prefix{:},...
-                		'suffix', modelFilename,...
+                        'prefix', id_prefix{:},...
+                        'suffix', modelFilename,...
                         'formats', plotOptions.exportFormats);
                 end
                 
@@ -153,5 +169,5 @@ classdef (Abstract) Parametric < Model
         end
         
     end
-	
+    
 end
