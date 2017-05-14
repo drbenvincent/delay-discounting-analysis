@@ -205,8 +205,8 @@ classdef Stochastic < handle
 		
 		function obj = calculateModeAndDensity(obj)
 			if any(isnan(obj.samples))
-				obj.mode = [];
-				obj.density = [];
+				obj.mode = NaN;
+				obj.density = NaN;
 			else
 				obj.xi = linspace( min(obj.samples(:)), max(obj.samples(:)), 1000);
 				obj.xi = [obj.xi(1) obj.xi obj.xi(end)]; % fix to avoid plotting artifacts
