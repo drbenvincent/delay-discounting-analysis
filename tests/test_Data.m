@@ -44,12 +44,12 @@ classdef test_Data < matlab.unittest.TestCase
 		function create_with_experiment_info_import_table(testCase)
 			data = Data(testCase.datapath,...
 				'files', testCase.filesToAnalyse,...
-				'metaTableFile', fullfile('tests','kirby-experiment-data.csv'));
+				'metaTableFile', fullfile('demo','datasets','test_data','kirby-experiment-data.csv'));
 		end
 		
 		function create_with_experiment_info_provided_table(testCase)
 			% build a Table. It must have row names equal to the filenames
-			expTable = readtable(fullfile('tests','kirby-experiment-data.csv'));
+			expTable = readtable(fullfile('demo','datasets','test_data','kirby-experiment-data.csv'));
 			expTable.Properties.RowNames = expTable.filename;
 			
 			data = Data(testCase.datapath,...
