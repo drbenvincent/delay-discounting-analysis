@@ -50,56 +50,62 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			latex_fig(12, 14, 3);
 			h = layout([1 2 3 4 5 6]);
 			opts.pointEstimateType = obj.plotOptions.pointEstimateType;
-			% create cell array
-			discountFunctionVariables = {obj.varList.discountFunctionParams.name};
-			responseErrorVariables = {obj.varList.responseErrorParams.name};
 			
-			% a list of reward values we are interested in
-			rewards = [10, 100, 500]; % <----  TODO: inject this
-			% create colours for colour coding of conditional k plotStyle
-			col = linspace(0.1, 0.9, numel(rewards));
+            % % create cell array
+			% discountFunctionVariables = {obj.varList.discountFunctionParams.name};
+			% responseErrorVariables = {obj.varList.responseErrorParams.name};
 			
+            
+			% %% Plot 1: density plot of (alpha, epsilon)
+			% obj.coda.plot_bivariate_distribution(h(1),...
+			% 	responseErrorVariables(1),...
+			% 	responseErrorVariables(2),...
+			% 	ind,...
+			% 	opts);
+			obj.plot_density_alpha_epsilon(h(1), ind)
 			
-			%% Plot 1: density plot of (alpha, epsilon)
-			obj.coda.plot_bivariate_distribution(h(1),...
-				responseErrorVariables(1),...
-				responseErrorVariables(2),...
-				ind,...
-				opts);
+			% % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			% % TODO #166 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			% %%  Set up psychometric function
+			% respErrSamples = obj.coda.getSamplesAtIndex_asStochastic(ind, responseErrorVariables);
+			% psycho = PsychometricFunction('samples', respErrSamples);
+			% %% Plot the psychometric function ------------------------------
+			% subplot(h(2))
+			% psycho.plot(obj.plotOptions.pointEstimateType);
+			% %% Set up discount function
+			% dfSamples = obj.coda.getSamplesAtIndex_asStochastic(ind, discountFunctionVariables);
+			% discountFunction = obj.dfClass('samples', dfSamples);
+			% % inject a DataFile object into the discount function
+			% discountFunction.data = obj.data.getExperimentObject(ind);
+			% % TODO #166 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			% % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            obj.plot_psychometric_function(h(2), ind)
+            
 			
+			% % TODO: this checking needs to be implemented in a smoother, more robust way
+			% if ~isempty(dfSamples) || ~any(isnan(dfSamples))
+			% 	%% Bivariate density plot of discounting parameters
+			% 	obj.coda.plot_bivariate_distribution(h(3),...
+			% 		discountFunctionVariables(1),...
+			% 		discountFunctionVariables(2),...
+			% 		ind,...
+			% 		opts);
+			% end
+			obj.plot_discount_function_parameters(h(3), ind)
 			
+            
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			% TODO #166 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			%%  Set up psychometric function
-			respErrSamples = obj.coda.getSamplesAtIndex_asStochastic(ind, responseErrorVariables);
-			psycho = PsychometricFunction('samples', respErrSamples);
-			%% Plot the psychometric function ------------------------------
-			subplot(h(2))
-			psycho.plot(obj.plotOptions.pointEstimateType);
-			%% Set up discount function
-			dfSamples = obj.coda.getSamplesAtIndex_asStochastic(ind, discountFunctionVariables);
-			discountFunction = obj.dfClass('samples', dfSamples);
-			% inject a DataFile object into the discount function
-			discountFunction.data = obj.data.getExperimentObject(ind);
-			% TODO #166 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			
-			
-			
-			% TODO: this checking needs to be implemented in a smoother, more robust way
-			if ~isempty(dfSamples) || ~any(isnan(dfSamples))
-				%% Bivariate density plot of discounting parameters
-				obj.coda.plot_bivariate_distribution(h(3),...
-					discountFunctionVariables(1),...
-					discountFunctionVariables(2),...
-					ind,...
-					opts);
-			end
-			
-			
-			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			% TODO #166 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            
+            % a list of reward values we are interested in
+            rewards = [10, 100, 500]; % <----  TODO: inject this
+            % create colours for colour coding of conditional k plotStyle
+            col = linspace(0.1, 0.9, numel(rewards));
+            
 			%% Set up magnitude effect function -----------------------
+			discountFunctionVariables = obj.getGiscountFunctionVariables();
+			dfSamples = obj.coda.getSamplesAtIndex_asStochastic(ind, discountFunctionVariables);
+			
 			me = MagnitudeEffectFunction('samples', dfSamples);
 			me.maxRewardValue = obj.data.getMaxRewardValue(ind);
 			% plot magnitude effect
@@ -110,8 +116,12 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			for n=1:numel(rewards)
 				vline(rewards(n), 'Color', [col(n) col(n) col(n)], 'LineWidth', 2);
 			end
+			
+			
 			subplot(h(5)) % -----------------------------------------------
 			%title('P(log(k) | reward)')
+			discountFunction = obj.dfClass('samples', dfSamples);
+			
 			discountFunction.getLogDiscountRate(rewards, ind ,...
 				'plot', true,...
 				'plot_mode', 'conditional_only');

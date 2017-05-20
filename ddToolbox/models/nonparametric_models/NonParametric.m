@@ -173,24 +173,19 @@ classdef (Abstract) NonParametric < Model
 			latex_fig(12, 14, 3)
 			h = layout([1 2 3]);
 			
-			opts.pointEstimateType	= obj.plotOptions.pointEstimateType;
-			opts.timeUnits			= obj.timeUnits;
+			% opts.pointEstimateType	= obj.plotOptions.pointEstimateType;
+			% opts.timeUnits			= obj.timeUnits;
 			
 			% create cell arrays of relevant variables
 			discountFunctionVariables = {obj.varList.discountFunctionParams.name};
 			responseErrorVariables    = {obj.varList.responseErrorParams.name};
 			
+            obj.plot_density_alpha_epsilon(h(1), ind)
+            
 			%%  Set up psychometric function
 			%psycho = PsychometricFunction('samples', obj.coda.getSamplesAtIndex_asStruct(ind,responseErrorVariables));
+			% TODO: This doesn't do any plotting as it stands
 			psycho = PsychometricFunction('samples', obj.coda.getSamplesAtIndex_asStochastic(ind,responseErrorVariables));
-			
-			%% PLOT: density plot of (alpha, epsilon)
-			obj.coda.plot_bivariate_distribution(h(1),...
-				responseErrorVariables(1),...
-				responseErrorVariables(2),...
-				ind,...
-				opts)
-			
 			
 			
 			%---- TEMP COMMENTED OUT WHILE I FIX THINGS ----

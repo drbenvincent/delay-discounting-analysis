@@ -133,6 +133,14 @@ classdef (Abstract) Model
 			% predicted_subjective_values.A_full_posterior =
 			% predicted_subjective_values.B_full_posterior =
 		end
+        
+        function discountFunctionVariables = getGiscountFunctionVariables(obj)
+            discountFunctionVariables = {obj.varList.discountFunctionParams.name};
+        end
+        
+        function responseErrorVariables = getResponseErrorVariables(obj)
+            responseErrorVariables = {obj.varList.responseErrorParams.name};
+        end
 		
 	end
 	
@@ -386,6 +394,21 @@ classdef (Abstract) Model
 			%             set(gca,'FontSize',10)
 			drawnow
 		end
+        
+        function plot_density_alpha_epsilon(obj, subplot_handle, ind)
+            responseErrorVariables = obj.getResponseErrorVariables();
+            
+            % TODO: remove duplication of "opts" in mulitple places, but also should perhaps be a single coherent structure in the first place.
+            opts.pointEstimateType	= obj.plotOptions.pointEstimateType;
+            opts.timeUnits			= obj.timeUnits;
+            opts.dataPlotType		= obj.plotOptions.dataPlotType;
+            
+            obj.coda.plot_bivariate_distribution(subplot_handle,...
+                responseErrorVariables(1),...
+                responseErrorVariables(2),...
+                ind,...
+                opts)
+        end
 		
 	end
 	

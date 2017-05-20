@@ -17,6 +17,22 @@ classdef (Abstract) ExponentialPower < Parametric
             
             obj.plotOptions.dataPlotType = '2D';
 		end
+        
+        % Override this function from superclass
+        function experimentMultiPanelFigure(obj, ind)
+            latex_fig(12, 14, 3)
+            h = layout([1 2 3 4 5]);
+            opts.pointEstimateType	= obj.plotOptions.pointEstimateType;
+            opts.timeUnits			= obj.timeUnits;
+            opts.dataPlotType		= obj.plotOptions.dataPlotType;
+            
+            obj.plot_density_alpha_epsilon(h(1), ind)
+            obj.plot_psychometric_function(h(2), ind)
+            obj.plot_discount_function_parameters(h(3), ind)
+            % TODO: PLOT OF SUBJECTIVE TIME FUNCTION HERE
+            obj.plot_discount_function(h(5), ind)
+        end
+        
         		
 	end
 

@@ -84,61 +84,22 @@ classdef (Abstract) Parametric < Model
     
     
         function experimentMultiPanelFigure(obj, ind)
-            
             latex_fig(12, 14, 3)
             h = layout([1 2 3 4]);
             opts.pointEstimateType	= obj.plotOptions.pointEstimateType;
             opts.timeUnits			= obj.timeUnits;
             opts.dataPlotType		= obj.plotOptions.dataPlotType;
             
-            % create cell arrays of relevant variables
-            discountFunctionVariables = {obj.varList.discountFunctionParams.name};
-            responseErrorVariables    = {obj.varList.responseErrorParams.name};
-            
-            plot_density_alpha_epsilon(h(1))
-            plot_psychometric_function(h(2))
-            plot_discount_function_parameters(h(3))
+            obj.plot_density_alpha_epsilon(h(1), ind)
+            obj.plot_psychometric_function(h(2), ind)
+            obj.plot_discount_function_parameters(h(3), ind)
             obj.plot_discount_function(h(4), ind)
-
-            function plot_density_alpha_epsilon(subplot_handle)
-                obj.coda.plot_bivariate_distribution(subplot_handle,...
-                    responseErrorVariables(1),...
-                    responseErrorVariables(2),...
-                    ind,...
-                    opts)
-            end
-            
-            function plot_psychometric_function(subplot_handle)
-                subplot(subplot_handle)
-                psycho = PsychometricFunction('samples',...
-                    obj.coda.getSamplesAtIndex_asStochastic(ind, responseErrorVariables));
-                psycho.plot(obj.plotOptions.pointEstimateType)
-            end
-            
-            function plot_discount_function_parameters(subplot_handle)
-                switch numel(discountFunctionVariables)
-                    case{1}
-                        obj.coda.plot_univariate_distribution(subplot_handle,...
-                            discountFunctionVariables(1),...
-                            ind,...
-                            opts)
-                    case{2}
-                        obj.coda.plot_bivariate_distribution(subplot_handle,...
-                            discountFunctionVariables(1),...
-                            discountFunctionVariables(2),...
-                            ind,...
-                            opts)
-                    otherwise
-                        error('Currently only set up to plot univariate or bivariate distributions, ie discount functions 1 or 2 params.')
-                end
-            end
-
         end
         
     end    
     
     
-    methods (Access = private)
+    methods (Access = protected)
     
         % TODO: this should be moved to CODA
         function plotAllTriPlots(obj, plotOptions, modelFilename)
@@ -168,6 +129,40 @@ classdef (Abstract) Parametric < Model
             end
         end
         
+
+        function plot_psychometric_function(obj, subplot_handle, ind)
+            responseErrorVariables = obj.getResponseErrorVariables();
+            subplot(subplot_handle)
+            psycho = PsychometricFunction('samples',...
+                obj.coda.getSamplesAtIndex_asStochastic(ind, responseErrorVariables));
+            psycho.plot(obj.plotOptions.pointEstimateType)
+        end
+
+        function plot_discount_function_parameters(obj, subplot_handle, ind)
+            
+            % TODO: remove duplication of "opts" in mulitple places, but also should perhaps be a single coherent structure in the first place.
+            opts.pointEstimateType	= obj.plotOptions.pointEstimateType;
+            opts.timeUnits			= obj.timeUnits;
+            opts.dataPlotType		= obj.plotOptions.dataPlotType;
+            
+            discountFunctionVariables = obj.getGiscountFunctionVariables();
+            switch numel(discountFunctionVariables)
+                case{1}
+                    obj.coda.plot_univariate_distribution(subplot_handle,...
+                        discountFunctionVariables(1),...
+                        ind,...
+                        opts)
+                case{2}
+                    obj.coda.plot_bivariate_distribution(subplot_handle,...
+                        discountFunctionVariables(1),...
+                        discountFunctionVariables(2),...
+                        ind,...
+                        opts)
+                otherwise
+                    error('Currently only set up to plot univariate or bivariate distributions, ie discount functions 1 or 2 params.')
+            end
+        end
+    
     end
     
 end
