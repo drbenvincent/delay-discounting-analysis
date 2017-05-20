@@ -5,7 +5,7 @@ classdef ModelSeparateEbertPrelec < EbertPrelec
 
 		function obj = ModelSeparateEbertPrelec(data, varargin)
 			obj = obj@EbertPrelec(data, varargin{:});
-            obj.modelFilename = 'separateExpPower';
+            obj.modelFilename = 'separateEbertPrelec';
             
             % MUST CALL THIS METHOD AT THE END OF ALL MODEL-SUBCLASS CONSTRUCTORS
             obj = obj.conductInference();

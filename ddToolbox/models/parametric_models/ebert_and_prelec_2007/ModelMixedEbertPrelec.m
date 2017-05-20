@@ -3,7 +3,7 @@ classdef ModelMixedEbertPrelec < EbertPrelec
 	methods (Access = public)
 		function obj = ModelMixedEbertPrelec(data, varargin)
 			obj = obj@EbertPrelec(data, varargin{:});
-			obj.modelFilename = 'mixedExpPower';
+			obj.modelFilename = 'mixedEbertPrelec';
             obj = obj.addUnobservedParticipant('GROUP');
             
             % MUST CALL THIS METHOD AT THE END OF ALL MODEL-SUBCLASS CONSTRUCTORS
