@@ -287,17 +287,6 @@ classdef (Abstract) Model
 			p.addParameter('plot_mode', 'full', @isstr);
 			p.parse(varargin{:});
 			
-			% THIS IS A BOTCH. We ask for point estimate only when trying
-			% to plot all discount functions in the same plot, but this is
-			% not appropriate for 2D discount surfaces. But we have an
-			% issue in the objects meaning I can't resolve it in a clean
-			% way. So if this function is getting called in this context,
-			% then just exit out.
-			switch p.Results.plot_mode
-				case{'point_estimate_only'}
-					return
-			end
-			
 			discountFunctionVariables = {obj.varList.discountFunctionParams.name};
 			
 			subplot(subplot_handle)
