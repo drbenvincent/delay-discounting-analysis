@@ -1,5 +1,5 @@
-# Ben's new discounting function 
-
-As far as I know this new discount function is novel. The discount fraction is described by 
+# Exponential power discount functions 
 
 discount fraction = exp(-k.delay^tau)
+
+This is equivalent to exponential discounting of subjective time, where subjective time is described by Steven's Power Law.
