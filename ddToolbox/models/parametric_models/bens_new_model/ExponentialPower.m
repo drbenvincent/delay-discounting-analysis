@@ -29,11 +29,23 @@ classdef (Abstract) ExponentialPower < Parametric
             obj.plot_density_alpha_epsilon(h(1), ind)
             obj.plot_psychometric_function(h(2), ind)
             obj.plot_discount_function_parameters(h(3), ind)
-            % TODO: PLOT OF SUBJECTIVE TIME FUNCTION HERE
+            obj.plot_subjective_time_function(h(4), ind)
             obj.plot_discount_function(h(5), ind)
         end
         
-        		
 	end
+    
+    
+    methods (Access = protected)
+    
+        function plot_subjective_time_function(obj, subplot_handle, ind)
+            discountFunctionVariables = obj.getGiscountFunctionVariables();
+            subplot(subplot_handle)
+            subjectiveTimeFun = SubjectiveTimePowerFunction('samples',...
+                obj.coda.getSamplesAtIndex_asStochastic(ind, discountFunctionVariables));
+            subjectiveTimeFun.plot(obj.plotOptions.pointEstimateType)
+        end
+    
+    end
 
 end
