@@ -45,7 +45,7 @@ classdef SubjectiveTimePowerFunction < DeterministicFunction
                         theta.k);
 			else
 				% use new array broadcasting in 2016b
-				y = theta.k * (x ^ theta.tau);
+				y = theta.k .* (x .^ theta.tau);
 			end
 		end
 		
