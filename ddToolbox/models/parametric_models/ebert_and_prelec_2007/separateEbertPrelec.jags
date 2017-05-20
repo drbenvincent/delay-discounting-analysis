@@ -21,8 +21,8 @@ for (p in 1:nRealExperimentFiles){       # no +1 because no shrinkage hyperprior
 # MODEL-SPECIFIC: CALCULATION OF PRESENT SUBJECTIVE VALUES
 for (t in 1:length(ID)) {
 	#VA[t] <- A[t] # assuming DA=0
-    VA[t] <- A[t] * (exp( - (k[ID[t]] * DA[t]^tau[ID[t]]) ) )
-	VB[t] <- B[t] * (exp( - (k[ID[t]] * DB[t]^tau[ID[t]]) ) )
+    VA[t] <- A[t] * (exp( - (k[ID[t]] * DA[t])^tau[ID[t]] ) )
+	VB[t] <- B[t] * (exp( - (k[ID[t]] * DB[t])^tau[ID[t]] ) )
 }
 
 

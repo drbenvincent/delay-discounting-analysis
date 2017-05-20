@@ -41,7 +41,7 @@ classdef (Abstract) EbertPrelec < Parametric
         function plot_subjective_time_function(obj, subplot_handle, ind)
             discountFunctionVariables = obj.getGiscountFunctionVariables();
             subplot(subplot_handle)
-            subjectiveTimeFun = SubjectiveTimePowerFunction('samples',...
+            subjectiveTimeFun = SubjectiveTimePowerFunctionEP('samples',...
                 obj.coda.getSamplesAtIndex_asStochastic(ind, discountFunctionVariables));
             subjectiveTimeFun.plot(obj.plotOptions.pointEstimateType)
         end

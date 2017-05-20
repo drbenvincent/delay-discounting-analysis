@@ -11,9 +11,9 @@ model{
 # RANDOM (BY PARTICIPANT) FACTORS; HYPER-PRIORS = NO 
 
 K_MEAN          <- 0                     # <---- currently guesstimating
-K_PRECISION     <- 1/(0.01)              # <---- currently guesstimating
+K_PRECISION     <- 1/(0.01^2)              # <---- currently guesstimating
 TAU_MEAN        <- 1                     # <---- currently guesstimating
-TAU_PRECISION   <- 1/1^2                 # <---- currently guesstimating
+TAU_PRECISION   <- 1/(0.01^2)                 # <---- currently guesstimating
 
 for (p in 1:nRealExperimentFiles){       # no +1 because no shrinkage hyperprior
 	k[p]        ~ dnorm(K_MEAN, K_PRECISION)
@@ -22,8 +22,8 @@ for (p in 1:nRealExperimentFiles){       # no +1 because no shrinkage hyperprior
 
 # MODEL-SPECIFIC: CALCULATION OF PRESENT SUBJECTIVE VALUES
 for (t in 1:length(ID)) {
-    VA[t] <- A[t] * (exp( - (k[ID[t]] * DA[t]^tau[ID[t]]) ) )
-	VB[t] <- B[t] * (exp( - (k[ID[t]] * DB[t]^tau[ID[t]]) ) )
+    VA[t] <- A[t] * (exp( - (k[ID[t]] * DA[t])^tau[ID[t]] ) )
+	VB[t] <- B[t] * (exp( - (k[ID[t]] * DB[t])^tau[ID[t]] ) )
 }
 
 
