@@ -9,21 +9,19 @@ model{
 groupKmu       ~ dnorm(0,1/(0.5^2))
 groupKsigma    ~ dexp(0.5)
 
-# TODO: Tau need to be re-parameterised, but bear in mind we want a positive only distribution
-#groupTAUmu       ~ dnorm(1,1/(1^2))
-#groupTAUsigma    ~ dexp(0.5)
-TAU_MEAN        <- 1       
-TAU_PRECISION   <- 1/(1^2)  
+groupTAUmu          ~ dnorm(1,1/(1^2))       
+groupTAUsigma     ~ dexp(0.5) 
 
 for (p in 1:(nRealExperimentFiles+1)){ # +1 for unobserved participant
     # using reparameterisation to avoid funnel of hell
     k_offset[p]     ~ dnorm(0,1)
     k[p]            <- groupKmu + k_offset[p] * groupKsigma
     
-    #TAU_offset[p]   ~ dnorm(0,1)
-    #tau[p]          <- groupTAUmu + TAU_offset[p] * groupTAUsigma
+    # TODO: use reparameterisation to avoid funnel of hell
+    #TAU_offset[p]  ~ dnorm(0,1)
+    #tau[p]         <- groupTAUmu + TAU_offset[p] * groupTAUsigma
     
-    tau[p]         ~ dnorm(TAU_MEAN, TAU_PRECISION) T(0,)
+    tau[p]          ~ dnorm(groupTAUmu, groupTAUsigma) T(0,)
 }
 
 # MODEL-SPECIFIC: CALCULATION OF PRESENT SUBJECTIVE VALUES
