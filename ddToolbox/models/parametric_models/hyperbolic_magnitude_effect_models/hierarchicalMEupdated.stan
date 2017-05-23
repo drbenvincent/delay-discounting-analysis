@@ -84,8 +84,8 @@ model {
   alpha_sigma ~ normal(0,5);
   alpha       ~ normal(alpha_mu, alpha_sigma);
 
-  omega       ~ beta(1.1, 10.9);  // mode for lapse rate
-  kappa       ~ gamma(0.01, 0.01); // concentration parameter
+  omega       ~ beta(1+1, 1+100);  // mode for lapse rate
+  kappa       ~ gamma(0.1, 0.1); // concentration parameter
   epsilon     ~ beta(omega*(kappa-2)+1 , (1-omega)*(kappa-2)+1 );
 
   R ~ bernoulli(P);

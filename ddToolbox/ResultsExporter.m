@@ -8,7 +8,7 @@ classdef ResultsExporter
 	
 	%% Private properties
 	properties (SetAccess = protected, GetAccess = protected)
-		finalTable
+		finalTable, alternativeTable
 		coda
 		data
 		postPred
@@ -47,6 +47,27 @@ classdef ResultsExporter
 					obj.makePostPredTable(),...
 					'Keys','RowNames');
 				
+				%% make obj.alternativeTable
+				% If we also have presence of data.metaTable, we are going
+				% to produce another table to output, which appends the
+				% point estimates and posterior predictive checks etc onto
+				% the metaTable
+				
+				% remove 'GROUP' row, if it exists
+				GROUPNAME = 'GROUP';
+				final_group_removed = obj.finalTable;
+				%match_vec = strmatch(GROUPNAME,final_group_removed.Row);
+				match_vec = strmatch(GROUPNAME,final_group_removed.Properties.RowNames);
+				final_group_removed(match_vec,:) = [];
+				
+				metaTable = data.getMetaTable;
+				if height(metaTable)>0
+					obj.alternativeTable = join(...
+						data.getMetaTable,...
+						obj.finalTable,...
+						'Keys','RowNames');
+				end
+				
 			else
 				% TODO this is a workaround
 				obj.finalTable = obj.makePostPredTable();
@@ -60,8 +81,14 @@ classdef ResultsExporter
 		function export(obj, savePath, pointEstimateType)
 			% TODO: inject the prefix and suffix
 			full_export_path_filename = fullfile(savePath,...
-				['parameterEstimates_Posterior_' pointEstimateType '.csv']);
+				'parameterEstimates.csv');
 			exportTable(obj.finalTable, full_export_path_filename);
+			
+			if ~isempty(obj.alternativeTable)
+				full_export_path_filename = fullfile(savePath,...
+					'parameterEstimates_ALT.csv');
+				exportTable(obj.alternativeTable, full_export_path_filename);
+			end
 		end
 		
 	end

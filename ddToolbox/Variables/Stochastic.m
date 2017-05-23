@@ -38,7 +38,7 @@ classdef Stochastic < handle
 		
 	end
 	
-	methods (Access = public)
+	methods
 		
 		function obj = Stochastic(name, varargin)
 			
@@ -145,6 +145,48 @@ classdef Stochastic < handle
 			HDI		= [HDImin HDImax];
 		end
 		
+		
+		function pointEstimate = extractThetaPointEstimates(obj, pointEstimateType)
+			if numel(obj)==1
+				% one Stochastic object
+				pointEstimate = obj.(pointEstimateType);
+			else
+				% array of stochastics
+				for n=1:numel(obj)
+					pointEstimate(:,n) = obj(n).(pointEstimateType);
+				end
+				pointEstimate = pointEstimate';
+			end
+		end
+		
+		
+		function samples = extractTheseThetaSamples(obj, examplesToPlot)
+			if numel( obj )==1
+				% one Stochastic object
+				samples = obj.samples(examplesToPlot);
+			else
+				% array of stochastics
+				for n=1:numel(obj)
+					samples(:,n) = obj(n).samples(examplesToPlot);
+				end
+				samples = samples';
+			end
+		end
+		
+		function nSamples = howManySamples(obj)
+			if numel( obj )==1
+				% one Stochastic object
+				nSamples = numel(obj(1).samples);
+			else
+				% array of stochastics
+				for n=1:numel(obj)
+					nSamples(n) = numel(obj(1).samples);
+				end
+				% TODO: check nSamples are the same for all objects in array
+				nSamples = nSamples(1);
+			end
+		end
+		
 	end
 	
 	methods
@@ -163,8 +205,8 @@ classdef Stochastic < handle
 		
 		function obj = calculateModeAndDensity(obj)
 			if any(isnan(obj.samples))
-				obj.mode = [];
-				obj.density = [];
+				obj.mode = NaN;
+				obj.density = NaN;
 			else
 				obj.xi = linspace( min(obj.samples(:)), max(obj.samples(:)), 1000);
 				obj.xi = [obj.xi(1) obj.xi obj.xi(end)]; % fix to avoid plotting artifacts

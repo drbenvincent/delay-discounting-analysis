@@ -19,16 +19,6 @@ classdef DataFile
 			
 			% TODO: throw error if we have no data
 		end
-
-		function aTable = getDataAsTable(obj)
-			aTable = obj.datatable;
-			assert(istable(aTable))
-		end
-		
-		function nTrials = getTrialsForThisParticant(obj)
-			% TODO: rename this function
-			nTrials = height(obj.datatable);
-		end
 		
 		function obj = plot(obj, dataPlotType, timeUnits)
 			% This should be able to deal with:
@@ -40,9 +30,7 @@ classdef DataFile
 			else
 				timeUnitFunction = str2func(timeUnits);
 			end
-			
-			
-			
+
 			% exit if we have got no data
 			if isempty(obj.datatable)
 				warning('Trying to plot, but have no data. This is probably due to this being the (group/unobserved) participant, who has no data. This is only an error if you are not getting data corresponding to a specific data file.')
@@ -118,8 +106,14 @@ classdef DataFile
 			
 		end
 		
+        % PUBLIC GETTERS =======================================================
 		
-		function r = getDelayRange(obj)
+        function aTable = getDataAsTable(obj)
+            aTable = obj.datatable;
+            assert(istable(aTable))
+        end
+        
+		function r = getUniqueDelays(obj)
 			try
 				r = unique(sort([obj.datatable.DA(:) ;obj.datatable.DB(:)]));
 			catch
@@ -127,7 +121,6 @@ classdef DataFile
 				r = [];
 			end
 		end
-		
 		
 	end
 	
@@ -141,48 +134,59 @@ classdef DataFile
 		
 		function [x,y,z,markerCol,markerSize] = convertDataIntoMarkers_Homogenous(obj)
 			% FOR 2D DISCOUNT FUNCTIONS
-			
-			% find unique experimental designs
-			D=[abs(obj.datatable.A), abs(obj.datatable.B), obj.datatable.DA, obj.datatable.DB];
-			[C, ia, ic] = unique(D,'rows');
-			%loop over unique designs (ic)
+			[ia, ic] = obj.calcUniqueDesigns();
+            markerSize = obj.calcMarkerSize(ic);
+            markerCol = obj.calcMarkerCol(ic);
+            
 			for n=1:max(ic)
-				% binary set of which trials this design was used on
-				myset=ic==n;
-				% Size = number of times this design has been run
-				markerSize(n) = sum(myset);
-				% Colour = proportion of times that participant chose immediate
-				% for that design
-				markerCol(n) = sum(obj.datatable.R(myset)==0) ./ markerSize(n);
-				
-				%x(n) = abs(p.Results.datatable.B( ia(n) )); % �B
-				x(n) = obj.datatable.DB( ia(n) ); % delay to get �B
+				x(n) = obj.datatable.DB( ia(n) ); % delay to get B
 				y(n) = abs(obj.datatable.A( ia(n) )) ./ abs(obj.datatable.B( ia(n) ));
 			end
-			z=[];
+			z = [];
 		end
 		
 		function [x,y,z,markerCol,markerSize] = convertDataIntoMarkers_Heterogenous(obj)
 			% FOR 3D DISCOUNT FUNCTIONS
-			
-			
-			% find unique experimental designs
-			D=[abs(obj.datatable.A), abs(obj.datatable.B), obj.datatable.DA, obj.datatable.DB];
-			[C, ia, ic] = unique(D,'rows');
-			% loop over unique designs (ic)
+            [ia, ic] = obj.calcUniqueDesigns();
+            markerSize = obj.calcMarkerSize(ic);
+            markerCol = obj.calcMarkerCol(ic);
 			for n=1:max(ic)
-				% binary set of which trials this design was used on
-				myset=ic==n;
-				% markerSize = number of times this design has been run
-				markerSize(n) = sum(myset);
-				% Colour = proportion of times participant chose immediate for that design
-				markerCol(n) = sum(obj.datatable.R(myset)==0) ./ markerSize(n);
-				
-				x(n) = abs(obj.datatable.B( ia(n) )); % �B
-				y(n) = obj.datatable.DB( ia(n) ); % delay to get �B
+				x(n) = abs(obj.datatable.B( ia(n) )); % B
+				y(n) = obj.datatable.DB( ia(n) ); % delay to get B
 				z(n) = abs(obj.datatable.A( ia(n) )) ./ abs(obj.datatable.B( ia(n) ));
 			end
 		end
-		
+        
+        function [ia, ic] = calcUniqueDesigns(obj)
+            designs = [abs(obj.datatable.A), abs(obj.datatable.B), obj.datatable.DA, obj.datatable.DB];
+            [C, ia, ic] = unique(designs,'rows');
+        end
+        
+        function markerSize = calcMarkerSize(obj, ic)
+            for n=1:max(ic)
+                markerSize(n) = obj.nDesignOccurrences(ic, n);
+            end
+        end
+        
+        function markerCol = calcMarkerCol(obj, ic)
+            % Colour = prop. of times they chose immediate, for that design
+            for n=1:max(ic)
+                markerCol(n) = obj.nChoseImmediate(obj.datatable.R, ic, n)...
+					./ obj.nDesignOccurrences(ic, n);
+            end
+		end
+        
 	end
+    
+    methods(Static)
+    
+		function nImmediateChoicesMade = nChoseImmediate(responses, ic, n)
+			nImmediateChoicesMade = sum(responses(ic==n)==0);
+		end
+		
+        function nOccurrences = nDesignOccurrences(ic, n)
+            nOccurrences = sum(ic==n);
+        end
+
+    end
 end

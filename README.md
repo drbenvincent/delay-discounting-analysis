@@ -1,6 +1,6 @@
 # Hierarchical Bayesian estimation and hypothesis testing for delay discounting tasks
 
-Vincent, B., T. (in press) **[Hierarchical Bayesian estimation and hypothesis testing for delay discounting tasks](http://link.springer.com/article/10.3758%2Fs13428-015-0672-2)**, Behavior Research Methods. doi:10.3758/s13428-015-0672-2
+Vincent, B. T. (2016) **[Hierarchical Bayesian estimation and hypothesis testing for delay discounting tasks](http://link.springer.com/article/10.3758%2Fs13428-015-0672-2)**, Behavior Research Methods. 48(4), 1608-1620. doi:10.3758/s13428-015-0672-2
 
 [![Issue Stats](http://issuestats.com/github/drbenvincent/delay-discounting-analysis/badge/issue?style=flat-square)](http://issuestats.com/github/drbenvincent/delay-discounting-analysis)
 
@@ -14,9 +14,9 @@ Key features:
 * Parameters exported to a `.csv` file for analysis in [JASP](https://jasp-stats.org).
 * Optionally use hierarchical inference to improve participant-level estimates.
 * A variety of models are available:
-  * Exponential discounting.
-  * Hyperbolic discounting.
-  * Hyperbolic discounting + magnitude effect, where discount rates vary as a function of reward magnitude.
+  * 1-parameter discount functions: exponential, hyperbolic.
+  * 2-parameter discount functions: hyperboloid
+  * Also, hyperbolic discounting + magnitude effect, where discount rates vary as a function of reward magnitude.
 * Explicit modelling of participant errors provides more robust parameter estimates of discounting parameters.
 * Posterior predictive checks help evaluate model goodness and aid data exclusion decisions.
 * Publication quality figures.
@@ -38,7 +38,7 @@ The commands use to get your analysis up and running are quite quick and easy. A
 ## More information
 
 ### Read the research paper
-Vincent, B., T. (in press) [Hierarchical Bayesian estimation and hypothesis testing for delay discounting tasks](http://link.springer.com/article/10.3758%2Fs13428-015-0672-2), Behavior Research Methods. doi:10.3758/s13428-015-0672-2
+Vincent, B. T. (2016) [Hierarchical Bayesian estimation and hypothesis testing for delay discounting tasks](http://link.springer.com/article/10.3758%2Fs13428-015-0672-2), Behavior Research Methods. 48(4), 1608-1620. doi:10.3758/s13428-015-0672-2
 
 ### Videos
 Click below to follow through to youtube videos...

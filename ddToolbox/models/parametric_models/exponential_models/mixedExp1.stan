@@ -52,7 +52,7 @@ transformed parameters {
 model {
   alpha_mu     ~ uniform(0,100);
   alpha_sigma  ~ inv_gamma(0.01,0.01);
-  alpha        ~ normal(alpha_mu, alpha_sigma);
+  alpha        ~ lognormal(alpha_mu, alpha_sigma); // positive values for alpha 
 
   omega        ~ beta(1.1, 10.9);  // mode for lapse rate
   kappa        ~ gamma(0.1,0.1);   // concentration parameter

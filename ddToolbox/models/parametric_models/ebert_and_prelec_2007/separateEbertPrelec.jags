@@ -1,0 +1,66 @@
+# RANDOM FACTORS:   k[p], tau[p], epsilon[p], alpha[p]
+# HYPER-PRIORS ON:  epsilon[p], alpha[p]
+
+# RANDOM (by participant) FACTORS APPEAR IN A LOOP OVER PARTICIPANTS
+# VARIABLES *WITH* GROUP SHRINKAGE HYPERPRIORS HAVE AN EXTRA (UNOBSERVED) PARTICIPANT
+
+model{
+
+
+# DISCOUNT FUNCTION PARAMETERS =================================================
+# RANDOM (BY PARTICIPANT) FACTORS; HYPER-PRIORS = NO 
+
+K_MEAN          <- 0       
+K_PRECISION     <- 1/(0.5^2)
+TAU_MEAN        <- 1       
+TAU_PRECISION   <- 1/(1^2)   
+
+for (p in 1:nRealExperimentFiles){       # no +1 because no shrinkage hyperprior
+	k[p]        ~ dnorm(K_MEAN, K_PRECISION)
+    tau[p]      ~ dnorm(TAU_MEAN, TAU_PRECISION) T(0,)
+}
+
+# MODEL-SPECIFIC: CALCULATION OF PRESENT SUBJECTIVE VALUES
+for (t in 1:length(ID)) {
+	#VA[t] <- A[t] # assuming DA=0
+    VA[t] <- A[t] * (exp( - (k[ID[t]] * DA[t])^tau[ID[t]] ) )
+	VB[t] <- B[t] * (exp( - (k[ID[t]] * DB[t])^tau[ID[t]] ) )
+}
+
+
+# RESPONSE ERROR PARAMETERS ====================================================
+epsilon_alpha <- 1+1
+epsilon_beta <- 1+100
+
+for (p in 1:(nRealExperimentFiles)){     # no +1 because no shrinkage hyperprior
+    epsilon[p]  ~ dbeta(epsilon_alpha , epsilon_beta ) T(,0.5)
+	alpha[p]    ~ dexp(0.25)
+}
+
+
+
+
+
+
+
+
+
+
+# MODEL IN-SPECIFIC CODE BELOW... SHOULD NOT CHANGE ACROSS MODELS ==============
+
+# Psychometric function
+for (t in 1:length(ID)) {
+	P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * phi( (VB[t]-VA[t]) / alpha[ID[t]] )
+}
+
+# response likelihood
+for (t in 1:length(ID)) {
+	R[t]  ~ dbern(P[t]) # likelihood of actual response
+}
+
+# POSTERIOR PREDICTION
+for (t in 1:length(ID)) {
+	Rpostpred[t] ~ dbern(P[t])
+}
+
+}

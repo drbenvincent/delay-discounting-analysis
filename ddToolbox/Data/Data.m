@@ -10,8 +10,14 @@ classdef Data
         unobservedPartipantPresent
         nExperimentFiles		% includes optional unobserved participant
 		nRealExperimentFiles	% only includes number of real experiment files
+		
+		metaTable
+		% metaTable is (currently) provided by the user as an
+		% optional input into the constructor. This is meant to contain
+		% information about the overall experiment, such as participant
+		% names, id's, ages, genders, conditions etc.
 	end
-    
+	
     properties (Dependent)
         totalTrials
         groupTable % table of A, DA, B, DB, R, ID, PA, PB
@@ -30,6 +36,8 @@ classdef Data
 			p.addRequired('dataFolder',@isstr);
 			p.FunctionName = mfilename;
 			p.addParameter('files',[],@(x) iscellstr(x)|ischar(x));
+			p.addParameter('metaTable', table(), @istable);
+			p.addParameter('metaTableFile', [], @isstr);
 			p.parse(dataFolder, varargin{:});
 
 			assert(~isempty(p.Results.files), 'no filenames provided under ''files'' input argument')
@@ -44,6 +52,46 @@ classdef Data
 			if ~isempty(p.Results.files)
 				obj = obj.importAllFiles(p.Results.files);
 			end
+			
+			
+			%% Parse things related to metaTable ==========================
+			% Note that the first column of the file MUST be the filenames
+			
+			% default behaviour if no arguments:
+			if isempty(p.Results.metaTable) && isempty(p.Results.metaTableFile)
+				obj.metaTable = table(p.Results.files', 'RowNames',p.Results.files');
+				obj.metaTable.Properties.VariableNames{1} = 'filename';
+			end
+			
+			% error if both file and table supplied
+			if ~isempty(p.Results.metaTable) && ~isempty(p.Results.metaTableFile)
+				error('Pass in EITHER a table OR a filename to an table, not both.')
+			end
+			
+			% user supplied metaTable
+			if ~isempty(p.Results.metaTable)
+				% Check 1: metaTable must have Row names equal to those in files
+				assert(numel(p.Results.metaTable.Properties.RowNames) == numel(p.Results.files),...
+					'metaTable must have same number of rows as number of files passed in')
+				% Check 2: they actually match up
+				warning('Implement this validation check for extra safety.')
+				obj.metaTable = p.Results.metaTable;
+			end
+			
+			% user supplied path to a .csv file with experimental info
+			
+			if ~isempty(p.Results.metaTableFile)
+				metaTable = readtable(p.Results.metaTableFile);
+				% set rownames equal to the column called 'filename'
+				metaTable.Properties.RowNames = metaTable.filename;
+% 				% Check 1: metaTable must have Row names equal to those in files
+% 				assert(numel(metaTable.Row) == numel(p.Results.files),...
+% 					'metaTable must have same number of rows as number of files passed in')
+% 				% Check 2: they actually match up
+% 				warning('Implement this validation check for extra safety.')
+				obj.metaTable = metaTable;
+			end
+			
 		end
 
 
@@ -85,7 +133,8 @@ classdef Data
 				error('Have already added unobserved participant')
 			end
 
-			obj.filenames{obj.nRealExperimentFiles+1} = unobservedParticipantString;
+			obj.filenames{obj.nRealExperimentFiles+1}	   = unobservedParticipantString;
+			obj.filenames_full{obj.nRealExperimentFiles+1} = unobservedParticipantString;
 			obj.participantIDs{obj.nRealExperimentFiles+1} = unobservedParticipantString;
 
 			obj.nExperimentFiles = obj.nExperimentFiles + 1;
@@ -176,16 +225,7 @@ classdef Data
 		end
 
 		function nTrials = getTrialsForThisParticant(obj, p)
-			% TODO: really need to get a better solution that this special
-			% case nonsense for the unobserved group participant with no
-			% data
-			if p > numel(obj.experiment)
-				% asking for an experiment which doesnt exist. Probably
-				% happening because of the group-level estimate
-				nTrials = [];
-			else
-				nTrials = obj.experiment(p).getTrialsForThisParticant;
-			end
+            nTrials = height(obj.experiment(p).getDataAsTable());
 		end
 
 		function pTable = getRawDataTableForParticipant(obj, p)
@@ -206,14 +246,14 @@ classdef Data
 			if ischar(whatIwant)
 				switch whatIwant
 					case{'all'}
-						names = obj.filenames;
+						names = obj.filenames_full;
 					case{'experiments'}
-						names = obj.filenames([1:obj.nRealExperimentFiles]);
+						names = obj.filenames_full([1:obj.nRealExperimentFiles]);
 					case{'group'}
 						if ~obj.unobservedPartipantPresent
 							error('Asking for group-level (unobserved) participant, but they do not exist')
 						end
-						names = obj.filenames(end);
+						names = obj.filenames_full(end);
 				end
 			elseif isnumeric(whatIwant)
 				% assume we want to index into IDnames
@@ -285,6 +325,15 @@ classdef Data
 			for n=1:N
 				groupTable = vertcat(groupTable, obj.experiment(n).getDataAsTable);
 			end
+		end
+		
+		function metaTable = getMetaTable(obj)
+			metaTable = obj.metaTable;
+		end
+		
+		function proportionDelayedOptionsChosen = getProportionDelayedOptionsChosen(obj,n)
+			responses = obj.getParticipantResponses(n);
+			proportionDelayedOptionsChosen = sum(responses)/numel(responses);
 		end
         
 	end

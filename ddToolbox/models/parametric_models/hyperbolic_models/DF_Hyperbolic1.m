@@ -1,4 +1,4 @@
-classdef DF_Hyperbolic1 < DiscountFunction
+classdef DF_Hyperbolic1 < DF1
 	%Hyperbolic1 The classic 1-parameter discount function
 	
 	properties (Dependent)
@@ -8,12 +8,7 @@ classdef DF_Hyperbolic1 < DiscountFunction
 	methods (Access = public)
 		
 		function obj = DF_Hyperbolic1(varargin)
-			obj = obj@DiscountFunction(varargin{:});
-			
-            % TODO: this violates dependency injection, so we may want to pass these Stochastic objects in
-			obj.theta.logk = Stochastic('logk');
-			
-            obj = obj.parse_for_samples_and_data(varargin{:});
+			obj = obj@DF1(varargin{:});
 		end
 		
 	end

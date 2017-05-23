@@ -20,10 +20,13 @@ classdef PosteriorPrediction
 				responses_inferredPB		= coda.getPChooseDelayed(trialIndOfThisParicipant);
 				responses_actual			= data.getParticipantResponses(p);
 				responses_predicted			= coda.getParticipantPredictedResponses(trialIndOfThisParicipant);
+				obj.postPred(p).proportion_chose_delayed = data.getProportionDelayedOptionsChosen(p);
+				
+				controlModelProbChooseDelayed = obj.postPred(p).proportion_chose_delayed;
 				
 				% Calculate metrics
-				obj.postPred(p).score = obj.calcPostPredOverallScore(responses_predicted, responses_actual);
-				obj.postPred(p).GOF_distribtion	= obj.calcGoodnessOfFitDistribution(responses_inferredPB, responses_actual);
+				obj.postPred(p).score = obj.calcPostPredOverallScore(responses_predicted, responses_actual, controlModelProbChooseDelayed);
+				obj.postPred(p).GOF_distribtion	= obj.calcGoodnessOfFitDistribution(responses_inferredPB, responses_actual, controlModelProbChooseDelayed);
 				obj.postPred(p).percentPredictedDistribution = obj.calcPercentResponsesCorrectlyPredicted(responses_inferredPB, responses_actual);
 				% Store
 				obj.postPred(p).responses_actual	= responses_actual;
@@ -93,28 +96,32 @@ classdef PosteriorPrediction
 
         function pp_plotTrials(obj, n)
             % plot predicted probability of choosing delayed
-            bar(obj.postPred(n).responses_predicted, 'BarWidth',1)
+            bar(obj.postPred(n).responses_predicted, 'BarWidth',1);
             % formatting
             box off
             axis tight
             % plot response data
             hold on
-            plot([1:numel(obj.postPred(n).responses_actual)], obj.postPred(n).responses_actual, '+')
+            plot([1:numel(obj.postPred(n).responses_actual)], obj.postPred(n).responses_actual, '+');
+			% plot predicted proportion of choosing delayed
+			h = hline(obj.postPred(n).proportion_chose_delayed);
+			uistack(h.line, 'top')
             % formatting
             xlabel('trial')
             ylabel('response')
-            legend('prediction','response', 'Location','East')
+            legend('prediction','response','control model',...
+				'Location','East')
         end
         
     end
 	
 	methods (Access = private, Static)
     
-		function [score] = calcGoodnessOfFitDistribution(responses_predictedMCMC, responses_actual)
+		function [score] = calcGoodnessOfFitDistribution(responses_predictedMCMC, responses_actual,proportion_chose_delayed)
 			% Expand the participant responses so we can do vectorised calculations below
 			totalSamples			= size(responses_predictedMCMC,2);
 			responses_actual		= repmat(responses_actual, [1,totalSamples]);
-			responses_control_model = ones(size(responses_actual)) .* 0.5;
+			responses_control_model = ones(size(responses_actual)) .* proportion_chose_delayed;
 			
 			score = calcLogOdds(...
 				calcDataLikelihood(responses_actual, responses_predictedMCMC),...
@@ -123,19 +130,20 @@ classdef PosteriorPrediction
 
 		function percentResponsesPredicted = calcPercentResponsesCorrectlyPredicted(responses_predictedMCMC, responses_actual)
 			% Calculate % responses predicted by the model
+			DECISION_THRESHOLD = 0.5;
 			totalSamples				= size(responses_predictedMCMC,2);
 			nQuestions					= numel(responses_actual);
 			modelPrediction				= zeros(size(responses_predictedMCMC));
-			modelPrediction(responses_predictedMCMC>=0.5)=1;
+			modelPrediction(responses_predictedMCMC>=DECISION_THRESHOLD)=1;
 			responses_actual			= repmat(responses_actual, [1,totalSamples]);
 			isCorrectPrediction			= modelPrediction == responses_actual;
 			percentResponsesPredicted	= sum(isCorrectPrediction,1)./nQuestions;
 		end
 		
-		function score = calcPostPredOverallScore(responses_predicted, responses_actual)
+		function score = calcPostPredOverallScore(responses_predicted, responses_actual, proportion_chose_delayed)
 			% Calculate log posterior odds of data under the model and a
-			% control model where prob of responding is 0.5.
-			responses_control_model = ones(size(responses_predicted)).*0.5;
+			% control model where prob of responding is proportion_chose_delayed.
+			responses_control_model = ones(size(responses_predicted)).*proportion_chose_delayed;
 			score = calcLogOdds(...
 				calcDataLikelihood(responses_actual, responses_predicted'),...
 				calcDataLikelihood(responses_actual, responses_control_model'));

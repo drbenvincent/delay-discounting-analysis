@@ -29,7 +29,7 @@ classdef test_AllNonParametricModels < matlab.unittest.TestCase
 			
 			% only analyse 2 people, for speed of running tests
 			filesToAnalyse = allFilesInFolder(datapath, 'txt');
-			filesToAnalyse = filesToAnalyse(1:3);
+			filesToAnalyse = filesToAnalyse(1:2);
 			testCase.data = Data(datapath, 'files', filesToAnalyse);
 		end
 	end
@@ -76,7 +76,9 @@ classdef test_AllNonParametricModels < matlab.unittest.TestCase
 				'nburnin', get_burnin_for_tests()),...
 				'shouldPlot','no');
 			
-			testCase.verifyEqual(chains, model.get_nChains())
+			% removed this because I've removed get_nChains. It was an
+			% uncessary public method
+			%testCase.verifyEqual(chains, model.get_nChains())
 		end
 		
 		

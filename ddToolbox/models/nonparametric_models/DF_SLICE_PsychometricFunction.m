@@ -6,26 +6,7 @@ classdef DF_SLICE_PsychometricFunction < DeterministicFunction
 	methods (Access = public)
 		
 		function obj = DF_SLICE_PsychometricFunction(varargin)
-			obj = obj@DeterministicFunction();
-			
-			% create Stochastic objects
-            % TODO: this violates dependency injection, so we may want to pass these Stochastic objects in
-			obj.theta.indifference = Stochastic('indifference');
-			obj.theta.alpha = Stochastic('alpha');
-			obj.theta.epsilon = Stochastic('epsilon');
-			
-			% Input parsing ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			p = inputParser;
-			p.StructExpand = false;
-			p.addParameter('samples',struct(), @isstruct)
-			p.parse(varargin{:});
-			
-			fieldnames = fields(p.Results.samples);
-			% Add any provided samples
-			for n = 1:numel(fieldnames)
-				obj.theta.(fieldnames{n}).addSamples( p.Results.samples.(fieldnames{n}) );
-			end
-			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			obj = obj@DeterministicFunction(varargin{:});
 		end
 		
 		function plot(obj)
@@ -64,12 +45,11 @@ classdef DF_SLICE_PsychometricFunction < DeterministicFunction
 			Rstar	= theta.indifference;
 			
 			if verLessThan('matlab','9.1')
-				error('check this is correct')
 				y = bsxfun(@plus,...
 					epsilon,...
 					bsxfun(@times, ...
 					(1-2*epsilon),...
-					normcdf( bsxfun(@rdivide, x-Rstar, alpha ) , 0, 1)) );
+					normcdf( bsxfun(@rdivide, bsxfun(@minus, x, Rstar), alpha ) , 0, 1)) );
 			else
 				% use new array broadcasting in 2016b
 				y = epsilon + (1-2*epsilon)...

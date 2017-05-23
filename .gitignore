@@ -6,14 +6,12 @@
 
 figs/
 
-
 demo/figs/*
 demo/output/*
 
 */temp.mat
 
 */COMBINED_DATA.txt
-
 
 demo/data/methodspaper-kirby27.txt
 
@@ -22,8 +20,6 @@ demo/parameterEstimates_methodspaper-kirby27.txt
 demo/parameterEstimates_nonHierarchical.txt
 
 demo/*.csv
-
-
 
 ddToolbox/models/hierarchicalME
 
@@ -53,12 +49,11 @@ output-2.csv
 
 temp.data.R
 
-demo/datasets/non-parametric/groupLevelData/COMBINED_DATA.txt
+demo/datasets/non_parametric/groupLevelData/COMBINED_DATA.txt
 
 demo/datasets/kirby/groupLevelData/COMBINED_DATA.txt
 
 tests/tests/grw_test/ConvergenceReport.txt
-
 
 output/*
 
@@ -113,3 +108,7 @@ ddToolbox/models/parametric_models/hyperbolic_magnitude_effect_models/hierarchic
 ddToolbox/models/parametric_models/hyperbolic_models/separateLogK
 
 demo/datasets/non_parametric/groupLevelData/COMBINED_DATA.txt
+
+ddToolbox/models/parametric_models/hyperbolic_models/hierarchicalLogK
+
+demo/temp.init.R

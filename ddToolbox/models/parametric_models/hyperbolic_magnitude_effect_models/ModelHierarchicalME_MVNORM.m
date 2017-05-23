@@ -20,11 +20,11 @@ classdef ModelHierarchicalME_MVNORM < Hyperbolic1MagEffect
             obj = obj.conductInference();
 		end
 
-	end
-	
-
-	methods (Static)
-		function initialParams = initialiseChainValues(nchains)
+    end
+    
+    methods (Access = protected)
+    
+		function initialParams = initialiseChainValues(obj, nchains)
 			% Generate initial values of the root nodes
 			for chain = 1:nchains
 				%obj.initialParams(chain).r				= -0.2 + randn/10;

@@ -24,8 +24,9 @@ classdef test_AllParametricModels < matlab.unittest.TestCase
 			addpath('~/git-local/delay-discounting-analysis/ddToolbox')
 			datapath = '~/git-local/delay-discounting-analysis/demo/datasets/kirby';
 
-			% only analyse 2 people, for speed of running tests
-			filesToAnalyse={'AC-kirby27-DAYS.txt', 'CS-kirby27-DAYS.txt'};
+			% only analyse 2 people, for speed of running tests			
+			filesToAnalyse = allFilesInFolder(datapath, 'txt');
+			filesToAnalyse = filesToAnalyse(1:2);
 			testCase.data = Data(datapath, 'files', filesToAnalyse);
 		end
 	end
@@ -77,7 +78,9 @@ classdef test_AllParametricModels < matlab.unittest.TestCase
 									 'nburnin', get_burnin_for_tests()	),...
 				'shouldPlot','no');
 
-			testCase.verifyEqual(chains, model.get_nChains())
+			% removed this because I've removed get_nChains. It was an
+			% uncessary public method
+			%testCase.verifyEqual(chains, model.get_nChains())
 		end
 
 
