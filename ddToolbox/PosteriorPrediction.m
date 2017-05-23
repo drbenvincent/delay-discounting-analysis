@@ -90,8 +90,21 @@ classdef PosteriorPrediction
                 'plotStyle','hist',...
                 'pointEstimateType', plotOptions.pointEstimateType);
             axis tight
-            vline(0.5);
-            set(gca,'XLim',[0 1])
+			
+			% Control model predict P(choose delayed) = observed proportion
+			% of choosing delayed. If we set the decision critieria at 0.5,
+			% then if P(choose delayed)>0.5 then it will predict 100% of
+			% responses are for delayed option. So the proportion accounted
+			% for will be equal to proportion actually chose delayed. But
+			% if P(choose delayed)<0.5, then it can correctly predict
+			% number of trials equal to the number that actually chose
+			% immediate. So...
+			controlModelProbChooseDelayed = obj.postPred(n).proportion_chose_delayed;
+			controlModelProbChooseImmediate = 1-controlModelProbChooseDelayed;
+			proportionAccountedByControl = max([controlModelProbChooseDelayed controlModelProbChooseImmediate]);
+			vline(proportionAccountedByControl);
+            
+			set(gca,'XLim',[0 1])
         end
 
         function pp_plotTrials(obj, n)
