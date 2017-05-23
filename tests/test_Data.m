@@ -57,6 +57,18 @@ classdef test_Data < matlab.unittest.TestCase
 				'metaTable', expTable);
 		end
 		
+		function get_proportion_delayed_responses(testCase)
+			data = Data(testCase.datapath,...
+				'files', testCase.filesToAnalyse);
+			
+			% get proportion of delayed responses chosen for all participants
+			N = data.getNRealExperimentFiles();
+			for n = 1:N
+				scalar_proportion = data.getProportionDelayedOptionsChosen(n);
+			end
+
+		end
+		
 % 		function getIDnames_all(testCase)
 % 			IDnames = testCase.data.getIDnames('all');
 % 		end

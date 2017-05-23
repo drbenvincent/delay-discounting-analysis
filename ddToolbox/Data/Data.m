@@ -330,6 +330,11 @@ classdef Data
 		function metaTable = getMetaTable(obj)
 			metaTable = obj.metaTable;
 		end
+		
+		function proportionDelayedOptionsChosen = getProportionDelayedOptionsChosen(obj,n)
+			responses = obj.getParticipantResponses(n);
+			proportionDelayedOptionsChosen = sum(responses)/numel(responses);
+		end
         
 	end
 
