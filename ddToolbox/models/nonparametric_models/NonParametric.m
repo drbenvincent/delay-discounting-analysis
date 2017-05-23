@@ -155,7 +155,8 @@ classdef (Abstract) NonParametric < Model
 			obj.plotAllExperimentFigures();
 			
 			% Posterior prediction plot
-			obj.postPred.plot(obj.plotOptions, obj.modelFilename)
+            dfPlotFunc = @(fh,n) obj.plot_discount_function(fh,n);
+            obj.postPred.plot(obj.plotOptions, obj.modelFilename, dfPlotFunc)
 			
 			
 			%% TODO...

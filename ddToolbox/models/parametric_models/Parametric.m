@@ -70,7 +70,9 @@ classdef (Abstract) Parametric < Model
             %% Plots, one per data file ===================================		
             obj.plotAllExperimentFigures();
             obj.plotAllTriPlots(obj.plotOptions, obj.modelFilename)
-            obj.postPred.plot(obj.plotOptions, obj.modelFilename)
+            
+            dfPlotFunc = @(fh,n) obj.plot_discount_function(fh,n);
+            obj.postPred.plot(obj.plotOptions, obj.modelFilename, dfPlotFunc)
             
             function export_it(savename)
                 if obj.plotOptions.shouldExportPlots

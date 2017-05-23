@@ -37,11 +37,11 @@ classdef PosteriorPrediction
 			
 		end
         
-        function plot(obj, plotOptions, modelFilename)
+        function plot(obj, plotOptions, modelFilename, model)
             % loop over all experiments/people, producing plot figures
             N = length(obj.postPred);
             for n = 1:N
-                obj.posterior_prediction_figure(n, plotOptions, modelFilename)
+                obj.posterior_prediction_figure(n, plotOptions, model)
                 
                 % Exporting
                 prefix_string = obj.postPred(n).IDname{:};
@@ -63,15 +63,17 @@ classdef PosteriorPrediction
     
     methods (Access = private)
     
-        function posterior_prediction_figure(obj, n, plotOptions, modelFilename)
+        function posterior_prediction_figure(obj, n, plotOptions, plot_discount_function)
 			% Sort figure
             figure(1), colormap(gray), clf
             latex_fig(16, 9, 6)
             % Arrange subplots
-			h = layout([1 1; 2 3]);
+			h = layout([1 4; 2 3]);
             subplot(h(1)), obj.pp_plotTrials(n)
             subplot(h(2)), obj.pp_plotGOFdistribution(n, plotOptions)
             subplot(h(3)), obj.pp_plotPercentPredictedDistribution(n, plotOptions)
+			plot_discount_function(h(4), n)
+			
             drawnow
         end
         
