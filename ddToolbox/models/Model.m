@@ -71,23 +71,7 @@ classdef (Abstract) Model
 			obj.varList.responseErrorParams(2).label = 'error rate, $\epsilon$';
 		end
 		
-		
-		function obj = conductInference(obj)
-			% pre-sampling preparation
-			obj.observedData = obj.constructObservedDataForMCMC();
-			path_of_model_file = makeProbModelsPath(obj.modelFilename, obj.samplerType);
-			% sampling
-			samplerFunction = obj.selectSampler(obj.samplerType);
-			obj.coda = samplerFunction(...
-				path_of_model_file,...
-				obj.observedData,...
-				obj.mcmcParams,...
-				obj.initialiseChainValues(obj.mcmcParams.nchains),...
-				obj.varList.monitored);
-			% This is a separate method, to allow for overriding in sub classes
-			obj = obj.postSamplingActivities();
-		end
-		
+        
 		function export(obj)
 			% TODO: This should be a method of CODA
 			% TODO: better function name. What does it do? Calculate or
@@ -105,8 +89,28 @@ classdef (Abstract) Model
 			% TODO ^^^^ avoid this duplicate use of pointEstimateType
 		end
 		
-		
 	end
+    
+    methods (Hidden = true)
+    
+        function obj = conductInference(obj)
+            % Not intended to be called directly by user
+            
+            % pre-sampling preparation
+            obj.observedData = obj.constructObservedDataForMCMC();
+            path_of_model_file = makeProbModelsPath(obj.modelFilename, obj.samplerType);
+            % sampling
+            samplerFunction = obj.selectSampler(obj.samplerType);
+            obj.coda = samplerFunction(...
+                path_of_model_file,...
+                obj.observedData,...
+                obj.mcmcParams,...
+                obj.initialiseChainValues(obj.mcmcParams.nchains),...
+                obj.varList.monitored);
+            % This is a separate method, to allow for overriding in sub classes
+            obj = obj.postSamplingActivities();
+        end
+    end
 	
 	%%  GETTERS
 	
@@ -134,7 +138,11 @@ classdef (Abstract) Model
 			% predicted_subjective_values.B_full_posterior =
 		end
         
-        function discountFunctionVariables = getGiscountFunctionVariables(obj)
+    end
+    
+    methods (Hidden = true)
+    
+        function discountFunctionVariables = getDiscountFunctionVariables(obj)
             discountFunctionVariables = {obj.varList.discountFunctionParams.name};
         end
         
