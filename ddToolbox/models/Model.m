@@ -448,5 +448,39 @@ classdef (Abstract) Model
 		end
 		
 	end
+    
+    methods (Hidden = true)
+    
+        function disp(obj)
+            
+            disp('Discounting model object')
+            linebreak
+            fprintf('Model class: %s\n', class(obj))
+			
+            linebreak
+			disp('Data:')
+			fprintf('\tnumber of experiment files = %d\n',...
+				obj.data.getNRealExperimentFiles())
+			
+            linebreak
+			disp('MCMC options used in parameter estimation:')
+            disp(obj.mcmcParams)
+            
+            linebreak
+			disp('Model parameters (Discounting related):')
+            disp(obj.getDiscountFunctionVariables())
+			disp('Model parameters (Response error related):')
+            disp(obj.getResponseErrorVariables())
+			
+            linebreak
+			disp('Point estimates of parameters:')
+            exporter = ResultsExporter(obj.coda, obj.data,...
+				obj.postPred,...
+				obj.varList,...
+				obj.plotOptions);
+			exporter.printToScreen();
+            
+        end
+    end
 	
 end

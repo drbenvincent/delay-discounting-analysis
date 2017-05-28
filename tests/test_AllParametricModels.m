@@ -122,6 +122,21 @@ classdef test_AllParametricModels < matlab.unittest.TestCase
 			
 		end
 		
+		
+		function model_disp_function(testCase, model, sampler)
+			% make model
+			makeModelFunction = str2func(model);
+			modelFitted = makeModelFunction(testCase.data,...
+				'savePath', testCase.savePath,...
+				'sampler', sampler,...
+				'mcmcParams', struct('nsamples', get_numer_of_samples_for_tests(),...
+				'nchains', 2,...
+				'nburnin', get_burnin_for_tests()),...
+				'shouldPlot','no');
+			% Can we call the disp function without error?
+			disp(modelFitted)
+		end
+		
 
 	end
 

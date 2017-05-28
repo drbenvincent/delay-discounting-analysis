@@ -28,7 +28,7 @@ classdef CODA
 			% TODO: Check presence of my mcmc-utils code as the plotting relies upon it.
 		end
 
-		function paramEstimateTable = exportParameterEstimates(obj,...
+		function paramEstimateTable = buildParameterEstimateTable(obj,...
 				variablesRequested, rowNames, savePath, pointEstimateType, varargin)
 
 			p = inputParser;
@@ -75,7 +75,7 @@ classdef CODA
 				paramEstimateTable= table();
 			end
 
-			function colHeaderNames = createColumnHeaders(varNames,getCI, pointEstimateType)
+			function colHeaderNames = createColumnHeaders(varNames, getCI, pointEstimateType)
 				colHeaderNames = {};
 				for k = 1:numel(varNames)
 					colHeaderNames{end+1} = sprintf('%s_%s', varNames{k}, pointEstimateType);

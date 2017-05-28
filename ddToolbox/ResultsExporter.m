@@ -75,7 +75,7 @@ classdef ResultsExporter
 		end
 		
 		function printToScreen(obj)
-			display(obj.finalTable)
+			disp(obj.finalTable)
 		end
 		
 		function export(obj, savePath, pointEstimateType)
@@ -97,7 +97,7 @@ classdef ResultsExporter
 	
 	methods (Access = private)
 		function paramEstimateTable = makeParamEstimateTable(obj)
-			paramEstimateTable = obj.coda.exportParameterEstimates(...
+			paramEstimateTable = obj.coda.buildParameterEstimateTable(...
 				obj.varList.participantLevel,... %obj.varList.groupLevel,...
 				obj.data.getIDnames('all'),...
 				obj.plotOptions.savePath,...
