@@ -238,8 +238,10 @@ classdef (Abstract) Model
 		end
 		
 		function tellUserAboutPublicMethods(obj)
-			% TODO - the point is to guide them into what to do next
-			methods(obj)
+            display('Assuming your model is named ''model'', then you can type')
+            display('   help model.methodName')
+            display('for more info. Available methods are:')
+            methodsAvailable = methods(obj)
 		end
 		
 		function obj = addUnobservedParticipant(obj, str)
