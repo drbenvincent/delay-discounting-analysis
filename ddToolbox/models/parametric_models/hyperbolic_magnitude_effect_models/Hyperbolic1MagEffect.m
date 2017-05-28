@@ -103,7 +103,7 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
             col = linspace(0.1, 0.9, numel(rewards));
             
 			%% Set up magnitude effect function -----------------------
-			discountFunctionVariables = obj.getGiscountFunctionVariables();
+			discountFunctionVariables = obj.getDiscountFunctionVariables();
 			dfSamples = obj.coda.getSamplesAtIndex_asStochastic(ind, discountFunctionVariables);
 			
 			me = MagnitudeEffectFunction('samples', dfSamples);

@@ -147,7 +147,7 @@ classdef (Abstract) Parametric < Model
             opts.timeUnits			= obj.timeUnits;
             opts.dataPlotType		= obj.plotOptions.dataPlotType;
             
-            discountFunctionVariables = obj.getGiscountFunctionVariables();
+            discountFunctionVariables = obj.getDiscountFunctionVariables();
             switch numel(discountFunctionVariables)
                 case{1}
                     obj.coda.plot_univariate_distribution(subplot_handle,...
