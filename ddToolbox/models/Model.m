@@ -20,6 +20,7 @@ classdef (Abstract) Model
 		varList
 		plotOptions
 		timeUnits % string whose name must be a function to create a Duration.
+		auc % array of Stochastic objects
 	end
 	
 	% methods that subclasses must implement
@@ -213,33 +214,33 @@ classdef (Abstract) Model
 		end
 		
 		function obj = calcDerivedMeasures(obj)
-			%             %% Calculate AUC
-			%
-			%             % 1) Use the discount function object to calculate a distribution of AUC values, one for each MCMC sample
-			% 			discountFunctionVariables = {obj.varList.discountFunctionParams.name};
-			%
-			% 			N = obj.data.getNExperimentFiles();
-			%
-			% 			for ind = 1:N % loop over files
-			%
-			% 				samples = obj.coda.getSamplesAtIndex_asStochastic(ind, discountFunctionVariables);
-			% 				data = obj.data.getExperimentObject(ind);
-			%
-			% 				discountFunction = obj.dfClass(...
-			% 					'samples', samples,...
-			% 					'data', data);
-			%
-			% % 				% calc AUC values
-			% % 				AUC = discountFunction.calcAUC();
-			%
-			% 				% 2) Inject these into a new variable into coda
-			%
-			% 			end
+			
+			%% Calculate AUC
+			MAX_DELAY = 365;
+			obj = obj.calcAUC(MAX_DELAY);
+			
+		end
+		
+		function obj = calcAUC(obj, MAX_DELAY)
+			% Calculate Area Under Curve. 
+			% Returns an array of Stochastic objects
+			
+			N = obj.data.getNExperimentFiles();
+			
+			for ind = 1:N % loop over files
+				discountFunctionVariables = {obj.varList.discountFunctionParams.name};
+				samples = obj.coda.getSamplesAtIndex_asStochastic(ind, discountFunctionVariables);
+				discountFunction = obj.dfClass('samples', samples);
+				
+				% grab a distribution over AUC (a Stochastic object)
+				auc(ind) = discountFunction.calcAUC(MAX_DELAY);
+			end
+			obj.auc = auc;
 		end
 		
 		function tellUserAboutPublicMethods(obj)
             display('Assuming your model is named ''model'', then you can type')
-            display('   help model.methodName')
+            display('    >> help model.methodName')
             display('for more info. Available methods are:')
             methodsAvailable = methods(obj)
 		end

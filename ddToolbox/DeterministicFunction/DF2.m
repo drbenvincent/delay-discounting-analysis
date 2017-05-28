@@ -76,6 +76,14 @@ classdef (Abstract) DF2 < DiscountFunction
 			drawnow
 			
 		end
+        
+        function AUC = calcAUC(~, ~)
+            % Currently not calculating AUC for 2D discount functions (eg Magnitude Effect)
+            
+			% return an empty Stochastic object
+			AUC = Stochastic('AUC');
+        end
+        
 	end
 end
 

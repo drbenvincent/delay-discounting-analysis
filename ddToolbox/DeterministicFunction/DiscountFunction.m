@@ -18,6 +18,9 @@ classdef (Abstract) DiscountFunction < DeterministicFunction
 		
 	end
 	
+    methods (Abstract, Access = public)
+		calcAUC()
+	end
 	
 	methods (Access = protected)
 		
