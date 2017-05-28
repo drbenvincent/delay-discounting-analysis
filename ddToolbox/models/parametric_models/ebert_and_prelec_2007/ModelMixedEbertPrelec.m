@@ -1,6 +1,6 @@
 classdef ModelMixedEbertPrelec < EbertPrelec
 
-	methods (Access = public)
+	methods (Access = public, Hidden = true)
 		function obj = ModelMixedEbertPrelec(data, varargin)
 			obj = obj@EbertPrelec(data, varargin{:});
 			obj.modelFilename = 'mixedEbertPrelec';

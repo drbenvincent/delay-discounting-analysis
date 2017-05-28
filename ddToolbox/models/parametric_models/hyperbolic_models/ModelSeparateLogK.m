@@ -2,7 +2,7 @@ classdef ModelSeparateLogK < Hyperbolic1
 	%ModelHierarchical A model to estimate the magnitide effect
 	%  NO parameters are estimated hierarchically.
 
-	methods (Access = public)
+	methods (Access = public, Hidden = true)
 		function obj = ModelSeparateLogK(data, varargin)
 			obj = obj@Hyperbolic1(data, varargin{:});
 			obj.modelFilename = 'separateLogK';

@@ -2,7 +2,7 @@ classdef ModelHierarchicalLogK < Hyperbolic1
 	%ModelHierarchical A model to estimate the log discount rate, according to the 1-parameter hyperbolic discount function.
     %  All parameters are estimated hierarchically.
 
-	methods (Access = public)
+	methods (Access = public, Hidden = true)
 
 		function obj = ModelHierarchicalLogK(data, varargin)
 			obj = obj@Hyperbolic1(data, varargin{:});

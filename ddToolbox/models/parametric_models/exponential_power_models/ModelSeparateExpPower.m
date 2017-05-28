@@ -1,7 +1,7 @@
 classdef ModelSeparateExpPower < ExponentialPower
 
 
-	methods (Access = public)
+	methods (Access = public, Hidden = true)
 
 		function obj = ModelSeparateExpPower(data, varargin)
 			obj = obj@ExponentialPower(data, varargin{:});

@@ -2,7 +2,7 @@ classdef ModelMixedME < Hyperbolic1MagEffect
 	%ModelHierarchicalME A model to estimate the magnitide effect
 	%   Detailed explanation goes here
 
-	methods (Access = public)
+	methods (Access = public, Hidden = true)
 
 		function obj = ModelMixedME(data, varargin)
 			obj = obj@Hyperbolic1MagEffect(data, varargin{:});

@@ -1,7 +1,7 @@
 classdef ModelMixedExpPower < ExponentialPower
 	%ModelMixedExp1 
 
-	methods (Access = public)
+	methods (Access = public, Hidden = true)
 		function obj = ModelMixedExpPower(data, varargin)
 			obj = obj@ExponentialPower(data, varargin{:});
 			obj.modelFilename = 'mixedExpPower';

@@ -1,7 +1,7 @@
 classdef ModelSeparateEbertPrelec < EbertPrelec
 
 
-	methods (Access = public)
+	methods (Access = public, Hidden = true)
 
 		function obj = ModelSeparateEbertPrelec(data, varargin)
 			obj = obj@EbertPrelec(data, varargin{:});

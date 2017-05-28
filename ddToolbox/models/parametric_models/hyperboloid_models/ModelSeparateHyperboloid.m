@@ -2,7 +2,7 @@ classdef ModelSeparateHyperboloid < Hyperboloid
 	%ModelHierarchical A model to estimate the magnitide effect
 	%  NO parameters are estimated hierarchically.
 
-	methods (Access = public)
+	methods (Access = public, Hidden = true)
 		function obj = ModelSeparateHyperboloid(data, varargin)
 			obj = obj@Hyperboloid(data, varargin{:});
 			obj.modelFilename = 'separateHyperboloid';

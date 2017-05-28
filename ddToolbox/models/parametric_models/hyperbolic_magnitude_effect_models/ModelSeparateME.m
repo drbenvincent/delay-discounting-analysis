@@ -3,7 +3,7 @@ classdef ModelSeparateME < Hyperbolic1MagEffect
 	%	Models a number of participants, but they are all treated as independent.
 	%	There is no group-level estimation.
 	
-	methods (Access = public)
+	methods (Access = public, Hidden = true)
 		
 		function obj = ModelSeparateME(data, varargin)
 			obj = obj@Hyperbolic1MagEffect(data, varargin{:});

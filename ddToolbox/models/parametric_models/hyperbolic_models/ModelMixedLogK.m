@@ -2,7 +2,7 @@ classdef ModelMixedLogK < Hyperbolic1
 	%ModelMixedLogK A model to estimate the log discount rate, according to the 1-parameter hyperbolic discount function.
 	%  SOME parameters are estimated hierarchically.
 
-	methods (Access = public)
+	methods (Access = public, Hidden = true)
 		function obj = ModelMixedLogK(data, varargin)
 			obj = obj@Hyperbolic1(data, varargin{:});
 			obj.modelFilename = 'mixedLogK';

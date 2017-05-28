@@ -2,7 +2,7 @@ classdef ModelHierarchicalExp1 < Exponential1
 	%ModelHierarchical A model to estimate the log discount rate, according to the 1-parameter hyperbolic discount function.
     %  All parameters are estimated hierarchically.
 
-	methods (Access = public)
+	methods (Access = public, Hidden = true)
 
 		function obj = ModelHierarchicalExp1(data, varargin)
 			obj = obj@Exponential1(data, varargin{:});

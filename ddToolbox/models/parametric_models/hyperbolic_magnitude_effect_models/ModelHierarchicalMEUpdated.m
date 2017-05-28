@@ -5,7 +5,7 @@ classdef ModelHierarchicalMEUpdated < ModelHierarchicalME
 	properties
 	end
 
-	methods (Access = public)
+	methods (Access = public, Hidden = true)
 
 		function obj = ModelHierarchicalMEUpdated(data, varargin)
 			obj = obj@ModelHierarchicalME(data, varargin{:});

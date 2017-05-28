@@ -2,7 +2,7 @@ classdef ModelHierarchicalHyperboloid < Hyperboloid
 	%ModelHierarchical A model to estimate the log discount rate, according to the 1-parameter hyperbolic discount function.
     %  All parameters are estimated hierarchically.
 
-	methods (Access = public)
+	methods (Access = public, Hidden = true)
 
 		function obj = ModelHierarchicalHyperboloid(data, varargin)
 			obj = obj@Hyperboloid(data, varargin{:});
