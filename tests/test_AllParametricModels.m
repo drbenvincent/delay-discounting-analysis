@@ -112,7 +112,7 @@ classdef test_AllParametricModels < matlab.unittest.TestCase
 			
 			% Get inferred present subjective values of
 			[predicted_subjective_values] =...
-				modelFitted.get_inferred_present_subjective_values();
+				modelFitted.getInferredPresentSubjectiveValues();
 
 			testCase.assertTrue(isstruct(predicted_subjective_values))
 			

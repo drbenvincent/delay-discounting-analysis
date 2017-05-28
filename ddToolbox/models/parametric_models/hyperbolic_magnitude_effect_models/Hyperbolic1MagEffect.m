@@ -19,6 +19,9 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			obj.plotOptions.dataPlotType = '3D';
 		end
         
+    end
+    
+    methods (Access = private)
         
         % MIDDLE-MAN METHOD
         function logk = getLogDiscountRate(obj, reward, index, varargin)
@@ -33,20 +36,25 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
             logk = discountFunction.getLogDiscountRate(reward, index, varargin{:});
         end
         
+    end
         
         
         
         
+    % ==========================================================================
+    % ==========================================================================
+    % PLOTTING
+    % ==========================================================================
+    % ==========================================================================
         
-        % ==========================================================================
-        % ==========================================================================
-        % PLOTTING
-        % ==========================================================================
-        % ==========================================================================
-        
-		
+	methods (Access = public)
+    
 		% OVERRIDDING THIS METHOD FROM A SUPERCLASS
 		function experimentMultiPanelFigure(obj, ind)
+            %model.experimentMultiPanelFigure(N) Creates a multi-panel figure
+            %   model.EXPERIMENTMULTIPANELFIGURE(N) creates a multi-panel figure
+            %   corresponding to experiment N, where N is an integer.
+            
 			latex_fig(12, 14, 3);
 			h = layout([1 2 3 4 5 6]);
 			opts.pointEstimateType = obj.plotOptions.pointEstimateType;

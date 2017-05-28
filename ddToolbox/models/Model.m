@@ -1,9 +1,9 @@
 classdef (Abstract) Model
-	%Model Base class to provide basic functionality
-	
+    %Model Base class model.
+
 	% Allow acces to these via Model, but we still only get access to these
 	% class's public interface.
-	properties (SetAccess = protected, GetAccess = public)
+	properties (Hidden = true, SetAccess = protected, GetAccess = public)
 		coda % handle to coda object
 		data % handle to Data class
 	end
@@ -26,7 +26,7 @@ classdef (Abstract) Model
 	methods (Abstract, Access = public)
 		plot()
 		experimentMultiPanelFigure()
-		%plot_discount_function(obj, subplot_handle, ind)
+		%plotDiscountFunction(obj, subplot_handle, ind)
 		%getAUC(obj)
 	end
 	methods (Abstract, Access = protected)
@@ -122,8 +122,8 @@ classdef (Abstract) Model
 	
 	methods
 		
-		function [predicted_subjective_values] = get_inferred_present_subjective_values(obj)
-            % info = model.get_inferred_present_subjective_values Returns information 
+		function [predicted_subjective_values] = getInferredPresentSubjectiveValues(obj)
+            % info = model.getInferredPresentSubjectiveValues Returns information 
             %   on the dataset along with inferred present subjective values of
             %   each of the objective offers present in the dataset.
             %
@@ -294,8 +294,8 @@ classdef (Abstract) Model
 	
 	methods (Access = public)
 		
-		function plot_discount_function(obj, subplot_handle, ind, varargin)
-            %model.PLOT_DISCOUNT_FUNCTION(H, N) plots a discount 
+		function plotDiscountFunction(obj, subplot_handle, ind, varargin)
+            %model.PLOTDISCOUNTFUNCTION(H, N) plots a discount 
             %   function where H is a handle to a subplot, and IND is the nth 
             %   experiment to plot.
 			
@@ -323,6 +323,65 @@ classdef (Abstract) Model
 			
 			discountFunction.plot(plotOptions);
 		end
+        
+        function plotDiscountFunctionGrid(obj)
+            %plotDiscountFunctionGrid Plots a montage of discount functions
+            %   model.PLOTDISCOUNTFUNCTIONGRID() plots discount functions for 
+            %   all experiment, laid out in a grid.
+            
+			latex_fig(12, 11,11)
+			clf, drawnow
+			
+			% TODO: extract the grid formatting stuff to be able to call
+			% any plot function we want
+			% USE: apply_plot_function_to_subplot_handle.m ??
+			
+			%fh = figure('Name', names{experimentIndex});
+			names = obj.data.getIDnames('all');
+			
+			% create grid layout
+			N = numel(names);
+			subplot_handles = create_subplots(N, 'square');
+			
+			% Iterate over files, plotting
+			disp('Plotting...')
+			for n = 1:numel(names)
+				obj.plotDiscountFunction(subplot_handles(n), n)
+				title(names{n}, 'FontSize',10)
+				set(gca,'FontSize',10)
+			end
+			drawnow
+		end
+		
+		
+		function plotDiscountFunctionsOverlaid(obj)
+            %plotDiscountFunctionsOverlaid Plots all discount functions in one figure
+            %   model.PLOTDISCOUNTFUNCTIONSOVERLAID() plots discount functions for 
+            %   all experiment, overlaid in one figure.
+            
+			latex_fig(12, 8,6)
+			clf, drawnow
+			
+			% don't want the group level estimate, so not asking for 'all'
+			names = obj.data.getIDnames('experiments');
+			
+			% plot curves in same axis
+			subplot_handle = subplot(1,1,1);
+			
+			% Iterate over files, plotting
+			disp('Plotting...')
+			for n = 1:numel(names)
+				hold on
+				obj.plotDiscountFunction(subplot_handle, n,...
+					'plot_mode', 'point_estimate_only')
+			end
+			set(gca,'PlotBoxAspectRatio',[1.5,1,1])
+			y = get(gca,'ylim');
+			set(gca, 'ylim', [0 min([y(2), 2])])
+			%             title(names{n}, 'FontSize',10)
+			%             set(gca,'FontSize',10)
+			drawnow
+		end
 		
 	end
 	
@@ -349,57 +408,7 @@ classdef (Abstract) Model
 				close(fh);
 			end
 		end
-		
-		function plot_discount_functions_in_grid(obj)
-			latex_fig(12, 11,11)
-			clf, drawnow
-			
-			% TODO: extract the grid formatting stuff to be able to call
-			% any plot function we want
-			% USE: apply_plot_function_to_subplot_handle.m ??
-			
-			%fh = figure('Name', names{experimentIndex});
-			names = obj.data.getIDnames('all');
-			
-			% create grid layout
-			N = numel(names);
-			subplot_handles = create_subplots(N, 'square');
-			
-			% Iterate over files, plotting
-			disp('Plotting...')
-			for n = 1:numel(names)
-				obj.plot_discount_function(subplot_handles(n), n)
-				title(names{n}, 'FontSize',10)
-				set(gca,'FontSize',10)
-			end
-			drawnow
-		end
-		
-		
-		function plot_discount_functions_in_one(obj)
-			latex_fig(12, 8,6)
-			clf, drawnow
-			
-			% don't want the group level estimate, so not asking for 'all'
-			names = obj.data.getIDnames('experiments');
-			
-			% plot curves in same axis
-			subplot_handle = subplot(1,1,1);
-			
-			% Iterate over files, plotting
-			disp('Plotting...')
-			for n = 1:numel(names)
-				hold on
-				obj.plot_discount_function(subplot_handle, n,...
-					'plot_mode', 'point_estimate_only')
-			end
-			set(gca,'PlotBoxAspectRatio',[1.5,1,1])
-			y = get(gca,'ylim');
-			set(gca, 'ylim', [0 min([y(2), 2])])
-			%             title(names{n}, 'FontSize',10)
-			%             set(gca,'FontSize',10)
-			drawnow
-		end
+        
         
         function plot_density_alpha_epsilon(obj, subplot_handle, ind)
             responseErrorVariables = obj.getResponseErrorVariables();

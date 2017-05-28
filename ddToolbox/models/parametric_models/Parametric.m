@@ -58,7 +58,7 @@ classdef (Abstract) Parametric < Model
             export_it(plot_savename)
 
                 
-            obj.plot_discount_functions_in_grid();
+            obj.plotDiscountFunctionGrid();
             % Export
             if obj.plotOptions.shouldExportPlots
                 myExport(obj.plotOptions.savePath,...
@@ -67,7 +67,7 @@ classdef (Abstract) Parametric < Model
                     'formats', obj.plotOptions.exportFormats);
             end
             
-            obj.plot_discount_functions_in_one();
+            obj.plotDiscountFunctionsOverlaid();
             % Export
             if obj.plotOptions.shouldExportPlots
                 myExport(obj.plotOptions.savePath,...
@@ -80,7 +80,7 @@ classdef (Abstract) Parametric < Model
             obj.plotAllExperimentFigures();
             obj.plotAllTriPlots(obj.plotOptions, obj.modelFilename)
             
-            dfPlotFunc = @(fh,n) obj.plot_discount_function(fh,n);
+            dfPlotFunc = @(fh,n) obj.plotDiscountFunction(fh,n);
             obj.postPred.plot(obj.plotOptions, obj.modelFilename, dfPlotFunc)
             
             function export_it(savename)
@@ -108,7 +108,22 @@ classdef (Abstract) Parametric < Model
             obj.plot_density_alpha_epsilon(h(1), ind)
             obj.plot_psychometric_function(h(2), ind)
             obj.plot_discount_function_parameters(h(3), ind)
-            obj.plot_discount_function(h(4), ind)
+            obj.plotDiscountFunction(h(4), ind)
+        end
+        
+        function plotParameterCornerPlot(obj, n)
+            %model.plotCornerPlot(N) Visualises posterior over parameters for experiment N
+            %   model.PLOTCORNERPLOT(N) plots a corner plot to show all univariate
+            %   marginal distributions and all combinations of bivariate marginal 
+            %   distributions.
+            
+            pVariableNames =  obj.varList.participantLevel;
+            posteriorSamples = obj.coda.getSamplesAtIndex_asMatrix(n, pVariableNames);
+            
+            figure(87), clf
+            mcmc.TriPlotSamples(posteriorSamples,...
+                pVariableNames,...
+                'pointEstimateType', obj.plotOptions.pointEstimateType);
         end
         
     end    
@@ -118,17 +133,16 @@ classdef (Abstract) Parametric < Model
     
         % TODO: this should be moved to CODA
         function plotAllTriPlots(obj, plotOptions, modelFilename)
-            
-            pVariableNames =  obj.varList.participantLevel;
-            
             for p = 1:obj.data.getNExperimentFiles
-                figure(87), clf
-                
-                posteriorSamples = obj.coda.getSamplesAtIndex_asMatrix(p, pVariableNames);
-                
-                mcmc.TriPlotSamples(posteriorSamples,...
-                    pVariableNames,...
-                    'pointEstimateType', plotOptions.pointEstimateType);
+                obj.plotParameterCornerPlot(p)
+                % 
+                % figure(87), clf
+                % 
+                % posteriorSamples = obj.coda.getSamplesAtIndex_asMatrix(p, pVariableNames);
+                % 
+                % mcmc.TriPlotSamples(posteriorSamples,...
+                %     pVariableNames,...
+                %     'pointEstimateType', plotOptions.pointEstimateType);
 
                 id_prefix = obj.data.getIDnames(p);
                 
@@ -142,8 +156,7 @@ classdef (Abstract) Parametric < Model
                 end
                 
             end
-        end
-        
+		end
 
         function plot_psychometric_function(obj, subplot_handle, ind)
             responseErrorVariables = obj.getResponseErrorVariables();

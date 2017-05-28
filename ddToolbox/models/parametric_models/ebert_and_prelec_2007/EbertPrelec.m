@@ -20,6 +20,10 @@ classdef (Abstract) EbertPrelec < Parametric
         
         % Override this function from superclass
         function experimentMultiPanelFigure(obj, ind)
+            %model.experimentMultiPanelFigure(N) Creates a multi-panel figure
+            %   model.EXPERIMENTMULTIPANELFIGURE(N) creates a multi-panel figure
+            %   corresponding to experiment N, where N is an integer.
+            
             latex_fig(12, 14, 3)
             h = layout([1 2 3 4 5]);
             opts.pointEstimateType	= obj.plotOptions.pointEstimateType;
@@ -30,7 +34,7 @@ classdef (Abstract) EbertPrelec < Parametric
             obj.plot_psychometric_function(h(2), ind)
             obj.plot_discount_function_parameters(h(3), ind)
             obj.plot_subjective_time_function(h(4), ind)
-            obj.plot_discount_function(h(5), ind)
+            obj.plotDiscountFunction(h(5), ind)
         end
         
 	end

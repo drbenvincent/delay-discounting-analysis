@@ -141,7 +141,7 @@ classdef (Abstract) NonParametric < Model
 			p.addParameter('shouldExportPlots', true, @islogical);
 			p.parse(varargin{:});
 			
-			obj.plot_discount_functions_in_grid();
+			obj.plotDiscountFunctionGrid();
 			% Export
 			if obj.plotOptions.shouldExportPlots
 				myExport(obj.plotOptions.savePath,...
@@ -150,7 +150,7 @@ classdef (Abstract) NonParametric < Model
 					'formats', obj.plotOptions.exportFormats);
 			end
 			
-			obj.plot_discount_functions_in_one();
+			obj.plotDiscountFunctionsOverlaid();
 			% Export
 			if obj.plotOptions.shouldExportPlots
 				myExport(obj.plotOptions.savePath,...
@@ -164,7 +164,7 @@ classdef (Abstract) NonParametric < Model
 			obj.plotAllExperimentFigures();
 			
 			% Posterior prediction plot
-            dfPlotFunc = @(fh,n) obj.plot_discount_function(fh,n);
+            dfPlotFunc = @(fh,n) obj.plotDiscountFunction(fh,n);
             obj.postPred.plot(obj.plotOptions, obj.modelFilename, dfPlotFunc)
 			
 			
@@ -212,7 +212,7 @@ classdef (Abstract) NonParametric < Model
 			%             xlim([0 2])
 			
 			%% plot discount function
-			obj.plot_discount_function(h(3), ind)
+			obj.plotDiscountFunction(h(3), ind)
 			
 		end
 		

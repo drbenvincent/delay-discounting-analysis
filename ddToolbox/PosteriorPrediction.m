@@ -63,7 +63,7 @@ classdef PosteriorPrediction
     
     methods (Access = private)
     
-        function posterior_prediction_figure(obj, n, plotOptions, plot_discount_function)
+        function posterior_prediction_figure(obj, n, plotOptions, plotDiscountFunction)
 			% Sort figure
             figure(1), colormap(gray), clf
             latex_fig(16, 9, 6)
@@ -72,7 +72,7 @@ classdef PosteriorPrediction
             subplot(h(1)), obj.pp_plotTrials(n)
             subplot(h(2)), obj.pp_plotGOFdistribution(n, plotOptions)
             subplot(h(3)), obj.pp_plotPercentPredictedDistribution(n, plotOptions)
-			plot_discount_function(h(4), n)
+			plotDiscountFunction(h(4), n)
 			
             drawnow
         end

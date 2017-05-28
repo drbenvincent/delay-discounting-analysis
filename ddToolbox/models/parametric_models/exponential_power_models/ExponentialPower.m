@@ -30,7 +30,7 @@ classdef (Abstract) ExponentialPower < Parametric
             obj.plot_psychometric_function(h(2), ind)
             obj.plot_discount_function_parameters(h(3), ind)
             obj.plot_subjective_time_function(h(4), ind)
-            obj.plot_discount_function(h(5), ind)
+            obj.plotDiscountFunction(h(5), ind)
         end
         
 	end
