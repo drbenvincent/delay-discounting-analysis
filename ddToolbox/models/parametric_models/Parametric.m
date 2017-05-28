@@ -23,6 +23,15 @@ classdef (Abstract) Parametric < Model
 
 
         function plot(obj, varargin)
+            %plot Plots EVERYTHING
+            %   PLOT(model) or model.PLOT will call all plot functions.
+            %
+            %   Optional input arguments
+            %   [...] = model.PLOT(PARAM1,VAL1,PARAM2,VAL2,...) specifies one
+            %   or more of the following name/value pairs:
+            %
+            %      'shouldExportPlots' Either true or false. Default is true. 
+
             p = inputParser;
             p.FunctionName = mfilename;
             p.addParameter('shouldExportPlots', true, @islogical);
@@ -86,6 +95,10 @@ classdef (Abstract) Parametric < Model
     
     
         function experimentMultiPanelFigure(obj, ind)
+            %model.experimentMultiPanelFigure(N) Creates a multi-panel figure
+            %   model.EXPERIMENTMULTIPANELFIGURE(N) creates a multi-panel figure
+            %   corresponding to experiment N, where N is an integer.
+
             latex_fig(12, 14, 3)
             h = layout([1 2 3 4]);
             opts.pointEstimateType	= obj.plotOptions.pointEstimateType;

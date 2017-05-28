@@ -73,6 +73,12 @@ classdef (Abstract) Model
 		
         
 		function export(obj)
+            %model.export Exports summary information about the model
+            %   model.EXPORT() exports the following:
+            %       - extensive MCMC convergence information
+            %       - an experiment-level table of point estimates and model 
+            %         checking quantities
+
 			% TODO: This should be a method of CODA
 			% TODO: better function name. What does it do? Calculate or
 			% export, or both?
@@ -117,14 +123,17 @@ classdef (Abstract) Model
 	methods
 		
 		function [predicted_subjective_values] = get_inferred_present_subjective_values(obj)
-			%get_inferred_present_subjective_values
-			% returns the inferred present subjective values of the
-			% objective reward values
-			
-			%% calculate point estimates
-			% get point estimates of present subjective values. These will
-			% be vectors. Each value corresponds to one trial in the
-			% overall dataset
+            % info = model.get_inferred_present_subjective_values Returns information 
+            %   on the dataset along with inferred present subjective values of
+            %   each of the objective offers present in the dataset.
+            %
+            %   This is useful if you want to do trial-by-trial analysis, or 
+            %   have other measures (eg electrophysiological, or imagine) and 
+            %   would like to examine how these measures relate to the inferred
+            %   present subjective values of the rewards run in the experiment.
+            %
+            %   NOTE: We do have access to full distributions of inferred present
+            %   subjective values, but currently we return the point estimates.
 			
 			%% return point estimates of present subjective values...
 			all_data_table = obj.data.groupTable;
@@ -284,11 +293,9 @@ classdef (Abstract) Model
 	methods (Access = public)
 		
 		function plot_discount_function(obj, subplot_handle, ind, varargin)
-			%plot_discount_function
-			% Example public call. This will plot a discount function to a
-			% specified subplot, for the experiment file determined by the
-			% numerical 'index'
-			% model.plot_discount_function(subplot_handle, index)
+            %model.PLOT_DISCOUNT_FUNCTION(H, N) plots a discount 
+            %   function where H is a handle to a subplot, and IND is the nth 
+            %   experiment to plot.
 			
 			p = inputParser;
 			p.FunctionName = mfilename;
