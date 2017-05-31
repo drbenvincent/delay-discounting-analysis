@@ -6,6 +6,7 @@ classdef PosteriorPrediction
 		postPred
 		postPredTable
 		CREDIBLE_INTERVAL
+        controlModelProbChooseDelayed
 	end
 	
 	methods
@@ -24,11 +25,11 @@ classdef PosteriorPrediction
 				responses_predicted			= coda.getParticipantPredictedResponses(trialIndOfThisParicipant);
 				obj.postPred(p).proportion_chose_delayed = data.getProportionDelayedOptionsChosen(p);
 				
-				controlModelProbChooseDelayed = obj.postPred(p).proportion_chose_delayed;
+				obj.controlModelProbChooseDelayed(p) = obj.postPred(p).proportion_chose_delayed;
 				
 				% Calculate metrics
-				obj.postPred(p).score = obj.calcPostPredOverallScore(responses_predicted, responses_actual, controlModelProbChooseDelayed);
-				obj.postPred(p).GOF_distribtion	= obj.calcGoodnessOfFitDistribution(responses_inferredPB, responses_actual, controlModelProbChooseDelayed);
+				obj.postPred(p).score = obj.calcPostPredOverallScore(responses_predicted, responses_actual, obj.controlModelProbChooseDelayed(p));
+				obj.postPred(p).GOF_distribtion	= obj.calcGoodnessOfFitDistribution(responses_inferredPB, responses_actual, obj.controlModelProbChooseDelayed(p));
 				obj.postPred(p).percentPredictedDistribution = obj.calcPercentResponsesCorrectlyPredicted(responses_inferredPB, responses_actual);
 				% Store
 				obj.postPred(p).responses_actual	= responses_actual;
@@ -163,20 +164,22 @@ classdef PosteriorPrediction
 		end
 		
 		function pp_warning = any_percent_predicted_warnings(obj)
-			ppLowerThreshold = 0.5;
+			% warnings when we have less than 95% confidence that we can
+			% predict more responses than the control model
+			ppLowerThreshold = obj.controlModelProbChooseDelayed;
 			hdiFunc = @(x) HDIofSamples(x, obj.CREDIBLE_INTERVAL);
-			warningFunc = @(x) x(1) < ppLowerThreshold;
-			warnOnHDI = @(x) warningFunc( hdiFunc(x) );
+			warningFunc = @(x,lowerThresh) x(1) < lowerThresh;
+			warnOnHDI = @(x,lowerThresh) warningFunc( hdiFunc(x), lowerThresh );
 			pp_warning = cellfun( warnOnHDI,...
-				obj.getPercentPredictedDistribution())';
+				obj.getPercentPredictedDistribution(),...
+				num2cell(ppLowerThreshold))';
 		end
-		
 		
 	end
 	
 	methods (Access = private, Static)
 		
-		function [score] = calcGoodnessOfFitDistribution(responses_predictedMCMC, responses_actual,proportion_chose_delayed)
+		function [score] = calcGoodnessOfFitDistribution(responses_predictedMCMC, responses_actual, proportion_chose_delayed)
 			% Expand the participant responses so we can do vectorised calculations below
 			totalSamples			= size(responses_predictedMCMC,2);
 			responses_actual		= repmat(responses_actual, [1,totalSamples]);
@@ -202,6 +205,8 @@ classdef PosteriorPrediction
 		function score = calcPostPredOverallScore(responses_predicted, responses_actual, proportion_chose_delayed)
 			% Calculate log posterior odds of data under the model and a
 			% control model where prob of responding is proportion_chose_delayed.
+			
+			% NOTE: This is model comparison, not posterior prediction
 			responses_control_model = ones(size(responses_predicted)).*proportion_chose_delayed;
 			score = calcLogOdds(...
 				calcDataLikelihood(responses_actual, responses_predicted'),...
