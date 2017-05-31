@@ -19,6 +19,7 @@ classdef ResultsExporter
 	
 	
 	methods (Access = public)
+		
 		function obj = ResultsExporter(coda, data, postPred, varList, plotOptions)
 			% Ideally, we are going to make a table. Each row is a
 			% participant/experiment. We have one set of columns related to
@@ -44,7 +45,7 @@ classdef ResultsExporter
 				% TODO This is what we want to execute in all cases
 				obj.finalTable = join(...
 					obj.makeParamEstimateTable(),...
-					obj.makePostPredTable(),...
+					obj.postPred.getPostPredTable(),...
 					'Keys','RowNames');
 				
 				%% make obj.alternativeTable
@@ -70,7 +71,7 @@ classdef ResultsExporter
 				
 			else
 				% TODO this is a workaround
-				obj.finalTable = obj.makePostPredTable();
+				obj.finalTable = obj.postPred.getPostPredTable();
 			end
 		end
 		
@@ -91,11 +92,13 @@ classdef ResultsExporter
 			end
 		end
 		
+		
 	end
 	
 	
-	
 	methods (Access = private)
+		
+		% TODO: this need to be a method of a new subclass of CODA ??
 		function paramEstimateTable = makeParamEstimateTable(obj)
 			paramEstimateTable = obj.coda.buildParameterEstimateTable(...
 				obj.varList.participantLevel,... %obj.varList.groupLevel,...
@@ -106,43 +109,10 @@ classdef ResultsExporter
 			% likely caused because of 4D param matrix
 			if isempty(paramEstimateTable)
 				warning('BAILED OUT OF EXPORTING PARAM ESTIMATES')
-				finalTable = table();
+				paramEstimateTable = table();
 				return
 			end
 		end
 		
-		function postPredTable = makePostPredTable(obj)
-			postPredTable = table(obj.postPred.getScores(),...
-				obj.calc_percent_predicted_point_estimate(),...
-				obj.any_percent_predicted_warnings(),...
-				'RowNames', obj.data.getIDnames('experiments'),...
-				'VariableNames',{'ppScore' 'percentPredicted' 'warning_percent_predicted'});
-			
-			if obj.data.isUnobservedPartipantPresent()
-				% add extra row of NaN's on the bottom for the unobserved participant
-				unobserved = table(NaN, NaN, NaN,...
-					'RowNames', obj.data.getIDnames('group'),...
-					'VariableNames', postPredTable.Properties.VariableNames);
-				
-				postPredTable = [postPredTable; unobserved];
-			end
-		end
-		
-		function percentPredicted = calc_percent_predicted_point_estimate(obj)
-			% Calculate point estimates of perceptPredicted. use the point
-			% estimate type that the user specified
-			pointEstFunc = str2func(obj.plotOptions.pointEstimateType);
-			percentPredicted = cellfun(pointEstFunc,...
-				obj.postPred.getPercentPredictedDistribution())';
-		end
-		
-		function pp_warning = any_percent_predicted_warnings(obj)
-			ppLowerThreshold = 0.5;
-			hdiFunc = @(x) HDIofSamples(x, obj.CREDIBLE_INTERVAL);
-			warningFunc = @(x) x(1) < ppLowerThreshold;
-			warnOnHDI = @(x) warningFunc( hdiFunc(x) );
-			pp_warning = cellfun( warnOnHDI,...
-				obj.postPred.getPercentPredictedDistribution())';
-		end
 	end
 end

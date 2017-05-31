@@ -184,7 +184,10 @@ classdef (Abstract) Model
 			
 			%% Post-sampling activities (common to all models) ------------
 			% posterior prediction calculation
-			obj.postPred = PosteriorPrediction(obj.coda, obj.data, obj.observedData);
+			obj.postPred = PosteriorPrediction(obj.coda,...
+				obj.data,...
+				obj.observedData,...
+				obj.plotOptions.pointEstimateType);
 			
 			% calc and export convergence summary and parameter estimates
 			obj.export();
