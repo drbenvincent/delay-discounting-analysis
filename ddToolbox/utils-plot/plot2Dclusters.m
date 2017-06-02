@@ -11,8 +11,6 @@ function plot2Dclusters(mcmcContainer, data, col, plotOptions, varInfo)
 
 probMass = 0.5;
 
-figure(12), clf
-
 % build samples
 for p = 1:data.getNExperimentFiles()
 	tempx = mcmcContainer.getSamplesAtIndex_asMatrix(p, {varInfo(1).name});

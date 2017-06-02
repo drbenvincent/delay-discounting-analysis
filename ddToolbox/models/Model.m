@@ -416,6 +416,20 @@ classdef (Abstract) Model
             obj.export_it(plot_savename)
             
         end
+        
+        function plotPosteriorClusterPlot(obj, subplot_handle)
+            %plotPosteriorClusterPlot(H) Plots posterior distributions for
+            % all experiments, in the axis handle H.
+                        
+            subplot(subplot_handle)
+            % TODO: put clusterPlot function code here rather than have it as a separate function?
+            clusterPlot(...
+                obj.coda,...
+                obj.data,...
+                [1 0 0],...
+                obj.plotOptions,...
+                obj.varList.discountFunctionParams)
+        end
 		
 	end
 	

@@ -41,21 +41,13 @@ classdef (Abstract) Parametric < Model
             
             % Plot univariate summary stats
             obj.plotUnivarateSummary('variablesToPlot', 'all')
-            % plot_savename = 'UnivariateSummary';
-            % variables = obj.varList.participantLevel;
-            % obj.coda.plotUnivariateSummaries(variables,...
-            %     obj.plotOptions,...
-            %     obj.data.getParticipantNames());
-            % obj.export_it(plot_savename)
+            % obj.export_it('UnivariateSummary')
             
             % summary figure of core discounting parameters
             plot_savename = 'summary_plot';
-            clusterPlot(...
-                obj.coda,...
-                obj.data,...
-                [1 0 0],...
-                obj.plotOptions,...
-                obj.varList.discountFunctionParams)
+            figure
+            h = subplot(1,1,1);
+            obj.plotPosteriorClusterPlot(h)
             obj.export_it(plot_savename)
 
                 

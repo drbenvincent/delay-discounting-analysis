@@ -13,9 +13,6 @@ function plot1Dclusters(mcmcContainer, data, col, plotOptions, varInfo)
 
 % plot posteriors over log(k) for all participants
 
-
-figure(12), clf
-
 %% REAL EXPERIMENT DATA
 % build samples
 for p = 1:data.getNExperimentFiles()
