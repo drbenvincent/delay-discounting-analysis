@@ -145,6 +145,21 @@ classdef (Abstract) Parametric < Model
 					error('Currently only set up to plot univariate or bivariate distributions, ie discount functions 1 or 2 params.')
 			end
 		end
+        
+        function plotPsychometricFunction(obj, ind, varargin)
+            %plotPsychometricFunction
+            %
+            % Optional arguments as key/value pairs
+            %       'axisHandle' - handle to axes
+            %       'figureHandle' - handle to figure
+            
+            [figureHandle, axisHandle] = parseFigureAndAxisRequested(varargin{:});
+            
+            responseErrorVariables = obj.getResponseErrorVariables();
+            psycho = PsychometricFunction('samples',...
+                obj.coda.getSamplesAtIndex_asStochastic(ind, responseErrorVariables));
+            psycho.plot(obj.plotOptions.pointEstimateType)
+        end
 		
 	end
 	
@@ -177,22 +192,7 @@ classdef (Abstract) Parametric < Model
 				
 			end
 		end
-		
-		function plotPsychometricFunction(obj, ind, varargin)
-			%plotPsychometricFunction
-			%
-			% Optional arguments as key/value pairs
-			%       'axisHandle' - handle to axes
-			%       'figureHandle' - handle to figure
-			
-			[figureHandle, axisHandle] = parseFigureAndAxisRequested(varargin{:});
-			
-			responseErrorVariables = obj.getResponseErrorVariables();
-			psycho = PsychometricFunction('samples',...
-				obj.coda.getSamplesAtIndex_asStochastic(ind, responseErrorVariables));
-			psycho.plot(obj.plotOptions.pointEstimateType)
-		end
-		
+				
 	end
 	
 end
