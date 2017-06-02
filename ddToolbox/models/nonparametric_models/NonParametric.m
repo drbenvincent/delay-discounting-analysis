@@ -178,9 +178,9 @@ classdef (Abstract) NonParametric < Model
 		end
 		
 		
-		function experimentMultiPanelFigure(obj, ind)
-            %model.experimentMultiPanelFigure(N) Creates a multi-panel figure
-            %   model.EXPERIMENTMULTIPANELFIGURE(N) creates a multi-panel figure
+		function plotExperimentOverviewFigure(obj, ind)
+            %model.plotExperimentOverviewFigure(N) Creates a multi-panel figure
+            %   model.plotExperimentOverviewFigure(N) creates a multi-panel figure
             %   corresponding to experiment N, where N is an integer.
             
 			latex_fig(12, 14, 3)
@@ -193,7 +193,7 @@ classdef (Abstract) NonParametric < Model
 			discountFunctionVariables = {obj.varList.discountFunctionParams.name};
 			responseErrorVariables    = {obj.varList.responseErrorParams.name};
 			
-            obj.plot_density_alpha_epsilon(h(1), ind)
+            obj.plotPosteriorErrorParams(h(1), ind)
             
 			%%  Set up psychometric function
 			%psycho = PsychometricFunction('samples', obj.coda.getSamplesAtIndex_asStruct(ind,responseErrorVariables));

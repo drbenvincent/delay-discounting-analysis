@@ -19,18 +19,18 @@ classdef (Abstract) ExponentialPower < Parametric
 		end
         
         % Override this function from superclass
-        function experimentMultiPanelFigure(obj, ind)
+        function plotExperimentOverviewFigure(obj, ind)
             latex_fig(12, 14, 3)
             h = layout([1 2 3 4 5]);
             opts.pointEstimateType	= obj.plotOptions.pointEstimateType;
             opts.timeUnits			= obj.timeUnits;
             opts.dataPlotType		= obj.plotOptions.dataPlotType;
             
-            obj.plot_density_alpha_epsilon(h(1), ind)
-            obj.plot_psychometric_function(h(2), ind)
-            obj.plot_discount_function_parameters(h(3), ind)
-            obj.plot_subjective_time_function(h(4), ind)
-            obj.plotDiscountFunction(h(5), ind)
+            obj.plotPosteriorErrorParams(ind, 'axisHandle', h(1))
+            obj.plotPsychometricFunction(ind, 'axisHandle', h(2))
+            obj.plotPosteriorDiscountFunctionParams(ind, 'axisHandle', h(3))
+            obj.plot_subjective_time_function(ind, 'axisHandle', h(4))
+            obj.plotDiscountFunction(ind, 'axisHandle', h(5))
         end
         
 	end
@@ -38,9 +38,16 @@ classdef (Abstract) ExponentialPower < Parametric
     
     methods (Access = protected)
     
-        function plot_subjective_time_function(obj, subplot_handle, ind)
+        function plot_subjective_time_function(obj, ind, varargin)
+            % plot_subjective_time_function
+            % 
+            % Optional arguments as key/value pairs
+            %       'axisHandle' - handle to axes
+            %       'figureHandle' - handle to figure
+            
+            [figureHandle, axisHandle] = parseFigureAndAxisRequested(varargin{:});
+            
             discountFunctionVariables = obj.getDiscountFunctionVariables();
-            subplot(subplot_handle)
             subjectiveTimeFun = SubjectiveTimePowerFunction('samples',...
                 obj.coda.getSamplesAtIndex_asStochastic(ind, discountFunctionVariables));
             subjectiveTimeFun.plot(obj.plotOptions.pointEstimateType)

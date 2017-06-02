@@ -50,9 +50,9 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 	methods (Access = public)
     
 		% OVERRIDDING THIS METHOD FROM A SUPERCLASS
-		function experimentMultiPanelFigure(obj, ind)
-            %model.experimentMultiPanelFigure(N) Creates a multi-panel figure
-            %   model.EXPERIMENTMULTIPANELFIGURE(N) creates a multi-panel figure
+		function plotExperimentOverviewFigure(obj, ind)
+            %model.plotExperimentOverviewFigure(N) Creates a multi-panel figure
+            %   model.plotExperimentOverviewFigure(N) creates a multi-panel figure
             %   corresponding to experiment N, where N is an integer.
             
 			latex_fig(12, 14, 3);
@@ -70,7 +70,7 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			% 	responseErrorVariables(2),...
 			% 	ind,...
 			% 	opts);
-			obj.plot_density_alpha_epsilon(h(1), ind)
+			obj.plotPosteriorErrorParams(ind, 'axisHandle', h(1))
 			
 			% % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			% % TODO #166 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -87,7 +87,7 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			% discountFunction.data = obj.data.getExperimentObject(ind);
 			% % TODO #166 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			% % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            obj.plot_psychometric_function(h(2), ind)
+            obj.plotPsychometricFunction(ind, 'axisHandle', h(2))
             
 			
 			% % TODO: this checking needs to be implemented in a smoother, more robust way
@@ -99,7 +99,7 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			% 		ind,...
 			% 		opts);
 			% end
-			obj.plot_discount_function_parameters(h(3), ind)
+			obj.plotPosteriorDiscountFunctionParams(ind, 'axisHandle', h(3))
 			
             
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -5,13 +5,13 @@ classdef ModelMixedEbertPrelec < EbertPrelec
     %
     %   ModelMixedEbertPrelec methods:
     %       export - xxxx
-    %       experimentMultiPanelFigure - xxx
+    %       plotExperimentOverviewFigure - xxx
     %       getInferredPresentSubjectiveValues - xxx
     %       plot - xxx
     %       plotDiscountFunction - xxx
     %       plotDiscountFunctionGrid - xxx
     %       plotDiscountFunctionsOverlaid - xxx
-    %       plotParameterCornerPlot - xxx
+    %       plotPosteriorCornerPlot - xxx
     %
     %   See also ModelSeparateEbertPrelec, ModelHierarchicalEbertPrelec.
 

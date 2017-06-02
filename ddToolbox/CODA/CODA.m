@@ -207,6 +207,7 @@ classdef CODA
             
             % create subplots
             N = numel(variables);
+            figure(8)
             subplot_handles = create_subplots(N, 'col');
                         
             % call plotting function for each variable (subplot)

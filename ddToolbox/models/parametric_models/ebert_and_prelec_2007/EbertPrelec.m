@@ -19,9 +19,9 @@ classdef (Abstract) EbertPrelec < Parametric
 		end
         
         % Override this function from superclass
-        function experimentMultiPanelFigure(obj, ind)
-            %model.experimentMultiPanelFigure(N) Creates a multi-panel figure
-            %   model.EXPERIMENTMULTIPANELFIGURE(N) creates a multi-panel figure
+        function plotExperimentOverviewFigure(obj, ind)
+            %model.plotExperimentOverviewFigure(N) Creates a multi-panel figure
+            %   model.plotExperimentOverviewFigure(N) creates a multi-panel figure
             %   corresponding to experiment N, where N is an integer.
             
             latex_fig(12, 14, 3)
@@ -30,11 +30,11 @@ classdef (Abstract) EbertPrelec < Parametric
             opts.timeUnits			= obj.timeUnits;
             opts.dataPlotType		= obj.plotOptions.dataPlotType;
             
-            obj.plot_density_alpha_epsilon(h(1), ind)
-            obj.plot_psychometric_function(h(2), ind)
-            obj.plot_discount_function_parameters(h(3), ind)
-            obj.plot_subjective_time_function(h(4), ind)
-            obj.plotDiscountFunction(h(5), ind)
+            obj.plotPosteriorErrorParams(ind, 'axisHandle', h(1))
+            obj.plotPsychometricFunction(ind, 'axisHandle', h(2))
+            obj.plotPosteriorDiscountFunctionParams(ind, 'axisHandle', h(3))
+            obj.plot_subjective_time_function(ind, 'axisHandle', h(4))
+            obj.plotDiscountFunction(ind, 'axisHandle', h(5))
         end
         
 	end
@@ -42,9 +42,16 @@ classdef (Abstract) EbertPrelec < Parametric
 
     methods (Access = protected)
 
-        function plot_subjective_time_function(obj, subplot_handle, ind)
+        function plot_subjective_time_function(obj, ind, varargin)
+            % plot_subjective_time_function
+            % 
+            % Optional arguments as key/value pairs
+            %       'axisHandle' - handle to axes
+            %       'figureHandle' - handle to figure
+            
+            [figureHandle, axisHandle] = parseFigureAndAxisRequested(varargin{:});
+            
             discountFunctionVariables = obj.getDiscountFunctionVariables();
-            subplot(subplot_handle)
             subjectiveTimeFun = SubjectiveTimePowerFunctionEP('samples',...
                 obj.coda.getSamplesAtIndex_asStochastic(ind, discountFunctionVariables));
             subjectiveTimeFun.plot(obj.plotOptions.pointEstimateType)

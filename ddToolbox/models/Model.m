@@ -26,7 +26,7 @@ classdef (Abstract) Model
 	% methods that subclasses must implement
 	methods (Abstract, Access = public)
 		plot()
-		experimentMultiPanelFigure()
+		plotExperimentOverviewFigure()
 		%plotDiscountFunction(obj, subplot_handle, ind)
 		%getAUC(obj)
 	end
@@ -298,19 +298,24 @@ classdef (Abstract) Model
 	
 	methods (Access = public)
 		
-		function plotDiscountFunction(obj, subplot_handle, ind, varargin)
-            %model.PLOTDISCOUNTFUNCTION(H, N) plots a discount 
+		function plotDiscountFunction(obj, ind, varargin)
+            %model.PLOTDISCOUNTFUNCTION(N) plots a discount 
             %   function where H is a handle to a subplot, and IND is the nth 
             %   experiment to plot.
+            % 
+            % Optional arguments as key/value pairs
+            %       'axisHandle' - handle to axes
+            %       'figureHandle' - handle to figure
 			
+            parseFigureAndAxisRequested(varargin{:})
+            
 			p = inputParser;
 			p.FunctionName = mfilename;
+			p.KeepUnmatched = true;
 			p.addParameter('plot_mode', 'full', @isstr);
 			p.parse(varargin{:});
 			
 			discountFunctionVariables = {obj.varList.discountFunctionParams.name};
-			
-			subplot(subplot_handle)
 			
 			samples = obj.coda.getSamplesAtIndex_asStochastic(ind, discountFunctionVariables);
 			
@@ -328,13 +333,20 @@ classdef (Abstract) Model
 			discountFunction.plot(plotOptions);
 		end
         
-        function plotDiscountFunctionGrid(obj)
+        function plotDiscountFunctionGrid(obj, varargin)
             %plotDiscountFunctionGrid Plots a montage of discount functions
             %   model.PLOTDISCOUNTFUNCTIONGRID() plots discount functions for 
             %   all experiment, laid out in a grid.
+            % 
+            % Optional arguments as key/value pairs
+            %       'axisHandle' - handle to axes
+            %       'figureHandle' - handle to figure
             
+            [figureHandle, axisHandle] = parseFigureAndAxisRequested(varargin{:});
+            
+            %figure(7), clf
 			latex_fig(12, 11,11)
-			clf, drawnow
+			drawnow
 			
 			% TODO: extract the grid formatting stuff to be able to call
 			% any plot function we want
@@ -350,7 +362,7 @@ classdef (Abstract) Model
 			% Iterate over files, plotting
 			disp('Plotting...')
 			for n = 1:numel(names)
-				obj.plotDiscountFunction(subplot_handles(n), n)
+				obj.plotDiscountFunction(n, 'axisHandle', subplot_handles(n))
 				title(names{n}, 'FontSize',10)
 				set(gca,'FontSize',10)
 			end
@@ -358,25 +370,29 @@ classdef (Abstract) Model
 		end
 		
 		
-		function plotDiscountFunctionsOverlaid(obj)
+		function plotDiscountFunctionsOverlaid(obj, varargin)
             %plotDiscountFunctionsOverlaid Plots all discount functions in one figure
             %   model.PLOTDISCOUNTFUNCTIONSOVERLAID() plots discount functions for 
             %   all experiment, overlaid in one figure.
+            % 
+            % Optional arguments as key/value pairs
+            %       'axisHandle' - handle to axes
+            %       'figureHandle' - handle to figure
+            
+            [figureHandle, axisHandle] = parseFigureAndAxisRequested(varargin{:});
             
 			latex_fig(12, 8,6)
-			clf, drawnow
+			drawnow
 			
 			% don't want the group level estimate, so not asking for 'all'
 			names = obj.data.getIDnames('experiments');
-			
-			% plot curves in same axis
-			subplot_handle = subplot(1,1,1);
 			
 			% Iterate over files, plotting
 			disp('Plotting...')
 			for n = 1:numel(names)
 				hold on
-				obj.plotDiscountFunction(subplot_handle, n,...
+				obj.plotDiscountFunction(n,...
+					'axisHandle', axisHandle,...
 					'plot_mode', 'point_estimate_only')
 			end
 			set(gca,'PlotBoxAspectRatio',[1.5,1,1])
@@ -413,15 +429,20 @@ classdef (Abstract) Model
                 obj.data.getParticipantNames());
             
             plot_savename = 'UnivariateSummary';
-            obj.export_it(plot_savename)
+            obj.pleaseExportFigure(plot_savename)
             
         end
         
-        function plotPosteriorClusterPlot(obj, subplot_handle)
+        function plotPosteriorClusterPlot(obj, varargin)
             %plotPosteriorClusterPlot(H) Plots posterior distributions for
             % all experiments, in the axis handle H.
-                        
-            subplot(subplot_handle)
+            % 
+            % Optional arguments as key/value pairs
+            %       'axisHandle' - handle to axes
+            %       'figureHandle' - handle to figure
+            
+            parseFigureAndAxisRequested(varargin{:})
+            
             % TODO: put clusterPlot function code here rather than have it as a separate function?
             clusterPlot(...
                 obj.coda,...
@@ -435,7 +456,7 @@ classdef (Abstract) Model
 	
 	methods (Access = protected)
     
-        function export_it(obj, savename)
+        function pleaseExportFigure(obj, savename)
             if obj.plotOptions.shouldExportPlots
                 myExport(obj.plotOptions.savePath,...
                     savename,...
@@ -445,13 +466,13 @@ classdef (Abstract) Model
         end
 		
 		function plotAllExperimentFigures(obj)
-			% this is a wrapper function to loop over all data files, producing multi-panel figures. This is implemented by the experimentMultiPanelFigure method, which may be overridden by subclasses if need be.
+			% this is a wrapper function to loop over all data files, producing multi-panel figures. This is implemented by the plotExperimentOverviewFigure method, which may be overridden by subclasses if need be.
 			names = obj.data.getIDnames('all');
 			
 			for experimentIndex = 1:numel(names)
 				fh = figure('Name', names{experimentIndex});
 				
-				obj.experimentMultiPanelFigure(experimentIndex);
+				obj.plotExperimentOverviewFigure(experimentIndex);
 				drawnow
 				
 				if obj.plotOptions.shouldExportPlots
@@ -467,7 +488,17 @@ classdef (Abstract) Model
 		end
         
         
-        function plot_density_alpha_epsilon(obj, subplot_handle, ind)
+        function plotPosteriorErrorParams(obj, ind, varargin)
+            %plotPosteriorErrorParams(H, N) Plots the posterior distributions over
+            % response error related parameters, for experiment N. The plot is 
+            % sent to subplot axis H.
+            % 
+            % Optional arguments as key/value pairs
+            %       'axisHandle' - handle to axes
+            %       'figureHandle' - handle to figure
+            
+            [figureHandle, axisHandle] = parseFigureAndAxisRequested(varargin{:});
+            
             responseErrorVariables = obj.getResponseErrorVariables();
             
             % TODO: remove duplication of "opts" in mulitple places, but also should perhaps be a single coherent structure in the first place.
@@ -475,7 +506,7 @@ classdef (Abstract) Model
             opts.timeUnits			= obj.timeUnits;
             opts.dataPlotType		= obj.plotOptions.dataPlotType;
             
-            obj.coda.plot_bivariate_distribution(subplot_handle,...
+            obj.coda.plot_bivariate_distribution(axisHandle,...
                 responseErrorVariables(1),...
                 responseErrorVariables(2),...
                 ind,...
