@@ -386,10 +386,49 @@ classdef (Abstract) Model
 			%             set(gca,'FontSize',10)
 			drawnow
 		end
+        
+        function plotUnivarateSummary(obj, varargin)
+            %plotUnivarateSummary Creates a forest plot of univariate summary stats about the model parameters requested
+            
+            p = inputParser;
+            p.FunctionName = mfilename;
+            p.addParameter('variablesToPlot', 'all',  @(x) isstr(x)|iscellstr(x));
+            p.parse(varargin{:});
+            
+            if iscellstr(p.Results.variablesToPlot)
+                % user is providing a cell array of strings, which we will assume corresponds to specific variable names.
+                variables = p.Results.variablesToPlot;
+            else
+                % user privided a string, hopefully one of the acceptable inputs below
+                switch p.Results.variablesToPlot
+                    case{'all'}
+                        variables = obj.varList.participantLevel;
+                    otherwise 
+                        error('unrecognised input provided for ''variablesToPlot''.')
+                end
+            end
+            
+            obj.coda.plotUnivariateSummaries(variables,...
+                obj.plotOptions,...
+                obj.data.getParticipantNames());
+            
+            plot_savename = 'UnivariateSummary';
+            obj.export_it(plot_savename)
+            
+        end
 		
 	end
 	
 	methods (Access = protected)
+    
+        function export_it(obj, savename)
+            if obj.plotOptions.shouldExportPlots
+                myExport(obj.plotOptions.savePath,...
+                    savename,...
+                    'suffix', obj.modelFilename,...
+                    'formats', obj.plotOptions.exportFormats)
+            end
+        end
 		
 		function plotAllExperimentFigures(obj)
 			% this is a wrapper function to loop over all data files, producing multi-panel figures. This is implemented by the experimentMultiPanelFigure method, which may be overridden by subclasses if need be.

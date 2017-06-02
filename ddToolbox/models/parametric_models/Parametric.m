@@ -40,12 +40,13 @@ classdef (Abstract) Parametric < Model
             %% Plot functions that use data from all participants ========
             
             % Plot univariate summary stats
-            plot_savename = 'UnivariateSummary';
-            variables = obj.varList.participantLevel;
-            obj.coda.plotUnivariateSummaries(variables,...
-                obj.plotOptions,...
-                obj.data.getParticipantNames());
-            export_it(plot_savename)
+            obj.plotUnivarateSummary('variablesToPlot', 'all')
+            % plot_savename = 'UnivariateSummary';
+            % variables = obj.varList.participantLevel;
+            % obj.coda.plotUnivariateSummaries(variables,...
+            %     obj.plotOptions,...
+            %     obj.data.getParticipantNames());
+            % obj.export_it(plot_savename)
             
             % summary figure of core discounting parameters
             plot_savename = 'summary_plot';
@@ -55,7 +56,7 @@ classdef (Abstract) Parametric < Model
                 [1 0 0],...
                 obj.plotOptions,...
                 obj.varList.discountFunctionParams)
-            export_it(plot_savename)
+            obj.export_it(plot_savename)
 
                 
             obj.plotDiscountFunctionGrid();
@@ -83,14 +84,6 @@ classdef (Abstract) Parametric < Model
             dfPlotFunc = @(fh,n) obj.plotDiscountFunction(fh,n);
             obj.postPred.plot(obj.plotOptions, obj.modelFilename, dfPlotFunc)
             
-            function export_it(savename)
-                if obj.plotOptions.shouldExportPlots
-                    myExport(obj.plotOptions.savePath,...
-                        savename,...
-                        'suffix', obj.modelFilename,...
-                        'formats', obj.plotOptions.exportFormats)
-                end
-            end
         end
     
     
