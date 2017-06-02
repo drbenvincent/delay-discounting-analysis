@@ -200,7 +200,7 @@ classdef (Abstract) Model
 				obj.plot()
 			end
 			
-			obj.tellUserAboutPublicMethods()
+			obj.displayPublicMethods()
 		end
 		
 		function observedData = constructObservedDataForMCMC(obj)
@@ -241,7 +241,7 @@ classdef (Abstract) Model
 			obj.auc = auc;
 		end
 		
-		function tellUserAboutPublicMethods(obj)
+		function displayPublicMethods(obj)
             display('Assuming your model is named ''model'', then you can type')
             display('    >> help model.methodName')
             display('for more info. Available methods are:')
@@ -568,6 +568,8 @@ classdef (Abstract) Model
 				obj.plotOptions);
 			exporter.printToScreen();
             
+            linebreak
+            obj.displayPublicMethods()
         end
     end
 	
