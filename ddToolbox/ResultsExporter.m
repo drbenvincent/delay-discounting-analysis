@@ -59,8 +59,13 @@ classdef ResultsExporter
 				% 					'Keys','RowNames');
 				%
 				% My workaround:
-				obj.finalTable = myTableOuterJoin(obj.finalTable, aucTable);
 				
+				% note aucTable will be empty in situations where we don't
+				% have any auc information, ie for 2-dimensional discount
+				% functions
+				if ~isempty(aucTable)
+					obj.finalTable = myTableOuterJoin(obj.finalTable, aucTable);
+				end
 				
 				%% make obj.alternativeTable
 				% If we also have presence of data.metaTable, we are going

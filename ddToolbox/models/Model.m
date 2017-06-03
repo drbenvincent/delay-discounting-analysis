@@ -162,6 +162,12 @@ classdef (Abstract) Model
 			
 			T = table;
 			
+			% catch cases where we don't have any AUC information (eg with
+			% 2 dimensional discount functions) and return an empty table
+			if isempty(cell2mat({stochasticArray(:).samples}))
+				return
+			end
+			
 			%% grab point estimate
 			pointEstimateType = obj.plotOptions.pointEstimateType;
 			T.(['auc_' pointEstimateType]) = [stochasticArray(:).(pointEstimateType)]';
