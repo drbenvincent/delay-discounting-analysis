@@ -86,7 +86,7 @@ classdef (Abstract) Parametric < Model
 			%   corresponding to experiment N, where N is an integer.
 			
 			latex_fig(12, 14, 3)
-			h = layout([1 2 3 4]);
+			h = layout([1 2 3 4 5]);
 			opts.pointEstimateType	= obj.plotOptions.pointEstimateType;
 			opts.timeUnits			= obj.timeUnits;
 			opts.dataPlotType		= obj.plotOptions.dataPlotType;
@@ -95,6 +95,7 @@ classdef (Abstract) Parametric < Model
 			obj.plotPsychometricFunction(ind, 'axisHandle', h(2))
 			obj.plotPosteriorDiscountFunctionParams(ind, 'axisHandle', h(3))
 			obj.plotDiscountFunction(ind, 'axisHandle', h(4))
+			obj.plotPosteriorAUC(ind, 'axisHandle', h(5))
 		end
 		
 		function plotPosteriorCornerPlot(obj, n)

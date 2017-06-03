@@ -277,6 +277,13 @@ classdef (Abstract) Model
 				auc(ind) = discountFunction.calcAUC(MAX_DELAY, uniqueDelays);
 			end
 			
+			% TODO: This is a both solution. We don't calculate AUC for
+			% group level, so if it is present, then return an empty
+			% Stochastic object
+			if obj.data.getNRealExperimentFiles() ~= obj.data.getNExperimentFiles()
+				auc = [auc Stochastic('AUC')];
+			end
+			
 		end
 		
 		function displayPublicMethods(obj)
@@ -443,6 +450,22 @@ classdef (Abstract) Model
 			drawnow
 		end
         
+		
+		function plotPosteriorAUC(obj, ind, varargin)
+			%model.plotPosteriorAUC(N) plots a discount
+			%   function where H is a handle to a subplot, and IND is the nth
+			%   experiment to plot.
+			%
+			% Optional arguments as key/value pairs
+			%       'axisHandle' - handle to axes
+			%       'figureHandle' - handle to figure
+			
+			parseFigureAndAxisRequested(varargin{:})
+			
+			obj.auc(ind).plot();
+		end
+		
+				
         function plotUnivarateSummary(obj, varargin)
             %plotUnivarateSummary Creates a forest plot of univariate summary stats about the model parameters requested
             

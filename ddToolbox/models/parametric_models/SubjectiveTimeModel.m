@@ -13,7 +13,7 @@ classdef (Abstract) SubjectiveTimeModel < Parametric
         % Override this function from superclass
         function plotExperimentOverviewFigure(obj, ind)
             latex_fig(12, 14, 3)
-            h = layout([1 2 3 4 5]);
+            h = layout([1 2 3 4 5 6]);
             opts.pointEstimateType	= obj.plotOptions.pointEstimateType;
             opts.timeUnits			= obj.timeUnits;
             opts.dataPlotType		= obj.plotOptions.dataPlotType;
@@ -23,6 +23,7 @@ classdef (Abstract) SubjectiveTimeModel < Parametric
             obj.plotPosteriorDiscountFunctionParams(ind, 'axisHandle', h(3))
             obj.plotSubjectiveTimeFunction(ind, 'axisHandle', h(4))
             obj.plotDiscountFunction(ind, 'axisHandle', h(5))
+			obj.plotPosteriorAUC(ind, 'axisHandle', h(6))
         end
 
         function plotSubjectiveTimeFunction(obj, ind, varargin)
