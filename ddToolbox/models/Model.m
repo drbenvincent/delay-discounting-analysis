@@ -86,7 +86,9 @@ classdef (Abstract) Model
 				obj.plotOptions.savePath,...
 				obj.data.getIDnames('all'))
 			
-			exporter = ResultsExporter(obj.coda, obj.data,...
+			exporter = ResultsExporter(obj.coda,...
+                obj.data,...
+                obj.getAUCasTable,...
 				obj.postPred,...
 				obj.varList,...
 				obj.plotOptions);
@@ -159,13 +161,15 @@ classdef (Abstract) Model
 			stochasticArray = obj.auc;
 			
 			T = table;
-			T.auc_mean = [stochasticArray(:).mean]';
-			T.auc_median = [stochasticArray(:).median]';
-			T.auc_mode = [stochasticArray(:).mode]';
-			temp = cell2mat({stochasticArray(:).HDI}');
-			T.auc_lower = temp(:,1);
-			T.auc_upper = temp(:,2);
 			
+			%% grab point estimate
+			pointEstimateType = obj.plotOptions.pointEstimateType;
+			T.(['auc_' pointEstimateType]) = [stochasticArray(:).(pointEstimateType)]';
+			%% grab HDI
+			temp = cell2mat({stochasticArray(:).HDI}');
+			T.auc_hdi_lower = temp(:,1);
+			T.auc_hdi_upper = temp(:,2);
+			%% add rownames
 			% TODO: it would be safer to encode the filenames in the AUC
 			% information rather than paste it on here after - to avoid any
 			% possible error with reordering for example.
@@ -591,7 +595,9 @@ classdef (Abstract) Model
 			
             linebreak
 			disp('Point estimates of parameters:')
-            exporter = ResultsExporter(obj.coda, obj.data,...
+            exporter = ResultsExporter(obj.coda,...
+				obj.data,...
+				obj.getAUCasTable,...
 				obj.postPred,...
 				obj.varList,...
 				obj.plotOptions);

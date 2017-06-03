@@ -20,7 +20,7 @@ classdef ResultsExporter
 	
 	methods (Access = public)
 		
-		function obj = ResultsExporter(coda, data, postPred, varList, plotOptions)
+		function obj = ResultsExporter(coda, data, aucTable, postPred, varList, plotOptions)
 			% Ideally, we are going to make a table. Each row is a
 			% participant/experiment. We have one set of columns related to
 			% the model variables, and another related to posterior
@@ -47,6 +47,20 @@ classdef ResultsExporter
 					obj.makeParamEstimateTable(),...
 					obj.postPred.getPostPredTable(),...
 					'Keys','RowNames');
+				
+				% We want to do an outer join here, using RowNames as the
+				% keys. However `outerjoin` doesn't allow for this (yet?)
+				% so I'm going to have to fart about doing it myself
+				%
+				% What I want to do...
+				% 				obj.finalTable = outerjoin(...
+				% 					obj.finalTable,...
+				% 					aucTable,...
+				% 					'Keys','RowNames');
+				%
+				% My workaround:
+				obj.finalTable = myTableOuterJoin(obj.finalTable, aucTable);
+				
 				
 				%% make obj.alternativeTable
 				% If we also have presence of data.metaTable, we are going
