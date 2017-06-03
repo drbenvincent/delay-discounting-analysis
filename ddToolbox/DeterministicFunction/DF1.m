@@ -81,9 +81,9 @@ classdef (Abstract) DF1 < DiscountFunction
 			drawnow
 		end
 		
-		function AUC = calcAUC(obj, MAX_DELAY)
+		function AUC = calcAUC(obj, MAX_DELAY, ~)
 			% calculate area under curve
-			% returns a distribution over AUC, as a Stochasit object
+			% returns a distribution over AUC, as a Stochastic object
 			
 			x = [0:1:MAX_DELAY];
 			y = obj.eval(x);

@@ -28,8 +28,6 @@ classdef (Abstract) Model
 		plot()
 		plotExperimentOverviewFigure()
         dispModelInfo()
-		%plotDiscountFunction(obj, subplot_handle, ind)
-		%getAUC(obj)
 	end
 	methods (Abstract, Access = protected)
 		initialiseChainValues()
@@ -149,6 +147,26 @@ classdef (Abstract) Model
 			% predicted_subjective_values.B_full_posterior =
 		end
         
+        function [auc] = getAUCasStochasticArray(obj)
+            %getAUCasStochasticArray() returns an array of Stochastic objects each describing a posterior distribution of AUC.
+            
+            auc = obj.auc;
+        end
+        
+        function [T] = getAUCasTable(obj)
+            %getAUCasTable() returns a Table with AUC information.
+            
+			stochasticArray = obj.auc;
+			
+			T = table;
+			T.auc_mean = [stochasticArray(:).mean]';
+			T.auc_median = [stochasticArray(:).median]';
+			T.auc_mode = [stochasticArray(:).mode]';
+			temp = cell2mat({stochasticArray(:).HDI}');
+			T.auc_lower = temp(:,1);
+			T.auc_upper = temp(:,2);
+        end
+        
     end
     
     methods (Hidden = true)
@@ -221,11 +239,11 @@ classdef (Abstract) Model
 			
 			%% Calculate AUC
 			MAX_DELAY = 365;
-			obj = obj.calcAUC(MAX_DELAY);
+			obj.auc = obj.calcAreaUnderCurveForAll(MAX_DELAY);
 			
 		end
 		
-		function obj = calcAUC(obj, MAX_DELAY)
+		function auc = calcAreaUnderCurveForAll(obj, MAX_DELAY)
 			% Calculate Area Under Curve. 
 			% Returns an array of Stochastic objects
 			
@@ -237,9 +255,10 @@ classdef (Abstract) Model
 				discountFunction = obj.dfClass('samples', samples);
 				
 				% grab a distribution over AUC (a Stochastic object)
-				auc(ind) = discountFunction.calcAUC(MAX_DELAY);
+				uniqueDelays = obj.data.getUniqueDelaysForThisParticant(ind);
+				auc(ind) = discountFunction.calcAUC(MAX_DELAY, uniqueDelays);
 			end
-			obj.auc = auc;
+			
 		end
 		
 		function displayPublicMethods(obj)

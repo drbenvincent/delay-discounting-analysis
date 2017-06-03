@@ -215,6 +215,10 @@ classdef Data
 
         function nTrials = getTrialsForThisParticant(obj, p)
             nTrials = height(obj.experiment(p).getDataAsTable());
+		end
+		
+		function delays = getUniqueDelaysForThisParticant(obj, p)
+            delays = obj.experiment(p).getUniqueDelays;
         end
         
         function names = getIDnames(obj, whatIwant)

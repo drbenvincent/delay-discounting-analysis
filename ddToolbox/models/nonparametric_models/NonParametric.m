@@ -2,7 +2,7 @@ classdef (Abstract) NonParametric < Model
 	%NonParametric  NonParametric is a subclass of Model for examining models that do NOT make parametric assumptions about the discount function.
 	
 	properties (Access = private)
-		AUC_DATA
+		%AUC_DATA
 	end
 	
 	methods (Access = public)
@@ -21,21 +21,21 @@ classdef (Abstract) NonParametric < Model
 		end
 		
 		
-		% TODO: do this by injecting new AUC values into CODA?
-		function [auc] = getAUC(obj)
-			% return AUC measurements.
-			% This will return an object array of stocastic objects
-			names = obj.data.getIDnames('all');
-			
-			for ind = 1:numel(names)
-				personInfo = obj.getExperimentData(ind);
-				discountFunction = obj.dfClass('delays',personInfo.delays,...
-					'theta', personInfo.dfSamples);
-				
-				% append to object array
-				auc(ind) = discountFunction.AUC;
-			end
-		end
+		% % TODO: do this by injecting new AUC values into CODA?
+		% function [auc] = getAUC(obj)
+		% 	% return AUC measurements.
+		% 	% This will return an object array of stocastic objects
+		% 	names = obj.data.getIDnames('all');
+		% 	
+		% 	for ind = 1:numel(names)
+		% 		personInfo = obj.getExperimentData(ind);
+		% 		discountFunction = obj.dfClass('delays',personInfo.delays,...
+		% 			'theta', personInfo.dfSamples);
+		% 		
+		% 		% append to object array
+		% 		auc(ind) = discountFunction.AUC;
+		% 	end
+		% end
 		
 	end
 	

@@ -4,6 +4,8 @@ classdef Stochastic < handle
 		name
 		mean, median, mode
 		samples
+        HDI
+        N
 	end
 	
 	properties (Access = private)
@@ -26,10 +28,8 @@ classdef Stochastic < handle
 		pointEstimateType
 		shouldPlotPointEstimate
 		%col
-		HDI
 		%plotHDI
 		%plotStyle
-		N
 		%FaceAlpha
 		%axisSquare
 	end
