@@ -27,6 +27,7 @@ classdef (Abstract) Model
 	methods (Abstract, Access = public)
 		plot()
 		plotExperimentOverviewFigure()
+        dispModelInfo()
 		%plotDiscountFunction(obj, subplot_handle, ind)
 		%getAUC(obj)
 	end
@@ -242,10 +243,12 @@ classdef (Abstract) Model
 		end
 		
 		function displayPublicMethods(obj)
-            display('Assuming your model is named ''model'', then you can type')
+            display('For more info (assuming your model is named ''model'') then you can type')
             display('    >> help model.methodName')
-            display('for more info. Available methods are:')
-            methodsAvailable = methods(obj)
+            linebreak
+            display('Available methods are:')
+            methodsAvailable = methods(obj);
+            disp(methodsAvailable)
 		end
 		
 		function obj = addUnobservedParticipant(obj, str)
@@ -544,11 +547,10 @@ classdef (Abstract) Model
             disp('Discounting model object')
             linebreak
             fprintf('Model class: %s\n', class(obj))
-			
+			obj.dispModelInfo
+            
             linebreak
-			disp('Data:')
-			fprintf('\tnumber of experiment files = %d\n',...
-				obj.data.getNRealExperimentFiles())
+			disp(obj.data)
 			
             linebreak
 			disp('MCMC options used in parameter estimation:')

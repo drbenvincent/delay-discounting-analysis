@@ -18,4 +18,10 @@ classdef (Abstract) Exponential1 < Parametric
 		
 	end
 
+    methods (Hidden = true)
+        function dispModelInfo(obj)
+            display('Discount function: V = exp(-k.delay)')
+        end
+    end
+    
 end

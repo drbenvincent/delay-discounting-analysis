@@ -350,5 +350,15 @@ classdef Data
 
         
 	end
+    
+    
+    methods (Hidden = true)
+    
+        function disp(obj)
+            disp('Data:')
+            fprintf('\tnumber of experiment files = %d\n',...
+                obj.getNRealExperimentFiles())
+        end
+    end
 
 end

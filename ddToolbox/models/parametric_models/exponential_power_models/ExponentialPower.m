@@ -20,5 +20,11 @@ classdef (Abstract) ExponentialPower < SubjectiveTimeModel
 		end
     
     end
+    
+    methods (Hidden = true)
+        function dispModelInfo(obj)
+            display('Discount function: V = reward * exp(-k*(delay^tau))')
+        end
+    end
 
 end

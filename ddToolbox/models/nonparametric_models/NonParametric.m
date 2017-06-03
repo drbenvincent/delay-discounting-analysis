@@ -39,6 +39,11 @@ classdef (Abstract) NonParametric < Model
 		
 	end
 	
+    methods (Hidden = true)
+        function dispModelInfo(obj)
+            display('Discount function: fits indiferrence points to each delay independently')
+        end
+    end
 	
 	methods (Static, Access = protected)
 		

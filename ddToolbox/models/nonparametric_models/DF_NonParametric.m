@@ -52,6 +52,8 @@ classdef DF_NonParametric < DF1
 %         end
         
 	end
+    
+    
 	methods (Access = protected)
 		
 		% OVERRIDDEN FROM SUPERCLASS

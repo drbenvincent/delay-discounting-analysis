@@ -38,7 +38,12 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
         
     end
         
-        
+    methods (Hidden = true)
+        function dispModelInfo(obj)
+            % TODO: Display the discount function
+            %display('Discount function: V = reward * exp(-k*(delay^tau))')
+        end
+    end
         
         
     % ==========================================================================

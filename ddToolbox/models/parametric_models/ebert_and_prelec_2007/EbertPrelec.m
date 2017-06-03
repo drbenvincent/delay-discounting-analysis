@@ -21,4 +21,11 @@ classdef (Abstract) EbertPrelec < SubjectiveTimeModel
 
     end
     
+    methods (Hidden = true)
+        function dispModelInfo(obj)
+            display('Discount function: V = reward * exp(-(k*delay)^tau)')
+            display('Ebert, J. E. J., & Prelec, D. (2007). The Fragility of Time: Time-Insensitivity and Valuation of the Near and Far Future. Management Science, 53(9), 1423-1438.')
+        end
+    end
+    
 end
