@@ -155,7 +155,7 @@ classdef (Abstract) Model
         
         function [T] = getAUCasTable(obj)
             %getAUCasTable() returns a Table with AUC information.
-            
+			
 			stochasticArray = obj.auc;
 			
 			T = table;
@@ -165,6 +165,11 @@ classdef (Abstract) Model
 			temp = cell2mat({stochasticArray(:).HDI}');
 			T.auc_lower = temp(:,1);
 			T.auc_upper = temp(:,2);
+			
+			% TODO: it would be safer to encode the filenames in the AUC
+			% information rather than paste it on here after - to avoid any
+			% possible error with reordering for example.
+			T.Properties.RowNames = obj.data.getIDnames('experiments');
         end
         
     end
@@ -247,7 +252,10 @@ classdef (Abstract) Model
 			% Calculate Area Under Curve. 
 			% Returns an array of Stochastic objects
 			
-			N = obj.data.getNExperimentFiles();
+			% TODO: store experiment filenames along with the auc data to
+			% ensure we don't mix up ordering
+			
+			N = obj.data.getNRealExperimentFiles();
 			
 			for ind = 1:N % loop over files
 				discountFunctionVariables = {obj.varList.discountFunctionParams.name};
