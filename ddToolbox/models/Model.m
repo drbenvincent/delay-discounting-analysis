@@ -463,6 +463,10 @@ classdef (Abstract) Model
 			parseFigureAndAxisRequested(varargin{:})
 			
 			obj.auc(ind).plot();
+			
+			% set min of x-axis equal to 0
+			a = get(gca, 'XLim');
+			set(gca, 'XLim', [0, a(2)]);
 		end
 		
 				
