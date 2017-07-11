@@ -4,6 +4,7 @@ classdef test_Data < matlab.unittest.TestCase
 		data
 		datapath
 		filesToAnalyse
+        metadata_location
 	end
 	
 	properties (TestParameter)
@@ -18,6 +19,9 @@ classdef test_Data < matlab.unittest.TestCase
 			
 			testCase.filesToAnalyse = allFilesInFolder(testCase.datapath, 'txt');
 			
+			testCase.metadata_location = fullfile('demo','datasets',...
+				'kirby','metadata','kirby-experiment-data.csv');
+		
 			%testCase.data = Data(testCase.datapath, 'files', testCase.filesToAnalyse);
 		end
 	end
@@ -42,14 +46,16 @@ classdef test_Data < matlab.unittest.TestCase
 		end
 		
 		function create_with_experiment_info_import_table(testCase)
+            % metadata_location = fullfile('demo','datasets','test_data',...
+            %     'kirby','metadata','kirby-experiment-data.csv')
 			data = Data(testCase.datapath,...
 				'files', testCase.filesToAnalyse,...
-				'metaTableFile', fullfile('demo','datasets','test_data','kirby-experiment-data.csv'));
+				'metaTableFile', testCase.metadata_location);
 		end
 		
 		function create_with_experiment_info_provided_table(testCase)
 			% build a Table. It must have row names equal to the filenames
-			expTable = readtable(fullfile('demo','datasets','test_data','kirby-experiment-data.csv'));
+			expTable = readtable(testCase.metadata_location);
 			expTable.Properties.RowNames = expTable.filename;
 			
 			data = Data(testCase.datapath,...
