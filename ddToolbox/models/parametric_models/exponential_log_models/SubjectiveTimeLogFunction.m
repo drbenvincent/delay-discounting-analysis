@@ -39,11 +39,12 @@ classdef SubjectiveTimeLogFunction < DeterministicFunction
 	methods (Static, Access = protected)
 		
 		function y = function_evaluation(x, theta)
+			tau = exp(theta.logtau);
 			if verLessThan('matlab','9.1')
-                y = log(1+bsxfun(@times, x, theta.tau));
+                y = log(1 + bsxfun(@times, x, tau));
 			else
 				% use new array broadcasting in 2016b
-				y = log( 1 + x.*theta.tau );
+				y = log( 1 + x .* tau );
 			end
 		end
 		
