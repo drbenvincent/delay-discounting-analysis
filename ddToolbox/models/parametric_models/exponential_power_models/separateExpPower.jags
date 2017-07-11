@@ -1,4 +1,4 @@
-# RANDOM FACTORS:   k[p], tau[p], epsilon[p], alpha[p]
+# RANDOM FACTORS:   k[p], logtau[p], epsilon[p], alpha[p]
 # HYPER-PRIORS ON:  epsilon[p], alpha[p]
 
 # RANDOM (by participant) FACTORS APPEAR IN A LOOP OVER PARTICIPANTS
@@ -11,18 +11,18 @@ model{
 # RANDOM (BY PARTICIPANT) FACTORS; HYPER-PRIORS = NO 
 
 K_MEAN          <- 0                     # <---- currently guesstimating
-K_PRECISION     ~ dgamma(0.01, 0.01)     #sigma=0.1         # <---- currently guesstimating
+K_PRECISION     ~ dgamma(1, 1)     #sigma=0.1         # <---- currently guesstimating
 
 for (p in 1:nRealExperimentFiles){       # no +1 because no shrinkage hyperprior
 	k[p]        ~ dt(K_MEAN, K_PRECISION, 1)
-    tau[p]      ~ dnorm(1, 1/0.2^2) T(0.0001, 1.5) #<------ check these truncation bounds
+    logtau[p]   ~ dnorm(0, 1/0.5^2)
 }
 
 # MODEL-SPECIFIC: CALCULATION OF PRESENT SUBJECTIVE VALUES
 for (t in 1:length(ID)) {
 	#VA[t] <- A[t] # assuming DA=0
-    VA[t] <- A[t] * (exp( -k[ID[t]] * (DA[t]^tau[ID[t]]) ) )
-	VB[t] <- B[t] * (exp( -k[ID[t]] * (DB[t]^tau[ID[t]]) ) )
+    VA[t] <- A[t] * (exp( -k[ID[t]] * (DA[t]^exp(logtau[ID[t]])) ) )
+	VB[t] <- B[t] * (exp( -k[ID[t]] * (DB[t]^exp(logtau[ID[t]])) ) )
 }
 
 

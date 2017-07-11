@@ -16,11 +16,12 @@ classdef DF_ExponentialPower < DF1
 	methods (Static, Access = protected)
 		
 		function y = function_evaluation(x, theta)
+			tau = exp(theta.logtau);
 			if verLessThan('matlab','9.1')
-				y = exp( - bsxfun(@times, theta.k , bsxfun(@power, x, theta.tau)) );
+				y = exp( - bsxfun(@times, theta.k , bsxfun(@power, x, tau)) );
 			else
 				% use new array broadcasting in 2016b
-				y = exp( - theta.k .* x.^theta.tau );
+				y = exp( - theta.k .* x.^tau );
 			end
 		end
 		

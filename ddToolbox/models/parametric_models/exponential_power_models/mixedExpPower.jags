@@ -1,4 +1,4 @@
-# RANDOM FACTORS:   k[p], tau[p], epsilon[p], alpha[p]
+# RANDOM FACTORS:   k[p], logtau[p], epsilon[p], alpha[p]
 # HYPER-PRIORS ON:  epsilon[p], alpha[p]
 
 # RANDOM (by participant) FACTORS APPEAR IN A LOOP OVER PARTICIPANTS
@@ -10,20 +10,20 @@ model{
 # DISCOUNT FUNCTION PARAMETERS =================================================
 # RANDOM (BY PARTICIPANT) FACTORS; HYPER-PRIORS = NO 
 
-K_MEAN          <- 0                     # <---- currently guesstimating
-K_PRECISION     <- 1/(0.01)              # <---- currently guesstimating
-TAU_MEAN        <- 1                     # <---- currently guesstimating
-TAU_PRECISION   <- 1/1^2                 # <---- currently guesstimating
+K_MEAN            <- 0                     # <---- currently guesstimating
+K_PRECISION       <- 1/(0.01)              # <---- currently guesstimating
+LOG_TAU_MEAN      <- 0                     # <---- currently guesstimating
+LOG_TAU_PRECISION <- 1/2^2                 # <---- currently guesstimating
 
 for (p in 1:nRealExperimentFiles){       # no +1 because no shrinkage hyperprior
 	k[p]        ~ dnorm(K_MEAN, K_PRECISION)
-    tau[p]      ~ dnorm(TAU_MEAN, TAU_PRECISION) T(0,)
+    logtau[p]   ~ dnorm(LOG_TAU_MEAN, LOG_TAU_PRECISION)
 }
 
 # MODEL-SPECIFIC: CALCULATION OF PRESENT SUBJECTIVE VALUES
 for (t in 1:length(ID)) {
-    VA[t] <- A[t] * (exp( -k[ID[t]] * (DA[t]^tau[ID[t]]) ) )
-	VB[t] <- B[t] * (exp( -k[ID[t]] * (DB[t]^tau[ID[t]]) ) )
+    VA[t] <- A[t] * (exp( -k[ID[t]] * (DA[t]^exp(logtau[ID[t]])) ) )
+	VB[t] <- B[t] * (exp( -k[ID[t]] * (DB[t]^exp(logtau[ID[t]])) ) )
 }
 
 

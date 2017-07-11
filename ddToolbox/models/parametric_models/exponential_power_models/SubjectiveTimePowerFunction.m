@@ -39,13 +39,14 @@ classdef SubjectiveTimePowerFunction < DeterministicFunction
 	methods (Static, Access = protected)
 		
 		function y = function_evaluation(x, theta)
+			tau = exp(theta.logtau);
 			if verLessThan('matlab','9.1')
                 y = bsxfun(@times, ...
-                        bsxfun(@power, x, theta.tau),...
+                        bsxfun(@power, x, tau),...
                         theta.k);
 			else
 				% use new array broadcasting in 2016b
-				y = theta.k .* (x .^ theta.tau);
+				y = theta.k .* (x .^ tau);
 			end
 		end
 		

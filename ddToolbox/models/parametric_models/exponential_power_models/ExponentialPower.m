@@ -6,15 +6,15 @@ classdef (Abstract) ExponentialPower < SubjectiveTimeModel
 			obj = obj@SubjectiveTimeModel(data, varargin{:});
             
             obj.dfClass = @DF_ExponentialPower;
-            obj.subjectiveTimeFunctionFH = @SubjectiveTimePowerFunctionEP;
+            obj.subjectiveTimeFunctionFH = @SubjectiveTimePowerFunction;
             
 			% Create variables
-			obj.varList.participantLevel = {'k','tau','alpha','epsilon'};
-			obj.varList.monitored = {'k','tau','alpha','epsilon', 'Rpostpred', 'P', 'VA', 'VB'};
+			obj.varList.participantLevel = {'k','logtau','alpha','epsilon'};
+			obj.varList.monitored = {'k','logtau','alpha','epsilon', 'Rpostpred', 'P', 'VA', 'VB'};
             obj.varList.discountFunctionParams(1).name = 'k';
             obj.varList.discountFunctionParams(1).label = 'discount rate, $k$';
-            obj.varList.discountFunctionParams(2).name = 'tau';
-            obj.varList.discountFunctionParams(2).label = 'tau';
+            obj.varList.discountFunctionParams(2).name = 'logtau';
+            obj.varList.discountFunctionParams(2).label = '$\log(\tau)$';
             
             obj.plotOptions.dataPlotType = '2D';
 		end
