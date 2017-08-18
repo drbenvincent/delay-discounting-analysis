@@ -4,7 +4,7 @@ classdef ModelHierarchicalHyperboloid < Hyperboloid
 
 	methods (Access = public, Hidden = true)
 
-		function obj = ModelHierarchicalHyperboloid(data, varargin)
+		function [obj] = ModelHierarchicalHyperboloid(data, varargin)
 			obj = obj@Hyperboloid(data, varargin{:});
             obj.modelFilename = 'hierarchicalHyperboloid';
             obj = obj.addUnobservedParticipant('GROUP');
