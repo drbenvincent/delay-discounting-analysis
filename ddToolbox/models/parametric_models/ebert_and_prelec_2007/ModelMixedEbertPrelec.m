@@ -1,6 +1,21 @@
 classdef ModelMixedEbertPrelec < EbertPrelec
+    %ModelMixedEbertPrelec XXXXXXX.
+    %   model = MODELMIXEDEBERTPRELEC(...) conducts parameter estimation on the 
+    %       data provided.
+    %
+    %   ModelMixedEbertPrelec methods:
+    %       export - xxxx
+    %       plotExperimentOverviewFigure - xxx
+    %       getInferredPresentSubjectiveValues - xxx
+    %       plot - xxx
+    %       plotDiscountFunction - xxx
+    %       plotDiscountFunctionGrid - xxx
+    %       plotDiscountFunctionsOverlaid - xxx
+    %       plotPosteriorCornerPlot - xxx
+    %
+    %   See also ModelSeparateEbertPrelec, ModelHierarchicalEbertPrelec.
 
-	methods (Access = public)
+	methods (Access = public, Hidden = true)
 		function obj = ModelMixedEbertPrelec(data, varargin)
 			obj = obj@EbertPrelec(data, varargin{:});
 			obj.modelFilename = 'mixedEbertPrelec';

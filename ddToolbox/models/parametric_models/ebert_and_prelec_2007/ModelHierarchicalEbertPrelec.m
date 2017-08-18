@@ -1,7 +1,7 @@
 classdef ModelHierarchicalEbertPrelec < EbertPrelec
 
 
-	methods (Access = public)
+	methods (Access = public, Hidden = true)
 
 		function obj = ModelHierarchicalEbertPrelec(data, varargin)
 			obj = obj@EbertPrelec(data, varargin{:});

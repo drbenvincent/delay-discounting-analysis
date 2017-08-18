@@ -19,6 +19,9 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			obj.plotOptions.dataPlotType = '3D';
 		end
         
+    end
+    
+    methods (Access = private)
         
         % MIDDLE-MAN METHOD
         function logk = getLogDiscountRate(obj, reward, index, varargin)
@@ -33,20 +36,30 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
             logk = discountFunction.getLogDiscountRate(reward, index, varargin{:});
         end
         
+    end
+        
+    methods (Hidden = true)
+        function dispModelInfo(obj)
+            % TODO: Display the discount function
+            %display('Discount function: V = reward * exp(-k*(delay^tau))')
+        end
+    end
         
         
+    % ==========================================================================
+    % ==========================================================================
+    % PLOTTING
+    % ==========================================================================
+    % ==========================================================================
         
-        
-        
-        % ==========================================================================
-        % ==========================================================================
-        % PLOTTING
-        % ==========================================================================
-        % ==========================================================================
-        
-		
+	methods (Access = public)
+    
 		% OVERRIDDING THIS METHOD FROM A SUPERCLASS
-		function experimentMultiPanelFigure(obj, ind)
+		function plotExperimentOverviewFigure(obj, ind)
+            %model.plotExperimentOverviewFigure(N) Creates a multi-panel figure
+            %   model.plotExperimentOverviewFigure(N) creates a multi-panel figure
+            %   corresponding to experiment N, where N is an integer.
+            
 			latex_fig(12, 14, 3);
 			h = layout([1 2 3 4 5 6]);
 			opts.pointEstimateType = obj.plotOptions.pointEstimateType;
@@ -62,7 +75,7 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			% 	responseErrorVariables(2),...
 			% 	ind,...
 			% 	opts);
-			obj.plot_density_alpha_epsilon(h(1), ind)
+			obj.plotPosteriorErrorParams(ind, 'axisHandle', h(1))
 			
 			% % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			% % TODO #166 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -79,7 +92,7 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			% discountFunction.data = obj.data.getExperimentObject(ind);
 			% % TODO #166 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			% % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            obj.plot_psychometric_function(h(2), ind)
+            obj.plotPsychometricFunction(ind, 'axisHandle', h(2))
             
 			
 			% % TODO: this checking needs to be implemented in a smoother, more robust way
@@ -91,7 +104,7 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
 			% 		ind,...
 			% 		opts);
 			% end
-			obj.plot_discount_function_parameters(h(3), ind)
+			obj.plotPosteriorDiscountFunctionParams(ind, 'axisHandle', h(3))
 			
             
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -103,7 +116,7 @@ classdef (Abstract) Hyperbolic1MagEffect < Parametric
             col = linspace(0.1, 0.9, numel(rewards));
             
 			%% Set up magnitude effect function -----------------------
-			discountFunctionVariables = obj.getGiscountFunctionVariables();
+			discountFunctionVariables = obj.getDiscountFunctionVariables();
 			dfSamples = obj.coda.getSamplesAtIndex_asStochastic(ind, discountFunctionVariables);
 			
 			me = MagnitudeEffectFunction('samples', dfSamples);

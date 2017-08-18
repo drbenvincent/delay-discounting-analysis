@@ -19,4 +19,10 @@ classdef (Abstract) Hyperbolic1 < Parametric
 
 	end
 
+    methods (Hidden = true)
+        function dispModelInfo(obj)
+            display('Discount function: V = 1 / (1+k*delay)')
+        end
+    end
+    
 end

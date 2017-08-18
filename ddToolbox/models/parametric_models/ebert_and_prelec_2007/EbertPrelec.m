@@ -1,11 +1,12 @@
-classdef (Abstract) EbertPrelec < Parametric
+classdef (Abstract) EbertPrelec < SubjectiveTimeModel
 
 	methods (Access = public)
 
 		function obj = EbertPrelec(data, varargin)
-			obj = obj@Parametric(data, varargin{:});
+			obj = obj@SubjectiveTimeModel(data, varargin{:});
             
             obj.dfClass = @DF_EbertPrelec;
+            obj.subjectiveTimeFunctionFH = @SubjectiveTimePowerFunctionEP;
 
 			% Create variables
 			obj.varList.participantLevel = {'k','tau','alpha','epsilon'};
@@ -17,35 +18,14 @@ classdef (Abstract) EbertPrelec < Parametric
             
             obj.plotOptions.dataPlotType = '2D';
 		end
-        
-        % Override this function from superclass
-        function experimentMultiPanelFigure(obj, ind)
-            latex_fig(12, 14, 3)
-            h = layout([1 2 3 4 5]);
-            opts.pointEstimateType	= obj.plotOptions.pointEstimateType;
-            opts.timeUnits			= obj.timeUnits;
-            opts.dataPlotType		= obj.plotOptions.dataPlotType;
-            
-            obj.plot_density_alpha_epsilon(h(1), ind)
-            obj.plot_psychometric_function(h(2), ind)
-            obj.plot_discount_function_parameters(h(3), ind)
-            obj.plot_subjective_time_function(h(4), ind)
-            obj.plot_discount_function(h(5), ind)
+
+    end
+    
+    methods (Hidden = true)
+        function dispModelInfo(obj)
+            display('Discount function: V = reward * exp(-(k*delay)^tau)')
+            display('Ebert, J. E. J., & Prelec, D. (2007). The Fragility of Time: Time-Insensitivity and Valuation of the Near and Far Future. Management Science, 53(9), 1423-1438.')
         end
-        
-	end
-
-
-    methods (Access = protected)
-
-        function plot_subjective_time_function(obj, subplot_handle, ind)
-            discountFunctionVariables = obj.getGiscountFunctionVariables();
-            subplot(subplot_handle)
-            subjectiveTimeFun = SubjectiveTimePowerFunctionEP('samples',...
-                obj.coda.getSamplesAtIndex_asStochastic(ind, discountFunctionVariables));
-            subjectiveTimeFun.plot(obj.plotOptions.pointEstimateType)
-        end
-
     end
     
 end

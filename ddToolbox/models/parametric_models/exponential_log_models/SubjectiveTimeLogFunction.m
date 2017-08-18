@@ -1,9 +1,9 @@
-classdef SubjectiveTimePowerFunction < DeterministicFunction
-	%SubjectiveTimePowerFunction
+classdef SubjectiveTimeLogFunction < DeterministicFunction
+	%SubjectiveTimeLogFunction
 	
 	methods (Access = public)
 		
-		function obj = SubjectiveTimePowerFunction(varargin)
+		function obj = SubjectiveTimeLogFunction(varargin)
 			obj = obj@DeterministicFunction(varargin{:});
 		end
 		
@@ -41,12 +41,10 @@ classdef SubjectiveTimePowerFunction < DeterministicFunction
 		function y = function_evaluation(x, theta)
 			tau = exp(theta.logtau);
 			if verLessThan('matlab','9.1')
-                y = bsxfun(@times, ...
-                        bsxfun(@power, x, tau),...
-                        theta.k);
+                y = log(1 + bsxfun(@times, x, tau));
 			else
 				% use new array broadcasting in 2016b
-				y = theta.k .* (x .^ tau);
+				y = log( 1 + x .* tau );
 			end
 		end
 		

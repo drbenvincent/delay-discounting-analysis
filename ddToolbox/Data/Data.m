@@ -1,4 +1,16 @@
 classdef Data
+    %Data This class holds data and provides many get methods.
+    %   data = DATA(path,...) builds a Data object from files in the specified path.
+    %
+    %   Optional input arguments
+    %   data = Data(path, PARAM1,VAL1, PARAM2,VAL2,...) specifies one
+    %   or more of the following name/value pairs:
+    %
+    %       'files' Should be a cell array of filenames
+    %       'metaTable' A Table of metadata for each experiment that you have made 
+    %       'metaTableFile' Path to a .csv file of metadata for each experiment 
+
+
 	%Data This class holds data and provides many get methods
     
 	properties (GetAccess = private, SetAccess = private)
@@ -18,7 +30,7 @@ classdef Data
 		% names, id's, ages, genders, conditions etc.
 	end
 	
-    properties (Dependent)
+    properties (Hidden = true, Dependent)
         totalTrials
         groupTable % table of A, DA, B, DB, R, ID, PA, PB
     end
@@ -29,7 +41,7 @@ classdef Data
 	%
 	% These public methods need to be covered by tests.
 
-	methods
+	methods (Hidden = true)
 
 		function obj = Data(dataFolder, varargin)
 			p = inputParser;
@@ -95,11 +107,6 @@ classdef Data
 		end
 
 
-        % ======================================================================
-		% PUBLIC METHODS =======================================================
-        % ======================================================================
-        
-        
 		function obj = importAllFiles(obj, fnames)
 			assert( iscellstr(fnames), 'fnames should be a cell array of filenames')
 			% import ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -116,19 +123,7 @@ classdef Data
 		end
 
 
-		function exportGroupDataFileToDisk(obj)
-			saveLocation = fullfile(obj.dataFolder,'groupLevelData');
-			ensureFolderExists(saveLocation)
-			writetable(...
-				obj.groupTable,...
-				fullfile(saveLocation,'COMBINED_DATA.txt'),...
-				'delimiter','tab')
-			fprintf('A copy of the group-level dataset just constructed has been saved as a text file:\n%s\n',...
-				fullfile(saveLocation,'COMBINED_DATA.txt'));
-		end
-
-
-		function obj = add_unobserved_participant(obj, unobservedParticipantString)
+        function obj = add_unobserved_participant(obj, unobservedParticipantString)
 			if obj.unobservedPartipantPresent
 				error('Have already added unobserved participant')
 			end
@@ -150,98 +145,83 @@ classdef Data
 
 			obj.unobservedPartipantPresent = true;
 		end
-
         
+        function maxRewardValue = getMaxRewardValue(obj, p)
+            if p <= numel(obj.experiment)
+                % asking about a particular experiment/participant
+                pTable = obj.experiment(p).getDataAsTable();
+                maxRewardValue = max(abs([pTable.A ;pTable.B]));
+            else
+                % probably asking or group level, where there is no data,
+                % so provide max over whole dataset
+                gTable = obj.groupTable;
+                maxRewardValue = max(abs([gTable.A ;gTable.B]));
+            end
+        end
         
-        % ======================================================================
-		% PUBLIC GET METHODS ===================================================
-        % ======================================================================
+        function out = getExperimentObject(obj, n)
+            if n > numel(obj.experiment)
+                out = [];
+            else
+                out = obj.experiment(n);
+            end
+        end
         
-		function maxRewardValue = getMaxRewardValue(obj, p)
-			if p <= numel(obj.experiment)
-				% asking about a particular experiment/participant
-				pTable = obj.experiment(p).getDataAsTable();
-				maxRewardValue = max(abs([pTable.A ;pTable.B]));
-			else
-				% probably asking or group level, where there is no data,
-				% so provide max over whole dataset
-				gTable = obj.groupTable;
-				maxRewardValue = max(abs([gTable.A ;gTable.B]));
-			end
-		end
-		
-		function maxDelayValue = getMaxDelayValue(obj, p)
-			if p <= numel(obj.experiment)
-				% asking about a particular experiment/participant
-				pTable = obj.experiment(p).getDataAsTable();
-				maxDelayValue = max(pTable.DB);
-			else
-				% probably asking or group level, where there is no data,
-				% so provide max over whole dataset
-				gTable = obj.groupTable;
-				maxDelayValue = max(gTable.DB);
-			end
-		end
-		
-		function out = getExperimentObject(obj, n)
-			if n > numel(obj.experiment)
-				out = [];
-			else
-				out = obj.experiment(n);
-			end
-		end
-		
-		function dataStruct = getExperimentData(obj,experiment)
-			% grabs data just from one experiment.
-			% OUTPUTS:
-			% a structure with fields
-			%  - A, B, DA, DB, R, ID (all column vectors)
-			%  - trialsForThisParticant (a single value)
-			
-			if experiment > numel(obj.experiment)
-				% this case may happen if we are asking for data for a
-				% group-level participant. In this case, return an empty
-				% var.
-				dataStruct = [];
-				return
-			end
-			
-			% TODO: this mess is a manifestation of no decent way to deal
-			% with the group-level (who has no data).
-			try
-				experimentTable = obj.experiment(experiment).getDataAsTable;
-				
-				dataStruct = table2struct(experimentTable, 'ToScalar',true);
-				
-				dataStruct.trialsForThisParticant = height(experimentTable);
-			catch
-				dataStruct = [];
-			end
-		end
+        function dataStruct = getExperimentData(obj,experiment)
+            % grabs data just from one experiment.
+            % OUTPUTS:
+            % a structure with fields
+            %  - A, B, DA, DB, R, ID (all column vectors)
+            %  - trialsForThisParticant (a single value)
+            
+            if experiment > numel(obj.experiment)
+                % this case may happen if we are asking for data for a
+                % group-level participant. In this case, return an empty
+                % var.
+                dataStruct = [];
+                return
+            end
+            
+            % TODO: this mess is a manifestation of no decent way to deal
+            % with the group-level (who has no data).
+            try
+                experimentTable = obj.experiment(experiment).getDataAsTable;
+                
+                dataStruct = table2struct(experimentTable, 'ToScalar',true);
+                
+                dataStruct.trialsForThisParticant = height(experimentTable);
+            catch
+                dataStruct = [];
+            end
+        end
+        
+        function maxDelayValue = getMaxDelayValue(obj, p)
+            if p <= numel(obj.experiment)
+                % asking about a particular experiment/participant
+                pTable = obj.experiment(p).getDataAsTable();
+                maxDelayValue = max(pTable.DB);
+            else
+                % probably asking or group level, where there is no data,
+                % so provide max over whole dataset
+                gTable = obj.groupTable;
+                maxDelayValue = max(gTable.DB);
+            end
+        end
+        
+        function R = getParticipantResponses(obj, p)
+            temp = obj.experiment(p).getDataAsTable();
+            R = temp.R;
+        end
 
-		function R = getParticipantResponses(obj, p)
-			temp = obj.experiment(p).getDataAsTable();
-			R = temp.R;
-		end
-
-		function nTrials = getTrialsForThisParticant(obj, p)
+        function nTrials = getTrialsForThisParticant(obj, p)
             nTrials = height(obj.experiment(p).getDataAsTable());
 		end
-
-		function pTable = getRawDataTableForParticipant(obj, p)
-			% return a Table of raw data
-			
-			% TODO: really need to get a better solution that this special
-			% case nonsense for the unobserved group participant with no
-			% data
-			if p > numel(obj.experiment)
-				pTable = [];
-			else
-				pTable = obj.experiment(p).getDataAsTable();
-			end
-		end
-
-		function names = getIDnames(obj, whatIwant)
+		
+		function delays = getUniqueDelaysForThisParticant(obj, p)
+            delays = obj.experiment(p).getUniqueDelays;
+        end
+        
+        function names = getIDnames(obj, whatIwant)
 			% returns a cell array of strings
 			if ischar(whatIwant)
 				switch whatIwant
@@ -296,6 +276,51 @@ classdef Data
 			end
 		end
         
+        function int = getNRealExperimentFiles(obj)
+            % only includes number of real experiment files
+            int = obj.nRealExperimentFiles;
+        end
+        
+        function proportionDelayedOptionsChosen = getProportionDelayedOptionsChosen(obj,n)
+            responses = obj.getParticipantResponses(n);
+            proportionDelayedOptionsChosen = sum(responses)/numel(responses);
+        end
+        
+    end
+    
+    
+    % ======================================================================
+    % PUBLIC, VISIBLE METHODS ==============================================
+    % ======================================================================
+
+
+    methods 
+
+		function exportGroupDataFileToDisk(obj)
+			saveLocation = fullfile(obj.dataFolder,'groupLevelData');
+			ensureFolderExists(saveLocation)
+			writetable(...
+				obj.groupTable,...
+				fullfile(saveLocation,'COMBINED_DATA.txt'),...
+				'delimiter','tab')
+			fprintf('A copy of the group-level dataset just constructed has been saved as a text file:\n%s\n',...
+				fullfile(saveLocation,'COMBINED_DATA.txt'));
+		end
+
+
+		function pTable = getRawDataTableForParticipant(obj, p)
+			% return a Table of raw data
+			
+			% TODO: really need to get a better solution that this special
+			% case nonsense for the unobserved group participant with no
+			% data
+			if p > numel(obj.experiment)
+				pTable = [];
+			else
+				pTable = obj.experiment(p).getDataAsTable();
+			end
+		end
+
         function totalTrials = get.totalTrials(obj)
             totalTrials	= height( obj.groupTable );
 		end
@@ -304,11 +329,6 @@ classdef Data
             % includes optional unobserved participant
             int = obj.nExperimentFiles;
         end
-        
-        function int = getNRealExperimentFiles(obj)
-            % only includes number of real experiment files
-            int = obj.nRealExperimentFiles;
-		end
         
 		function names = getParticipantNames(obj)
 			names = obj.participantIDs;
@@ -331,11 +351,18 @@ classdef Data
 			metaTable = obj.metaTable;
 		end
 		
-		function proportionDelayedOptionsChosen = getProportionDelayedOptionsChosen(obj,n)
-			responses = obj.getParticipantResponses(n);
-			proportionDelayedOptionsChosen = sum(responses)/numel(responses);
-		end
+
         
 	end
+    
+    
+    methods (Hidden = true)
+    
+        function disp(obj)
+            disp('Data:')
+            fprintf('\tnumber of experiment files = %d\n',...
+                obj.getNRealExperimentFiles())
+        end
+    end
 
 end

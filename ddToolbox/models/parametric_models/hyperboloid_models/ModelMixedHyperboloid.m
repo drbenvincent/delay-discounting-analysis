@@ -2,7 +2,7 @@ classdef ModelMixedHyperboloid < Hyperboloid
 	%ModelMixedHyperboloid A model to estimate the log discount rate, according to the 2-parameter hyperboloid discount function.
 	%  SOME parameters are estimated hierarchically.
 
-	methods (Access = public)
+	methods (Access = public, Hidden = true)
 		function obj = ModelMixedHyperboloid(data, varargin)
 			obj = obj@Hyperboloid(data, varargin{:});
 			obj.modelFilename = 'mixedHyperboloid';

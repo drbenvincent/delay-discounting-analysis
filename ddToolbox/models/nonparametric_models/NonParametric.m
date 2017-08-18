@@ -2,7 +2,7 @@ classdef (Abstract) NonParametric < Model
 	%NonParametric  NonParametric is a subclass of Model for examining models that do NOT make parametric assumptions about the discount function.
 	
 	properties (Access = private)
-		AUC_DATA
+		%AUC_DATA
 	end
 	
 	methods (Access = public)
@@ -21,24 +21,29 @@ classdef (Abstract) NonParametric < Model
 		end
 		
 		
-		% TODO: do this by injecting new AUC values into CODA?
-		function [auc] = getAUC(obj)
-			% return AUC measurements.
-			% This will return an object array of stocastic objects
-			names = obj.data.getIDnames('all');
-			
-			for ind = 1:numel(names)
-				personInfo = obj.getExperimentData(ind);
-				discountFunction = obj.dfClass('delays',personInfo.delays,...
-					'theta', personInfo.dfSamples);
-				
-				% append to object array
-				auc(ind) = discountFunction.AUC;
-			end
-		end
+		% % TODO: do this by injecting new AUC values into CODA?
+		% function [auc] = getAUC(obj)
+		% 	% return AUC measurements.
+		% 	% This will return an object array of stocastic objects
+		% 	names = obj.data.getIDnames('all');
+		% 	
+		% 	for ind = 1:numel(names)
+		% 		personInfo = obj.getExperimentData(ind);
+		% 		discountFunction = obj.dfClass('delays',personInfo.delays,...
+		% 			'theta', personInfo.dfSamples);
+		% 		
+		% 		% append to object array
+		% 		auc(ind) = discountFunction.AUC;
+		% 	end
+		% end
 		
 	end
 	
+    methods (Hidden = true)
+        function dispModelInfo(obj)
+            display('Discount function: fits indiferrence points to each delay independently')
+        end
+    end
 	
 	methods (Static, Access = protected)
 		
@@ -124,7 +129,16 @@ classdef (Abstract) NonParametric < Model
 	methods (Access = public)
 		
 		function plot(obj, varargin) % overriding from Model base class
-			close all
+            %plot Plots EVERYTHING
+            %   PLOT(model) or model.PLOT will call all plot functions.
+            %
+            %   Optional input arguments
+            %   [...] = model.PLOT(PARAM1,VAL1,PARAM2,VAL2,...) specifies one
+            %   or more of the following name/value pairs:
+            %
+            %      'shouldExportPlots' Either true or false. Default is true. 
+            
+            close all
 			
 			% parse inputs
 			p = inputParser;
@@ -132,7 +146,7 @@ classdef (Abstract) NonParametric < Model
 			p.addParameter('shouldExportPlots', true, @islogical);
 			p.parse(varargin{:});
 			
-			obj.plot_discount_functions_in_grid();
+			obj.plotDiscountFunctionGrid();
 			% Export
 			if obj.plotOptions.shouldExportPlots
 				myExport(obj.plotOptions.savePath,...
@@ -141,7 +155,7 @@ classdef (Abstract) NonParametric < Model
 					'formats', obj.plotOptions.exportFormats);
 			end
 			
-			obj.plot_discount_functions_in_one();
+			obj.plotDiscountFunctionsOverlaid();
 			% Export
 			if obj.plotOptions.shouldExportPlots
 				myExport(obj.plotOptions.savePath,...
@@ -155,7 +169,8 @@ classdef (Abstract) NonParametric < Model
 			obj.plotAllExperimentFigures();
 			
 			% Posterior prediction plot
-			obj.postPred.plot(obj.plotOptions, obj.modelFilename)
+            dfPlotFunc = @(n, fh) obj.plotDiscountFunction(n, 'axisHandle',fh);
+            obj.postPred.plot(obj.plotOptions, obj.modelFilename, dfPlotFunc)
 			
 			
 			%% TODO...
@@ -168,38 +183,24 @@ classdef (Abstract) NonParametric < Model
 		end
 		
 		
-		function experimentMultiPanelFigure(obj, ind)
-			
+		function plotExperimentOverviewFigure(obj, ind)
+            %model.plotExperimentOverviewFigure(N) Creates a multi-panel figure
+            %   model.plotExperimentOverviewFigure(N) creates a multi-panel figure
+            %   corresponding to experiment N, where N is an integer.
+            
 			latex_fig(12, 14, 3)
 			h = layout([1 2 3]);
 			
 			% opts.pointEstimateType	= obj.plotOptions.pointEstimateType;
 			% opts.timeUnits			= obj.timeUnits;
 			
-			% create cell arrays of relevant variables
-			discountFunctionVariables = {obj.varList.discountFunctionParams.name};
-			responseErrorVariables    = {obj.varList.responseErrorParams.name};
+% 			% create cell arrays of relevant variables
+% 			discountFunctionVariables = {obj.varList.discountFunctionParams.name};
+% 			responseErrorVariables    = {obj.varList.responseErrorParams.name};
 			
-            obj.plot_density_alpha_epsilon(h(1), ind)
-            
-			%%  Set up psychometric function
-			%psycho = PsychometricFunction('samples', obj.coda.getSamplesAtIndex_asStruct(ind,responseErrorVariables));
-			% TODO: This doesn't do any plotting as it stands
-			psycho = PsychometricFunction('samples', obj.coda.getSamplesAtIndex_asStochastic(ind,responseErrorVariables));
-			
-			
-			%---- TEMP COMMENTED OUT WHILE I FIX THINGS ----
-			%% Set up discount function
-			%             discountFunction = obj.dfClass('samples', samples,...
-			%                'data', obj.data.getExperimentObject(ind));
-			%
-			%             %% plot distribution of AUC
-			%             subplot(h(2))
-			%             discountFunction.AUC.plot();
-			%             xlim([0 2])
-			
-			%% plot discount function
-			obj.plot_discount_function(h(3), ind)
+			obj.plotPosteriorErrorParams(ind, 'axisHandle', h(1))
+			obj.plotPosteriorAUC(ind, 'axisHandle', h(2))
+			obj.plotDiscountFunction(ind, 'axisHandle', h(3))
 			
 		end
 		

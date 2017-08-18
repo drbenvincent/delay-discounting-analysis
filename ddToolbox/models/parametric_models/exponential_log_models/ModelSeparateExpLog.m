@@ -1,11 +1,11 @@
-classdef ModelSeparateExpPower < ExponentialPower
+classdef ModelSeparateExpLog < ExponentialLog
 
 
 	methods (Access = public, Hidden = true)
 
-		function obj = ModelSeparateExpPower(data, varargin)
-			obj = obj@ExponentialPower(data, varargin{:});
-            obj.modelFilename = 'separateExpPower';
+		function obj = ModelSeparateExpLog(data, varargin)
+			obj = obj@ExponentialLog(data, varargin{:});
+            obj.modelFilename = 'separateExpLog';
             
             % MUST CALL THIS METHOD AT THE END OF ALL MODEL-SUBCLASS CONSTRUCTORS
             obj = obj.conductInference();
@@ -20,7 +20,7 @@ classdef ModelSeparateExpPower < ExponentialPower
 			nExperimentFiles = obj.data.getNExperimentFiles();
 			for chain = 1:nchains
 				initialParams(chain).k = unifrnd(-1, 1, [nExperimentFiles,1]);
-                initialParams(chain).logtau = normrnd(0, 5, [nExperimentFiles,1]);
+                initialParams(chain).logtau = normrnd(0, 3, [nExperimentFiles,1]);
 				initialParams(chain).epsilon = 0.01 + rand([nExperimentFiles,1])./10;
 				initialParams(chain).alpha = abs(normrnd(0.01,5,[nExperimentFiles,1]));
 			end

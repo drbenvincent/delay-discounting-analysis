@@ -5,7 +5,7 @@
 classdef ModelSeparateNonParametric < NonParametric
 	%ModelSeparateNonParametric
 
-	methods (Access = public)
+	methods (Access = public, Hidden = true)
 
 		function obj = ModelSeparateNonParametric(data, varargin)
 			obj = obj@NonParametric(data, varargin{:});

@@ -1,12 +1,12 @@
-classdef (Abstract) ExponentialPower < SubjectiveTimeModel
+classdef (Abstract) ExponentialLog < SubjectiveTimeModel
 
 	methods (Access = public)
 
-		function obj = ExponentialPower(data, varargin)
+		function obj = ExponentialLog(data, varargin)
 			obj = obj@SubjectiveTimeModel(data, varargin{:});
             
-            obj.dfClass = @DF_ExponentialPower;
-            obj.subjectiveTimeFunctionFH = @SubjectiveTimePowerFunction;
+            obj.dfClass = @DF_ExponentialLog;
+            obj.subjectiveTimeFunctionFH = @SubjectiveTimeLogFunction;
             
 			% Create variables
 			obj.varList.participantLevel = {'k','logtau','alpha','epsilon'};
@@ -23,7 +23,7 @@ classdef (Abstract) ExponentialPower < SubjectiveTimeModel
     
     methods (Hidden = true)
         function dispModelInfo(obj)
-            display('Discount function: V = reward * exp(-k*(delay^tau))')
+            display('Discount function: V = reward * exp(-k*log(1+delay*tau))')
         end
     end
 

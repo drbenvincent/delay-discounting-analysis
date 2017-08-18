@@ -1,10 +1,10 @@
-classdef ModelMixedExpPower < ExponentialPower
+classdef ModelMixedExpLog < ExponentialLog
 	%ModelMixedExp1 
 
 	methods (Access = public, Hidden = true)
-		function obj = ModelMixedExpPower(data, varargin)
-			obj = obj@ExponentialPower(data, varargin{:});
-			obj.modelFilename = 'mixedExpPower';
+		function obj = ModelMixedExpLog(data, varargin)
+			obj = obj@ExponentialLog(data, varargin{:});
+			obj.modelFilename = 'mixedExpLog';
             obj = obj.addUnobservedParticipant('GROUP');
             
             % MUST CALL THIS METHOD AT THE END OF ALL MODEL-SUBCLASS CONSTRUCTORS

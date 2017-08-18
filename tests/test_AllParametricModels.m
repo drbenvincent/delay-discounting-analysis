@@ -112,7 +112,7 @@ classdef test_AllParametricModels < matlab.unittest.TestCase
 			
 			% Get inferred present subjective values of
 			[predicted_subjective_values] =...
-				modelFitted.get_inferred_present_subjective_values();
+				modelFitted.getInferredPresentSubjectiveValues();
 
 			testCase.assertTrue(isstruct(predicted_subjective_values))
 			
@@ -120,6 +120,21 @@ classdef test_AllParametricModels < matlab.unittest.TestCase
 			% tests for point estimates being a table
 			testCase.assertTrue(istable(predicted_subjective_values.point_estimates))
 			
+		end
+		
+		
+		function model_disp_function(testCase, model, sampler)
+			% make model
+			makeModelFunction = str2func(model);
+			modelFitted = makeModelFunction(testCase.data,...
+				'savePath', testCase.savePath,...
+				'sampler', sampler,...
+				'mcmcParams', struct('nsamples', get_numer_of_samples_for_tests(),...
+				'nchains', 2,...
+				'nburnin', get_burnin_for_tests()),...
+				'shouldPlot','no');
+			% Can we call the disp function without error?
+			disp(modelFitted)
 		end
 		
 

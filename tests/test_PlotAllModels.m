@@ -63,6 +63,7 @@ classdef test_PlotAllModels < matlab.unittest.TestCase
 				'nburnin', get_burnin_for_tests() ));
 			%model.plot();
 			
+			close all
 			% TODO: DO AN ACTUAL TEST HERE !!!!!!!!!!!!!!!!!!!!!!
 		end
 		

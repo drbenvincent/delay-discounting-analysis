@@ -1,5 +1,5 @@
-classdef DF_ExponentialPower < DF1
-	%DF_ExponentialPower The classic 1-parameter discount function
+classdef DF_ExponentialLog < DF1
+	%DF_ExponentialLog 
 
 	properties (Dependent)
 		
@@ -7,7 +7,7 @@ classdef DF_ExponentialPower < DF1
 	
 	methods (Access = public)
 
-		function obj = DF_ExponentialPower(varargin)
+		function obj = DF_ExponentialLog(varargin)
 			obj = obj@DF1(varargin{:});
 		end
         
@@ -18,10 +18,10 @@ classdef DF_ExponentialPower < DF1
 		function y = function_evaluation(x, theta)
 			tau = exp(theta.logtau);
 			if verLessThan('matlab','9.1')
-				y = exp( - bsxfun(@times, theta.k , bsxfun(@power, x, tau)) );
+				y = exp( - bsxfun(@times, theta.k , log(1 + bsxfun(@times, x, tau) )) );
 			else
 				% use new array broadcasting in 2016b
-				y = exp( - theta.k .* x.^tau );
+				y = exp( - theta.k .* log( 1 + x.*tau ) );
 			end
 		end
 		

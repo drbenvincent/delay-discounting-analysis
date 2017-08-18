@@ -30,8 +30,6 @@ classdef DF_SLICE_PsychometricFunction < DeterministicFunction
 			box off
 		end
 		
-
-		
 	end
 	
 	

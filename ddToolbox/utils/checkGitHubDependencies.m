@@ -1,5 +1,5 @@
 function checkGitHubDependencies(dependencies)
-% This function takes a cell array of url's to hithub repositories, loop through
+% This function takes a cell array of url's to github repositories, loop through
 % them and ensure they exist on the path, or clone them to your local machine.
 %
 % Example input:

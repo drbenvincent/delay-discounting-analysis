@@ -1,9 +1,9 @@
-classdef SubjectiveTimePowerFunction < DeterministicFunction
-	%SubjectiveTimePowerFunction
+classdef SubjectiveTimeWebber < DeterministicFunction
+	%SubjectiveTimeWebber
 	
 	methods (Access = public)
 		
-		function obj = SubjectiveTimePowerFunction(varargin)
+		function obj = SubjectiveTimeWebber(varargin)
 			obj = obj@DeterministicFunction(varargin{:});
 		end
 		
@@ -26,6 +26,9 @@ classdef SubjectiveTimePowerFunction < DeterministicFunction
 				'LineWidth', 2)
 			
 			%% Formatting
+            % remove YTickLabel because:
+            % subjective delay \propto f(objective delay)
+            a = gca; a.YTickLabel = [];
 			xlabel('objective time', 'interpreter','latex')
 			ylabel('subjective time', 'interpreter','latex')
 			box off
@@ -39,14 +42,13 @@ classdef SubjectiveTimePowerFunction < DeterministicFunction
 	methods (Static, Access = protected)
 		
 		function y = function_evaluation(x, theta)
-			tau = exp(theta.logtau);
 			if verLessThan('matlab','9.1')
                 y = bsxfun(@times, ...
-                        bsxfun(@power, x, tau),...
-                        theta.k);
+                    theta.S,...
+                    log( 1 + bsxfun(@times, exp(theta.logk), x) ) );
 			else
 				% use new array broadcasting in 2016b
-				y = theta.k .* (x .^ tau);
+				y = theta.S .* log(1+ exp(theta.logk) .*x);
 			end
 		end
 		

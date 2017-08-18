@@ -1,7 +1,7 @@
 classdef ModelSeparateExp1 < Exponential1
 
 
-	methods (Access = public)
+	methods (Access = public, Hidden = true)
 
 		function obj = ModelSeparateExp1(data, varargin)
 			obj = obj@Exponential1(data, varargin{:});

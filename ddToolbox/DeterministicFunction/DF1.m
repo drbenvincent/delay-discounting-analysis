@@ -81,34 +81,27 @@ classdef (Abstract) DF1 < DiscountFunction
 			drawnow
 		end
 		
-		function Z = calcAUC(obj)
-			Z=[];
+		function AUC = calcAUC(obj, MAX_DELAY, ~)
+			% calculate area under curve
+			% returns a distribution over AUC, as a Stochastic object
 			
-			% 			x = obj.delays;
-			% 			y = obj.theta;
-			%
-			% % 			% convert from log(A/B) to A/B
-			% % 			y = exp(y);
-			%
-			% 			% Calculate the trapezoidal area under curve. NOTE: Normalized x-axis.
-			%
-			% 			assert(isrow(x), 'x must be a row vector, ie [1, N]')
-			% 			assert(size(y,2)==numel(x),'y must have same number of columns as x')
-			%
-			% 			%% Add new column representing (delay=0, discount fraction=1)
-			% 			nCols = size(y,1);
-			% 			x = [0 x];
-			% 			y = [ones(nCols,1) , y];
-			%
-			% 			%% Normalise x
-			% 			x = x ./ max(x);
-			%
-			% 			%% Calculate trapezoidal AUC
-			% 			Z = zeros(nCols,1);
-			% 			for s=1:nCols
-			% 				Z(s) = trapz(x,y(s,:));
-			% 			end
+			x = [0:1:MAX_DELAY];
+			y = obj.eval(x);
 			
+			%% Normalise x, so that AUC is scaled between 0-1
+			x = x ./ max(x);
+			
+			%% Calculate trapezoidal AUC
+			% preallocate
+			Z = zeros(obj.nSamples,1);
+			% Calcul AUC for each sample
+			for s = 1:obj.nSamples
+				Z(s) = trapz(x,y(s,:));
+			end
+			
+			%% Return as a Stochastic object
+			AUC = Stochastic('AUC');
+			AUC.addSamples(Z);
 		end
 		
 	end
