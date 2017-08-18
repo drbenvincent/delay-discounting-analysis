@@ -82,7 +82,7 @@ classdef PosteriorPrediction
 			subplot(h(1)), obj.pp_plotTrials(n)
 			subplot(h(2)), obj.pp_plotGOFdistribution(n, plotOptions)
 			subplot(h(3)), obj.pp_plotPercentPredictedDistribution(n, plotOptions)
-			plotDiscountFunction(h(4), n)
+			plotDiscountFunction(n, h(4))
 			
 			drawnow
 		end

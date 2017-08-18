@@ -74,7 +74,7 @@ classdef (Abstract) Parametric < Model
 			obj.plotAllExperimentFigures();
 			obj.plotAllTriPlots(obj.plotOptions, obj.modelFilename)
 			
-			dfPlotFunc = @(fh,n) obj.plotDiscountFunction(n, 'axisHandle', fh);
+			dfPlotFunc = @(n,fh) obj.plotDiscountFunction(n, 'axisHandle', fh);
 			obj.postPred.plot(obj.plotOptions, obj.modelFilename, dfPlotFunc)
 			
 		end
@@ -87,9 +87,9 @@ classdef (Abstract) Parametric < Model
 			
 			latex_fig(12, 14, 3)
 			h = layout([1 2 3 4 5]);
-			opts.pointEstimateType	= obj.plotOptions.pointEstimateType;
-			opts.timeUnits			= obj.timeUnits;
-			opts.dataPlotType		= obj.plotOptions.dataPlotType;
+% 			opts.pointEstimateType	= obj.plotOptions.pointEstimateType;
+% 			opts.timeUnits			= obj.timeUnits;
+% 			opts.dataPlotType		= obj.plotOptions.dataPlotType;
 			
 			obj.plotPosteriorErrorParams(ind, 'axisHandle', h(1))
 			obj.plotPsychometricFunction(ind, 'axisHandle', h(2))

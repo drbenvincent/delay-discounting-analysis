@@ -169,7 +169,7 @@ classdef (Abstract) NonParametric < Model
 			obj.plotAllExperimentFigures();
 			
 			% Posterior prediction plot
-            dfPlotFunc = @(fh,n) obj.plotDiscountFunction(fh,n);
+            dfPlotFunc = @(n, fh) obj.plotDiscountFunction(n, 'axisHandle',fh);
             obj.postPred.plot(obj.plotOptions, obj.modelFilename, dfPlotFunc)
 			
 			
@@ -194,30 +194,13 @@ classdef (Abstract) NonParametric < Model
 			% opts.pointEstimateType	= obj.plotOptions.pointEstimateType;
 			% opts.timeUnits			= obj.timeUnits;
 			
-			% create cell arrays of relevant variables
-			discountFunctionVariables = {obj.varList.discountFunctionParams.name};
-			responseErrorVariables    = {obj.varList.responseErrorParams.name};
+% 			% create cell arrays of relevant variables
+% 			discountFunctionVariables = {obj.varList.discountFunctionParams.name};
+% 			responseErrorVariables    = {obj.varList.responseErrorParams.name};
 			
-            obj.plotPosteriorErrorParams(h(1), ind)
-            
-			%%  Set up psychometric function
-			%psycho = PsychometricFunction('samples', obj.coda.getSamplesAtIndex_asStruct(ind,responseErrorVariables));
-			% TODO: This doesn't do any plotting as it stands
-			psycho = PsychometricFunction('samples', obj.coda.getSamplesAtIndex_asStochastic(ind,responseErrorVariables));
-			
-			
-			%---- TEMP COMMENTED OUT WHILE I FIX THINGS ----
-			%% Set up discount function
-			%             discountFunction = obj.dfClass('samples', samples,...
-			%                'data', obj.data.getExperimentObject(ind));
-			%
-			%             %% plot distribution of AUC
-			%             subplot(h(2))
-			%             discountFunction.AUC.plot();
-			%             xlim([0 2])
-			
-			%% plot discount function
-			obj.plotDiscountFunction(h(3), ind)
+			obj.plotPosteriorErrorParams(ind, 'axisHandle', h(1))
+			obj.plotPosteriorAUC(ind, 'axisHandle', h(2))
+			obj.plotDiscountFunction(ind, 'axisHandle', h(3))
 			
 		end
 		

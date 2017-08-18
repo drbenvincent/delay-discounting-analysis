@@ -426,11 +426,12 @@ classdef (Abstract) Model
             %       'axisHandle' - handle to axes
             %       'figureHandle' - handle to figure
             
-            [figureHandle, axisHandle] = parseFigureAndAxisRequested(varargin{:});
-            
 			latex_fig(12, 8,6)
+			clf
 			drawnow
 			
+            [figureHandle, axisHandle] = parseFigureAndAxisRequested(varargin{:});
+
 			% don't want the group level estimate, so not asking for 'all'
 			names = obj.data.getIDnames('experiments');
 			
