@@ -213,6 +213,7 @@ classdef CODA
             % call plotting function for each variable (subplot)
             for n = 1:numel(variables)
             	subplot( subplot_handles(n) )
+				hold off
             	
                 pointEstVals = obj.getStats(plotOptions.pointEstimateType, variables{n});
                 hdi =[obj.getStats('hdi_low',variables{n}),...

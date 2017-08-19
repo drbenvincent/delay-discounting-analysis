@@ -10,7 +10,7 @@ p.parse(varargin{:});
 figureHandle = p.Results.figureHandle;
 axisHandle = p.Results.axisHandle;
 
-figure(figureHandle)
-subplot(axisHandle)
+figure(figureHandle);
+subplot(axisHandle);
 
 end

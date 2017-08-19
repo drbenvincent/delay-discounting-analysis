@@ -1,0 +1,54 @@
+# RANDOM FACTORS:   beta[p], delta[p], epsilon[p], alpha[p]
+# HYPER-PRIORS ON:  none
+
+model{
+
+# DISCOUNT FUNCTION PARAMETERS =================================================
+# RANDOM (BY PARTICIPANT) FACTORS; HYPER-PRIORS = NO
+
+# estimates of mean/sd of beta and delta were taken from Franck, C. T., Koffarnus, M. N., House, L. L., & Bickel, W. K. (2014). Accurate characterization of delay discounting: A multiple model approach using approximate bayesian model selection and a unified discounting measure. Journal of the Experimental Analysis of Behavior, 103(1), 218–233.
+
+delta_MEAN      <- 0.9995
+delta_PRECISION <- 1/(0.0009^2)
+beta_MEAN <- 0.84
+beta_PRECISION <- 1/(0.11^2)
+
+for (p in 1:nRealExperimentFiles){
+	delta[p]    ~ dnorm(delta_MEAN, delta_PRECISION)
+    beta[p]     ~ dnorm(beta_MEAN, beta_PRECISION) T(0,)
+}
+
+# MODEL-SPECIFIC: CALCULATION OF PRESENT SUBJECTIVE VALUES
+for (t in 1:length(ID)) {
+	VA[t] <- A[t] * beta[ID[t]] * delta[ID[t]] ^ DA[t]
+	VB[t] <- B[t] * beta[ID[t]] * delta[ID[t]] ^ DB[t]
+}
+
+# RESPONSE ERROR PARAMETERS ====================================================
+
+epsilon_alpha <- 1.1
+epsilon_beta <- 10.9
+
+for (p in 1:nRealExperimentFiles){
+    epsilon[p]  ~ dbeta(epsilon_alpha , epsilon_beta ) T(,0.5)
+	alpha[p]    ~ dexp(0.01)
+}
+
+# MODEL IN-SPECIFIC CODE BELOW... SHOULD NOT CHANGE ACROSS MODELS ==============
+
+# Psychometric function
+for (t in 1:length(ID)) {
+	P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * phi( (VB[t]-VA[t]) / alpha[ID[t]] )
+}
+
+# response likelihood
+for (t in 1:length(ID)) {
+	R[t]  ~ dbern(P[t]) # likelihood of actual response
+}
+
+# POSTERIOR PREDICTION
+for (t in 1:length(ID)) {
+	Rpostpred[t] ~ dbern(P[t])
+}
+
+}

@@ -1,6 +1,6 @@
 classdef (Abstract) Model
-    %Model Base class model.
-
+	%Model Base class model.
+	
 	% Allow acces to these via Model, but we still only get access to these
 	% class's public interface.
 	properties (Hidden = true, SetAccess = protected, GetAccess = public)
@@ -27,7 +27,7 @@ classdef (Abstract) Model
 	methods (Abstract, Access = public)
 		plot()
 		plotExperimentOverviewFigure()
-        dispModelInfo()
+		dispModelInfo()
 	end
 	methods (Abstract, Access = protected)
 		initialiseChainValues()
@@ -71,14 +71,14 @@ classdef (Abstract) Model
 			obj.varList.responseErrorParams(2).label = 'error rate, $\epsilon$';
 		end
 		
-        
+		
 		function export(obj)
-            %model.export Exports summary information about the model
-            %   model.EXPORT() exports the following:
-            %       - extensive MCMC convergence information
-            %       - an experiment-level table of point estimates and model 
-            %         checking quantities
-
+			%model.export Exports summary information about the model
+			%   model.EXPORT() exports the following:
+			%       - extensive MCMC convergence information
+			%       - an experiment-level table of point estimates and model
+			%         checking quantities
+			
 			% TODO: This should be a method of CODA
 			% TODO: better function name. What does it do? Calculate or
 			% export, or both?
@@ -87,8 +87,8 @@ classdef (Abstract) Model
 				obj.data.getIDnames('all'))
 			
 			exporter = ResultsExporter(obj.coda,...
-                obj.data,...
-                obj.getAUCasTable,...
+				obj.data,...
+				obj.getAUCasTable,...
 				obj.postPred,...
 				obj.varList,...
 				obj.plotOptions);
@@ -98,44 +98,44 @@ classdef (Abstract) Model
 		end
 		
 	end
-    
-    methods (Hidden = true)
-    
-        function obj = conductInference(obj)
-            % Not intended to be called directly by user
-            
-            % pre-sampling preparation
-            obj.observedData = obj.constructObservedDataForMCMC();
-            path_of_model_file = makeProbModelsPath(obj.modelFilename, obj.samplerType);
-            % sampling
-            samplerFunction = obj.selectSampler(obj.samplerType);
-            obj.coda = samplerFunction(...
-                path_of_model_file,...
-                obj.observedData,...
-                obj.mcmcParams,...
-                obj.initialiseChainValues(obj.mcmcParams.nchains),...
-                obj.varList.monitored);
-            % This is a separate method, to allow for overriding in sub classes
-            obj = obj.postSamplingActivities();
-        end
-    end
+	
+	methods (Hidden = true)
+		
+		function obj = conductInference(obj)
+			% Not intended to be called directly by user
+			
+			% pre-sampling preparation
+			obj.observedData = obj.constructObservedDataForMCMC();
+			path_of_model_file = makeProbModelsPath(obj.modelFilename, obj.samplerType);
+			% sampling
+			samplerFunction = obj.selectSampler(obj.samplerType);
+			obj.coda = samplerFunction(...
+				path_of_model_file,...
+				obj.observedData,...
+				obj.mcmcParams,...
+				obj.initialiseChainValues(obj.mcmcParams.nchains),...
+				obj.varList.monitored);
+			% This is a separate method, to allow for overriding in sub classes
+			obj = obj.postSamplingActivities();
+		end
+	end
 	
 	%%  GETTERS
 	
 	methods
 		
 		function [predicted_subjective_values] = getInferredPresentSubjectiveValues(obj)
-            % info = model.getInferredPresentSubjectiveValues Returns information 
-            %   on the dataset along with inferred present subjective values of
-            %   each of the objective offers present in the dataset.
-            %
-            %   This is useful if you want to do trial-by-trial analysis, or 
-            %   have other measures (eg electrophysiological, or imagine) and 
-            %   would like to examine how these measures relate to the inferred
-            %   present subjective values of the rewards run in the experiment.
-            %
-            %   NOTE: We do have access to full distributions of inferred present
-            %   subjective values, but currently we return the point estimates.
+			% info = model.getInferredPresentSubjectiveValues Returns information
+			%   on the dataset along with inferred present subjective values of
+			%   each of the objective offers present in the dataset.
+			%
+			%   This is useful if you want to do trial-by-trial analysis, or
+			%   have other measures (eg electrophysiological, or imagine) and
+			%   would like to examine how these measures relate to the inferred
+			%   present subjective values of the rewards run in the experiment.
+			%
+			%   NOTE: We do have access to full distributions of inferred present
+			%   subjective values, but currently we return the point estimates.
 			
 			%% return point estimates of present subjective values...
 			all_data_table = obj.data.groupTable;
@@ -148,15 +148,15 @@ classdef (Abstract) Model
 			% predicted_subjective_values.A_full_posterior =
 			% predicted_subjective_values.B_full_posterior =
 		end
-        
-        function [auc] = getAUCasStochasticArray(obj)
-            %getAUCasStochasticArray() returns an array of Stochastic objects each describing a posterior distribution of AUC.
-            
-            auc = obj.auc;
-        end
-        
-        function [T] = getAUCasTable(obj)
-            %getAUCasTable() returns a Table with AUC information.
+		
+		function [auc] = getAUCasStochasticArray(obj)
+			%getAUCasStochasticArray() returns an array of Stochastic objects each describing a posterior distribution of AUC.
+			
+			auc = obj.auc;
+		end
+		
+		function [T] = getAUCasTable(obj)
+			%getAUCasTable() returns a Table with AUC information.
 			
 			stochasticArray = obj.auc;
 			
@@ -180,19 +180,19 @@ classdef (Abstract) Model
 			% information rather than paste it on here after - to avoid any
 			% possible error with reordering for example.
 			T.Properties.RowNames = obj.data.getIDnames('experiments');
-        end
-        
-    end
-    
-    methods (Hidden = true)
-    
-        function discountFunctionVariables = getDiscountFunctionVariables(obj)
-            discountFunctionVariables = {obj.varList.discountFunctionParams.name};
-        end
-        
-        function responseErrorVariables = getResponseErrorVariables(obj)
-            responseErrorVariables = {obj.varList.responseErrorParams.name};
-        end
+		end
+		
+	end
+	
+	methods (Hidden = true)
+		
+		function discountFunctionVariables = getDiscountFunctionVariables(obj)
+			discountFunctionVariables = {obj.varList.discountFunctionParams.name};
+		end
+		
+		function responseErrorVariables = getResponseErrorVariables(obj)
+			responseErrorVariables = {obj.varList.responseErrorParams.name};
+		end
 		
 	end
 	
@@ -259,7 +259,7 @@ classdef (Abstract) Model
 		end
 		
 		function auc = calcAreaUnderCurveForAll(obj, MAX_DELAY)
-			% Calculate Area Under Curve. 
+			% Calculate Area Under Curve.
 			% Returns an array of Stochastic objects
 			
 			% TODO: store experiment filenames along with the auc data to
@@ -287,12 +287,12 @@ classdef (Abstract) Model
 		end
 		
 		function displayPublicMethods(obj)
-            display('For more info (assuming your model is named ''model'') then you can type')
-            display('    >> help model.methodName')
-            linebreak
-            display('Available methods are:')
-            methodsAvailable = methods(obj);
-            disp(methodsAvailable)
+			display('For more info (assuming your model is named ''model'') then you can type')
+			display('    >> help model.methodName')
+			linebreak
+			display('Available methods are:')
+			methodsAvailable = methods(obj);
+			disp(methodsAvailable)
 		end
 		
 		function obj = addUnobservedParticipant(obj, str)
@@ -346,16 +346,16 @@ classdef (Abstract) Model
 	methods (Access = public)
 		
 		function plotDiscountFunction(obj, ind, varargin)
-            %model.PLOTDISCOUNTFUNCTION(N) plots a discount 
-            %   function where H is a handle to a subplot, and IND is the nth 
-            %   experiment to plot.
-            % 
-            % Optional arguments as key/value pairs
-            %       'axisHandle' - handle to axes
-            %       'figureHandle' - handle to figure
+			%model.PLOTDISCOUNTFUNCTION(N) plots a discount
+			%   function where H is a handle to a subplot, and IND is the nth
+			%   experiment to plot.
+			%
+			% Optional arguments as key/value pairs
+			%       'axisHandle' - handle to axes
+			%       'figureHandle' - handle to figure
 			
-            parseFigureAndAxisRequested(varargin{:})
-            
+			parseFigureAndAxisRequested(varargin{:});
+			
 			p = inputParser;
 			p.FunctionName = mfilename;
 			p.KeepUnmatched = true;
@@ -379,19 +379,19 @@ classdef (Abstract) Model
 			
 			discountFunction.plot(plotOptions);
 		end
-        
-        function plotDiscountFunctionGrid(obj, varargin)
-            %plotDiscountFunctionGrid Plots a montage of discount functions
-            %   model.PLOTDISCOUNTFUNCTIONGRID() plots discount functions for 
-            %   all experiment, laid out in a grid.
-            % 
-            % Optional arguments as key/value pairs
-            %       'axisHandle' - handle to axes
-            %       'figureHandle' - handle to figure
-            
-            [figureHandle, axisHandle] = parseFigureAndAxisRequested(varargin{:});
-            
-            %figure(7), clf
+		
+		function plotDiscountFunctionGrid(obj, varargin)
+			%plotDiscountFunctionGrid Plots a montage of discount functions
+			%   model.PLOTDISCOUNTFUNCTIONGRID() plots discount functions for
+			%   all experiment, laid out in a grid.
+			%
+			% Optional arguments as key/value pairs
+			%       'axisHandle' - handle to axes
+			%       'figureHandle' - handle to figure
+			
+			[figureHandle, ~] = parseFigureAndAxisRequested(varargin{:});
+			
+			figure(figureHandle), clf
 			latex_fig(12, 11,11)
 			drawnow
 			
@@ -409,29 +409,29 @@ classdef (Abstract) Model
 			% Iterate over files, plotting
 			disp('Plotting...')
 			for n = 1:numel(names)
-				obj.plotDiscountFunction(n, 'axisHandle', subplot_handles(n))
-				title(names{n}, 'FontSize',10)
-				set(gca,'FontSize',10)
+				obj.plotDiscountFunction(n, 'axisHandle', subplot_handles(n));
+				title(names{n}, 'FontSize',10);
+				set(gca, 'FontSize',10);
 			end
 			drawnow
 		end
 		
 		
 		function plotDiscountFunctionsOverlaid(obj, varargin)
-            %plotDiscountFunctionsOverlaid Plots all discount functions in one figure
-            %   model.PLOTDISCOUNTFUNCTIONSOVERLAID() plots discount functions for 
-            %   all experiment, overlaid in one figure.
-            % 
-            % Optional arguments as key/value pairs
-            %       'axisHandle' - handle to axes
-            %       'figureHandle' - handle to figure
-            
+			%plotDiscountFunctionsOverlaid Plots all discount functions in one figure
+			%   model.PLOTDISCOUNTFUNCTIONSOVERLAID() plots discount functions for
+			%   all experiment, overlaid in one figure.
+			%
+			% Optional arguments as key/value pairs
+			%       'axisHandle' - handle to axes
+			%       'figureHandle' - handle to figure
+			
 			latex_fig(12, 8,6)
 			clf
 			drawnow
 			
-            [figureHandle, axisHandle] = parseFigureAndAxisRequested(varargin{:});
-
+			[figureHandle, axisHandle] = parseFigureAndAxisRequested(varargin{:});
+			
 			% don't want the group level estimate, so not asking for 'all'
 			names = obj.data.getIDnames('experiments');
 			
@@ -450,12 +450,11 @@ classdef (Abstract) Model
 			%             set(gca,'FontSize',10)
 			drawnow
 		end
-        
+		
 		
 		function plotPosteriorAUC(obj, ind, varargin)
-			%model.plotPosteriorAUC(N) plots a discount
-			%   function where H is a handle to a subplot, and IND is the nth
-			%   experiment to plot.
+			%model.plotPosteriorAUC(N, varargin) plots the posterior distribution
+			% of AUC values where N is the Nth experiment.
 			%
 			% Optional arguments as key/value pairs
 			%       'axisHandle' - handle to axes
@@ -470,68 +469,74 @@ classdef (Abstract) Model
 			set(gca, 'XLim', [0, a(2)]);
 		end
 		
-				
-        function plotUnivarateSummary(obj, varargin)
-            %plotUnivarateSummary Creates a forest plot of univariate summary stats about the model parameters requested
-            
-            p = inputParser;
-            p.FunctionName = mfilename;
-            p.addParameter('variablesToPlot', 'all',  @(x) isstr(x)|iscellstr(x));
-            p.parse(varargin{:});
-            
-            if iscellstr(p.Results.variablesToPlot)
-                % user is providing a cell array of strings, which we will assume corresponds to specific variable names.
-                variables = p.Results.variablesToPlot;
-            else
-                % user privided a string, hopefully one of the acceptable inputs below
-                switch p.Results.variablesToPlot
-                    case{'all'}
-                        variables = obj.varList.participantLevel;
-                    otherwise 
-                        error('unrecognised input provided for ''variablesToPlot''.')
-                end
-            end
-            
-            obj.coda.plotUnivariateSummaries(variables,...
-                obj.plotOptions,...
-                obj.data.getParticipantNames());
-            
-            plot_savename = 'UnivariateSummary';
-            obj.pleaseExportFigure(plot_savename)
-            
-        end
-        
-        function plotPosteriorClusterPlot(obj, varargin)
-            %plotPosteriorClusterPlot(H) Plots posterior distributions for
-            % all experiments, in the axis handle H.
-            % 
-            % Optional arguments as key/value pairs
-            %       'axisHandle' - handle to axes
-            %       'figureHandle' - handle to figure
-            
-            parseFigureAndAxisRequested(varargin{:})
-            
-            % TODO: put clusterPlot function code here rather than have it as a separate function?
-            clusterPlot(...
-                obj.coda,...
-                obj.data,...
-                [1 0 0],...
-                obj.plotOptions,...
-                obj.varList.discountFunctionParams)
-        end
+		
+		function plotUnivarateSummary(obj, varargin)
+			%plotUnivarateSummary(varargin) Produces a univariate summary plot
+			% Creates a forest plot of univariate summary stats
+			%
+			% Optional arguments as key/value pairs
+			%       'axisHandle' - handle to axes
+			%       'figureHandle' - handle to figure
+			
+			p = inputParser;
+			p.FunctionName = mfilename;
+			p.addParameter('variablesToPlot', 'all',  @(x) isstr(x)|iscellstr(x));
+			p.parse(varargin{:});
+			
+			if iscellstr(p.Results.variablesToPlot)
+				% user is providing a cell array of strings, which we will assume
+				% corresponds to specific variable names.
+				variables = p.Results.variablesToPlot;
+			else
+				% user privided a string, hopefully one of the acceptable inputs below
+				switch p.Results.variablesToPlot
+					case{'all'}
+						variables = obj.varList.participantLevel;
+					otherwise
+						error('unrecognised input provided for ''variablesToPlot''.')
+				end
+			end
+			
+			obj.coda.plotUnivariateSummaries(variables,...
+				obj.plotOptions,...
+				obj.data.getParticipantNames());
+			
+			plot_savename = 'UnivariateSummary';
+			obj.pleaseExportFigure(plot_savename)
+			
+		end
+		
+		function plotPosteriorClusterPlot(obj, varargin)
+			%plotPosteriorClusterPlot(H, varargin) Plots posterior distributions
+			% for all experiments.
+			%
+			% Optional arguments as key/value pairs
+			%       'axisHandle' - handle to axes
+			%       'figureHandle' - handle to figure
+			
+			parseFigureAndAxisRequested(varargin{:})
+			
+			% TODO: put clusterPlot function code here rather than have it as a separate function?
+			clusterPlot(...
+				obj.coda,...
+				obj.data,...
+				[1 0 0],...
+				obj.plotOptions,...
+				obj.varList.discountFunctionParams)
+		end
 		
 	end
 	
 	methods (Access = protected)
-    
-        function pleaseExportFigure(obj, savename)
-            if obj.plotOptions.shouldExportPlots
-                myExport(obj.plotOptions.savePath,...
-                    savename,...
-                    'suffix', obj.modelFilename,...
-                    'formats', obj.plotOptions.exportFormats)
-            end
-        end
+		
+		function pleaseExportFigure(obj, savename)
+			if obj.plotOptions.shouldExportPlots
+				myExport(obj.plotOptions.savePath,...
+					savename,...
+					'suffix', obj.modelFilename,...
+					'formats', obj.plotOptions.exportFormats)
+			end
+		end
 		
 		function plotAllExperimentFigures(obj)
 			% this is a wrapper function to loop over all data files, producing multi-panel figures. This is implemented by the plotExperimentOverviewFigure method, which may be overridden by subclasses if need be.
@@ -554,32 +559,32 @@ classdef (Abstract) Model
 				close(fh);
 			end
 		end
-        
-        
-        function plotPosteriorErrorParams(obj, ind, varargin)
-            %plotPosteriorErrorParams(H, N) Plots the posterior distributions over
-            % response error related parameters, for experiment N. The plot is 
-            % sent to subplot axis H.
-            % 
-            % Optional arguments as key/value pairs
-            %       'axisHandle' - handle to axes
-            %       'figureHandle' - handle to figure
-            
-            [figureHandle, axisHandle] = parseFigureAndAxisRequested(varargin{:});
-            
-            responseErrorVariables = obj.getResponseErrorVariables();
-            
-            % TODO: remove duplication of "opts" in mulitple places, but also should perhaps be a single coherent structure in the first place.
-            opts.pointEstimateType	= obj.plotOptions.pointEstimateType;
-            opts.timeUnits			= obj.timeUnits;
-            opts.dataPlotType		= obj.plotOptions.dataPlotType;
-            
-            obj.coda.plot_bivariate_distribution(axisHandle,...
-                responseErrorVariables(1),...
-                responseErrorVariables(2),...
-                ind,...
-                opts)
-        end
+		
+		
+		function plotPosteriorErrorParams(obj, ind, varargin)
+			%plotPosteriorErrorParams(H, N) Plots the posterior distributions over
+			% response error related parameters, for experiment N. The plot is
+			% sent to subplot axis H.
+			%
+			% Optional arguments as key/value pairs
+			%       'axisHandle' - handle to axes
+			%       'figureHandle' - handle to figure
+			
+			[figureHandle, axisHandle] = parseFigureAndAxisRequested(varargin{:});
+			
+			responseErrorVariables = obj.getResponseErrorVariables();
+			
+			% TODO: remove duplication of "opts" in mulitple places, but also should perhaps be a single coherent structure in the first place.
+			opts.pointEstimateType	= obj.plotOptions.pointEstimateType;
+			opts.timeUnits			= obj.timeUnits;
+			opts.dataPlotType		= obj.plotOptions.dataPlotType;
+			
+			obj.coda.plot_bivariate_distribution(axisHandle,...
+				responseErrorVariables(1),...
+				responseErrorVariables(2),...
+				ind,...
+				opts)
+		end
 		
 	end
 	
@@ -604,42 +609,42 @@ classdef (Abstract) Model
 		end
 		
 	end
-    
-    methods (Hidden = true)
-    
-        function disp(obj)
-            
-            disp('Discounting model object')
-            linebreak
-            fprintf('Model class: %s\n', class(obj))
+	
+	methods (Hidden = true)
+		
+		function disp(obj)
+			
+			disp('Discounting model object')
+			linebreak
+			fprintf('Model class: %s\n', class(obj))
 			obj.dispModelInfo
-            
-            linebreak
+			
+			linebreak
 			disp(obj.data)
 			
-            linebreak
+			linebreak
 			disp('MCMC options used in parameter estimation:')
-            disp(obj.mcmcParams)
-            
-            linebreak
-			disp('Model parameters (Discounting related):')
-            disp(obj.getDiscountFunctionVariables())
-			disp('Model parameters (Response error related):')
-            disp(obj.getResponseErrorVariables())
+			disp(obj.mcmcParams)
 			
-            linebreak
+			linebreak
+			disp('Model parameters (Discounting related):')
+			disp(obj.getDiscountFunctionVariables())
+			disp('Model parameters (Response error related):')
+			disp(obj.getResponseErrorVariables())
+			
+			linebreak
 			disp('Point estimates of parameters:')
-            exporter = ResultsExporter(obj.coda,...
+			exporter = ResultsExporter(obj.coda,...
 				obj.data,...
 				obj.getAUCasTable,...
 				obj.postPred,...
 				obj.varList,...
 				obj.plotOptions);
 			exporter.printToScreen();
-            
-            linebreak
-            obj.displayPublicMethods()
-        end
-    end
+			
+			linebreak
+			obj.displayPublicMethods()
+		end
+	end
 	
 end
