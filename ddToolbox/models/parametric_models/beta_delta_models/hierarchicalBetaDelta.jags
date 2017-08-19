@@ -6,23 +6,17 @@ model{
 # DISCOUNT FUNCTION PARAMETERS =================================================
 # RANDOM (BY PARTICIPANT) FACTORS; HYPER-PRIORS = NO
 
+# delta is slope
 group_delta_MEAN      <- 0.9995
 group_delta_PRECISION <- 1/(0.0009^2)
 
+# beta is intercept
 group_beta_MEAN      <- 0.84
 group_beta_PRECISION <- 1/(0.11^2)
 
 for (p in 1:nRealExperimentFiles){
-
-	# get some instability if we use the reparameterisation, so we'll avoid this for the moment
-	#delta_offset[p]    ~ dnorm(0,1)
-	#delta[p] <- group_delta_MEAN + delta_offset[p] * group_delta_PRECISION
 	delta[p] ~ dnorm(group_delta_MEAN, group_delta_PRECISION)
-
-	# using reparameterisation to avoid funnel of hell
-	beta_offset[p]    ~ dnorm(0,1)
-	beta[p] <- group_beta_MEAN + beta_offset[p] * group_beta_PRECISION
-	#beta[p] ~ dnorm(group_beta_MEAN, group_beta_PRECISION)
+	beta[p] ~ dnorm(group_beta_MEAN, group_beta_PRECISION) T(0,1)
 }
 
 # MODEL-SPECIFIC: CALCULATION OF PRESENT SUBJECTIVE VALUES

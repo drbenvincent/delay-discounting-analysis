@@ -19,6 +19,8 @@ classdef ModelMixedBetaDelta < BetaDelta
 			% Generate initial values of the root nodes
 			nExperimentFiles = obj.data.getNExperimentFiles();
 			for chain = 1:nchains
+				initialParams(chain).beta 	= unifrnd(0, 1, [nExperimentFiles-1,1]);
+				initialParams(chain).delta 	= normrnd(1, 0.5, [nExperimentFiles-1,1]);
 				initialParams(chain).groupW             = rand;
 				initialParams(chain).groupALPHAmu		= rand*100;
 				initialParams(chain).groupALPHAsigma	= rand*100;
