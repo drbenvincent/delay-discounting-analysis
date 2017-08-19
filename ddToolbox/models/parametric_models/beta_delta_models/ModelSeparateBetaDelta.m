@@ -18,7 +18,7 @@ classdef ModelSeparateBetaDelta < BetaDelta
             % Generate initial values of the root nodes
 			nExperimentFiles = obj.data.getNExperimentFiles();
 			for chain = 1:nchains
-                initialParams(chain).beta = normrnd(0.84, 2, [nExperimentFiles,1]);
+                initialParams(chain).beta = abs(normrnd(0.84, 2, [nExperimentFiles,1]));
 				initialParams(chain).delta = normrnd(1, 0.5, [nExperimentFiles,1]);
 				initialParams(chain).epsilon = 0.1 + rand([nExperimentFiles,1])/10;
 				initialParams(chain).alpha = abs(normrnd(0.01,10,[nExperimentFiles,1]));
