@@ -17,7 +17,7 @@ beta_MEAN <- 0.84
 beta_PRECISION <- 1/(0.11^2)
 
 for (p in 1:nRealExperimentFiles){
-	delta[p]    ~ dnorm(delta_MEAN, delta_PRECISION)
+	delta[p]    ~ dnorm(delta_MEAN, delta_PRECISION) T(0,1)
     beta[p]     ~ dnorm(beta_MEAN, beta_PRECISION) T(0,1)
 }
 

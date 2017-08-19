@@ -19,7 +19,7 @@ classdef ModelSeparateBetaDelta < BetaDelta
 			nExperimentFiles = obj.data.getNExperimentFiles();
 			for chain = 1:nchains
                 initialParams(chain).beta = unifrnd(0, 1, [nExperimentFiles,1]);
-				initialParams(chain).delta = normrnd(1, 0.5, [nExperimentFiles,1]);
+				initialParams(chain).delta = unifrnd(0, 1, [nExperimentFiles,1]);
 				initialParams(chain).epsilon = 0.1 + rand([nExperimentFiles,1])/10;
 				initialParams(chain).alpha = abs(normrnd(0.01,10,[nExperimentFiles,1]));
 			end
