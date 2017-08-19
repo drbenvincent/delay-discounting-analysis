@@ -15,7 +15,7 @@ beta_PRECISION <- 1/(0.11^2)
 
 for (p in 1:nRealExperimentFiles){
 	delta[p]    ~ dnorm(delta_MEAN, delta_PRECISION)
-    beta[p]     ~ dnorm(beta_MEAN, beta_PRECISION)
+    beta[p]     ~ dnorm(beta_MEAN, beta_PRECISION) T(0,)
 }
 
 # MODEL-SPECIFIC: CALCULATION OF PRESENT SUBJECTIVE VALUES
