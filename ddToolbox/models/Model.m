@@ -453,9 +453,8 @@ classdef (Abstract) Model
 		
 		
 		function plotPosteriorAUC(obj, ind, varargin)
-			%model.plotPosteriorAUC(N) plots a discount
-			%   function where H is a handle to a subplot, and IND is the nth
-			%   experiment to plot.
+			%model.plotPosteriorAUC(N, varargin) plots the posterior distribution
+			% of AUC values where N is the Nth experiment.
 			%
 			% Optional arguments as key/value pairs
 			%       'axisHandle' - handle to axes
@@ -472,7 +471,12 @@ classdef (Abstract) Model
 		
 		
 		function plotUnivarateSummary(obj, varargin)
-			%plotUnivarateSummary Creates a forest plot of univariate summary stats about the model parameters requested
+			%plotUnivarateSummary(varargin) Produces a univariate summary plot
+			% Creates a forest plot of univariate summary stats
+			%
+			% Optional arguments as key/value pairs
+			%       'axisHandle' - handle to axes
+			%       'figureHandle' - handle to figure
 			
 			p = inputParser;
 			p.FunctionName = mfilename;
@@ -480,7 +484,8 @@ classdef (Abstract) Model
 			p.parse(varargin{:});
 			
 			if iscellstr(p.Results.variablesToPlot)
-				% user is providing a cell array of strings, which we will assume corresponds to specific variable names.
+				% user is providing a cell array of strings, which we will assume
+				% corresponds to specific variable names.
 				variables = p.Results.variablesToPlot;
 			else
 				% user privided a string, hopefully one of the acceptable inputs below
@@ -502,8 +507,8 @@ classdef (Abstract) Model
 		end
 		
 		function plotPosteriorClusterPlot(obj, varargin)
-			%plotPosteriorClusterPlot(H) Plots posterior distributions for
-			% all experiments, in the axis handle H.
+			%plotPosteriorClusterPlot(H, varargin) Plots posterior distributions
+			% for all experiments.
 			%
 			% Optional arguments as key/value pairs
 			%       'axisHandle' - handle to axes
