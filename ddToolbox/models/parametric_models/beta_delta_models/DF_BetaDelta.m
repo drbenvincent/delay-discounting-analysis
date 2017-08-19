@@ -1,4 +1,5 @@
 classdef DF_BetaDelta < DF1
+%DF_BetaDelta Deterministic object for the Beta Delta discount function.
 
 	properties (Dependent)
 

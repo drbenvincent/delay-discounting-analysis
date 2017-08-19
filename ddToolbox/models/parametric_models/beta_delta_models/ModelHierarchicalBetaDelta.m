@@ -1,5 +1,5 @@
 classdef ModelHierarchicalBetaDelta < BetaDelta
-	%ModelHierarchical A model to estimate the log discount rate, according to the 1-parameter hyperbolic discount function.
+	%ModelHierarchicalBetaDelta Model class for fully hierarchical estimation of the beta-delta discount function.
     %  All parameters are estimated hierarchically.
 
 	methods (Access = public, Hidden = true)

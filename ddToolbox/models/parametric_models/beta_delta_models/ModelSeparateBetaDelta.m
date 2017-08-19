@@ -1,5 +1,5 @@
 classdef ModelSeparateBetaDelta < BetaDelta
-	%ModelHierarchical A model to estimate the magnitide effect
+	%ModelSeparateBetaDelta Model for BetaDelta discount function, no parameter pooling
 	%  NO parameters are estimated hierarchically.
 
 	methods (Access = public, Hidden = true)

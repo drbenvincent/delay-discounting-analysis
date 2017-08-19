@@ -1,5 +1,5 @@
 classdef ModelMixedBetaDelta < BetaDelta
-	%ModelMixedBetaDelta A model to estimate the log discount rate, according to the 2-parameter hyperboloid discount function.
+	%ModelMixedBetaDelta Model for BetaDelta discount function, partial pooling
 	%  SOME parameters are estimated hierarchically.
 
 	methods (Access = public, Hidden = true)
