@@ -8,14 +8,17 @@ model{
 
 # estimates of mean/sd of beta and delta were taken from Franck, C. T., Koffarnus, M. N., House, L. L., & Bickel, W. K. (2014). Accurate characterization of delay discounting: A multiple model approach using approximate bayesian model selection and a unified discounting measure. Journal of the Experimental Analysis of Behavior, 103(1), 218–233.
 
+# delta is slope
 delta_MEAN      <- 0.9995
 delta_PRECISION <- 1/(0.0009^2)
+
+# beta is intercept
 beta_MEAN <- 0.84
 beta_PRECISION <- 1/(0.11^2)
 
 for (p in 1:nRealExperimentFiles){
 	delta[p]    ~ dnorm(delta_MEAN, delta_PRECISION)
-    beta[p]     ~ dnorm(beta_MEAN, beta_PRECISION) T(0,)
+    beta[p]     ~ dnorm(beta_MEAN, beta_PRECISION) T(0,1)
 }
 
 # MODEL-SPECIFIC: CALCULATION OF PRESENT SUBJECTIVE VALUES
@@ -26,8 +29,8 @@ for (t in 1:length(ID)) {
 
 # RESPONSE ERROR PARAMETERS ====================================================
 
-epsilon_alpha <- 1.1
-epsilon_beta <- 10.9
+epsilon_alpha <- 1+0.1
+epsilon_beta <- 1+9.9
 
 for (p in 1:nRealExperimentFiles){
     epsilon[p]  ~ dbeta(epsilon_alpha , epsilon_beta ) T(,0.5)

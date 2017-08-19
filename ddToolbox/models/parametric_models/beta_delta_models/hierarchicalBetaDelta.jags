@@ -6,15 +6,17 @@ model{
 # DISCOUNT FUNCTION PARAMETERS =================================================
 # RANDOM (BY PARTICIPANT) FACTORS; HYPER-PRIORS = NO
 
+# delta is slope
 group_delta_MEAN      <- 0.9995
 group_delta_PRECISION <- 1/(0.0009^2)
 
+# beta is intercept
 group_beta_MEAN      <- 0.84
 group_beta_PRECISION <- 1/(0.11^2)
 
 for (p in 1:nRealExperimentFiles){
 	delta[p] ~ dnorm(group_delta_MEAN, group_delta_PRECISION)
-	beta[p] ~ dnorm(group_beta_MEAN, group_beta_PRECISION) T(0,)
+	beta[p] ~ dnorm(group_beta_MEAN, group_beta_PRECISION) T(0,1)
 }
 
 # MODEL-SPECIFIC: CALCULATION OF PRESENT SUBJECTIVE VALUES
