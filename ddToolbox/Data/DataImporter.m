@@ -26,15 +26,74 @@ classdef DataImporter
 		
 		function dataArray = import(obj)
 			for n=1:obj.nFiles
-				%% do the actual file import
-				experimentTable = readtable(...
-					fullfile(obj.path, obj.fnames{n}),...
-					'delimiter', 'tab');
 				
-				%% Optional conversion of column header names
-				if exist('columnHeaderConversion','file')
-					experimentTable = columnHeaderConversion(experimentTable);
+				% are we importing a:
+				% - tab delimited .txt
+				% - comma separated .csv
+				
+				[pathstr, name, ext] = fileparts(obj.fnames{n});
+				
+				switch ext
+					case{'.txt'}
+						% import comma separated .csv
+						experimentTable = readtable(...
+							fullfile(obj.path, obj.fnames{n}),...
+							'delimiter', 'tab');
+					case{'.csv'}
+						% import tab delimited .txt
+						experimentTable = readtable(...
+							fullfile(obj.path, obj.fnames{n}),...
+							'delimiter', ',');
+					otherwise
+						error('attempting to import a file which is not .csv or .txt')
 				end
+				
+				%% Conversion of column header names
+				if exist('columnHeaderConversion','file')
+					% manually specified
+					experimentTable = columnHeaderConversion(experimentTable);
+					
+				else
+					% attempt to automatically convert some column name 
+					% variants to what the toolbox wants. This is here for
+					% legacy reasons because I (frustratingly) changed the
+					% precise labelling of the variables over time.
+					variableNames = experimentTable.Properties.VariableNames;
+					for col = 1:numel(variableNames)
+						switch experimentTable.Properties.VariableNames{col}
+							case{'R_s', 'Rs', 'R_A'}
+								experimentTable.Properties.VariableNames{col} = 'A';
+							case{'R_L', 'R_B'}
+								experimentTable.Properties.VariableNames{col} = 'B';
+							case{'D_s', 'D_A'}
+								experimentTable.Properties.VariableNames{col} = 'DA';
+							case{'D_L', 'D_B'}
+								experimentTable.Properties.VariableNames{col} = 'DB';
+							case{'P_s', 'P_A'}
+								experimentTable.Properties.VariableNames{col} = 'PA';
+							case{'P_L', 'P_B'}
+								experimentTable.Properties.VariableNames{col} = 'PB';
+						end
+					end
+				end
+				
+				%% Do any necessary decoding of response variable `R`
+				% R=0 means chose prospect A, conventionally the immediate,
+				% or sooner reward.
+				% R=1 means chose prospect B, conventionally the delayed,
+				% or more delayed reward
+				if iscellstr(experimentTable.R)
+					% convert categorically coded (ie A,B) into (0,1)
+					for t=1:numel(experimentTable.R)
+						switch experimentTable.R{t}
+							case{'A'}
+								newR(t,1) = 0;
+							case{'B'}
+								newR(t,1) = 1;
+						end
+					end
+				end
+				experimentTable.R = newR;
 				
 				%% Add ID column
 				experimentTable = appendTableColOfVals(experimentTable, n);
