@@ -33,3 +33,5 @@ Key features:
 Please use the [GitHub Issues](https://github.com/drbenvincent/delay-discounting-analysis/issues) feature to ask question, report a bug, or request a feature. You'll need a GitHub account to do this, which isn't very hard to set up.
 
 But you could always email me or tweet me [@inferenceLab](https://twitter.com/inferencelab) instead.
+
+I'm very happy if people would like to contribute to the toolbox in any way. Please see the [CONTRIBUTING.md](https://github.com/drbenvincent/delay-discounting-analysis/blob/master/CONTRIBUTING.md) document.

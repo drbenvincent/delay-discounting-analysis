@@ -3,6 +3,12 @@ layout: default
 title: Home
 ---
 
+This is the documentation for the Bayesian hierarchical analysis package. This code is associated with the paper:
+
+Vincent, B. T. (2016) **[Hierarchical Bayesian estimation and hypothesis testing for delay discounting tasks](http://link.springer.com/article/10.3758%2Fs13428-015-0672-2)**, Behavior Research Methods. 48(4), 1608-1620. doi:10.3758/s13428-015-0672-2
+
+# Documentation
+
 ## Tutorials
 - [Run the demo code](tutorial/run_demo_code)
 
@@ -26,13 +32,3 @@ title: Home
 - [Level of parameter pooling](discussion/level_of_pooling.md)
 - [Hypothesis testing](discussion/hypothesis_testing.md)
 - [STAN](discussion/stan.md)
-
-
-## Problems, questions, feature requests
-Please use the GitHub [Issues](https://github.com/drbenvincent/delay-discounting-analysis/issues) feature to ask question, report a bug, or request a feature. You'll need a GitHub account to do this, which isn't very hard to set up. But you could always email me instead. I am also happy to Skype in order to solve any persistent problems, just email me.
-
-## Research collaborations
-I am very happy to work collaboratively on discounting projects. While I have made the code fairly easy to use, if you are not a Matlab user it may in fact be easier to get in touch to see if we can work together on something. This might particularly be the case if you'd like to use the "fully Bayesian approach" as described in the paper where you want to discover the relationship between participant variables (personality, experimental condition, neural activity level, etc) and delay discounting behaviour. Otherwise feel free to use the code and cite the paper :)
-
-## Contributing
-I'm very happy if people would like to contribute to the toolbox in any way. Please see the [CONTRIBUTING.md](https://github.com/drbenvincent/delay-discounting-analysis/blob/master/CONTRIBUTING.md) document.
