@@ -1,4 +1,4 @@
-# Installation overview
+# How to: install
 
 Before analysing your own data, you must follow the steps here to make sure that everything is installed and working properly. Installation is pretty simple. The main steps are:
 

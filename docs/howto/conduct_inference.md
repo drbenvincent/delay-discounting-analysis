@@ -1,3 +1,5 @@
+# How to: conduct inference
+
 Before trying to analyse your own data, you should check everything is working ok by running the demo analysis, see the [Getting Started](https://github.com/drbenvincent/delay-discounting-analysis/wiki/Getting-Started) page.
 
 The easiest way to analyse your own data is to use the example provided in the `demo` folder and modify for your own purposes. Below is an overview of how to organise a project to analyse your own data.
@@ -31,4 +33,4 @@ fnames = {'AC-kirby27-DAYS.txt',...
 and then just use `Data(datapath, 'files', fnames)`.
 
 # Run the analysis
-You should now be able to run the analysis by entering `[model] = run_me()` into the Matlab command window. 
+You should now be able to run the analysis by entering `[model] = run_me()` into the Matlab command window.

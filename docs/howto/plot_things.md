@@ -1,3 +1,5 @@
+# How to: plot things
+
 Once you have your 'fitted' model object, obtained with code such as:
 
 ```

@@ -1,3 +1,5 @@
+# Parameter estimation options
+
 When initiating model parameter estimation, there is only one required input, which is the a data. So you can get up and running very quickly with a simple call like this...
 
 ```matlab

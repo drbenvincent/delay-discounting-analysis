@@ -1,3 +1,5 @@
+# How to: check inference
+
 The toolbox uses Markov Chain Monte Carlo (MCMC) methods. These methods are very powerful, but they also require diligence in checking that the inferences made are reliable.
 
 **One should not blindly run an analysis and publish the results. It is important to do your due diligence.**
@@ -28,4 +30,4 @@ The priors specified in the paper worked very well for the dataset at hand. Now 
 Feel free to get in touch. I'll see what I can do. You could either submit a GitHub issue, or email me.
 
 ## Strategy 5 - get better data
-One reason for non-convergence of chains is simply that the data to hand is insufficient to constrain the parameters. So you could either run delay discounting tasks with more data, or use better/different delay discounting protocols. 
+One reason for non-convergence of chains is simply that the data to hand is insufficient to constrain the parameters. So you could either run delay discounting tasks with more data, or use better/different delay discounting protocols.

@@ -1,9 +1,11 @@
-# Location of raw data files
+# How to: store raw data
+
+## Location of raw data files
 At the moment it is best to keep all your raw discounting data files in one folder. If you have a repeated measures situation where you might have the same participant who underwent multiple conditions, it's best to organise that using an appropriate file naming convention, rather than by separating data files into subfolders. The location of your data folder is not so important, but you must know the path name for when you come to load in your raw data.
 
 ![raw data example image](https://github.com/drbenvincent/delay-discounting-analysis/blob/master/img/data_files_kirby_example.png)
 
-# Format of each raw data file
+## Format of each raw data file
 We assume that we have one data file for every experiment run. So even if we have a repeated measures situation where the same participant runs through a discounting experiment under multiple conditions, we assume that each of these are stored in separate files. The file naming convention you use should make it clear which participant and condition etc that the data corresponds to.
 
 Each data file should be a tab-delimited `.txt` file containing the trial data for an individual participant. The format of these participant data files needs to contain 5 columns, with headers `A`, `DA`, `B`, `DB`, `R`. Each row corresponds to one experimental trial.

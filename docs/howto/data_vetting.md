@@ -1,3 +1,5 @@
+# How to: vet data
+
 The main aim of this analysis toolbox is to make inferences about a participant's discounting behaviour. These inferences are captured by our posterior distributions over model parameters. However, these distributions only have a meaningful interpretation if the model is a reasonable explanation of how a participant is actually responding. Therefore we may need to exclude some data if the model used is a very poor fit to the data.
 
 As of version 1.3, we can quantitatively assess the model goodness of fit, and use this as a basis for excluding participants. Two measures are calculated:

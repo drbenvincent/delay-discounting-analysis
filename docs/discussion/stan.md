@@ -1,3 +1,5 @@
+# STAN
+
 **The toolbox primarily uses JAGS. Inference using STAN is currently highly experimental. Not all discount functions are written in STAN model code, and not much work has gone in to checking things are working fine.**
 
 ## STAN installation and setup steps

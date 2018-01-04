@@ -1,4 +1,4 @@
-# Summary of discount functions available
+# Discount functions available
 
 |  Discount function    | Equation | Model suffix | Main parameters |
 | :---         |     :---:             |         :---:  |  :---:  |

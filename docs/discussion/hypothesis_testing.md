@@ -1,4 +1,4 @@
-### Work in progress!
+# Hypothesis testing [A WORK IN PROGRESS]
 
 As outlined in the paper, you could take 2 routes (at least) to your research conclusions, see Figure below. See [the paper](http://link.springer.com/article/10.3758/s13428-015-0672-2) for details and a worked example.
 

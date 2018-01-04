@@ -1,3 +1,5 @@
+# Level of pooling
+
 The published paper presented the [ModelHierarchicalME](https://github.com/drbenvincent/delay-discounting-analysis/wiki/Regular-hierarchical-model) model, which estimates the magnitude effect, and uses hierarchical Bayesian inference (on all parameters) to make estimates about group-level discounting behaviour.
 
 Placing a hyper-prior on a parameter will:

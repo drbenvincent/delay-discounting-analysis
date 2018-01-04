@@ -1,3 +1,5 @@
+# How to: change the priors
+
 **NOTE: It is highly recommended that thought goes into the priors. They need to be appropriate for your experimental context.**
 
 I opted to fully define priors within the `*.jags` model files. While it would have been possible to inject different prior and precision parameters for easy user-updates of the priors, I've currently avoided this. This is because it allows freedom to change the form of the priors (e.g. what distributions we use). It may well be that this is not so convenient, so this might be some work for the future. Feel free to request the change, or to contribute the changes yourself via a pull request.
