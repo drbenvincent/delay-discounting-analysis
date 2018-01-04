@@ -1,4 +1,5 @@
 # Summary of discount functions available
+
 |  Discount function    | Equation | Model suffix | Main parameters |
 | :---         |     :---:             |         :---:  |  :---:  |
 | Exponential  |  `exp(-k*D)`  | `*Exp1`  | `k` |
@@ -14,6 +15,7 @@ In the equations, `D` = delay, and `R` = reward.
 Note that `Separate`, `Mixed` and `Hierarchical` refers to the level of parameter pooling (hierarchical inference). See the page [Decide on level of parameter pooling](https://github.com/drbenvincent/delay-discounting-analysis/wiki/Decide-on-level-of-hierarchical-inference) for more information on this.
 
 ## Exponential discounting
+
 |  Model name    | Fixed Effects | Random Effects (by-participant) | Hyper-priors (thus shrinkage to group mean) |
 | :---         |     :---:             |         :---:  |  :---:  |
 | `ModelSeparateExp1`  |  -  | `k`, `alpha`, `epsilon`  | - |
@@ -21,6 +23,7 @@ Note that `Separate`, `Mixed` and `Hierarchical` refers to the level of paramete
 | `ModelHierarchicalExp1`  |  -  | `k`, `alpha`, `epsilon`  | `k`, `alpha`, `epsilon` |
 
 ## Hyperbolic discounting
+
 |  Model name    | Fixed Effects | Random Effects (by-participant) | Hyper-priors (thus shrinkage to group mean) |
 | :---         |     :---:             |         :---:  |  :---:  |
 | `ModelSeparateLogK`  |  -  | `logk`, `alpha`, `epsilon`  | - |
@@ -28,6 +31,7 @@ Note that `Separate`, `Mixed` and `Hierarchical` refers to the level of paramete
 | `ModelHierarchicalLogK`  |  -  | `logk`, `alpha`, `epsilon`  | `logk`, `alpha`, `epsilon` |
 
 ## Hyperbolic discounting, with magnitude effect
+
 |  Model name    | Fixed Effects | Random Effects (by-participant) | Hyper-priors (thus shrinkage to group mean) |
 | :---         |     :---:             |         :---:  |  :---:  |
 | `ModelSeparateME `  |  -  | `m`, `c`, `alpha`, `epsilon`  | - |
