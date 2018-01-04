@@ -2,7 +2,7 @@
 
 Your first steps should be to ensure the toolbox is installed and working properly. So I recommend first making sure you can run through these steps. If there are problems, they are most likely to be fixed by checking you have installed all the dependencies.
 
-1. If you have not already, install the toolbox code onto your local machine. See the [install the toolbox](https://github.com/drbenvincent/delay-discounting-analysis/wiki/Install-the-toolbox) how-to.
+1. If you have not already, install the toolbox code onto your local machine. See the [install the toolbox](http://drbenvincent.github.io/delay-discounting-analysis/howto/install.html) how-to.
 2. Load Matlab, and set the current directory to `delay-discounting-analysis/demo`. This is your home project folder.
 3. Run the demo by typing `run_me()` in the command window.
 

@@ -12,7 +12,7 @@ In the equations, `D` = delay, and `R` = reward.
 
 # Detailed information on discount functions
 
-Note that `Separate`, `Mixed` and `Hierarchical` refers to the level of parameter pooling (hierarchical inference). See the page [Decide on level of parameter pooling](https://github.com/drbenvincent/delay-discounting-analysis/wiki/Decide-on-level-of-hierarchical-inference) for more information on this.
+Note that `Separate`, `Mixed` and `Hierarchical` refers to the level of parameter pooling (hierarchical inference). See the page [Decide on level of parameter pooling](http://drbenvincent.github.io/delay-discounting-analysis/discussion/level_of_pooling.html) for more information on this.
 
 ## Exponential discounting
 

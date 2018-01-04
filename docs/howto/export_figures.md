@@ -42,4 +42,4 @@ myExpModel = ModelHierarchicalExp1(myDataObject,....
 
 ***
 
-More information about arguments are provided in the [Parameter estimation options](https://github.com/drbenvincent/delay-discounting-analysis/wiki/Parameter-Estimation) reference page.
+More information about arguments are provided in the [Parameter estimation options](http://drbenvincent.github.io/delay-discounting-analysis/ref/param_estimation_options.html) reference page.

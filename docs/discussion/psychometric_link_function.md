@@ -16,7 +16,7 @@ However, this is a clear situation where hierarchical inference can help. Using 
 ## Priors over error rate (`epsilon`) and comparison acuity (`alpha`)
 The priors and hyper priors for `alpha` and `epsilon` used in the paper worked well for the dataset examined. Since then it has become clear that for other datasets, sometimes we need to use more aggressive priors that assert beliefs that `alpha` and `epsilon` take on small values. This is because, if these parameters are high, then the model cannot predict responses with a strong probability (near 0 or 1), which makes a much wider range of discounting parameter values plausible with the data.
 
-See the [changing the priors](https://github.com/drbenvincent/delay-discounting-analysis/wiki/Changing-the-priors) how-to page to get started with this. Note that for some discount functions I have already set priors for `alpha` and `epsilon` to assert stronger prior belief that the parameters take on low values.
+See the [changing the priors](https://drbenvincent.github.io/delay-discounting-analysis/howto/change_priors.html) how-to page to get started with this. Note that for some discount functions I have already set priors for `alpha` and `epsilon` to assert stronger prior belief that the parameters take on low values.
 
 # Alternative link functions
 Other common link functions might include the `softmax` or `logistic` link functions. The psychometric function we use can be seen as simply swapping out a `logistic` link function (which would have an equivalent `alpha` parameter) and then adding the term `epsilon + (1-2*epsilon)` which deals with baseline error rates.

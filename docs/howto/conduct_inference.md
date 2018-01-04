@@ -1,12 +1,12 @@
 # How to: conduct inference
 
-Before trying to analyse your own data, you should check everything is working ok by running the demo analysis, see the [Getting Started](https://github.com/drbenvincent/delay-discounting-analysis/wiki/Getting-Started) page.
+Before trying to analyse your own data, you should check everything is working ok by running the demo analysis, see the [Run the demo](http://drbenvincent.github.io/delay-discounting-analysis/tutorial/run_demo_code) page.
 
 The easiest way to analyse your own data is to use the example provided in the `demo` folder and modify for your own purposes. Below is an overview of how to organise a project to analyse your own data.
 
 * Create a project folder for example `myProjectFolder`.
 Ensure that it has the following subdirectories:
-* `data`. See the [Store raw data](https://github.com/drbenvincent/delay-discounting-analysis/wiki/Store-raw-data) how to.
+* `data`. See the [Store raw data](http://drbenvincent.github.io/delay-discounting-analysis/howto/store_raw_data.html) how to.
 * `output`. Various outputs and figures will be stored in this folder.
 
 The `myProjectFolder/output` and `myProjectFolder/figs` start empty and results from the analysis are saved in these folders.
