@@ -1,1 +1,0 @@
-Images for use on the GitHub wiki
