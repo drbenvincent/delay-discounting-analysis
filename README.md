@@ -2,7 +2,9 @@
 
 Vincent, B. T. (2016) **[Hierarchical Bayesian estimation and hypothesis testing for delay discounting tasks](http://link.springer.com/article/10.3758%2Fs13428-015-0672-2)**, Behavior Research Methods. 48(4), 1608-1620. doi:10.3758/s13428-015-0672-2
 
+[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://drbenvincent.github.io/delay-discounting-analysis/)
 [![Issue Stats](http://issuestats.com/github/drbenvincent/delay-discounting-analysis/badge/issue?style=flat-square)](http://issuestats.com/github/drbenvincent/delay-discounting-analysis)
+![](https://img.shields.io/github/license/drbenvincent/delay-discounting-analysis.svg)
 
 ## What does this toolbox do?
 
