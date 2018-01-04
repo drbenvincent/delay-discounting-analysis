@@ -2,7 +2,7 @@
 
 As outlined in the paper, you could take 2 routes (at least) to your research conclusions, see Figure below. See [the paper](http://link.springer.com/article/10.3758/s13428-015-0672-2) for details and a worked example.
 
-![](https://github.com/drbenvincent/delay-discounting-analysis/blob/master/img/HT_schematic.png)
+![](HT_schematic.png)
 
 # Approach 1: 'Traditional' inference with point estimates
 The first route would involve using this software to calculate posterior distributions over discounting parameters. We can then export point estimates (e.g. mean, median, mode) of the distributions. This data can then be imported into any statistical analysis package, potentially combined with other participant data available, and various tests could be done. These could be standard frequentist hypothesis tests, or you could use a Bayesian approach. These can be done in your analysis package of choice, such as R, SPSS, or JASP.

@@ -16,23 +16,23 @@ If you are using a repeated measures experiment design, then you may wish to exc
 
 This exclusion criterion is usefully indicated in the `.csv` file of parameter estimates that the software exports. Look for the column labelled `warning_percent_predicted`. See the example below:
 
-![example warning image](https://github.com/drbenvincent/delay-discounting-analysis/blob/master/img/example_warning_flag.png)
+![example warning image](example_warning_flag.png)
 
 ## Examples
 
 ### Good fit
 
-![example good fit](https://github.com/drbenvincent/delay-discounting-analysis/blob/master/img/pp_logk_good.png)
+![example good fit](pp_logk_good.png)
 
 
 ### Bad fit, which was detected as such
 This did not have Rhat convergence issues, but our posterior predictive checks highlighted this model is not better than a random model.
-![example bad fit 1](https://github.com/drbenvincent/delay-discounting-analysis/blob/master/img/pp_logk_bad1.png)
+![example bad fit 1](pp_logk_bad1.png)
 
 ### Bad fit, detected by eye
 A bad fit, which was not flagged as having poor convergence, nor a poor ability to predict responses. I've found such cases to be relatively rate, but I do recommend manual checking (see below).
 
-![example bad fit 2](https://github.com/drbenvincent/delay-discounting-analysis/blob/master/img/pp_logk_bad2.png)
+![example bad fit 2](pp_logk_bad2.png)
 
 ## Recommended workflow
 If you are using any sort of hierarchical estimation model, then I recommend:
