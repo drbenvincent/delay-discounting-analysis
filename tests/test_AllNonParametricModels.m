@@ -4,36 +4,36 @@ classdef test_AllNonParametricModels < matlab.unittest.TestCase
 	% http://uk.mathworks.com/help/matlab/matlab_prog/create-basic-parameterized-test.html
 	% So we don't have to laborously write down test methods for all the
 	% model class types.
-	
+
 	properties
 		data
 		saveName = 'temp.mat'
 		savePath = tempname(); % matlab auto-generated temp folders
 	end
-	
+
 	properties (TestParameter)
 		model = {'ModelSeparateNonParametric'}
 		pointEstimateType = {'mean','median','mode'}
-		sampler = {'jags', 'stan'} % TODO: ADD STAN
+		sampler = {'jags'}
 		chains = {2,3,4}
 	end
-	
-	
+
+
 	%% CLASS-LEVEL SETUP/TEARDOWN -----------------------------------------
-	
+
 	methods (TestClassSetup)
 		function setupData(testCase)
 			% assuming this is running on my maching
 			addpath('~/git-local/delay-discounting-analysis/ddToolbox')
 			datapath = '~/git-local/delay-discounting-analysis/demo/datasets/non_parametric';
-			
+
 			% only analyse 2 people, for speed of running tests
 			filesToAnalyse = allFilesInFolder(datapath, 'txt');
 			filesToAnalyse = filesToAnalyse(1:2);
 			testCase.data = Data(datapath, 'files', filesToAnalyse);
 		end
 	end
-	
+
 	methods(TestClassTeardown)
 		function remove_temp_folder(testCase)
 			rmdir(testCase.savePath,'s')
@@ -45,17 +45,17 @@ classdef test_AllNonParametricModels < matlab.unittest.TestCase
 			close all
 		end
 	end
-	
-	
+
+
 	%% THE ACTUAL TESTS ---------------------------------------------------
-	
-	
+
+
 	methods (Test)
-		
+
 		function defaultSampler(testCase, model)
 			% make model
 			makeModelFunction = str2func(model);
-			
+
 			model = makeModelFunction(testCase.data,...
 				'savePath', testCase.savePath,...
 				'mcmcParams', struct('nsamples', get_numer_of_samples_for_tests(),...
@@ -65,7 +65,7 @@ classdef test_AllNonParametricModels < matlab.unittest.TestCase
 				'shouldExport',false);
 			% TODO: DO AN ACTUAL TEST HERE !!!!!!!!!!!!!!!!!!!!!!
 		end
-		
+
 		function nChains(testCase, model, chains)
 			% make model
 			makeModelFunction = str2func(model);
@@ -75,13 +75,13 @@ classdef test_AllNonParametricModels < matlab.unittest.TestCase
 				'nchains', chains,...
 				'nburnin', get_burnin_for_tests()),...
 				'shouldPlot','no');
-			
+
 			% removed this because I've removed get_nChains. It was an
 			% uncessary public method
 			%testCase.verifyEqual(chains, model.get_nChains())
 		end
-		
-		
+
+
 		function specifiedSampler(testCase, model, sampler)
 			% make model
 			makeModelFunction = str2func(model);
@@ -94,11 +94,11 @@ classdef test_AllNonParametricModels < matlab.unittest.TestCase
 				'nburnin', get_burnin_for_tests()));
 			% TODO: DO AN ACTUAL TEST HERE !!!!!!!!!!!!!!!!!!!!!!
 		end
-		
+
 		function plotting(testCase, model)
 			% make model
 			makeModelFunction = str2func(model);
-			
+
 			model = makeModelFunction(testCase.data,...
 				'savePath', testCase.savePath,...
 				'mcmcParams', struct('nsamples', get_numer_of_samples_for_tests(),...
@@ -108,7 +108,7 @@ classdef test_AllNonParametricModels < matlab.unittest.TestCase
 				'shouldExport',false);
 			% TODO: DO AN ACTUAL TEST HERE !!!!!!!!!!!!!!!!!!!!!!
 		end
-		
+
 		function model_disp_function(testCase, model, sampler)
 			% make model
 			makeModelFunction = str2func(model);
@@ -122,7 +122,7 @@ classdef test_AllNonParametricModels < matlab.unittest.TestCase
 			% Can we call the disp function without error?
 			disp(modelFitted)
 		end
-		
+
 	end
-	
+
 end

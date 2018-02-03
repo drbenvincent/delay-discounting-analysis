@@ -59,8 +59,8 @@ function [model] = run_me()
 % If you analysed your data with a model which accounts for the magnitude
 % effect, then you may want to work out what the discount rate, log(k),
 % might be for a given reward magnitude. You can do this by:
-% >> logk = model.getLogDiscountRate(100,1) % <-------------TODO: MAKE IMPROVEMENTS 
-% >> logk.plot()							% <-------------TODO: MAKE IMPROVEMENTS 
+% >> logk = model.getLogDiscountRate(100,1) % <-------------TODO: MAKE IMPROVEMENTS
+% >> logk.plot()							% <-------------TODO: MAKE IMPROVEMENTS
 %
 % You can get access to samples using code such as the following. They will
 % be returned into a structure:
@@ -122,8 +122,7 @@ model = ModelHierarchicalME(...
 % running proper analyses. I have provided small numbers here just to
 % confirm the code is working without having to wait a long time.
 % - you can change the point estimate type to mean, median, or mode
-% - the sampler can be 'jags' or 'stan', although stan models are not yet
-% full complete
+% - the sampler can be 'jags'
 
 
 % If we didn't ask for plots when we ran the model, then we do that

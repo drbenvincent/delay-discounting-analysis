@@ -11,7 +11,7 @@ classdef test_AllParametricModels < matlab.unittest.TestCase
 	end
 
 	properties (TestParameter)
-		sampler = {'jags', 'stan'};
+		sampler = {'jags'};
 		model = getAllParametricModelNames();
 		pointEstimateType = {'mean','median','mode'}
 		chains = {2,3,4}
@@ -24,7 +24,7 @@ classdef test_AllParametricModels < matlab.unittest.TestCase
 			addpath('~/git-local/delay-discounting-analysis/ddToolbox')
 			datapath = '~/git-local/delay-discounting-analysis/demo/datasets/kirby';
 
-			% only analyse 2 people, for speed of running tests			
+			% only analyse 2 people, for speed of running tests
 			filesToAnalyse = allFilesInFolder(datapath, 'txt');
 			filesToAnalyse = filesToAnalyse(1:2);
 			testCase.data = Data(datapath, 'files', filesToAnalyse);
@@ -97,8 +97,8 @@ classdef test_AllParametricModels < matlab.unittest.TestCase
 
 			% TODO: DO AN ACTUAL TEST HERE !!!!!!!!!!!!!!!!!!!!!!
 		end
-		
-		
+
+
 		function getting_predicted_values(testCase, model, sampler)
 			% make model
 			makeModelFunction = str2func(model);
@@ -109,20 +109,20 @@ classdef test_AllParametricModels < matlab.unittest.TestCase
 								'nchains', 2,...
 								'nburnin', get_burnin_for_tests()),...
 								'shouldPlot','no');
-			
+
 			% Get inferred present subjective values of
 			[predicted_subjective_values] =...
 				modelFitted.getInferredPresentSubjectiveValues();
 
 			testCase.assertTrue(isstruct(predicted_subjective_values))
-			
+
 			% TODO: one test per method?
 			% tests for point estimates being a table
 			testCase.assertTrue(istable(predicted_subjective_values.point_estimates))
-			
+
 		end
-		
-		
+
+
 		function model_disp_function(testCase, model, sampler)
 			% make model
 			makeModelFunction = str2func(model);
@@ -136,7 +136,7 @@ classdef test_AllParametricModels < matlab.unittest.TestCase
 			% Can we call the disp function without error?
 			disp(modelFitted)
 		end
-		
+
 
 	end
 

@@ -92,8 +92,9 @@ classdef DataImporter
 								newR(t,1) = 1;
 						end
 					end
+					experimentTable.R = newR;
 				end
-				experimentTable.R = newR;
+				
 				
 				%% Add ID column
 				experimentTable = appendTableColOfVals(experimentTable, n);
