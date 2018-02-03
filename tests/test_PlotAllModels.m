@@ -1,48 +1,43 @@
 classdef test_PlotAllModels < matlab.unittest.TestCase
-	
+
 	properties
 		data
 		savePath = tempname(); % matlab auto-generated temp folders
 	end
-	
+
 	properties (TestParameter)
 		model = getAllParametricModelNames;
 		pointEstimateType = {'mean','median','mode'};
 		dataset = {'kirby', 'non_parametric'};
 		chains = {2,3}
 	end
-	
+
 	%% CLASS-LEVEL SETUP/TEARDOWN -----------------------------------------
 % 	methods (TestClassSetup)
 % 		function setup(testCase)
 % 		end
 % 	end
-	
-	
+
+
 	methods(TestClassTeardown)
-		
+
 		function remove_temp_directory(testCase)
 			rmdir(testCase.savePath,'s')
 		end
-		
-		function delete_stan_related_outputs(testCase)
-			delete('*.data.R')
-			delete('*.csv')
-		end
-		
+
 		function close_figures(testCase)
 			close all
 		end
-		
+
 	end
-	
-	
+
+
 	%% THE ACTUAL TESTS ---------------------------------------------------
-	
+
 	methods (Test)
-		
+
 		function plot(testCase, model, dataset)
-			
+
 			%% Set up data
 			datapath = ['~/git-local/delay-discounting-analysis/demo/datasets/' dataset];
 			% assuming this is running on my maching
@@ -51,7 +46,7 @@ classdef test_PlotAllModels < matlab.unittest.TestCase
 			filesToAnalyse = allFilesInFolder(datapath, 'txt');
 			filesToAnalyse = filesToAnalyse(1:2);
 			testCase.data = Data(datapath, 'files', filesToAnalyse);
-			
+
 			%% Run model
 			makeModelFunction = str2func(model);
 			model = makeModelFunction(testCase.data,...
@@ -62,11 +57,11 @@ classdef test_PlotAllModels < matlab.unittest.TestCase
 				'nchains', 2,...
 				'nburnin', get_burnin_for_tests() ));
 			%model.plot();
-			
+
 			close all
 			% TODO: DO AN ACTUAL TEST HERE !!!!!!!!!!!!!!!!!!!!!!
 		end
-		
+
 	end
-	
+
 end
