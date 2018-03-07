@@ -4,7 +4,7 @@
 model{
 
 # DISCOUNT FUNCTION PARAMETERS =================================================
-# RANDOM (BY PARTICIPANT) FACTORS; HYPER-PRIORS = YES 
+# RANDOM (BY PARTICIPANT) FACTORS; HYPER-PRIORS = YES
 
 # priors over group M mean
 groupMmu_MEAN          <- -0.243
@@ -77,6 +77,7 @@ for (t in 1:length(ID)) {
 # response likelihood
 for (t in 1:length(ID)) {
 	R[t]  ~ dbern(P[t]) # likelihood of actual response
+  log_lik[t] <- logdensity.bern(R[t], P[t])
 }
 
 # POSTERIOR PREDICTION

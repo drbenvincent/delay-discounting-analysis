@@ -7,6 +7,10 @@ classdef (Abstract) Model
 		coda % handle to coda object
 		data % handle to Data class
 	end
+	
+	properties (Hidden = false, SetAccess = protected, GetAccess = public)
+		WAIC_stats
+	end
 
 	%% Private properties
 	properties (SetAccess = protected, GetAccess = protected)
@@ -255,7 +259,18 @@ classdef (Abstract) Model
 			%% Calculate AUC
 			MAX_DELAY = 365;
 			obj.auc = obj.calcAreaUnderCurveForAll(MAX_DELAY);
-
+			
+			%% Calculate WAIC
+			% first, prepare a table of log likelihood values. Rows are
+			% observations, columns are MCMC samples.
+			samples = obj.coda.getSamples({'log_lik'});
+			% collapse over chains
+			[chains, samples_per_chain, N] = size(samples.log_lik);
+			log_lik = reshape(samples.log_lik, chains*samples_per_chain, N)';
+			%  second, create WAIC object
+			obj.WAIC_stats = WAIC(log_lik);
+			
+			obj.WAIC_stats.modelName = class(obj);
 		end
 
 		function auc = calcAreaUnderCurveForAll(obj, MAX_DELAY)

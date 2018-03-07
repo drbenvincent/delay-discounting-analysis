@@ -4,7 +4,7 @@
 model{
 
 # DISCOUNT FUNCTION PARAMETERS =================================================
-# RANDOM (BY PARTICIPANT) FACTORS; HYPER-PRIORS = YES 
+# RANDOM (BY PARTICIPANT) FACTORS; HYPER-PRIORS = YES
 
 groupLogKmu       ~ dnorm(log(1/50),1/(2.5^2))
 groupLogKsigma    ~ dexp(0.5)
@@ -16,7 +16,7 @@ for (p in 1:(nRealExperimentFiles+1)){ # +1 for unobserved participant
     # using reparameterisation to avoid funnel of hell
     logk_offset[p] ~ dnorm(0,1)
     logk[p] <- groupLogKmu + logk_offset[p] * groupLogKsigma
-    
+
     S[p]       ~ dnorm(S_MEAN, S_PRECISION) T(-1,)
 }
 
@@ -59,6 +59,7 @@ for (t in 1:length(ID)) {
 # response likelihood
 for (t in 1:length(ID)) {
 	R[t]  ~ dbern(P[t]) # likelihood of actual response
+  log_lik[t] <- logdensity.bern(R[t], P[t])
 }
 
 # POSTERIOR PREDICTION

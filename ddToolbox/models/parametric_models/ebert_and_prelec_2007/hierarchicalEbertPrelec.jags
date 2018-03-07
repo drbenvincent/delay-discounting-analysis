@@ -4,23 +4,23 @@
 model{
 
 # DISCOUNT FUNCTION PARAMETERS =================================================
-# RANDOM (BY PARTICIPANT) FACTORS; HYPER-PRIORS = YES 
+# RANDOM (BY PARTICIPANT) FACTORS; HYPER-PRIORS = YES
 
 groupKmu       ~ dnorm(0,1/(0.5^2))
 groupKsigma    ~ dexp(0.5)
 
-groupTAUmu          ~ dnorm(1,1/(1^2))       
-groupTAUsigma     ~ dexp(0.5) 
+groupTAUmu          ~ dnorm(1,1/(1^2))
+groupTAUsigma     ~ dexp(0.5)
 
 for (p in 1:(nRealExperimentFiles+1)){ # +1 for unobserved participant
     # using reparameterisation to avoid funnel of hell
     k_offset[p]     ~ dnorm(0,1)
     k[p]            <- groupKmu + k_offset[p] * groupKsigma
-    
+
     # TODO: use reparameterisation to avoid funnel of hell
     #TAU_offset[p]  ~ dnorm(0,1)
     #tau[p]         <- groupTAUmu + TAU_offset[p] * groupTAUsigma
-    
+
     tau[p]          ~ dnorm(groupTAUmu, groupTAUsigma) T(0,)
 }
 
@@ -63,6 +63,7 @@ for (t in 1:length(ID)) {
 # response likelihood
 for (t in 1:length(ID)) {
 	R[t]  ~ dbern(P[t]) # likelihood of actual response
+  log_lik[t] <- logdensity.bern(R[t], P[t])
 }
 
 # POSTERIOR PREDICTION

@@ -1,56 +1,56 @@
 classdef (Abstract) NonParametric < Model
 	%NonParametric  NonParametric is a subclass of Model for examining models that do NOT make parametric assumptions about the discount function.
-	
+
 	properties (Access = private)
 		%AUC_DATA
 	end
-	
+
 	methods (Access = public)
-		
+
 		function obj = NonParametric(data, varargin)
 			obj = obj@Model(data, varargin{:});
 			obj.dfClass = @DF_NonParametric;
 			% Create variables
 			obj.varList.participantLevel = {'Rstar'};
-			obj.varList.monitored = {'Rstar', 'alpha', 'epsilon', 'Rpostpred', 'P'};
-			
+			obj.varList.monitored = {'log_lik', 'Rstar', 'alpha', 'epsilon', 'Rpostpred', 'P'};
+
 			obj.varList.discountFunctionParams(1).name = 'Rstar';
 			obj.varList.discountFunctionParams(1).label = 'Rstar';
-			
+
 			obj.plotOptions.dataPlotType = '2D';
 		end
-		
-		
+
+
 		% % TODO: do this by injecting new AUC values into CODA?
 		% function [auc] = getAUC(obj)
 		% 	% return AUC measurements.
 		% 	% This will return an object array of stocastic objects
 		% 	names = obj.data.getIDnames('all');
-		% 	
+		%
 		% 	for ind = 1:numel(names)
 		% 		personInfo = obj.getExperimentData(ind);
 		% 		discountFunction = obj.dfClass('delays',personInfo.delays,...
 		% 			'theta', personInfo.dfSamples);
-		% 		
+		%
 		% 		% append to object array
 		% 		auc(ind) = discountFunction.AUC;
 		% 	end
 		% end
-		
+
 	end
-	
+
     methods (Hidden = true)
         function dispModelInfo(obj)
             display('Discount function: fits indiferrence points to each delay independently')
         end
     end
-	
+
 	methods (Static, Access = protected)
-		
+
 		function observedData = additional_model_specific_ObservedData(observedData)
 			observedData.uniqueDelays = sort(unique(observedData.DB))';
 			observedData.delayLookUp = calcDelayLookup();
-			
+
 			function delayLookUp = calcDelayLookup()
 				delayLookUp = observedData.DB;
 				for n=1: numel(observedData.uniqueDelays)
@@ -59,16 +59,16 @@ classdef (Abstract) NonParametric < Model
 				end
 			end
 		end
-		
+
 	end
-	
+
 	methods (Access = private)
-		
+
 		% TODO: All this will be removed once refactoring of
 		function personStruct = getExperimentData(obj, p)
-			
-			
-			
+
+
+
 			% Create a structure with all the useful info about a person
 			% p = person number
 			participantName = obj.data.getIDnames(p);
@@ -81,29 +81,29 @@ classdef (Abstract) NonParametric < Model
 			personStruct.delays = obj.observedData.uniqueDelays;
 			personStruct.dfSamples = obj.extractDiscountFunctionSamples(p);
 			personStruct.data = obj.data.getExperimentData(p);
-			
+
 			% TODO: THIS IS A BOTCH ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			% the model currently assumes all participants have been
 			% tested on the same set of delays. But this is not
 			% necessarily true. So here we need to exclude inferences
 			% about discount fractions for delays that this person was
 			% never tested on.
-			
+
 			% want to remove:
 			% - columns of personStruct.dfSamples
 			% - personStruct.delays
 			% where this person was not tested on this delay
-			
+
 			temp = obj.data.getRawDataTableForParticipant(p);
 			delays_tested = unique(temp.DB);
-			
+
 			keep = ismember(personStruct.delays, delays_tested);
-			
+
 			personStruct.delays = personStruct.delays(keep);
 			personStruct.dfSamples = personStruct.dfSamples(:,keep);
 			% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		end
-		
+
 		function dfSamples = extractDiscountFunctionSamples(obj, personNumber)
 			samples = obj.coda.getSamples({'Rstar'});
 			[chains, nSamples, participants, nDelays] = size(samples.Rstar);
@@ -113,21 +113,21 @@ classdef (Abstract) NonParametric < Model
 				dfSamples(:,d) = vec(personSamples(:,:,d));
 			end
 		end
-		
+
 	end
-	
-	
-	
-	
-	
+
+
+
+
+
 	% ==========================================================================
 	% ==========================================================================
 	% PLOTTING
 	% ==========================================================================
 	% ==========================================================================
-	
+
 	methods (Access = public)
-		
+
 		function plot(obj, varargin) % overriding from Model base class
             %plot Plots EVERYTHING
             %   PLOT(model) or model.PLOT will call all plot functions.
@@ -136,16 +136,16 @@ classdef (Abstract) NonParametric < Model
             %   [...] = model.PLOT(PARAM1,VAL1,PARAM2,VAL2,...) specifies one
             %   or more of the following name/value pairs:
             %
-            %      'shouldExportPlots' Either true or false. Default is true. 
-            
+            %      'shouldExportPlots' Either true or false. Default is true.
+
             close all
-			
+
 			% parse inputs
 			p = inputParser;
 			p.FunctionName = mfilename;
 			p.addParameter('shouldExportPlots', true, @islogical);
 			p.parse(varargin{:});
-			
+
 			obj.plotDiscountFunctionGrid();
 			% Export
 			if obj.plotOptions.shouldExportPlots
@@ -154,7 +154,7 @@ classdef (Abstract) NonParametric < Model
 					'suffix', obj.modelFilename,...
 					'formats', obj.plotOptions.exportFormats);
 			end
-			
+
 			obj.plotDiscountFunctionsOverlaid();
 			% Export
 			if obj.plotOptions.shouldExportPlots
@@ -163,65 +163,65 @@ classdef (Abstract) NonParametric < Model
 					'suffix', obj.modelFilename,...
 					'formats', obj.plotOptions.exportFormats);
 			end
-			
+
 			% EXPERIMENT PLOT ==================================================
 			obj.psychometric_plots();
 			obj.plotAllExperimentFigures();
-			
+
 			% Posterior prediction plot
             dfPlotFunc = @(n, fh) obj.plotDiscountFunction(n, 'axisHandle',fh);
             obj.postPred.plot(obj.plotOptions, obj.modelFilename, dfPlotFunc)
-			
-			
+
+
 			%% TODO...
 			% FOREST PLOT OF AUC VALUES ========================================
 			% TODO: Think about plotting this with GRAMM
 			% https://github.com/piermorel/gramm
 			%
 			%figUnivariateSummary(alldata)
-			
+
 		end
-		
-		
+
+
 		function plotExperimentOverviewFigure(obj, ind)
             %model.plotExperimentOverviewFigure(N) Creates a multi-panel figure
             %   model.plotExperimentOverviewFigure(N) creates a multi-panel figure
             %   corresponding to experiment N, where N is an integer.
-            
+
 			latex_fig(12, 14, 3)
 			h = layout([1 2 3]);
-			
+
 			% opts.pointEstimateType	= obj.plotOptions.pointEstimateType;
 			% opts.timeUnits			= obj.timeUnits;
-			
+
 % 			% create cell arrays of relevant variables
 % 			discountFunctionVariables = {obj.varList.discountFunctionParams.name};
 % 			responseErrorVariables    = {obj.varList.responseErrorParams.name};
-			
+
 			obj.plotPosteriorErrorParams(ind, 'axisHandle', h(1))
 			obj.plotPosteriorAUC(ind, 'axisHandle', h(2))
 			obj.plotDiscountFunction(ind, 'axisHandle', h(3))
-			
+
 		end
-		
+
 	end
-	
+
 	methods (Access = protected)
-		
+
 		function psychometric_plots(obj)
 			% TODO: plot data on these figures
-			
+
 			names = obj.data.getIDnames('all');
 			for ind = 1:numel(names) % loop over files
 				fh = figure('Name', ['participant: ' names{ind}]);
 				latex_fig(12,10, 8)
-				
+
 				personStruct = getExperimentData(obj, ind);
-				
+
 				% work out a good subplot arrangement
 				nSubplots = numel(personStruct.delays);
 				subplot_handles = create_subplots(nSubplots, 'square');
-				
+
 				% plot a set of psychometric functions, one for each delay tested
 				for d = 1:nSubplots
 					subplot(subplot_handles(d))
@@ -230,7 +230,7 @@ classdef (Abstract) NonParametric < Model
 					samples = obj.coda.getSamplesAtIndex_asStochastic(ind,{'alpha','epsilon'});
 					samples.indifference = Stochastic('rstar');
 					samples.indifference.addSamples(personStruct.dfSamples(:,d));
-					
+
 					psycho = DF_SLICE_PsychometricFunction('samples', samples);
 					psycho.plot();
 					%% plot response data TODO: move this to Data ~~~~~~~~~
@@ -256,6 +256,6 @@ classdef (Abstract) NonParametric < Model
 				close(fh)
 			end
 		end
-		
+
 	end
 end

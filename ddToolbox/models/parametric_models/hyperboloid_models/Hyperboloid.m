@@ -8,10 +8,10 @@ classdef (Abstract) Hyperboloid < SubjectiveTimeModel
 
 			obj.dfClass = @DF_Hyperboloid;
             obj.subjectiveTimeFunctionFH = @SubjectiveTimeWebber;
-            
+
 			% Create variables
 			obj.varList.participantLevel = {'logk','S','alpha','epsilon'};
-			obj.varList.monitored = {'logk','S','alpha','epsilon', 'Rpostpred', 'P', 'VA', 'VB'};
+			obj.varList.monitored = {'log_lik', 'logk','S','alpha','epsilon', 'Rpostpred', 'P', 'VA', 'VB'};
             obj.varList.discountFunctionParams(1).name = 'logk';
 			obj.varList.discountFunctionParams(1).label = '$\log(k)$';
             obj.varList.discountFunctionParams(2).name = 'S';
@@ -27,5 +27,5 @@ classdef (Abstract) Hyperboloid < SubjectiveTimeModel
             display('Discount function: V = 1 / (1+k*delay)^S')
         end
     end
-    
+
 end

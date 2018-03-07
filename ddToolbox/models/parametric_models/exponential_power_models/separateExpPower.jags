@@ -8,7 +8,7 @@ model{
 
 
 # DISCOUNT FUNCTION PARAMETERS =================================================
-# RANDOM (BY PARTICIPANT) FACTORS; HYPER-PRIORS = NO 
+# RANDOM (BY PARTICIPANT) FACTORS; HYPER-PRIORS = NO
 
 K_MEAN          <- 0                     # <---- currently guesstimating
 K_PRECISION     ~ dgamma(1, 1)     #sigma=0.1         # <---- currently guesstimating
@@ -54,6 +54,7 @@ for (t in 1:length(ID)) {
 # response likelihood
 for (t in 1:length(ID)) {
 	R[t]  ~ dbern(P[t]) # likelihood of actual response
+	log_lik[t] <- logdensity.bern(R[t], P[t])
 }
 
 # POSTERIOR PREDICTION
