@@ -28,8 +28,7 @@ classdef PosteriorPrediction
 				obj.controlModelProbChooseDelayed(p) = obj.postPred(p).proportion_chose_delayed;
 				
 				% Calculate metrics
-				obj.postPred(p).score = obj.calcPostPredOverallScore(responses_predicted, responses_actual, obj.controlModelProbChooseDelayed(p));
-				obj.postPred(p).GOF_distribtion	= obj.calcGoodnessOfFitDistribution(responses_inferredPB, responses_actual, obj.controlModelProbChooseDelayed(p));
+				obj.postPred(p).log_loss_distribution	= obj.calcLogLossDistribution(responses_inferredPB, responses_actual);
 				obj.postPred(p).percentPredictedDistribution = obj.calcPercentResponsesCorrectlyPredicted(responses_inferredPB, responses_actual);
 				% Store
 				obj.postPred(p).responses_actual	= responses_actual;
@@ -56,12 +55,12 @@ classdef PosteriorPrediction
 		
 		% PUBLIC GETTERS --------------------------------------------------
 		
-		function score = getScores(obj)
-			score = [obj.postPred(:).score]';
-		end
-		
 		function pp = getPercentPredictedDistribution(obj)
 			pp = {obj.postPred(:).percentPredictedDistribution};
+		end
+		
+		function pp = getLogLossDistribution(obj)
+			pp = {obj.postPred(:).log_loss_distribution};
 		end
 		
 		function postPredTable = getPostPredTable(obj)
@@ -80,17 +79,17 @@ classdef PosteriorPrediction
 			% Arrange subplots
 			h = layout([1 4; 2 3]);
 			subplot(h(1)), obj.pp_plotTrials(n)
-			subplot(h(2)), obj.pp_plotGOFdistribution(n, plotOptions)
+			subplot(h(2)), obj.pp_plotLogLossDistribution(n, plotOptions)
 			subplot(h(3)), obj.pp_plotPercentPredictedDistribution(n, plotOptions)
 			plotDiscountFunction(n, h(4))
 			
 			drawnow
 		end
 		
-		function pp_plotGOFdistribution(obj, n, plotOptions)
+		function pp_plotLogLossDistribution(obj, n, plotOptions)
 			uni = mcmc.UnivariateDistribution(...
-				obj.postPred(n).GOF_distribtion(:),...
-				'xLabel', 'goodness of fit score',...
+				obj.postPred(n).log_loss_distribution(:),...
+				'xLabel', 'Log Loss',...
 				'plotStyle','hist',...
 				'pointEstimateType', plotOptions.pointEstimateType);
 		end
@@ -139,11 +138,12 @@ classdef PosteriorPrediction
 		end
 		
 		function postPredTable = makePostPredTable(obj, data, pointEstimateType)
-			postPredTable = table(obj.getScores(),...
+			postPredTable = table(...
 				obj.calc_percent_predicted_point_estimate(pointEstimateType),...
+				obj.calc_log_loss_point_estimate(pointEstimateType),...
 				obj.any_percent_predicted_warnings(),...
 				'RowNames', data.getIDnames('experiments'),...
-				'VariableNames',{'ppScore' 'percentPredicted' 'warning_percent_predicted'});
+				'VariableNames',{'percentPredicted' 'LogLoss' 'warning_percent_predicted'});
 			
 			if data.isUnobservedPartipantPresent()
 				% add extra row of NaN's on the bottom for the unobserved participant
@@ -163,6 +163,14 @@ classdef PosteriorPrediction
 				obj.getPercentPredictedDistribution())';
 		end
 		
+		function percentPredicted = calc_log_loss_point_estimate(obj, pointEstimateType)
+			% Calculate point estimates of perceptPredicted. use the point
+			% estimate type that the user specified
+			pointEstFunc = str2func(pointEstimateType);
+			percentPredicted = cellfun(pointEstFunc,...
+				obj.getLogLossDistribution())';
+		end
+		
 		function pp_warning = any_percent_predicted_warnings(obj)
 			% warnings when we have less than 95% confidence that we can
 			% predict more responses than the control model
@@ -179,15 +187,10 @@ classdef PosteriorPrediction
 	
 	methods (Access = private, Static)
 		
-		function [score] = calcGoodnessOfFitDistribution(responses_predictedMCMC, responses_actual, proportion_chose_delayed)
-			% Expand the participant responses so we can do vectorised calculations below
-			totalSamples			= size(responses_predictedMCMC,2);
-			responses_actual		= repmat(responses_actual, [1,totalSamples]);
-			responses_control_model = ones(size(responses_actual)) .* proportion_chose_delayed;
-			
-			score = calcLogOdds(...
-				calcDataLikelihood(responses_actual, responses_predictedMCMC),...
-				calcDataLikelihood(responses_actual, responses_control_model));
+		function logloss = calcLogLossDistribution(predicted, actual)
+			% log loss for binary variables
+			logloss = - (sum(actual .* log(predicted) + (1 - actual) ...
+				.* log(1 - predicted))) ./ length(actual);
 		end
 		
 		function percentResponsesPredicted = calcPercentResponsesCorrectlyPredicted(responses_predictedMCMC, responses_actual)
@@ -200,17 +203,6 @@ classdef PosteriorPrediction
 			responses_actual			= repmat(responses_actual, [1,totalSamples]);
 			isCorrectPrediction			= modelPrediction == responses_actual;
 			percentResponsesPredicted	= sum(isCorrectPrediction,1)./nQuestions;
-		end
-		
-		function score = calcPostPredOverallScore(responses_predicted, responses_actual, proportion_chose_delayed)
-			% Calculate log posterior odds of data under the model and a
-			% control model where prob of responding is proportion_chose_delayed.
-			
-			% NOTE: This is model comparison, not posterior prediction
-			responses_control_model = ones(size(responses_predicted)).*proportion_chose_delayed;
-			score = calcLogOdds(...
-				calcDataLikelihood(responses_actual, responses_predicted'),...
-				calcDataLikelihood(responses_actual, responses_control_model'));
 		end
 		
 		function exportFigure(plotOptions, prefix_string, modelFilename)
@@ -226,15 +218,4 @@ classdef PosteriorPrediction
 		
 	end
 	
-end
-
-function logOdds = calcLogOdds(a,b)
-logOdds = log(a./b);
-end
-
-function dataLikelihood = calcDataLikelihood(responses, predicted)
-% Responses are Bernoulli distributed: a special case of the Binomial with 1 event.
-dataLikelihood = prod(binopdf(responses, ...
-	ones(size(responses)),...
-	predicted));
 end
