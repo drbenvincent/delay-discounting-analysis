@@ -2,6 +2,8 @@
 
 Vincent, B. T. (2016) **[Hierarchical Bayesian estimation and hypothesis testing for delay discounting tasks](http://link.springer.com/article/10.3758%2Fs13428-015-0672-2)**, Behavior Research Methods. 48(4), 1608-1620. doi:10.3758/s13428-015-0672-2
 
+[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://drbenvincent.github.io/delay-discounting-analysis/)
+![](https://img.shields.io/github/license/drbenvincent/delay-discounting-analysis.svg)
 [![Issue Stats](http://issuestats.com/github/drbenvincent/delay-discounting-analysis/badge/issue?style=flat-square)](http://issuestats.com/github/drbenvincent/delay-discounting-analysis)
 
 ## What does this toolbox do?
@@ -21,28 +23,15 @@ Key features:
 * Posterior predictive checks help evaluate model goodness and aid data exclusion decisions.
 * Publication quality figures.
 
-## Documentation and help.
-Go to the [wiki Documentation](https://github.com/drbenvincent/delay-discounting-analysis/wiki) for full instructions.
+## Resources
+**Documentation:** [https://drbenvincent.github.io/delay-discounting-analysis/](https://drbenvincent.github.io/delay-discounting-analysis/)
+
+**Introductory video:** [https://www.youtube.com/watch?v=kDafp-xB7js](https://www.youtube.com/watch?v=kDafp-xB7js)
+
+## Questions, comments
 
 Please use the [GitHub Issues](https://github.com/drbenvincent/delay-discounting-analysis/issues) feature to ask question, report a bug, or request a feature. You'll need a GitHub account to do this, which isn't very hard to set up.
 
 But you could always email me or tweet me [@inferenceLab](https://twitter.com/inferencelab) instead.
 
-
-## Installation and use
-Getting up and running is relatively easy. See the [full installation instructions](https://github.com/drbenvincent/delay-discounting-analysis/wiki/Getting-Started) on the wiki.
-
-The commands use to get your analysis up and running are quite quick and easy. A [demo is provided](https://github.com/drbenvincent/delay-discounting-analysis/tree/master/demo) to show how to use the toolbox with your own data.
-
-
-## More information
-
-### Read the research paper
-Vincent, B. T. (2016) [Hierarchical Bayesian estimation and hypothesis testing for delay discounting tasks](http://link.springer.com/article/10.3758%2Fs13428-015-0672-2), Behavior Research Methods. 48(4), 1608-1620. doi:10.3758/s13428-015-0672-2
-
-### Videos
-Click below to follow through to youtube videos...
-
-**Summary of using the code**
-
-[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/kDafp-xB7js/0.jpg)](https://www.youtube.com/watch?v=kDafp-xB7js)
+I'm very happy if people would like to contribute to the toolbox in any way. Please see the [CONTRIBUTING.md](https://github.com/drbenvincent/delay-discounting-analysis/blob/master/CONTRIBUTING.md) document.
