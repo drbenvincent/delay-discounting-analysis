@@ -31,4 +31,3 @@ Vincent, B. T. (2016) **[Hierarchical Bayesian estimation and hypothesis testing
 - [Hyperpriors / parameter pooling](discussion/hyperpriors.md)
 - [Level of parameter pooling](discussion/level_of_pooling.md)
 - [Hypothesis testing](discussion/hypothesis_testing.md)
-- [STAN](discussion/stan.md)
