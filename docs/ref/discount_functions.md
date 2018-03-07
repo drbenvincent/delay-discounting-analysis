@@ -1,5 +1,11 @@
 # Discount functions available
 
+A number of discounting models are available, all with the following basic form. The models differ in either a) presence/absence of hyperpriors, b) the discount functions in the data generating process which specifies the response probability.
+
+![](bayes_graphical_model.png)
+
+The 'data generating process' describes the response probability. This consists of the psychometric link function which captures response errors, and the discount function which computes the present subjective value of prospects. See the paper for details.
+
 |  Discount function    | Equation | Model suffix | Main parameters |
 | :---         |     :---:             |         :---:  |  :---:  |
 | Exponential  |  `exp(-k*D)`  | `*Exp1`  | `k` |
