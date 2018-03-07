@@ -1,7 +1,11 @@
 classdef WAIC
     %WAIC WAIC object
     %   Extended description here
-    
+    %
+	% References
+	% Gelman, A., Carlin, J. B., Stern, H. S., Dunson, D. B., Vehtari, A., 
+	% & Rubin, D. B. (2013). Bayesian Data Analysis, Third Edition. 
+	% CRC Press.
     properties (SetAccess = protected)
 		lppd, pWAIC, WAIC_value, WAIC_standard_error
 		nSamples, nCases
@@ -23,19 +27,21 @@ classdef WAIC
 			clear log_lik
 			
 			% Calculate lppd
+			% Equation 7.5 from Gelman et al (2013) 
 			obj.lppd_vec = log( mean( exp(obj.log_lik) , 2) );
 			obj.lppd = sum(obj.lppd_vec);
 			
 			% Calculate effective number of samples, pWAIC
+			% Equation 7.12 from Gelman et al (2013) 
 			obj.pWAIC_vec = var(obj.log_lik,0,2);
 			obj.pWAIC = sum(obj.pWAIC_vec);
 			
 			% Calculate WAIC
-			obj.WAIC_value = -2 * ( obj.lppd - obj.pWAIC );
+			obj.WAIC_value = -2 * obj.lppd + 2 * obj.pWAIC;
 			
-			% Calculate standard error
-			obj.WAIC_vec = -2 * ( obj.lppd_vec - obj.pWAIC_vec );
-			obj.WAIC_standard_error = sqrt(obj.nCases)*var(obj.WAIC_vec);
+			% Calculate WAIC standard error
+			obj.WAIC_vec = -2 * obj.lppd_vec + 2 * obj.pWAIC_vec;
+			obj.WAIC_standard_error = sqrt(obj.nCases)*std(obj.WAIC_vec);
 			
 		end
 		
@@ -50,6 +56,7 @@ classdef WAIC
 			lppd = [obj.lppd]';
 			SE = [obj.WAIC_standard_error]';
 			dWAIC = WAIC - min(WAIC);
+			weight = exp(-0.5.*dWAIC) ./ sum(exp(-0.5.*dWAIC));
 			
 			% dSE is the SE of the difference in WAIC (not SE!) between 
 			% each model and the top ranked model
@@ -61,34 +68,32 @@ classdef WAIC
 					% Calculate SE of difference (of WAIC values) between
 					% model m and i_best_model
 					WAIC_diff = obj(i_best_model).WAIC_vec - obj(m).WAIC_vec;
-					dSE(m,1) = sqrt(obj(m).nCases)*var(WAIC_diff);
+					dSE(m,1) = sqrt(obj(m).nCases)*std(WAIC_diff);
 				end
 			end
 			% create table
-			comparisonTable = table(model, WAIC, pWAIC, dWAIC, SE, dSE, lppd);
+			comparisonTable = table(model, WAIC, pWAIC, dWAIC, weight, SE, dSE, lppd);
 			% sort so best models (lowest WAIC) values are at top of table
 			comparisonTable = sortrows(comparisonTable,{'WAIC'},{'ascend'});
 		end
 		
 		function plot(obj)
-			clf
+			% produce a WAIC comparison plot
 			
-			% First build the comparison table
 			comparisonTable = obj.compare();
-			
-			
-			% Now plot stuff
 			
 			% define y-value positions for each model
 			y = [1:1:size(comparisonTable,1)];
 
+			ms = 6;
+			clf
 			hold on
 			
 			% in-sample deviance as solid circles
 			in_sample_deviance = -2*comparisonTable.lppd;
-			isd = plot(in_sample_deviance, y, 'ko', 'MarkerFaceColor','k');
-			
-			
+			isd = plot(in_sample_deviance, y, 'ko',...
+				'MarkerFaceColor','k',...
+				'MarkerSize', ms);
 			
 			% WAIC as empty cirlcles, with SE errorbars
 			%waic = plot(comparisonTable.WAIC, y, 'ko');
@@ -96,16 +101,19 @@ classdef WAIC
 				'horizontal',...
 				'o',...
 				'LineStyle', 'none',...
-				'Color', 'k');
+				'Color', 'k',...
+				'MarkerFaceColor','w',...
+				'MarkerSize', ms);
 			
 			% plot dSE models
 			waic_diff = errorbar(comparisonTable.dWAIC([2:end])+min(comparisonTable.WAIC),...
-				y([2:end])+0.2, comparisonTable.dSE([2:end]),...
+				y([2:end])-0.2, comparisonTable.dSE([2:end]),...
 				'horizontal',...
 				'^',...
 				'LineStyle', 'none',...
-				'Color', [0.5 0.5 0.5]);
-			
+				'Color', [0.5 0.5 0.5],...
+				'MarkerFaceColor','w',...
+				'MarkerSize', ms);
 			
 			% formatting
 			xlabel('deviance');
