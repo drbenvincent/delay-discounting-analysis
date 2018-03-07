@@ -10,7 +10,7 @@ classdef (Abstract) BetaDelta < Parametric
 
 			% Create variables
 			obj.varList.participantLevel = {'beta','delta','epsilon'};
-			obj.varList.monitored = {'beta','delta', 'alpha','epsilon', 'Rpostpred', 'P', 'VA', 'VB'};
+			obj.varList.monitored = {'log_lik', 'beta','delta', 'alpha','epsilon', 'Rpostpred', 'P', 'VA', 'VB'};
     		obj.varList.discountFunctionParams(1).name = 'beta';
 			obj.varList.discountFunctionParams(1).label = '$\beta$';
 			obj.varList.discountFunctionParams(2).name = 'delta';

@@ -8,7 +8,7 @@ model{
 
 
 # DISCOUNT FUNCTION PARAMETERS =================================================
-# RANDOM (BY PARTICIPANT) FACTORS; HYPER-PRIORS = NO 
+# RANDOM (BY PARTICIPANT) FACTORS; HYPER-PRIORS = NO
 
 K_MEAN            <- 0                     # <---- currently guesstimating
 K_PRECISION       <- 1/(0.01)              # <---- currently guesstimating
@@ -45,7 +45,7 @@ epsilon_beta <- (1-groupW)*(groupK-2)+1
 
 for (p in 1:(nRealExperimentFiles+1)){ # +1 for unobserved participant
     epsilon[p]  ~ dbeta(epsilon_alpha , epsilon_beta ) T(,0.5)
-    
+
     # using reparameterisation to avoid funnel of hell
     alpha_offset[p] ~ dnorm(0,1) T(0,)
     alpha[p] <- alpha_mu + alpha_offset[p] * alpha_sigma
@@ -62,6 +62,7 @@ for (t in 1:length(ID)) {
 # response likelihood
 for (t in 1:length(ID)) {
 	R[t]  ~ dbern(P[t]) # likelihood of actual response
+	log_lik[t] <- logdensity.bern(R[t], P[t])
 }
 
 # POSTERIOR PREDICTION

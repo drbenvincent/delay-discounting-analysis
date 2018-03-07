@@ -8,7 +8,7 @@ model{
 
 
 # DISCOUNT FUNCTION PARAMETERS =================================================
-# RANDOM (BY PARTICIPANT) FACTORS; HYPER-PRIORS = YES 
+# RANDOM (BY PARTICIPANT) FACTORS; HYPER-PRIORS = YES
 
 K_MEAN       ~ dnorm(0.01, 1/(0.5^2))
 K_PRECISION  ~ dgamma(0.001,0.001)
@@ -31,7 +31,7 @@ for (t in 1:length(ID)) {
 
 # comparison acuity (alpha) hyperprior
 groupALPHAmu        ~ dnorm(0,1/(100^2)) T(0,)
-groupALPHAsigma     ~ dunif(0,100) 
+groupALPHAsigma     ~ dunif(0,100)
 
 # error rates (epsilon) hyperprior
 groupW          ~ dbeta(1.1, 10.9)  # mode for lapse rate
@@ -43,7 +43,7 @@ epsilon_beta <- (1-groupW)*(groupK-2)+1
 
 for (p in 1:(nRealExperimentFiles+1)){ # +1 for unobserved participant
     epsilon[p]  ~ dbeta(epsilon_alpha , epsilon_beta ) T(,0.5)
-    
+
     # using reparameterisation to avoid funnel of hell
     alpha_offset[p] ~ dnorm(0,1) T(0,)
     alpha[p] <- groupALPHAmu + alpha_offset[p] * groupALPHAsigma
@@ -60,6 +60,7 @@ for (t in 1:length(ID)) {
 # response likelihood
 for (t in 1:length(ID)) {
 	R[t]  ~ dbern(P[t])
+  log_lik[t] <- logdensity.bern(R[t], P[t])
 }
 
 # POSTERIOR PREDICTION

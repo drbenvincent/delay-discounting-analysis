@@ -8,12 +8,12 @@ model{
 
 
 # DISCOUNT FUNCTION PARAMETERS =================================================
-# RANDOM (BY PARTICIPANT) FACTORS; HYPER-PRIORS = NO 
+# RANDOM (BY PARTICIPANT) FACTORS; HYPER-PRIORS = NO
 
-K_MEAN          <- 0       
+K_MEAN          <- 0
 K_PRECISION     <- 1/(0.5^2)
-TAU_MEAN        <- 1       
-TAU_PRECISION   <- 1/(1^2)   
+TAU_MEAN        <- 1
+TAU_PRECISION   <- 1/(1^2)
 
 for (p in 1:nRealExperimentFiles){       # no +1 because no shrinkage hyperprior
 	k[p]        ~ dnorm(K_MEAN, K_PRECISION)
@@ -56,6 +56,7 @@ for (t in 1:length(ID)) {
 # response likelihood
 for (t in 1:length(ID)) {
 	R[t]  ~ dbern(P[t]) # likelihood of actual response
+	log_lik[t] <- logdensity.bern(R[t], P[t])
 }
 
 # POSTERIOR PREDICTION

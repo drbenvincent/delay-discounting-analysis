@@ -10,7 +10,7 @@ classdef (Abstract) Hyperbolic1 < Parametric
 
 			% Create variables
 			obj.varList.participantLevel = {'logk','alpha','epsilon'};
-			obj.varList.monitored = {'logk','alpha','epsilon', 'Rpostpred', 'P', 'VA', 'VB'};
+			obj.varList.monitored = {'log_lik', 'logk','alpha','epsilon', 'Rpostpred', 'P', 'VA', 'VB'};
     	obj.varList.discountFunctionParams(1).name = 'logk';
 			obj.varList.discountFunctionParams(1).label = '$\log(k)$';
 
@@ -24,5 +24,5 @@ classdef (Abstract) Hyperbolic1 < Parametric
             display('Discount function: V = 1 / (1+k*delay)')
         end
     end
-    
+
 end

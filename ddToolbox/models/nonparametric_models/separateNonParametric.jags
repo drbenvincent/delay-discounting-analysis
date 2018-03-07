@@ -14,7 +14,7 @@
 # Parameters
 # - alpha
 # - epsilon
-# - Rstar: 
+# - Rstar:
 
 
 
@@ -39,7 +39,7 @@ for (d in 2:length(uniqueDelays)) {
 
 for (p in participantIndexList){
     epsilon[p]  ~ dbeta(epsilon_alpha , epsilon_beta ) T(,0.5)
-    
+
     # note reparameterisation is not working in this case. As in, it causes an error.
     alpha[p]    ~ dnorm(groupALPHAmu, 1/(groupALPHAsigma^2)) T(0,)
 
@@ -53,21 +53,22 @@ for (p in participantIndexList){
 
     for (d in 1:length(uniqueDelays)) {
         Rstar[p,d] ~ dnorm(mu[p,d], prec[d]) T(0,)
-        #Rstar[p,d] ~ dt(mu[p,d], prec[d], 1) T(0,) # equals Cauchy when k=1  
+        #Rstar[p,d] ~ dt(mu[p,d], prec[d], 1) T(0,) # equals Cauchy when k=1
     }
-    
+
 }
 
 for (t in 1:length(ID)) {
 	rewardratio[t] <- A[t]/B[t]
-    
+
     # if we are dealing with negative rewards, we want alpha to flip to negative, in order to 'horizontally flip' the psychometric function
     signflip[t] <- ifelse( B[t]>0, 1, -1 )
-    
+
 	df[t] <- Rstar[ID[t], delayLookUp[t]]
 	P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * (1 - phi( (rewardratio[t]-df[t]) / alpha[ID[t]]*signflip[t]  ))
 
 	R[t]         ~ dbern(P[t]) # likelihood of actual response
+  log_lik[t] <- logdensity.bern(R[t], P[t])
 	Rpostpred[t] ~ dbern(P[t]) # posterior predicted response
 }
 
