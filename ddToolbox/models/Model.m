@@ -269,6 +269,8 @@ classdef (Abstract) Model
 			log_lik = reshape(samples.log_lik, chains*samples_per_chain, N)';
 			%  second, create WAIC object
 			obj.WAIC_stats = WAIC(log_lik);
+			
+			obj.WAIC_stats.modelName = class(obj);
 		end
 
 		function auc = calcAreaUnderCurveForAll(obj, MAX_DELAY)
