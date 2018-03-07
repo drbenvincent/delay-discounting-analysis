@@ -11,6 +11,7 @@ Vincent, B. T. (2016) **[Hierarchical Bayesian estimation and hypothesis testing
 
 ## Tutorials
 - [Run the demo code](tutorial/run_demo_code)
+- [Model comparison](tutorial/model_comparison)
 
 ## How to
 - [Install the toolbox](howto/install.md)
