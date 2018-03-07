@@ -14,7 +14,6 @@ classdef test_AllNonParametricModels < matlab.unittest.TestCase
 	properties (TestParameter)
 		model = {'ModelSeparateNonParametric'}
 		pointEstimateType = {'mean','median','mode'}
-		sampler = {'jags'}
 		chains = {2,3,4}
 	end
 
@@ -82,19 +81,6 @@ classdef test_AllNonParametricModels < matlab.unittest.TestCase
 		end
 
 
-		function specifiedSampler(testCase, model, sampler)
-			% make model
-			makeModelFunction = str2func(model);
-			model = makeModelFunction(testCase.data,...
-				'savePath', testCase.savePath,...
-				'sampler', sampler,...
-				'shouldPlot','no',...
-				'mcmcParams', struct('nsamples', get_numer_of_samples_for_tests(),...
-				'nchains', 2,...
-				'nburnin', get_burnin_for_tests()));
-			% TODO: DO AN ACTUAL TEST HERE !!!!!!!!!!!!!!!!!!!!!!
-		end
-
 		function plotting(testCase, model)
 			% make model
 			makeModelFunction = str2func(model);
@@ -109,12 +95,11 @@ classdef test_AllNonParametricModels < matlab.unittest.TestCase
 			% TODO: DO AN ACTUAL TEST HERE !!!!!!!!!!!!!!!!!!!!!!
 		end
 
-		function model_disp_function(testCase, model, sampler)
+		function model_disp_function(testCase, model)
 			% make model
 			makeModelFunction = str2func(model);
 			modelFitted = makeModelFunction(testCase.data,...
 				'savePath', testCase.savePath,...
-				'sampler', sampler,...
 				'mcmcParams', struct('nsamples', get_numer_of_samples_for_tests(),...
 				'nchains', 2,...
 				'nburnin', get_burnin_for_tests()),...
