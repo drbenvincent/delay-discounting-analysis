@@ -92,7 +92,7 @@ waic.plot()
 
 ![](pooling_waic_fig2.png)
 
-Now we have a better look at the WAIC difference, relative to the best model (`ModelHierarchicalLogK`) under consideration. It looks as if the in-sample deviance is lower, but we are less interested in this. In terms of WAIC, the model is worse, but the standard error overlaps with the WAIC of the winning model. However the standard error of the WAIC difference of the `ModelSeparateLogK` model does not overlap with the winning model. So we have some suspicion that this model is genuinely worse.
+Now we have a better look at the WAIC difference (gray triangles), relative to the best model (`ModelHierarchicalLogK`) under consideration. It looks as if the in-sample deviance is lower, but we are less interested in this. In terms of WAIC, the model is worse, but the standard error overlaps with the WAIC of the winning model. However the standard error of the WAIC difference of the `ModelSeparateLogK` model does not overlap with the winning model. So we have some suspicion that this model is genuinely worse.
 
 This is pretty interesting. What we have seen here is that the _apparent_ increase in model complexity by adding (group-level) parameters actually makes the model simpler. The group-level hyperparameters are acting as shrinkage priors, making a _smaller_ region of data space plausible under the model (and priors). And what was most interesting was that adding even more parameters and specifying our knowledge of the magnitude effect made the model even better, as measured by WAIC.
 
