@@ -1,30 +1,62 @@
 classdef WAIC
     %WAIC WAIC object
-    %   Extended description here
+    % The WAIC object is intended to help conduct Bayesian model 
+	% comparison. 
+	% 
+	% Step 1: Create a WAIC object for each model we have. We do this by
+	% creating a WAIC instance, calling it with a table of log likeliood
+	% values. Each column corresponds to an MCMC sample, and each row
+	% corresponds to an observation. Creating a single WAIC object will
+	% result in various stats being calculated, but the intention is to
+	% compare mulitple models.
+	%
+	% We do this by creating an array of WAIC objects, one for each model.
+	% For example, assuming we already have our log liklihood tables
+	% produced by 3 models...
+	% >> waic_stats = [WAIC(ll1,'m1'), WAIC(ll2,'m2'), WAIC(ll3,'m3')]
+	% 
+	% Step 2: compare
+	% We now have an object array, and we can call the compare or plot
+	% methods on this. For example
+	% >> comparison_table = waic_stats.compare()
+	% will produce a table of WAIC comparison stats.
+	%
+	% and
+	% >> waic_stats.plot()
+	% will produce a nicely formatted
     %
 	% References
 	% Gelman, A., Carlin, J. B., Stern, H. S., Dunson, D. B., Vehtari, A., 
 	% & Rubin, D. B. (2013). Bayesian Data Analysis, Third Edition. 
 	% CRC Press.
+	%
+	% McElreath, R. (2016). Statistical Rethinking: A Bayesian Course with 
+	% Examples in R and Stan. CRC Press.
+	
     properties (SetAccess = protected)
 		lppd, pWAIC, WAIC_value, WAIC_standard_error
 		nSamples, nCases
 	end
 	
-	properties (Hidden = true)
+	properties (Hidden = true, SetAccess = protected)
 		log_lik
 		lppd_vec, pWAIC_vec, WAIC_vec
-		modelName
 	end
     
+	properties
+		model_name
+	end
+	
     methods
         
-        function obj = WAIC(log_lik)
+        function obj = WAIC(log_lik, model_name)
+			% WAIC constructor. The input log_lik should be a table of log
+			% likelihood values. Each column corresponds to an MCMC sample,
+			% and each row corresponds to an observation
 			
 			[obj.nCases, obj.nSamples] = size(log_lik);
-			
-			obj.log_lik = log_lik;
-			clear log_lik
+			obj.model_name = model_name;
+			obj.log_lik = log_lik; clear log_lik
 			
 			% Calculate lppd
 			% Equation 7.5 from Gelman et al (2013) 
@@ -37,12 +69,11 @@ classdef WAIC
 			obj.pWAIC = sum(obj.pWAIC_vec);
 			
 			% Calculate WAIC
-			obj.WAIC_value = -2 * obj.lppd + 2 * obj.pWAIC;
+			obj.WAIC_value = calc_waic(obj.lppd, obj.pWAIC);
 			
-			% Calculate WAIC standard error
-			obj.WAIC_vec = -2 * obj.lppd_vec + 2 * obj.pWAIC_vec;
-			obj.WAIC_standard_error = sqrt(obj.nCases)*std(obj.WAIC_vec);
-			
+ 			% Calculate WAIC standard error
+			obj.WAIC_vec = calc_waic(obj.lppd_vec, obj.pWAIC_vec);   
+			obj.WAIC_standard_error = standard_error(obj.WAIC_vec);
 		end
 		
 		function comparisonTable = compare(obj)
@@ -50,7 +81,7 @@ classdef WAIC
 			assert(numel(obj)>1, 'expecting an array of >1 WAIC object')
 			
 			% Build a table of values
-			model = {obj.modelName}';
+			model = {obj.model_name}';
 			WAIC = [obj.WAIC_value]';
 			pWAIC = [obj.pWAIC]';
 			lppd = [obj.lppd]';
@@ -68,7 +99,7 @@ classdef WAIC
 					% Calculate SE of difference (of WAIC values) between
 					% model m and i_best_model
 					WAIC_diff = obj(i_best_model).WAIC_vec - obj(m).WAIC_vec;
-					dSE(m,1) = sqrt(obj(m).nCases)*std(WAIC_diff);
+					dSE(m,1) = standard_error(WAIC_diff);
 				end
 			end
 			% create table
@@ -85,7 +116,10 @@ classdef WAIC
 			% define y-value positions for each model
 			y = [1:1:size(comparisonTable,1)];
 
-			ms = 6;
+			% set plot options
+			marker_size = 7;
+			grey_col = [0.5, 0.5, 0.5];
+			
 			clf
 			hold on
 			
@@ -93,27 +127,26 @@ classdef WAIC
 			in_sample_deviance = -2*comparisonTable.lppd;
 			isd = plot(in_sample_deviance, y, 'ko',...
 				'MarkerFaceColor','k',...
-				'MarkerSize', ms);
+				'MarkerSize', marker_size);
 			
 			% WAIC as empty cirlcles, with SE errorbars
-			%waic = plot(comparisonTable.WAIC, y, 'ko');
 			waic_eb = errorbar(comparisonTable.WAIC,y,comparisonTable.SE,...
 				'horizontal',...
 				'o',...
 				'LineStyle', 'none',...
 				'Color', 'k',...
 				'MarkerFaceColor','w',...
-				'MarkerSize', ms);
+				'MarkerSize', marker_size);
 			
-			% plot dSE models
+			% plot WAIC as compared to best model, in a different colour
 			waic_diff = errorbar(comparisonTable.dWAIC([2:end])+min(comparisonTable.WAIC),...
 				y([2:end])-0.2, comparisonTable.dSE([2:end]),...
 				'horizontal',...
 				'^',...
 				'LineStyle', 'none',...
-				'Color', [0.5 0.5 0.5],...
+				'Color', grey_col,...
 				'MarkerFaceColor','w',...
-				'MarkerSize', ms);
+				'MarkerSize', marker_size);
 			
 			% formatting
 			xlabel('deviance');
@@ -123,10 +156,10 @@ classdef WAIC
 				'YDir','reverse');
 			ylim([min(y)-1, max(y)+1]);
 			
-			vline(min(comparisonTable.WAIC), 'Color',[0.5 0.5 0.5]);
+			vline(min(comparisonTable.WAIC), 'Color', grey_col);
 			
 			legend([isd, waic_eb, waic_diff],...
-				{'in-sample deviance', 'WAIC (+/- SE)', 'SE of WAIC difference (+/- SE)'},...
+				{'in-sample deviance', 'WAIC (+/- SE)', 'WAIC difference (+/- SE)'},...
 				'location', 'eastoutside');
 			
 			title('WAIC Model Comparison')
@@ -135,4 +168,12 @@ classdef WAIC
         
 	end
     
+end
+
+function SE = standard_error(x)
+SE = sqrt(numel(x))*std(x);
+end
+
+function waic = calc_waic(lppd, pWAIC)
+waic = -2 * lppd + 2 * pWAIC;
 end
