@@ -75,6 +75,8 @@ and get a corresponding plot
 waic.plot()
 ```
 
+Note that the `pWAIC` column is a measure of model complexity, the 'effective number of parameters'. So interestingly, the apparently more complex model (`ModelHierarchicalMEUpdated`) actually has the lowest quantitatively measured model complexity.
+
 ![](pooling_waic_fig.png)
 
 So what is going on here. We might initially think that the `ModelHierarchicalMEUpdated` model is more complex because it has both slope and intercept parameters for the magnitude effect _and_ group level estimates of the mean and variance of both these parameters. This could be because the data shows a strong magnitude effect, and the vanilla hyperbolic models (which don't capture the magnitude effect) are simply less capable of fitting the data. We can see that the in-sample deviance is lowest for this model, so it does seem as if it can account for the observed data better than the other models. However, the model also wins by WAIC, and so we can probably eliminate any concerns about model overfitting here.

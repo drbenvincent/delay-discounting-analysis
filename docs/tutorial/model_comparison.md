@@ -89,7 +89,7 @@ waic_comparison_table = waic.compare()
 
 with the following columns. Readers are referred to McElreath (2016) for more details
 - **WAIC:** Smaller values are better, lower out of sample deviance.
-- **pWAIC:** Estimated effective number of parameters.
+- **pWAIC:** Estimated effective number of parameters. This is a measure of model complexity, so lower numbers mean simpler models.
 - **dWAIC:** Difference between each model's WAIC and the model with lowest WAIC.
 - **weight:** is the Akaike weight
 - **SE:** is the standard error of the WAIC value over data points (trials)
