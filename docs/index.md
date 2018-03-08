@@ -31,4 +31,5 @@ Vincent, B. T. (2016) **[Hierarchical Bayesian estimation and hypothesis testing
 - [Psychometric link function](discussion/psychometric_link_function.md)
 - [Hyperpriors / parameter pooling](discussion/hyperpriors.md)
 - [Level of parameter pooling](discussion/level_of_pooling.md)
+- [Counterintuitive aspects of model complexity](discussion/pooling_and_complexity.md)
 - [Hypothesis testing](discussion/hypothesis_testing.md)
