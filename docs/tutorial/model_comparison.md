@@ -31,7 +31,7 @@ Then create a `Data` object that we'll analyse with multiple models.
 myData = Data(datapath, 'files', allFilesInFolder(datapath, 'txt'));
 ```
 
-And conduct parameter estimation on multiple models. In a real context you'd perhaps want to use mode descriptive names for the the models and output folders, but this will be enough to get the right idea. This will take a little while to compute.
+And conduct parameter estimation on multiple models. In a real context you'd perhaps want to use more descriptive names for the the models and output folders, but this will be enough to get the right idea. This will take a little while to compute.
 
 ```matlab
 modelA = ModelHierarchicalLogK(...
@@ -103,7 +103,15 @@ waic.plot()
 
 ![](WAICplot.png)
 
-Again, readers are referred to McElreath (2016) for a thorough explanation of this plot, the style of which is directly copied from that book.
+I will avoid attempting to provide a thorough description of how to interpret this WAIC comparison, I'll leave this to others who've already done a thorough job. Readers are referred to McElreath (2016) for an explanation of this plot, the style of which is directly copied from that book.
+
+In case you don't have a copy of McElreath's book, here is a video lecture he gave on model comparison to get you started.
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/vSjL2Zc-gEQ" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+
+Although briefly, in this example, the winning model is the hierarchical hyperboloid model as it has the lowest WAIC. The models are ordered from best (top) to worst (bottom). The black open circles +/- SE represent the WAIC for other models, but the gray triangles +/- SE represent the difference between a model and the winning model. So as a first pass analysis one could look to see whether these non-winning models are worse than the winning model by seeing how far away these WAIC differences are from the winning model.
+
+
 
 ## Reference
 
