@@ -12,6 +12,7 @@ The 'data generating process' describes the response probability. This consists 
 | Hyperbolic  |  `1/(1+k*D)`  | `*LogK`  | `logk` |
 | Hyperbolic (with magnitude effect)  |  `1/(1+[exp(m*log(R)+c)]*D)`  | `*ME`  | `m, c` |
 | Hyperboloid  |  `1/[(1+k*D)^S]`  | `*Hyperboloid`  | `logk, S` |
+| HyperboloidB  |  `1/[1+k*(D^S)]`  | `*HyperboloidB`  | `logk, S` |
 | Beta Delta  |  `beta*delta^D`  | `*BetaDelta`  | `beta, delta` |
 
 In the equations, `D` = delay, and `R` = reward.
@@ -58,6 +59,15 @@ Hyperboloid discounting, of the form `1/[(1+kD)^S]`. This is equivalent to expon
 | `ModelSeparateHyperboloid`  |  -  | `logk`, `S`, `alpha`, `epsilon`  | - |
 | `ModelMixedHyperboloid`  |  -  | `logk `, `S`, `alpha`, `epsilon`  | `alpha`, `epsilon` |
 | `ModelHierarchicalHyperboloid`  |  -  | `logk `, `S`, `alpha`, `epsilon`  | `logk `, `S`, `alpha`, `epsilon`|
+
+## HyperboloidB
+Hyperboloid discounting, of the form `1/[1+k(D^S)]`.
+
+|  Model name    | Fixed Effects | Random Effects (by-participant) | Hyper-priors (thus shrinkage to group mean) |
+| :---         |     :---:             |         :---:  |  :---:  |
+| `ModelSeparateHyperboloidB`  |  -  | `logk`, `S`, `alpha`, `epsilon`  | - |
+| `ModelMixedHyperboloidB`  |  -  | `logk `, `S`, `alpha`, `epsilon`  | `alpha`, `epsilon` |
+| `ModelHierarchicalHyperboloidB`  |  -  | `logk `, `S`, `alpha`, `epsilon`  | `logk `, `S`, `alpha`, `epsilon`|
 
 ## Beta-Delta
 The discount factor is `beta*delta^D`, see (Laibson, 1997).
