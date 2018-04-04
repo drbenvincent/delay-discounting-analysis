@@ -1,0 +1,30 @@
+classdef ModelSeparateHyperboloidB < HyperboloidB
+	%ModelSeparateHyperboloidB A model to estimate the magnitide effect
+	%  NO parameters are estimated hierarchically.
+
+	methods (Access = public, Hidden = true)
+		function obj = ModelSeparateHyperboloidB(data, varargin)
+			obj = obj@HyperboloidB(data, varargin{:});
+			obj.modelFilename = 'separateHyperboloidB';
+            
+            % MUST CALL THIS METHOD AT THE END OF ALL MODEL-SUBCLASS CONSTRUCTORS
+            obj = obj.conductInference();
+		end
+    end
+    
+    methods (Access = protected)
+    
+		function initialParams = initialiseChainValues(obj, nchains)
+            % Generate initial values of the root nodes
+			nExperimentFiles = obj.data.getNExperimentFiles();
+			for chain = 1:nchains
+				%initialParams(chain).S = normrnd(1,3, [nExperimentFiles,1]);
+                initialParams(chain).logk = normrnd(log(1/365),10, [nExperimentFiles,1]);
+				initialParams(chain).epsilon = 0.1 + rand([nExperimentFiles,1])/10;
+				initialParams(chain).alpha = abs(normrnd(0.01,10,[nExperimentFiles,1]));
+			end
+		end
+		
+	end
+	
+end
