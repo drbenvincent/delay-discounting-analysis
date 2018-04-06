@@ -1,12 +1,11 @@
-classdef ModelHierarchicalME_MVNORM < Hyperbolic1MagEffectMV
-	%ModelHierarchicalME_MVNORM A model to estimate the magnitide effect. It models (m,c) as drawn from a bivariate Normal distribution.
+classdef ModelSeparateME_MVNORM < Hyperbolic1MagEffectMV
+	%ModelSeparateME_MVNORM A model to estimate the magnitide effect. It models (m,c) as drawn from a bivariate Normal distribution.
 
 	methods (Access = public, Hidden = true)
 
-		function obj = ModelHierarchicalME_MVNORM(data, varargin)
+		function obj = ModelSeparateME_MVNORM(data, varargin)
 			obj = obj@Hyperbolic1MagEffectMV(data, varargin{:});
-			obj.modelFilename = 'hierarchicalMEmvnorm';
-            obj = obj.addUnobservedParticipant('GROUP');
+			obj.modelFilename = 'separateMEmvnorm';
             
             % MUST CALL THIS METHOD AT THE END OF ALL MODEL-SUBCLASS CONSTRUCTORS
             obj = obj.conductInference();

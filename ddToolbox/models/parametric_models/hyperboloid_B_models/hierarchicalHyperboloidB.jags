@@ -7,10 +7,11 @@ model{
 # RANDOM (BY PARTICIPANT) FACTORS; HYPER-PRIORS = YES
 
 groupLogKmu       ~ dnorm(log(1/50),1/(2.5^2))
-groupLogKsigma    ~ dgamma(0.01, 0.01)
+groupLogKsigma    ~ dgamma(0.001, 0.001)
 
-S_MEAN ~ dnorm(1, 1/(1^2)) T(0,)
-S_PRECISION ~ dgamma(0.001, 0.001)
+S_MEAN <- 1
+S_VAR ~ dexp(0.01)
+S_PRECISION <- 1/S_VAR
 
 for (p in 1:(nRealExperimentFiles+1)){ # +1 for unobserved participant
     # using reparameterisation to avoid funnel of hell

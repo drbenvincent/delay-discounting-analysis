@@ -1,23 +1,17 @@
-
+# RANDOM FACTORS:   m[p], c[p], epsilon[p], alpha[p]
+# HYPER-PRIORS ON:  none
 
 model{
 
 # DISCOUNT FUNCTION PARAMETERS =================================================
-# RANDOM (BY PARTICIPANT) FACTORS; HYPER-PRIORS = YES
+# RANDOM (BY PARTICIPANT) FACTORS; HYPER-PRIORS = NO
 
-# hyperpriors for (m,c)
-
-
-# hyperpriors for r
-r_mu ~ dunif(-1,1)
-r_precision <- 1
-
-for (p in 1:(nRealExperimentFiles+1)){ # +1 for unobserved participant
+for (p in 1:nRealExperimentFiles){
     mc_mu[p,1] ~ dnorm(-0.243, 1/( (0.027)^2)) # prior over m_mu
     mc_mu[p,2] ~ dnorm(-3    , 1/( 2^2) )      # prior over c_mu
     precision[p,1] ~ dgamma(0.001,0.001)
     precision[p,2] ~ dgamma(0.001,0.001)
-    r[p] ~ dnorm(r_mu, r_precision) T(-1, 1)
+    r[p] ~ dunif(-1,1)
 
     # reparameterise
     sigma[p,1] <- 1/sqrt(precision[p,1])
@@ -34,9 +28,8 @@ for (p in 1:(nRealExperimentFiles+1)){ # +1 for unobserved participant
     c[p] <- mc[p,2]
 }
 
-# MODEL-SPECIFIC: CALCULATION OF PRESENT SUBJECTIVE VALUES
 for (t in 1:length(ID)) {
-	# Calculate log discount rate for each reward
+	# MAGNITUDE EFFECT: what is log(k) on this trial?
 	lkA[t] <- m[ID[t]]*log(abs(A[t]))+c[ID[t]]
 	lkB[t] <- m[ID[t]]*log(abs(B[t]))+c[ID[t]]
 
@@ -46,25 +39,13 @@ for (t in 1:length(ID)) {
 }
 
 # RESPONSE ERROR PARAMETERS ====================================================
-# comparison acuity (alpha)
-groupALPHAmu        ~ dunif(0,1000)
-groupALPHAsigma     ~ dunif(0,1000)
-
-# error rates (epsilon)
-groupW          ~ dbeta(1.1, 10.9)  # mode for lapse rate
-groupKminus2    ~ dgamma(0.01,0.01) # concentration parameter
-groupK          <- groupKminus2+2
-
-epsilon_alpha <- groupW*(groupK-2)+1
-epsilon_beta <- (1-groupW)*(groupK-2)+1
-
-for (p in 1:(nRealExperimentFiles+1)){ # +1 for unobserved participant
+epsilon_alpha <- 1+1
+epsilon_beta <- 1+10
+for (p in 1:nRealExperimentFiles){
+	alpha[p]   ~ dexp(0.01)
 	epsilon[p] ~ dbeta(epsilon_alpha , epsilon_beta ) T(,0.5)
-
-    # using reparameterisation to avoid funnel of hell
-    alpha_offset[p] ~ dnorm(0,1) T(0,)
-    alpha[p] <- groupALPHAmu + alpha_offset[p] * groupALPHAsigma
 }
+
 
 # MODEL IN-SPECIFIC CODE BELOW... SHOULD NOT CHANGE ACROSS MODELS ==============
 
@@ -76,12 +57,13 @@ for (t in 1:length(ID)) {
 # response likelihood
 for (t in 1:length(ID)) {
 	R[t]  ~ dbern(P[t]) # likelihood of actual response
-    log_lik[t] <- logdensity.bern(R[t], P[t])
+	log_lik[t] <- logdensity.bern(R[t], P[t])
 }
 
 # POSTERIOR PREDICTION
 for (t in 1:length(ID)) {
 	Rpostpred[t] ~ dbern(P[t])
 }
+
 
 }
