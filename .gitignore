@@ -121,3 +121,4 @@ ddToolbox/models/parametric_models/exponential_power_models/separateExpPower
 
 ddToolbox/models/parametric_models/exponential_power_models/mixedExpPower
 demo/jags.dump1.R
+tests/jags.dump1.R
