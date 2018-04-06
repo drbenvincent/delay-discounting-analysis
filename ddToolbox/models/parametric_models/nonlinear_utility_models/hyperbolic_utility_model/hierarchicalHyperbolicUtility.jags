@@ -1,0 +1,74 @@
+model{
+
+# DISCOUNT FUNCTION PARAMETERS =================================================
+# RANDOM (BY PARTICIPANT) FACTORS; HYPER-PRIORS = YES
+
+groupLogKmu       ~ dnorm(log(1/50),1/(2.5^2))
+groupLogKsigma    ~ dgamma(0.1, 0.1)
+
+U_PRECISION ~ dexp(0.01)
+
+for (p in 1:(nRealExperimentFiles+1)){ # +1 for unobserved participant
+    # using reparameterisation to avoid funnel of hell
+    logk_offset[p] ~ dnorm(0,1)
+    logk[p] <- groupLogKmu + logk_offset[p] * groupLogKsigma
+
+    U[p] ~ dnorm(1,U_PRECISION) T(0,)
+}
+
+# MODEL-SPECIFIC: CALCULATION OF PRESENT SUBJECTIVE VALUES
+for (t in 1:length(ID)) {
+    # non-linear utility function
+    utility_a[t] <-  ifelse(A[t]>0, 1, -1) * abs(A[t])^U[ID[t]]
+    utility_b[t] <-  ifelse(B[t]>0, 1, -1) * abs(B[t])^U[ID[t]]
+
+    # time discount function
+    time_discount_frac_a[t] <- 1 / (1+(exp(logk[ID[t]])*DA[t]))
+    time_discount_frac_b[t] <- 1 / (1+(exp(logk[ID[t]])*DB[t]))
+
+    # subjective utility of prospects
+    VA[t] <- utility_a[t] * time_discount_frac_a[t]
+	VB[t] <- utility_b[t] * time_discount_frac_b[t]
+}
+
+# RESPONSE ERROR PARAMETERS ====================================================
+# comparison acuity (alpha)
+groupALPHAmu        ~ dnorm(0,1/(100^2)) T(0,) ## UPDATED SINCE PAPER
+groupALPHAsigma     ~ dexp(0.5)
+
+# error rates (epsilon)
+groupW          ~ dbeta(1.1, 10.9)  # mode for lapse rate
+groupKminus2    ~ dgamma(0.5,0.5) # concentration parameter ## UPDATED SINCE PAPER
+groupK          <- groupKminus2+2
+
+epsilon_alpha <- groupW*(groupK-2)+1
+epsilon_beta <- (1-groupW)*(groupK-2)+1
+
+for (p in 1:(nRealExperimentFiles+1)){ # +1 for unobserved participant
+	epsilon[p]  ~ dbeta(epsilon_alpha , epsilon_beta ) T(,0.5)
+
+    # using reparameterisation to avoid funnel of hell
+    alpha_offset[p] ~ dnorm(0,1) T(0,)
+    alpha[p] <- groupALPHAmu + alpha_offset[p] * groupALPHAsigma
+}
+
+
+# MODEL IN-SPECIFIC CODE BELOW... SHOULD NOT CHANGE ACROSS MODELS ==============
+
+# Psychometric function
+for (t in 1:length(ID)) {
+	P[t] <- epsilon[ID[t]] + (1-2*epsilon[ID[t]]) * phi( (VB[t]-VA[t]) / alpha[ID[t]] )
+}
+
+# response likelihood
+for (t in 1:length(ID)) {
+	R[t]  ~ dbern(P[t]) # likelihood of actual response
+    log_lik[t] <- logdensity.bern(R[t], P[t])
+}
+
+# POSTERIOR PREDICTION
+for (t in 1:length(ID)) {
+	Rpostpred[t] ~ dbern(P[t])
+}
+
+}

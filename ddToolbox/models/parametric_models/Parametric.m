@@ -143,7 +143,7 @@ classdef (Abstract) Parametric < Model
 						ind,...
 						opts)
 				otherwise
-					error('Currently only set up to plot univariate or bivariate distributions, ie discount functions 1 or 2 params.')
+					warning('Currently only set up to plot univariate or bivariate distributions, ie discount functions 1 or 2 params.')
 			end
 		end
         

@@ -10,7 +10,7 @@ if numel(varNames) == 1
 elseif numel(varNames) == 2
 	plot2Dclusters(mcmcContainer, data, col, plotOptions, vars);
 else
-	error('can only deal with plotting univariate or bivariate distributions')
+	warning('can only deal with plotting univariate or bivariate distributions')
 end
 
 end
