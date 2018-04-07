@@ -9,5 +9,6 @@ allParametricModels = {'ModelHierarchicalME_MVNORM',...
 	'ModelHierarchicalExp1', 'ModelMixedExp1', 'ModelSeparateExp1',...
 	'ModelSeparateExpPower', 'ModelMixedExpPower',... % no hierarchical model
 	'ModelSeparateExpLog', 'ModelMixedExpLog',... % no hierarchical model
-	'ModelSeparateEbertPrelec', 'ModelMixedEbertPrelec'}; % no hierarchical model
+	'ModelSeparateEbertPrelec', 'ModelMixedEbertPrelec',... % no hierarchical model
+    'ModelHierarchicalHyperbolicUtility'}; % non-linear utility model
 end
