@@ -54,9 +54,9 @@ drawnow
 
 
 	function properties = definePlotOptions4Participant(col)
-		properties = {'FaceAlpha', 0.2,...
+		properties = {'FaceAlpha', 0.05,...
 			'FaceColor', col,...
-			'LineStyle', 'none'};
+			'LineStyle', '-'};
 	end
 
 	function properties = definePlotOptions4Group(col)

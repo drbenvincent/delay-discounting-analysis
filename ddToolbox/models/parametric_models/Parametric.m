@@ -49,6 +49,12 @@ classdef (Abstract) Parametric < Model
 			h = subplot(1,1,1);
 			obj.plotPosteriorClusterPlot('axisHandle', h)
 			obj.pleaseExportFigure(plot_savename)
+            
+            % summary figure of core discounting parameters - univariate
+			plot_savename = 'summary_plot_univariate';
+			figure
+			obj.plotPosteriorClusterPlotUnivariate()
+			obj.pleaseExportFigure(plot_savename)
 			
 			
 			obj.plotDiscountFunctionGrid();
