@@ -7,7 +7,7 @@ classdef (Abstract) Model
 		coda % handle to coda object
 		data % handle to Data class
 	end
-	
+
 	properties (Hidden = false, SetAccess = protected, GetAccess = public)
 		WAIC_stats
 	end
@@ -127,6 +127,16 @@ classdef (Abstract) Model
 	%%  GETTERS
 
 	methods
+
+		function results_table = getResults(obj)
+			exporter = ResultsExporter(obj.coda,...
+				obj.data,...
+				obj.getAUCasTable,...
+				obj.postPred,...
+				obj.varList,...
+				obj.plotOptions);
+			results_table = exporter.getResults();
+		end
 
 		function [predicted_subjective_values] = getInferredPresentSubjectiveValues(obj)
 			% info = model.getInferredPresentSubjectiveValues Returns information
@@ -259,7 +269,7 @@ classdef (Abstract) Model
 			%% Calculate AUC
 			MAX_DELAY = 365;
 			obj.auc = obj.calcAreaUnderCurveForAll(MAX_DELAY);
-			
+
 			%% Calculate WAIC
 			% first, prepare a table of log likelihood values. Rows are
 			% observations, columns are MCMC samples.
@@ -529,7 +539,7 @@ classdef (Abstract) Model
 			%       'figureHandle' - handle to figure
 
 			parseFigureAndAxisRequested(varargin{:})
-            
+
 			% TODO: put clusterPlot function code here rather than have it as a separate function?
 			clusterPlot(...
 				obj.coda,...
@@ -538,7 +548,7 @@ classdef (Abstract) Model
 				obj.plotOptions,...
 				obj.varList.discountFunctionParams)
         end
-        
+
         function plotPosteriorClusterPlotUnivariate(obj, varargin)
             %plotPosteriorClusterPlotUnivariate(H, varargin) Plots posterior distributions
             % for all experiments.
@@ -546,13 +556,13 @@ classdef (Abstract) Model
             % Optional arguments as key/value pairs
             %       'axisHandle' - handle to axes
             %       'figureHandle' - handle to figure
-            
+
             parseFigureAndAxisRequested(varargin{:})
-            
+
             latex_fig(12, 9,11)
-            
+
             vars = obj.varList.discountFunctionParams;
-            
+
             % Plot all the discounting parameters, but in a series of 1D
             % plots, one variable at a time
             for v=1:numel(vars)
@@ -560,7 +570,7 @@ classdef (Abstract) Model
                 plot1Dclusters(obj.coda, obj.data, [1 0 0], obj.plotOptions, vars(v))
             end
         end
-        
+
 
 	end
 
