@@ -412,6 +412,12 @@ classdef (Abstract) Model
 			% Optional arguments as key/value pairs
 			%       'axisHandle' - handle to axes
 			%       'figureHandle' - handle to figure
+			
+			p = inputParser;
+			p.FunctionName = mfilename;
+			p.KeepUnmatched = true;
+			p.addParameter('omit_group', false, @islogical);
+			p.parse(varargin{:});
 
 			[figureHandle, ~] = parseFigureAndAxisRequested(varargin{:});
 
@@ -424,7 +430,11 @@ classdef (Abstract) Model
 			% USE: apply_plot_function_to_subplot_handle.m ??
 
 			%fh = figure('Name', names{experimentIndex});
-			names = obj.data.getIDnames('all');
+			if p.Results.omit_group==false
+				names = obj.data.getIDnames('all');
+			else
+				names = obj.data.getIDnames('experiments');
+			end
 
 			% create grid layout
 			N = numel(names);
@@ -451,7 +461,6 @@ classdef (Abstract) Model
 			%       'figureHandle' - handle to figure
 
 			latex_fig(12, 8,6)
-			clf
 			drawnow
 
 			[figureHandle, axisHandle] = parseFigureAndAxisRequested(varargin{:});
